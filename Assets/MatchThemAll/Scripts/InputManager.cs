@@ -12,17 +12,18 @@ public class InputManager : MonoBehaviour
     public static Action<Item> ItemClicked;
 
     [Header("Settings")] 
+    [SerializeField] private Material outlineMaterial;
     private Item _currentItem;
     
     // Start method is called once when the GameObject is first created
     // Currently empty but available for initialization code
-    void Start()
+    private void Start()
     {
         
     }
 
     // Update method is called every frame by Unity's game loop
-    void Update()
+    private void Update()
     {
         // Check if the left mouse button (button 0) was pressed down this frame
         if(Input.GetMouseButton(0))
@@ -43,7 +44,7 @@ public class InputManager : MonoBehaviour
         // If the ray didn't hit any collider, exit the method early
         if(hit.collider == null)
         {
-            _currentItem = null;
+            DeselectCurrentItem();
             return;
         }
 
@@ -51,15 +52,26 @@ public class InputManager : MonoBehaviour
         // If the hit object doesn't have an Item component, exit the method
         if(!hit.collider.TryGetComponent(out Item item))
         {
-            _currentItem = null;
+            DeselectCurrentItem();
             return;
         }
 
+        DeselectCurrentItem();
+        
         // OBSERVER PATTERN: Notify all observers (subscribers) that an item was clicked
         // The ? operator ensures the event is only invoked if there are subscribers
         // This is where the Subject notifies all Observers about the state change
         // Any class that subscribed to ItemClicked will automatically receive this notification
         _currentItem = item;
+        _currentItem.Select(outlineMaterial);
+    }
+
+    private void DeselectCurrentItem()
+    {
+        if(_currentItem != null)
+            _currentItem.Deselect();
+        
+        _currentItem = null;
     }
     
     private void HandleMouseUp()
@@ -67,6 +79,8 @@ public class InputManager : MonoBehaviour
         // If the currentItem is null, exit the method early
         if(_currentItem == null)
             return;
+        
+        _currentItem.Deselect();
         
         ItemClicked?.Invoke(_currentItem);
         _currentItem = null;
