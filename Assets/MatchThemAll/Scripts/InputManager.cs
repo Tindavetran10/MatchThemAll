@@ -1,7 +1,10 @@
+using System;
+using MatchThemAll.Scripts;
 using UnityEngine;
 
 public class InputManager : MonoBehaviour
 {
+    public static Action<Item> ItemClicked;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -22,6 +25,11 @@ public class InputManager : MonoBehaviour
         if(hit.collider == null)
             return;
         
+        if(!hit.collider.TryGetComponent(out Item item))
+            return;
+        
         Debug.Log("Hit" + hit.collider.name);
+        
+        ItemClicked?.Invoke(item);
     }
 }
