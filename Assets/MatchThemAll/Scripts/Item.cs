@@ -4,13 +4,14 @@ namespace MatchThemAll.Scripts
 {
     // RequireComponent attribute ensures this GameObject always has a Rigidbody and SphereCollider
     // Unity will automatically add these components if they're missing
-    [RequireComponent(typeof(Rigidbody), typeof(SphereCollider))]
+    [RequireComponent(typeof(Rigidbody))]
     // Item class represents the data/object being observed in the Observer Pattern
     // It doesn't participate directly in the pattern but is the subject of the notifications
     public class Item : MonoBehaviour
     {
         [Header("Elements")]
         [SerializeField] private Renderer _renderer;
+        [SerializeField] private Collider _collider;
         private Material _baseMaterial;
 
         private void Awake() => _baseMaterial = _renderer.material;
@@ -30,8 +31,8 @@ namespace MatchThemAll.Scripts
         {
             // Set the Rigidbody to kinematic mode (no longer affected by physics forces)
             GetComponent<Rigidbody>().isKinematic = true;
-            // Disable the SphereCollider so it no longer participates in collision detection
-            GetComponent<SphereCollider>().enabled = false;
+            // Disable the Collider so it no longer participates in collision detection
+            _collider.enabled = false;
         }
 
         public void Select(Material outlineMaterial) => 

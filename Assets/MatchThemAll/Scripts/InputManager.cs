@@ -5,9 +5,9 @@ using UnityEngine;
 // This class acts as the SUBJECT (Observable) in the Observer Pattern
 public class InputManager : MonoBehaviour
 {
-    // Static Action event that other scripts can subscribe to when an item is clicked
-    // This is the NOTIFICATION MECHANISM in the Observer Pattern
-    // Multiple observers can subscribe to this event without the InputManager knowing about them
+    // Static Action event that other scripts can subscribe to when an item is clicked.
+    // This is the NOTIFICATION MECHANISM in the Observer Pattern.
+    // Multiple observers can subscribe to this event without the InputManager knowing about them.
     // This creates loose coupling - InputManager doesn't depend on specific observer classes
     public static Action<Item> ItemClicked;
 
@@ -48,14 +48,18 @@ public class InputManager : MonoBehaviour
             return;
         }
 
+        if (hit.collider.transform.parent == null)
+            return;
+
         // Try to get an Item component from the hit collider
         // If the hit object doesn't have an Item component, exit the method
-        if(!hit.collider.TryGetComponent(out Item item))
+        if(!hit.collider.transform.parent.TryGetComponent(out Item item))
         {
             DeselectCurrentItem();
             return;
         }
 
+        // Make sure there is only one item selected at a time
         DeselectCurrentItem();
         
         // OBSERVER PATTERN: Notify all observers (subscribers) that an item was clicked
