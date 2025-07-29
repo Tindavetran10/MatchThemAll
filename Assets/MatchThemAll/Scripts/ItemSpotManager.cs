@@ -1,5 +1,6 @@
 ﻿// Import Unity core functionality
 
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -25,9 +26,14 @@ namespace MatchThemAll.Scripts
         [Header("Settings")]
         // The local position an item should have when placed on a spot
         [SerializeField] private Vector3 itemLocalPositionOnSpot;
+
+        private bool _isBusy;
         
         // The local scale an item should have when placed on a spot
         [SerializeField] private Vector3 itemLocalScaleOnSpot;
+        
+        [Header("Data")]
+        private readonly Dictionary<EItemName, ItemMergeData> _itemMergeDataDictionary = new();
         
         // Awake is called when the script instance is being loaded
         // OBSERVER PATTERN: Subscribe this observer to the InputManager's ItemClicked event
@@ -50,12 +56,20 @@ namespace MatchThemAll.Scripts
         // Parameter 'item' is the Item component that was clicked (passed from the subject)
         private void OnItemClicked(Item item)
         {
+            if (_isBusy)
+            {
+                Debug.Log("Already busy");
+                return;
+            }
+            
             // Check if there are any available spots before processing the item
             if(!IsFreeSpotAvailable())
             {
                 Debug.Log("No free spots available");
                 return;
             }
+            
+            _isBusy = true;
 
             // Process the item click if spots are available
             HandleItemClick(item);
@@ -65,8 +79,74 @@ namespace MatchThemAll.Scripts
         // Delegates the actual placement logic to more specific methods
         private void HandleItemClick(Item item)
         {
-            // Move the item to the first available spot
-            MoveItemToFirstFreeSpot(item);
+            if (_itemMergeDataDictionary.ContainsKey(item.ItemName))
+                HandleItemMergeDataFound(item);
+            else
+                // Move the item to the first available spot
+                MoveItemToFirstFreeSpot(item);
+        }
+
+        private void HandleItemMergeDataFound(Item item)
+        {
+            ItemSpot idealSpot = GetIdealSpotFor(item);
+            _itemMergeDataDictionary[item.ItemName].Add(item);
+            TryMoveItemToIdealSpot(item, idealSpot);
+        }
+
+        private ItemSpot GetIdealSpotFor(Item item)
+        {
+            List<Item> items = _itemMergeDataDictionary[item.ItemName].Items;
+            List<ItemSpot> itemSpots = new();
+            
+            foreach (Item i in items) itemSpots.Add(i.Spot);
+            
+            // We have a list of occupied spots by the items similar to the item
+            
+            // If we only have one spot, we should simply grab the spot next to it
+            if (itemSpots.Count >= 2)
+            {
+                itemSpots.Sort((a, b) => 
+                    b.transform.GetSiblingIndex().CompareTo(a.transform.GetSiblingIndex()));
+            }
+            
+            int idealSpotIndex = itemSpots[0].transform.GetSiblingIndex() + 1;
+            
+            return itemSpots[idealSpotIndex];
+        }
+
+        private void TryMoveItemToIdealSpot(Item item, ItemSpot idealSpot)
+        {
+            if (!idealSpot.IsEmpty())
+            {
+                HandleIdealSpotFull(item, idealSpot);
+                return;
+            }
+            
+            MoveItemToSpot(item, idealSpot);
+        }
+
+        private void MoveItemToSpot(Item item, ItemSpot targetSpot)
+        {
+            targetSpot.Populate(item);
+            
+            // Set the item's position relative to its new parent spot
+            item.transform.localPosition = itemLocalPositionOnSpot;
+            // Set the item's scale relative to its new parent spot
+            item.transform.localScale = itemLocalScaleOnSpot;
+            // Reset rotation to ensure consistent orientation
+            item.transform.localRotation = Quaternion.identity;
+            
+            // Call the item's methods to finalize the placement
+            // Disable shadow rendering for performance or visual reasons
+            item.DisableShadow();
+            // Disable physics and collision detection since the item is now placed
+            item.DisablePhysics();
+
+            HandleFirstItemReachSpot(item);
+        }
+
+        private void HandleIdealSpotFull(Item item, ItemSpot idealSpot)
+        {
         }
 
         // Private method to move an item to the first available spot
@@ -74,7 +154,7 @@ namespace MatchThemAll.Scripts
         private void MoveItemToFirstFreeSpot(Item item)
         {
             // Find the first available spot -- no item
-            ItemSpot targetSpot = GetFreeSpot();
+            var targetSpot = GetFreeSpot();
             
             // Safety check - this shouldn't happen if IsFreeSpotAvailable() was true
             if(targetSpot == null)
@@ -82,6 +162,8 @@ namespace MatchThemAll.Scripts
                 Debug.Log("Target spot not found -> should not happen");
                 return;
             }
+            
+            CreateItemMergeData(item);
             
             // Assign the item to the target spot (makes item a child of the spot)
             targetSpot.Populate(item);
@@ -99,8 +181,24 @@ namespace MatchThemAll.Scripts
             item.DisableShadow();
             // Disable physics and collision detection since the item is now placed
             item.DisablePhysics();
+
+            HandleFirstItemReachSpot(item);
         }
-        
+
+        private void HandleFirstItemReachSpot(Item item) => CheckForGameOver();
+
+        private void CheckForGameOver()
+        {
+            if (GetFreeSpot() == null)
+            {
+                Debug.Log("Game Over");
+            }
+            else _isBusy = false;
+        }
+
+        private void CreateItemMergeData(Item item) => 
+            _itemMergeDataDictionary.Add(item.ItemName, new ItemMergeData(item));
+
         // Private method to find and return the first available ItemSpot
         // Returns null if all spots are occupied
         private ItemSpot GetFreeSpot() =>

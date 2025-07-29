@@ -11,6 +11,13 @@ namespace MatchThemAll.Scripts
     // Now includes visual feedback capabilities for selection states
     public class Item : MonoBehaviour
     {
+        [Header("Data")]
+        [SerializeField] private EItemName itemName;
+        public EItemName ItemName => itemName;
+
+        private ItemSpot spot;
+        public ItemSpot Spot => spot;
+        
         // Inspector section for component references
         [Header("Elements")]
         // Reference to the Renderer component for visual effects and material changes
@@ -24,6 +31,8 @@ namespace MatchThemAll.Scripts
         // Awake is called when the script instance is being loaded (before Start)
         // Store the original material for later restoration
         private void Awake() => _baseMaterial = _renderer.material;
+        
+        public void AssignSpot(ItemSpot spot) => this.spot = spot;
 
         // Public method to disable the item's shadow rendering
         // Currently empties but provides interface for shadow management

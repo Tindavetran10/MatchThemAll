@@ -23,6 +23,8 @@ namespace MatchThemAll.Scripts
             // Make the item a child of this spot's transform
             // This affects the item's position, rotation, and scale calculations
             item.transform.SetParent(transform);
+            
+            item.AssignSpot(this);
         }
 
         // Public method to check if this spot is available for use
