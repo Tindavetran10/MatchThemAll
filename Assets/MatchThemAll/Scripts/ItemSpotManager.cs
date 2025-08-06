@@ -97,9 +97,7 @@ namespace MatchThemAll.Scripts
         private ItemSpot GetIdealSpotFor(Item item)
         {
             List<Item> items = _itemMergeDataDictionary[item.ItemName].Items;
-            List<ItemSpot> itemSpots = new List<ItemSpot>();
-            for (var i = 0; i < items.Count; i++) 
-                itemSpots.Add(items[i].spot);
+            List<ItemSpot> itemSpots = items.Select(t => t.spot).ToList();
 
             // We have a list of occupied spots by the items similar to the item
             
