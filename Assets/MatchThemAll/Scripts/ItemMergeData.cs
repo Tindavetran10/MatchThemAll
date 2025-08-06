@@ -5,7 +5,7 @@ namespace MatchThemAll.Scripts
     public struct ItemMergeData
     {
         public string ItemName;
-        public List<Item> Items;
+        public readonly List<Item> Items;
         
         public ItemMergeData(Item firstItem)
         {
@@ -13,9 +13,6 @@ namespace MatchThemAll.Scripts
             Items = new List<Item> { firstItem };
         }
         
-        public void Add(Item item)
-        {
-            Items.Add(item);
-        }
+        public void Add(Item item) => Items.Add(item);
     }
 }

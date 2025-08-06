@@ -98,7 +98,7 @@ namespace MatchThemAll.Scripts
             List<Item> items = _itemMergeDataDictionary[item.ItemName].Items;
             List<ItemSpot> itemSpots = new();
             
-            foreach (Item i in items) itemSpots.Add(i.Spot);
+            foreach (Item i in items) itemSpots.Add(i.spot);
             
             // We have a list of occupied spots by the items similar to the item
             

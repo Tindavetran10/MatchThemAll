@@ -1,10 +1,9 @@
-// Import the necessary namespaces for Unity functionality and custom scripts
 using System;
 using MatchThemAll.Scripts;
 using UnityEngine;
 
 // This class acts as the SUBJECT (Observable) in the Observer Pattern
-// Now handles item selection with visual feedback and drag-to-select functionality
+// Handles item selection with visual feedback and drag-to-select functionality
 public class InputManager : MonoBehaviour
 {
     // Static Action event that other scripts can subscribe to when an item is clicked
@@ -12,11 +11,11 @@ public class InputManager : MonoBehaviour
     // Multiple observers can subscribe to this event without the InputManager knowing about them.
     // This creates loose coupling - InputManager doesn't depend on specific observer classes
     public static Action<Item> ItemClicked;
-
-    // Inspector section for configuration settings
+    
     [Header("Settings")] 
     // Material used to create a visual outline effect when an item is selected
     [SerializeField] private Material outlineMaterial;
+    
     // Reference to the currently selected item (if any)
     // Helps maintain the selection state during drag operations
     private Item _currentItem;
@@ -29,7 +28,7 @@ public class InputManager : MonoBehaviour
     }
 
     // Update method is called every frame by Unity's game loop
-    // Now handles both drag selection and mouse release events
+    // Handles both drag selection and mouse release events
     private void Update()
     {
         // Check if the left mouse button (button 0) is being held down
@@ -48,7 +47,8 @@ public class InputManager : MonoBehaviour
     {
         // Cast a ray from the main camera through the mouse position into the 3D world
         // The ray extends 100 units from the camera
-        // out RaycastHit hit stores information about what the ray hits
+        // out RaycastHit hit stores information about what the ray hits.
+        // The Ray can only hit game objects that have a collider
         Physics.Raycast(Camera.main!.ScreenPointToRay(Input.mousePosition), out RaycastHit hit, 100);
         
         // If the ray didn't hit any collider, deselect the current item and exit
@@ -58,13 +58,12 @@ public class InputManager : MonoBehaviour
             return;
         }
 
-        // Check if the hit object has a parent (items should be children of parent objects)
-        // This is part of the expected hierarchy structure
+        // Check if the hit item with the Collider has a parent 
         if (hit.collider.transform.parent == null)
             return;
 
         // Try to get an Item component from the hit collider's parent
-        // Items are expected to be on parent objects, not the colliders themselves
+        // Item scripts is expected to be on parent objects, not the colliders themselves
         if(!hit.collider.transform.parent.TryGetComponent(out Item item))
         {
             DeselectCurrentItem();

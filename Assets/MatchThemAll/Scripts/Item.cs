@@ -15,9 +15,8 @@ namespace MatchThemAll.Scripts
         [SerializeField] private EItemName itemName;
         public EItemName ItemName => itemName;
 
-        private ItemSpot spot;
-        public ItemSpot Spot => spot;
-        
+        public ItemSpot spot { get; private set; }
+
         // Inspector section for component references
         [Header("Elements")]
         // Reference to the Renderer component for visual effects and material changes
@@ -35,13 +34,10 @@ namespace MatchThemAll.Scripts
         public void AssignSpot(ItemSpot spot) => this.spot = spot;
 
         // Public method to disable the item's shadow rendering
-        // Currently empties but provides interface for shadow management
         // This method is called by observers when they respond to item click events
-        public void DisableShadow()
-        {
+        public void DisableShadow() => 
             _renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
-        }
-        
+
         // Public method to disable physics interactions for this item
         // This method is called by observers as part of their response to item click events
         public void DisablePhysics()
