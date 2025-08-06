@@ -1,5 +1,4 @@
 ﻿// Import Unity core functionality
-
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -44,6 +43,7 @@ namespace MatchThemAll.Scripts
             InputManager.ItemClicked += OnItemClicked;
             // Cache all ItemSpot components for efficient access
             StoreSpot();
+            
         }
 
         // OnDestroy is called when the MonoBehaviour is destroyed
@@ -58,7 +58,7 @@ namespace MatchThemAll.Scripts
         {
             if (_isBusy)
             {
-                Debug.Log("Already busy");
+                Debug.Log("ItemSpotManager is busy");
                 return;
             }
             
@@ -69,6 +69,7 @@ namespace MatchThemAll.Scripts
                 return;
             }
             
+            // We're now busy
             _isBusy = true;
 
             // Process the item click if spots are available
@@ -88,7 +89,7 @@ namespace MatchThemAll.Scripts
 
         private void HandleItemMergeDataFound(Item item)
         {
-            ItemSpot idealSpot = GetIdealSpotFor(item);
+            var idealSpot = GetIdealSpotFor(item);
             _itemMergeDataDictionary[item.ItemName].Add(item);
             TryMoveItemToIdealSpot(item, idealSpot);
         }
@@ -96,10 +97,10 @@ namespace MatchThemAll.Scripts
         private ItemSpot GetIdealSpotFor(Item item)
         {
             List<Item> items = _itemMergeDataDictionary[item.ItemName].Items;
-            List<ItemSpot> itemSpots = new();
-            
-            foreach (Item i in items) itemSpots.Add(i.spot);
-            
+            List<ItemSpot> itemSpots = new List<ItemSpot>();
+            for (var i = 0; i < items.Count; i++) 
+                itemSpots.Add(items[i].spot);
+
             // We have a list of occupied spots by the items similar to the item
             
             // If we only have one spot, we should simply grab the spot next to it
@@ -111,7 +112,7 @@ namespace MatchThemAll.Scripts
             
             int idealSpotIndex = itemSpots[0].transform.GetSiblingIndex() + 1;
             
-            return itemSpots[idealSpotIndex];
+            return _spots[idealSpotIndex];
         }
 
         private void TryMoveItemToIdealSpot(Item item, ItemSpot idealSpot)
