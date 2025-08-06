@@ -12,8 +12,8 @@ namespace MatchThemAll.Scripts
     public class Item : MonoBehaviour
     {
         [Header("Data")]
-        [SerializeField] private EItemName itemName;
-        public EItemName ItemName => itemName;
+        [SerializeField] private EItemName itemNameKey;
+        public EItemName ItemNameKey => itemNameKey;
 
         public ItemSpot spot { get; private set; }
 

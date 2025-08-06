@@ -9,7 +9,7 @@ namespace MatchThemAll.Scripts
         
         public ItemMergeData(Item firstItem)
         {
-            ItemName = firstItem.ItemName;
+            ItemName = firstItem.ItemNameKey;
             Items = new List<Item> { firstItem };
         }
         

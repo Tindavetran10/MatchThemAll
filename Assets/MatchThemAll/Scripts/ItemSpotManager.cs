@@ -83,7 +83,7 @@ namespace MatchThemAll.Scripts
         private void HandleItemClick(Item item)
         {
             // Check our filing cabinet - have we seen this type of item before?
-            if (_itemMergeDataDictionary.ContainsKey(item.ItemName))
+            if (_itemMergeDataDictionary.ContainsKey(item.ItemNameKey))
                 // We have! Try to put it near the other similar items
                 HandleItemMergeDataFound(item);
             else
@@ -94,11 +94,11 @@ namespace MatchThemAll.Scripts
         // SMART PLACEMENT: When we've seen this item type before, try to group them together
         private void HandleItemMergeDataFound(Item item)
         {
-            // Find the best spot for this item (near similar items)
+            // Find the best spot for this item (right next to the similar items)
             var idealSpot = GetIdealSpotFor(item);
             
             // Add this item to our records of similar items
-            _itemMergeDataDictionary[item.ItemName].Add(item);
+            _itemMergeDataDictionary[item.ItemNameKey].Add(item);
             
             // Try to move the item to the ideal spot
             TryMoveItemToIdealSpot(item, idealSpot);
@@ -108,7 +108,7 @@ namespace MatchThemAll.Scripts
         private ItemSpot GetIdealSpotFor(Item item)
         {
             // Get a list of all the similar items we already have
-            List<Item> items = _itemMergeDataDictionary[item.ItemName].Items;
+            List<Item> items = _itemMergeDataDictionary[item.ItemNameKey].Items;
             // Find out which spots they're currently using
             List<ItemSpot> itemSpots = items.Select(t => t.spot).ToList();
 
@@ -123,7 +123,7 @@ namespace MatchThemAll.Scripts
             
             // The ideal spot is the one right after the last similar item
             // Like adding a book to the end of a series on a bookshelf
-            int idealSpotIndex = itemSpots[0].transform.GetSiblingIndex() + 1;
+            var idealSpotIndex = itemSpots[0].transform.GetSiblingIndex() + 1;
             
             return _spots[idealSpotIndex];
         }
@@ -178,9 +178,9 @@ namespace MatchThemAll.Scripts
                 return;
     
             // Check if we have enough identical items to merge them (3 or more)
-            if (_itemMergeDataDictionary[item.ItemName].CanMergeItems())
+            if (_itemMergeDataDictionary[item.ItemNameKey].CanMergeItems())
                 // We do! Time to merge (remove) these items
-                MergeItems(_itemMergeDataDictionary[item.ItemName]);
+                MergeItems(_itemMergeDataDictionary[item.ItemNameKey]);
             else 
                 // Not enough items to merge yet, check if the game is over
                 CheckForGameOver();
@@ -205,10 +205,43 @@ namespace MatchThemAll.Scripts
                 // Remove the item from the game completely
                 Destroy(item.gameObject);
             }
-    
+
+            MoveAllItemsToTheLeft();
+
             // TODO: Remove this line after moving the items to the left
             // (Right now we just mark ourselves as not busy, but later we'll add logic
             // to slide remaining items to fill the empty spaces)
+            //_isBusy = false;
+        }
+
+        private void MoveAllItemsToTheLeft()
+        {
+            for (int i = 3; i < _spots.Length; i++)
+            {
+                ItemSpot spot = _spots[i];
+                
+                if(spot.IsEmpty())
+                    continue;
+                
+                Item item = spot.Item;
+                ItemSpot targetSpot = _spots[i - 3];
+
+                if (!targetSpot.IsEmpty())
+                {
+                    Debug.LogWarning($"{targetSpot.Item.ItemNameKey} is not empty! {targetSpot.transform.GetSiblingIndex()}");
+                    _isBusy = false;
+                    return;   
+                }
+                
+                spot.Clear();
+                MoveItemToSpot(item, targetSpot, false);
+            }
+
+            HandleAllItemsMovedToTheLeft();
+        }
+
+        private void HandleAllItemsMovedToTheLeft()
+        {
             _isBusy = false;
         }
 
@@ -315,7 +348,7 @@ namespace MatchThemAll.Scripts
 
         // RECORD KEEPER: Creates a new record for a new type of item
         private void CreateItemMergeData(Item item) => 
-            _itemMergeDataDictionary.Add(item.ItemName, new ItemMergeData(item));
+            _itemMergeDataDictionary.Add(item.ItemNameKey, new ItemMergeData(item));
 
         // SPOT FINDER: It looks through all spots to find an empty one
         private ItemSpot GetFreeSpot() =>
