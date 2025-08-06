@@ -15,6 +15,9 @@ namespace MatchThemAll.Scripts
         
         public void Add(Item item) => Items.Add(item);
         
+        // MERGE CHECKER: Determines if we have enough items of the same type to merge them
+        // In this game, when you collect 3 or more identical items, they disappear (merge)
+        // Like having 3 matching cards in a card game - you can play them together
         public bool CanMergeItems() => Items.Count >= 3;
     }
 }

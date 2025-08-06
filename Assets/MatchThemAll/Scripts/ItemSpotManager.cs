@@ -143,7 +143,9 @@ namespace MatchThemAll.Scripts
             MoveItemToSpot(item, idealSpot);
         }
 
-        // ITEM MOVER: The actual process of moving an item to a specific spot
+        // ITEM MOVER: Now with an option to skip merge checking,
+        // The new parameter 'checkForMerge' lets us control when to check for merging
+        // Sometimes we move items around and don't want to trigger merging yet
         private void MoveItemToSpot(Item item, ItemSpot targetSpot, bool checkForMerge = true)
         {
             // Tell the spot that this item is now parked there
@@ -162,73 +164,104 @@ namespace MatchThemAll.Scripts
             // Turn off physics so it won't fall or move around
             item.DisablePhysics();
 
-            // Check if this move affects the game (like triggering game over)
+            // Check if this move affects the game, but only if we want to check for merging
             HandleItemReachedSpot(item, checkForMerge);
         }
 
+        // MERGE DETECTOR: Checks if we should merge items after placing one
+        // This replaces the old HandleFirstItemReachSpot method
         private void HandleItemReachedSpot(Item item, bool checkForMerge = true)
         {
+            // If we're told not to check for merging, skip this entirely
+            // (useful when we're just rearranging items)
             if(!checkForMerge) 
                 return;
-            
+    
+            // Check if we have enough identical items to merge them (3 or more)
             if (_itemMergeDataDictionary[item.ItemName].CanMergeItems())
+                // We do! Time to merge (remove) these items
                 MergeItems(_itemMergeDataDictionary[item.ItemName]);
-            else CheckForGameOver();
+            else 
+                // Not enough items to merge yet, check if the game is over
+                CheckForGameOver();
         }
 
+        // ITEM MERGER: Removes 3+ identical items from the game
+        // Like completing a set in a puzzle - the pieces disappear when matched
         private void MergeItems(ItemMergeData itemMergeData)
         {
+            // Get the list of all identical items that need to be merged
             List<Item> items = itemMergeData.Items;
-            
-            // Remove the item merge data from the dictionary
+    
+            // Remove this group from our tracking system
+            // (we won't need to track these items anymore since they're being destroyed)
             _itemMergeDataDictionary.Remove(itemMergeData.ItemName);
 
-            for (int i = 0; i < items.Count; i++)
+            // Go through each item in the merge group
+            foreach (var item in items)
             {
-                items[i].spot.Clear();
-                Destroy(items[i].gameObject);
+                // Tell the spot that it's now empty (clear the parking space)
+                item.spot.Clear();
+                // Remove the item from the game completely
+                Destroy(item.gameObject);
             }
-            
+    
             // TODO: Remove this line after moving the items to the left
+            // (Right now we just mark ourselves as not busy, but later we'll add logic
+            // to slide remaining items to fill the empty spaces)
             _isBusy = false;
         }
 
-        // BACKUP PLAN: What to do when our ideal spot is already taken
-        // (Currently empty - this is where you'd add logic for handling full spots)
+        // SPACE MAKER: What to do when our ideal spot is occupied
+        // Now actually implemented - it makes room by shifting items to the right
         private void HandleIdealSpotFull(Item item, ItemSpot idealSpot)
         {
-            // TODO: Add logic here for when the ideal spot is occupied
-            // For example: find the next best spot, or rearrange items
+            // SOLUTION: Push all items to the right to make space
+            // Like asking people in a movie theater row to scoot over so you can sit
             MoveAllItemsToTheRightFrom(idealSpot, item);
         }
 
+        // ITEM SHIFTER: Moves all items to the right to create space for a new item
+        // This is like making room in a crowded parking lot by asking everyone to move over
         private void MoveAllItemsToTheRightFrom(ItemSpot idealSpot, Item itemToPlace)
         {
+            // Find out which spot number we want to place our item in
             int spotIndex = idealSpot.transform.GetSiblingIndex();
 
+            // Start from the rightmost occupied spot and work backwards (right to left)
+            // We go backwards to avoid overwriting items as we move them
             for (int i = _spots.Length - 2; i >= spotIndex; i--)
             {
                 ItemSpot spot = _spots[i];
-                
+        
+                // If this spot is empty, skip it (nothing to move)
                 if(_spots[i].IsEmpty())
                     continue;
-                
+        
+                // Get the item currently in this spot
                 Item item = spot.Item;
-                
+        
+                // Clear this spot (mark it as available)
                 spot.Clear();
-                
+        
+                // The target spot is the next one to the right
                 ItemSpot targetSpot = _spots[i + 1];
 
+                // Safety check: Make sure the target spot is actually empty
+                // (This should always be true if our logic is correct)
                 if (!targetSpot.IsEmpty())
                 {
                     Debug.LogError("This should not happen - Target spot not empty");
                     _isBusy = false;
                     return;
                 }
-                
+        
+                // Move the item to its new spot (one position to the right)
+                // We set checkForMerge to false because we're just rearranging, not adding new items
                 MoveItemToSpot(item, targetSpot, false);
             }
-            
+    
+            // Now that we've made space, place the new item in the ideal spot
             MoveItemToSpot(itemToPlace, idealSpot);
         }
 

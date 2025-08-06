@@ -1,37 +1,34 @@
-﻿// Import Unity's core functionality
-using UnityEngine;
+﻿using UnityEngine;
 
-// Define the namespace for organization
 namespace MatchThemAll.Scripts
 {
-    // ItemSpot represents a designated location where items can be placed
-    // This class manages the state and occupancy of individual spots
     public class ItemSpot : MonoBehaviour
     {
-        // Inspector section for settings
         [Header("Settings")] 
         // Reference to the item currently occupying this spot (null if empty)
         private Item _item;
+        
+        // PUBLIC ACCESS: Allows other scripts to see what item is in this spot
+        // Like looking through a window to see what's inside a parking space
         public Item Item => _item;
         
-        // Public method to place an item in this spot
-        // Sets the item as a child of this spot's transform and marks the spot as occupied
-        // Parameter: item - the Item component to be placed in this spot
+        // SPOT OCCUPIER: Places an item in this parking spot
         public void Populate(Item item)
         {
-            // Store reference to the item occupying this spot
+            // Remember which item is parked here
             _item = item;
-            // Make the item a child of this spot's transform
-            // This affects the item's position, rotation, and scale calculations
+            // Make the item a child of this spot (like putting it in a folder)
             item.transform.SetParent(transform);
-            
+            // Tell the item which spot it's now living in
             item.AssignSpot(this);
         }
         
+        // SPOT CLEANER: Removes the item reference from this spot
+        // Like erasing the name from a parking space when someone leaves
+        // Note: This doesn't destroy the item, just marks the spot as available
         public void Clear() => _item = null;
 
-        // Public method to check if this spot is available for use
-        // Returns true if no item is currently occupying this spot
+        // AVAILABILITY CHECKER: Returns true if no item is using this spot
         public bool IsEmpty() => _item == null;
     }
 }
