@@ -6,222 +6,270 @@ using UnityEngine;
 // Define the namespace for organization
 namespace MatchThemAll.Scripts
 {
-    // ItemSpotManager acts as an OBSERVER in the Observer Pattern
-    // It watches for item click events and manages item placement in available spots
-    // Now includes sophisticated spot management and availability checking
+    // WHAT THIS SCRIPT DOES:
+    // This script is like a "parking attendant" for a puzzle game.
+    // When a player clicks on an item (like a cube, sphere, or capsule),
+    // this script finds a good parking spot for it and moves it there.
+    // It also tries to group similar items together, like organizing a toy box.
+    
     public class ItemSpotManager : MonoBehaviour
     {
-        // Header attribute creates a section in the Unity Inspector for organization
         [Header("Elements")] 
-        // SerializeField makes a private field visible in Unity Inspector
-        // Reference to the parent transform that contains all ItemSpot children
+        // This is like having a folder that contains all the parking spots
         [SerializeField] private Transform itemSpotParent;
         
-        // Array to store references to all available ItemSpot components
-        // Cached for performance to avoid repeated GetComponent calls
+        // This is our list of all available parking spots in the game
+        // Think of it like a parking lot with numbered spaces
         private ItemSpot[] _spots;
         
-        // Another Inspector section for configuration values
         [Header("Settings")]
-        // The local position an item should have when placed on a spot
+        // When an item gets placed on a spot, these settings control:
+        // - Where exactly it sits on the spot (position)
         [SerializeField] private Vector3 itemLocalPositionOnSpot;
+        // - How big it appears (scale/size)
+        [SerializeField] private Vector3 itemLocalScaleOnSpot;
 
+        // This is like a "busy" sign - when true, we're in the middle of moving an item
+        // and don't want to start moving another one at the same time
         private bool _isBusy;
         
-        // The local scale an item should have when placed on a spot
-        [SerializeField] private Vector3 itemLocalScaleOnSpot;
-        
         [Header("Data")]
+        // This is like a filing cabinet that keeps track of which items are the same type,
+        // For example, "I have 3 red cubes in spots 1, 3, and 5"
         private readonly Dictionary<EItemName, ItemMergeData> _itemMergeDataDictionary = new();
         
-        // Awake is called when the script instance is being loaded
-        // OBSERVER PATTERN: Subscribe this observer to the InputManager's ItemClicked event
-        // Also initialize the spot's array for efficient spot management
+        // SETUP PHASE: This runs when the game starts
         private void Awake()
         {
-            // Subscribe to the ItemClicked event to receive notifications
+            // Sign up to listen for "item clicked" messages
+            // Like subscribing to a newsletter - we'll get notified when someone clicks an item
             InputManager.ItemClicked += OnItemClicked;
-            // Cache all ItemSpot components for efficient access
-            StoreSpot();
             
+            // Make a list of all available parking spots so we can use them later
+            StoreSpot();
         }
 
-        // OnDestroy is called when the MonoBehaviour is destroyed
-        // OBSERVER PATTERN: Unsubscribe from the event to prevent memory leaks
-        // This is crucial for proper cleanup in the Observer Pattern
-        private void OnDestroy() => InputManager.ItemClicked -= OnItemClicked;
+        // CLEANUP PHASE: This runs when the game ends or this script is destroyed
+        private void OnDestroy() => 
+            // Unsubscribe from the newsletter to avoid problems
+            InputManager.ItemClicked -= OnItemClicked;
         
-        // OBSERVER PATTERN: This is the UPDATE/NOTIFY method that gets called when the subject changes
-        // Event handler method called automatically when an item is clicked
-        // Parameter 'item' is the Item component that was clicked (passed from the subject)
+        // MAIN EVENT HANDLER: This is called whenever a player clicks on an item
+        // Think of this as the "What should I do now?" decision maker
         private void OnItemClicked(Item item)
         {
+            // If we're already busy moving another item, ignore this click
             if (_isBusy)
             {
                 Debug.Log("ItemSpotManager is busy");
                 return;
             }
             
-            // Check if there are any available spots before processing the item
+            // Check if we have any empty parking spots left
             if(!IsFreeSpotAvailable())
             {
-                Debug.Log("No free spots available");
+                Debug.Log("No free spots available - parking lot is full!");
                 return;
             }
             
-            // We're now busy
+            // Put up the "busy" sign so we don't get interrupted
             _isBusy = true;
 
-            // Process the item click if spots are available
+            // Now decide what to do with this item
             HandleItemClick(item);
         }
 
-        // Private method to process an item click when spots are available
-        // Delegates the actual placement logic to more specific methods
+        // DECISION MAKER: Decides whether this is a new type of item or one we've seen before
         private void HandleItemClick(Item item)
         {
+            // Check our filing cabinet - have we seen this type of item before?
             if (_itemMergeDataDictionary.ContainsKey(item.ItemName))
+                // We have! Try to put it near the other similar items
                 HandleItemMergeDataFound(item);
             else
-                // Move the item to the first available spot
+                // This is a new type - just put it in the first available spot
                 MoveItemToFirstFreeSpot(item);
         }
 
+        // SMART PLACEMENT: When we've seen this item type before, try to group them together
         private void HandleItemMergeDataFound(Item item)
         {
+            // Find the best spot for this item (near similar items)
             var idealSpot = GetIdealSpotFor(item);
+            
+            // Add this item to our records of similar items
             _itemMergeDataDictionary[item.ItemName].Add(item);
+            
+            // Try to move the item to the ideal spot
             TryMoveItemToIdealSpot(item, idealSpot);
         }
 
+        // SPOT CALCULATOR: Figures out where this item should go based on where similar items are
         private ItemSpot GetIdealSpotFor(Item item)
         {
+            // Get a list of all the similar items we already have
             List<Item> items = _itemMergeDataDictionary[item.ItemName].Items;
+            // Find out which spots they're currently using
             List<ItemSpot> itemSpots = items.Select(t => t.spot).ToList();
 
-            // We have a list of occupied spots by the items similar to the item
-            
-            // If we only have one spot, we should simply grab the spot next to it
+            // If we have 2 or more similar items, sort their spots by position
+            // This helps us find the best "next" spot in the sequence
             if (itemSpots.Count >= 2)
             {
+                // Sort spots from right to left (the highest index to the lowest)
                 itemSpots.Sort((a, b) => 
                     b.transform.GetSiblingIndex().CompareTo(a.transform.GetSiblingIndex()));
             }
             
+            // The ideal spot is the one right after the last similar item
+            // Like adding a book to the end of a series on a bookshelf
             int idealSpotIndex = itemSpots[0].transform.GetSiblingIndex() + 1;
             
             return _spots[idealSpotIndex];
         }
 
+        // SPOT CHECKER: Try to use the ideal spot, but have a backup plan if it's taken
         private void TryMoveItemToIdealSpot(Item item, ItemSpot idealSpot)
         {
+            // If someone's already parked in our ideal spot...
             if (!idealSpot.IsEmpty())
             {
+                // We need a different plan (this method will handle the backup plan)
                 HandleIdealSpotFull(item, idealSpot);
                 return;
             }
             
+            // Great! The ideal spot is free, so park there
             MoveItemToSpot(item, idealSpot);
         }
 
+        // ITEM MOVER: The actual process of moving an item to a specific spot
         private void MoveItemToSpot(Item item, ItemSpot targetSpot)
         {
+            // Tell the spot that this item is now parked there
             targetSpot.Populate(item);
             
-            // Set the item's position relative to its new parent spot
+            // Position the item exactly where it should sit on the spot
             item.transform.localPosition = itemLocalPositionOnSpot;
-            // Set the item's scale relative to its new parent spot
+            // Make it the right size
             item.transform.localScale = itemLocalScaleOnSpot;
-            // Reset rotation to ensure consistent orientation
+            // Make sure it's facing the right direction
             item.transform.localRotation = Quaternion.identity;
             
-            // Call the item's methods to finalize the placement
-            // Disable shadow rendering for performance or visual reasons
+            // Clean up the item now that it's parked:
+            // Turn off its shadow (for better performance)
             item.DisableShadow();
-            // Disable physics and collision detection since the item is now placed
+            // Turn off physics so it won't fall or move around
             item.DisablePhysics();
 
-            HandleFirstItemReachSpot(item);
+            // Check if this move affects the game (like triggering game over)
+            HandleItemReachedSpot(item);
         }
 
+        private void HandleItemReachedSpot(Item item)
+        {
+            if (_itemMergeDataDictionary[item.ItemName].CanMergeItems())
+                MergeItems(_itemMergeDataDictionary[item.ItemName]);
+            else CheckForGameOver();
+        }
+
+        private void MergeItems(ItemMergeData itemMergeData)
+        {
+            List<Item> items = itemMergeData.Items;
+            
+            // Remove the item merge data from the dictionary
+            _itemMergeDataDictionary.Remove(itemMergeData.ItemName);
+
+            for (int i = 0; i < items.Count; i++)
+            {
+                items[i].spot.Clear();
+                Destroy(items[i].gameObject);
+            }
+            
+            // TODO: Remove this line after moving the items to the left
+            _isBusy = false;
+        }
+
+        // BACKUP PLAN: What to do when our ideal spot is already taken
+        // (Currently empty - this is where you'd add logic for handling full spots)
         private void HandleIdealSpotFull(Item item, ItemSpot idealSpot)
         {
+            // TODO: Add logic here for when the ideal spot is occupied
+            // For example: find the next best spot, or rearrange items
         }
 
-        // Private method to move an item to the first available spot
-        // Handles the complete process of item placement and transformation
+        // SIMPLE PLACEMENT: For new item types, use the first available spot
         private void MoveItemToFirstFreeSpot(Item item)
         {
-            // Find the first available spot -- no item
+            // Find any empty spot
             var targetSpot = GetFreeSpot();
             
-            // Safety check - this shouldn't happen if IsFreeSpotAvailable() was true
+            // Safety check - make sure we actually found a spot
             if(targetSpot == null)
             {
                 Debug.Log("Target spot not found -> should not happen");
                 return;
             }
             
+            // Since this is a new item type, create a new record for it
             CreateItemMergeData(item);
             
-            // Assign the item to the target spot (makes item a child of the spot)
+            // Move the item to the spot we found
             targetSpot.Populate(item);
             
-            // OBSERVER RESPONSE: Configure the item's transform properties
-            // Set the item's position relative to its new parent spot
+            // Set up the item's appearance and position
             item.transform.localPosition = itemLocalPositionOnSpot;
-            // Set the item's scale relative to its new parent spot
             item.transform.localScale = itemLocalScaleOnSpot;
-            // Reset rotation to ensure consistent orientation
             item.transform.localRotation = Quaternion.identity;
             
-            // Call the item's methods to finalize the placement
-            // Disable shadow rendering for performance or visual reasons
+            // Clean up the item
             item.DisableShadow();
-            // Disable physics and collision detection since the item is now placed
             item.DisablePhysics();
 
+            // Check if this affects the game state
             HandleFirstItemReachSpot(item);
         }
 
+        // GAME STATE CHECKER: Called after each item placement
         private void HandleFirstItemReachSpot(Item item) => CheckForGameOver();
 
+        // GAME OVER DETECTOR: Checks if the parking lot is full
         private void CheckForGameOver()
         {
+            // If there are no more empty spots...
             if (GetFreeSpot() == null)
             {
-                Debug.Log("Game Over");
+                Debug.Log("Game Over - no more spots available!");
             }
-            else _isBusy = false;
+            else 
+                // There are still spots available, so we're not busy anymore
+                _isBusy = false;
         }
 
+        // RECORD KEEPER: Creates a new record for a new type of item
         private void CreateItemMergeData(Item item) => 
             _itemMergeDataDictionary.Add(item.ItemName, new ItemMergeData(item));
 
-        // Private method to find and return the first available ItemSpot
-        // Returns null if all spots are occupied
+        // SPOT FINDER: It looks through all spots to find an empty one
         private ItemSpot GetFreeSpot() =>
-            // Iterate through all spots to find the first empty one
-            // Return null if no free spots were found
+            // Go through our list of spots and return the first empty one
+            // Returns null if all spots are full
             _spots.FirstOrDefault(t => t.IsEmpty());
 
-        // Private method to cache all ItemSpot components for efficient access
-        // Called once during Awake to avoid repeated GetComponent calls
+        // SETUP HELPER: Creates our list of all available parking spots
         private void StoreSpot()
         {
-            // Create an array with size matching the number of child objects
+            // Create an array that's big enough for all the child spots
             _spots = new ItemSpot[itemSpotParent.childCount];
             
-            // Get an ItemSpot component from each child and store in the array
+            // Go through each child spot and add it to our list
             for (int i = 0; i < itemSpotParent.childCount; i++) 
                 _spots[i] = itemSpotParent.GetChild(i).GetComponent<ItemSpot>();
         }
 
-        // Private method to check if any spots are available for item placement
-        // Returns true if at least one spot is empty, false if all are occupied
+        // AVAILABILITY CHECKER: Quickly checks if any spots are available
         private bool IsFreeSpotAvailable() =>
-            // Check each spot for availability
-            // Return false if no free spots were found
+            // Look through all spots and return true if at least one is empty
             _spots.Any(t => t.IsEmpty());
     }
 }

@@ -26,6 +26,8 @@ namespace MatchThemAll.Scripts
             
             item.AssignSpot(this);
         }
+        
+        public void Clear() => _item = null;
 
         // Public method to check if this spot is available for use
         // Returns true if no item is currently occupying this spot
