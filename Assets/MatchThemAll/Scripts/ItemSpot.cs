@@ -12,6 +12,7 @@ namespace MatchThemAll.Scripts
         [Header("Settings")] 
         // Reference to the item currently occupying this spot (null if empty)
         private Item _item;
+        public Item Item => _item;
         
         // Public method to place an item in this spot
         // Sets the item as a child of this spot's transform and marks the spot as occupied

@@ -144,7 +144,7 @@ namespace MatchThemAll.Scripts
         }
 
         // ITEM MOVER: The actual process of moving an item to a specific spot
-        private void MoveItemToSpot(Item item, ItemSpot targetSpot)
+        private void MoveItemToSpot(Item item, ItemSpot targetSpot, bool checkForMerge = true)
         {
             // Tell the spot that this item is now parked there
             targetSpot.Populate(item);
@@ -163,11 +163,14 @@ namespace MatchThemAll.Scripts
             item.DisablePhysics();
 
             // Check if this move affects the game (like triggering game over)
-            HandleItemReachedSpot(item);
+            HandleItemReachedSpot(item, checkForMerge);
         }
 
-        private void HandleItemReachedSpot(Item item)
+        private void HandleItemReachedSpot(Item item, bool checkForMerge = true)
         {
+            if(!checkForMerge) 
+                return;
+            
             if (_itemMergeDataDictionary[item.ItemName].CanMergeItems())
                 MergeItems(_itemMergeDataDictionary[item.ItemName]);
             else CheckForGameOver();
@@ -196,6 +199,37 @@ namespace MatchThemAll.Scripts
         {
             // TODO: Add logic here for when the ideal spot is occupied
             // For example: find the next best spot, or rearrange items
+            MoveAllItemsToTheRightFrom(idealSpot, item);
+        }
+
+        private void MoveAllItemsToTheRightFrom(ItemSpot idealSpot, Item itemToPlace)
+        {
+            int spotIndex = idealSpot.transform.GetSiblingIndex();
+
+            for (int i = _spots.Length - 2; i >= spotIndex; i--)
+            {
+                ItemSpot spot = _spots[i];
+                
+                if(_spots[i].IsEmpty())
+                    continue;
+                
+                Item item = spot.Item;
+                
+                spot.Clear();
+                
+                ItemSpot targetSpot = _spots[i + 1];
+
+                if (!targetSpot.IsEmpty())
+                {
+                    Debug.LogError("This should not happen - Target spot not empty");
+                    _isBusy = false;
+                    return;
+                }
+                
+                MoveItemToSpot(item, targetSpot, false);
+            }
+            
+            MoveItemToSpot(itemToPlace, idealSpot);
         }
 
         // SIMPLE PLACEMENT: For new item types, use the first available spot
