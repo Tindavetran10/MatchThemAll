@@ -15,6 +15,9 @@ namespace MatchThemAll.Scripts
         [SerializeField] private float smashDuration;
         [SerializeField] private LeanTweenType smashEasing;
         
+        [Header("Particles")]
+        [SerializeField] private ParticleSystem mergeParticle;
+        
         private void Awake() => ItemSpotManager.mergeStarted += OnMergeStarted;
         private void OnDestroy() => ItemSpotManager.mergeStarted -= OnMergeStarted;
 
@@ -43,7 +46,7 @@ namespace MatchThemAll.Scripts
     
             float targetX = items[1].transform.position.x;
     
-            // Move outer items to center
+            // Move outer items to the center
             LeanTween.moveX(items[0].gameObject, targetX, smashDuration)
                 .setEase(smashEasing)
                 .setOnComplete(() => FinalizeMerge(items));
@@ -59,11 +62,11 @@ namespace MatchThemAll.Scripts
 
         private void FinalizeMerge(List<Item> items)
         {
-            for (var i = 0; i < items.Count; i++)
-            {
-                var item = items[i];
+            foreach (var item in items) 
                 Destroy(item.gameObject);
-            }
+
+            ParticleSystem particle = Instantiate(mergeParticle, items[1].transform.position, Quaternion.identity, transform);
+            particle.Play();
         }
     }
 }

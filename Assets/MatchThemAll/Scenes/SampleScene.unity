@@ -1051,6 +1051,7 @@ MonoBehaviour:
   goUpEasing: 16
   smashDuration: 0.15
   smashEasing: 26
+  mergeParticle: {fileID: 9047243741392042313, guid: 2b1b9fca15ce81f488d4e09554893785, type: 3}
 --- !u!1001 &1436916501
 PrefabInstance:
   m_ObjectHideFlags: 0

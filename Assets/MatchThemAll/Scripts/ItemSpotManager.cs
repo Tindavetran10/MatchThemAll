@@ -179,11 +179,6 @@ namespace MatchThemAll.Scripts
             item.DisableShadow();
             // Turn off physics so it won't fall or move around
             item.DisablePhysics();
-            
-            //completeCallback?.Invoke();
-
-            // Check if this move affects the game, but only if we want to check for merging
-            //HandleItemReachedSpot(item, checkForMerge);
         }
 
         // MERGE DETECTOR: Checks if we should merge items after placing one
