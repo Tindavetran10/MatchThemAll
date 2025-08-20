@@ -43,6 +43,9 @@ namespace MatchThemAll.Scripts
         [SerializeField] private float animationDuration = 0.15f;
         [SerializeField] private LeanTweenType animationEase = LeanTweenType.easeInOutCubic;
         
+        [Header("Actions")]
+        public static Action<List<Item>> mergeStarted;
+        
         // SETUP PHASE: This runs when the game starts
         private void Awake()
         {
@@ -218,19 +221,14 @@ namespace MatchThemAll.Scripts
             {
                 // Tell the spot that it's now empty (clear the parking space)
                 item.spot.Clear();
-                // Remove the item from the game completely
-                Destroy(item.gameObject);
             }
 
             if(_itemMergeDataDictionary.Count <= 0)
                 _isBusy = false;
             else
                 MoveAllItemsToTheLeft(HandleAllItemsMovedToTheLeft);
-
-            // TODO: Remove this line after moving the items to the left
-            // (Right now we just mark ourselves as not busy, but later we'll add logic
-            // to slide remaining items to fill the empty spaces)
-            //_isBusy = false;
+            
+            mergeStarted?.Invoke(items);
         }
 
         private void MoveAllItemsToTheLeft(Action completeCallback = null)
