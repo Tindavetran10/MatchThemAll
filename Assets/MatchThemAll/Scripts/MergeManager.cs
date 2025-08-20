@@ -40,15 +40,21 @@ namespace MatchThemAll.Scripts
         {
             // Sort items from left to right
             items.Sort((a, b) => a.transform.position.x.CompareTo(b.transform.position.x));
-            
+    
             float targetX = items[1].transform.position.x;
-            
+    
+            // Move outer items to center
             LeanTween.moveX(items[0].gameObject, targetX, smashDuration)
                 .setEase(smashEasing)
                 .setOnComplete(() => FinalizeMerge(items));
 
             LeanTween.moveX(items[2].gameObject, targetX, smashDuration)
                 .setEase(smashEasing);
+    
+            // Add a subtle "bounce" animation to the middle item to make it visible
+            LeanTween.moveY(items[1].gameObject, items[1].transform.position.y + 0.1f, smashDuration * 0.5f)
+                .setEase(LeanTweenType.easeOutQuad)
+                .setLoopPingPong(1);
         }
 
         private void FinalizeMerge(List<Item> items)

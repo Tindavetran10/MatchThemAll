@@ -82,7 +82,7 @@ namespace MatchThemAll.Scripts
             
             // Put up the "busy" sign so we don't get interrupted
             _isBusy = true;
-
+            
             // Now decide what to do with this item
             HandleItemClick(item);
         }
@@ -171,7 +171,8 @@ namespace MatchThemAll.Scripts
             
             // Make sure it's facing the right direction
             //item.transform.localRotation = Quaternion.identity;
-            LeanTween.rotateLocal(item.gameObject, Vector3.zero, animationDuration);
+            LeanTween.rotateLocal(item.gameObject, Vector3.zero, animationDuration)
+                .setOnComplete(completeCallback);
             
             // Clean up the item now that it's parked:
             // Turn off its shadow (for better performance)
@@ -179,7 +180,7 @@ namespace MatchThemAll.Scripts
             // Turn off physics so it won't fall or move around
             item.DisablePhysics();
             
-            completeCallback?.Invoke();
+            //completeCallback?.Invoke();
 
             // Check if this move affects the game, but only if we want to check for merging
             //HandleItemReachedSpot(item, checkForMerge);
@@ -231,7 +232,7 @@ namespace MatchThemAll.Scripts
             mergeStarted?.Invoke(items);
         }
 
-        private void MoveAllItemsToTheLeft(Action completeCallback = null)
+        private void MoveAllItemsToTheLeft(Action completeCallback)
         {
             bool callBackTriggered = false;
             for (int i = 3; i < _spots.Length; i++)
@@ -259,7 +260,8 @@ namespace MatchThemAll.Scripts
                 callBackTriggered = true;
             }
             
-            if(!callBackTriggered) completeCallback?.Invoke();
+            if(!callBackTriggered) 
+                completeCallback?.Invoke();
         }
 
         private void HandleAllItemsMovedToTheLeft()
