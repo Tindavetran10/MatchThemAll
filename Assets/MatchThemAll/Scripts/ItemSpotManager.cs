@@ -1,4 +1,6 @@
 ﻿// Import Unity core functionality
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -140,13 +142,13 @@ namespace MatchThemAll.Scripts
             }
             
             // Great! The ideal spot is free, so park there
-            MoveItemToSpot(item, idealSpot);
+            MoveItemToSpot(item, idealSpot, () => HandleItemReachedSpot(item));
         }
 
         // ITEM MOVER: Now with an option to skip merge checking,
         // The new parameter 'checkForMerge' lets us control when to check for merging
         // Sometimes we move items around and don't want to trigger merging yet
-        private void MoveItemToSpot(Item item, ItemSpot targetSpot, bool checkForMerge = true)
+        private void MoveItemToSpot(Item item, ItemSpot targetSpot, Action completeCallback)
         {
             // Tell the spot that this item is now parked there
             targetSpot.Populate(item);
@@ -163,9 +165,11 @@ namespace MatchThemAll.Scripts
             item.DisableShadow();
             // Turn off physics so it won't fall or move around
             item.DisablePhysics();
+            
+            completeCallback?.Invoke();
 
             // Check if this move affects the game, but only if we want to check for merging
-            HandleItemReachedSpot(item, checkForMerge);
+            //HandleItemReachedSpot(item, checkForMerge);
         }
 
         // MERGE DETECTOR: Checks if we should merge items after placing one
@@ -234,7 +238,7 @@ namespace MatchThemAll.Scripts
                 }
                 
                 spot.Clear();
-                MoveItemToSpot(item, targetSpot, false);
+                MoveItemToSpot(item, targetSpot, () => HandleItemReachedSpot(item, false));
             }
 
             HandleAllItemsMovedToTheLeft();
@@ -291,11 +295,11 @@ namespace MatchThemAll.Scripts
         
                 // Move the item to its new spot (one position to the right)
                 // We set checkForMerge to false because we're just rearranging, not adding new items
-                MoveItemToSpot(item, targetSpot, false);
+                MoveItemToSpot(item, targetSpot, () => HandleItemReachedSpot(item, false));
             }
     
             // Now that we've made space, place the new item in the ideal spot
-            MoveItemToSpot(itemToPlace, idealSpot);
+            MoveItemToSpot(itemToPlace, idealSpot, () => HandleItemReachedSpot(itemToPlace));
         }
 
         // SIMPLE PLACEMENT: For new item types, use the first available spot
@@ -314,20 +318,7 @@ namespace MatchThemAll.Scripts
             // Since this is a new item type, create a new record for it
             CreateItemMergeData(item);
             
-            // Move the item to the spot we found
-            targetSpot.Populate(item);
-            
-            // Set up the item's appearance and position
-            item.transform.localPosition = itemLocalPositionOnSpot;
-            item.transform.localScale = itemLocalScaleOnSpot;
-            item.transform.localRotation = Quaternion.identity;
-            
-            // Clean up the item
-            item.DisableShadow();
-            item.DisablePhysics();
-
-            // Check if this affects the game state
-            HandleFirstItemReachSpot(item);
+            MoveItemToSpot(item, targetSpot, () => HandleFirstItemReachSpot(item));
         }
 
         // GAME STATE CHECKER: Called after each item placement
