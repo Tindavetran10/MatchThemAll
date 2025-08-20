@@ -4,6 +4,10 @@ namespace MatchThemAll.Scripts
 {
     public class ItemSpot : MonoBehaviour
     {
+        [Header("Elements")]
+        [SerializeField] private Animator _animator;
+        [SerializeField] private Transform _itemParent;
+        
         [Header("Settings")] 
         // Reference to the item currently occupying this spot (null if empty)
         private Item _item;
@@ -18,7 +22,7 @@ namespace MatchThemAll.Scripts
             // Remember which item is parked here
             _item = item;
             // Make the item a child of this spot (like putting it in a folder)
-            item.transform.SetParent(transform);
+            item.transform.SetParent(_itemParent);
             // Tell the item which spot it's now living in
             item.AssignSpot(this);
         }
@@ -27,6 +31,8 @@ namespace MatchThemAll.Scripts
         // Like erasing the name from a parking space when someone leaves
         // Note: This doesn't destroy the item, just marks the spot as available
         public void Clear() => _item = null;
+        
+        public void BumpDown() => _animator.Play("Bump", 0, 0);
 
         // AVAILABILITY CHECKER: Returns true if no item is using this spot
         public bool IsEmpty() => _item == null;

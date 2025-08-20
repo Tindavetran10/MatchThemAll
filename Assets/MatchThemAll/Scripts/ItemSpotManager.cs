@@ -1,5 +1,4 @@
 ﻿// Import Unity core functionality
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -39,6 +38,10 @@ namespace MatchThemAll.Scripts
         // This is like a filing cabinet that keeps track of which items are the same type,
         // For example, "I have 3 red cubes in spots 1, 3, and 5"
         private readonly Dictionary<EItemName, ItemMergeData> _itemMergeDataDictionary = new();
+        
+        [Header("Animation Settings")]
+        [SerializeField] private float animationDuration = 0.15f;
+        [SerializeField] private LeanTweenType animationEase = LeanTweenType.easeInOutCubic;
         
         // SETUP PHASE: This runs when the game starts
         private void Awake()
@@ -154,11 +157,18 @@ namespace MatchThemAll.Scripts
             targetSpot.Populate(item);
             
             // Position the item exactly where it should sit on the spot
-            item.transform.localPosition = itemLocalPositionOnSpot;
+            //item.transform.localPosition = itemLocalPositionOnSpot;
+            LeanTween.moveLocal(item.gameObject, itemLocalPositionOnSpot, animationDuration)
+                .setEase(animationEase);
+            
             // Make it the right size
-            item.transform.localScale = itemLocalScaleOnSpot;
+            //item.transform.localScale = itemLocalScaleOnSpot;
+            LeanTween.scale(item.gameObject, itemLocalScaleOnSpot, animationDuration)
+                .setEase(animationEase);
+            
             // Make sure it's facing the right direction
-            item.transform.localRotation = Quaternion.identity;
+            //item.transform.localRotation = Quaternion.identity;
+            LeanTween.rotateLocal(item.gameObject, Vector3.zero, animationDuration);
             
             // Clean up the item now that it's parked:
             // Turn off its shadow (for better performance)
@@ -176,6 +186,8 @@ namespace MatchThemAll.Scripts
         // This replaces the old HandleFirstItemReachSpot method
         private void HandleItemReachedSpot(Item item, bool checkForMerge = true)
         {
+            item.spot.BumpDown();
+            
             // If we're told not to check for merging, skip this entirely
             // (useful when we're just rearranging items)
             if(!checkForMerge) 
@@ -210,7 +222,10 @@ namespace MatchThemAll.Scripts
                 Destroy(item.gameObject);
             }
 
-            MoveAllItemsToTheLeft();
+            if(_itemMergeDataDictionary.Count <= 0)
+                _isBusy = false;
+            else
+                MoveAllItemsToTheLeft(HandleAllItemsMovedToTheLeft);
 
             // TODO: Remove this line after moving the items to the left
             // (Right now we just mark ourselves as not busy, but later we'll add logic
@@ -218,8 +233,9 @@ namespace MatchThemAll.Scripts
             //_isBusy = false;
         }
 
-        private void MoveAllItemsToTheLeft()
+        private void MoveAllItemsToTheLeft(Action completeCallback = null)
         {
+            bool callBackTriggered = false;
             for (int i = 3; i < _spots.Length; i++)
             {
                 ItemSpot spot = _spots[i];
@@ -238,10 +254,14 @@ namespace MatchThemAll.Scripts
                 }
                 
                 spot.Clear();
-                MoveItemToSpot(item, targetSpot, () => HandleItemReachedSpot(item, false));
+                
+                completeCallback += () => HandleItemReachedSpot(item, false);
+                MoveItemToSpot(item, targetSpot, completeCallback);
+                
+                callBackTriggered = true;
             }
-
-            HandleAllItemsMovedToTheLeft();
+            
+            if(!callBackTriggered) completeCallback?.Invoke();
         }
 
         private void HandleAllItemsMovedToTheLeft()
@@ -322,7 +342,11 @@ namespace MatchThemAll.Scripts
         }
 
         // GAME STATE CHECKER: Called after each item placement
-        private void HandleFirstItemReachSpot(Item item) => CheckForGameOver();
+        private void HandleFirstItemReachSpot(Item item)
+        {
+            item.spot.BumpDown();
+            CheckForGameOver();
+        }
 
         // GAME OVER DETECTOR: Checks if the parking lot is full
         private void CheckForGameOver()
