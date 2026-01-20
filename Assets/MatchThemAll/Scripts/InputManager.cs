@@ -63,7 +63,7 @@ public class InputManager : MonoBehaviour
             return;
 
         // Try to get an Item component from the hit collider's parent
-        // Item scripts is expected to be on parent objects, not the colliders themselves
+        // Item scripts are expected to be on parent objects, not the colliders themselves
         if(!hit.collider.transform.parent.TryGetComponent(out Item item))
         {
             DeselectCurrentItem();

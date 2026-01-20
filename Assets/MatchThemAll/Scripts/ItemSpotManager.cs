@@ -35,7 +35,7 @@ namespace MatchThemAll.Scripts
         private bool _isBusy;
         
         [Header("Data")]
-        // This is like a filing cabinet that keeps track of which items are the same type,
+        // This is like a filing cabinet that keeps track of which items are the same type -
         // For example, "I have 3 red cubes in spots 1, 3, and 5"
         private readonly Dictionary<EItemName, ItemMergeData> _itemMergeDataDictionary = new();
         
@@ -44,7 +44,7 @@ namespace MatchThemAll.Scripts
         [SerializeField] private LeanTweenType animationEase = LeanTweenType.easeInOutCubic;
         
         [Header("Actions")]
-        public static Action<List<Item>> mergeStarted;
+        public static Action<List<Item>> MergeStarted;
         
         // SETUP PHASE: This runs when the game starts
         private void Awake()
@@ -224,7 +224,7 @@ namespace MatchThemAll.Scripts
             else
                 MoveAllItemsToTheLeft(HandleAllItemsMovedToTheLeft);
             
-            mergeStarted?.Invoke(items);
+            MergeStarted?.Invoke(items);
         }
 
         private void MoveAllItemsToTheLeft(Action completeCallback)

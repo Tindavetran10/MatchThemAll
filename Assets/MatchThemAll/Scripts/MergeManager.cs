@@ -18,8 +18,8 @@ namespace MatchThemAll.Scripts
         [Header("Particles")]
         [SerializeField] private ParticleSystem mergeParticle;
         
-        private void Awake() => ItemSpotManager.mergeStarted += OnMergeStarted;
-        private void OnDestroy() => ItemSpotManager.mergeStarted -= OnMergeStarted;
+        private void Awake() => ItemSpotManager.MergeStarted += OnMergeStarted;
+        private void OnDestroy() => ItemSpotManager.MergeStarted -= OnMergeStarted;
 
         private void OnMergeStarted(List<Item> items)
         {
