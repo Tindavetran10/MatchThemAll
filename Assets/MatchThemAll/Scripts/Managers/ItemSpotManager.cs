@@ -45,6 +45,7 @@ namespace MatchThemAll.Scripts
         
         [Header("Actions")]
         public static Action<List<Item>> MergeStarted;
+        public static Action<Item> ItemPickedUp ;
         
         // SETUP PHASE: This runs when the game starts
         private void Awake()
@@ -82,6 +83,8 @@ namespace MatchThemAll.Scripts
             
             // Put up the "busy" sign so we don't get interrupted
             _isBusy = true;
+            
+            ItemPickedUp?.Invoke(item);
             
             // Now decide what to do with this item
             HandleItemClick(item);
