@@ -3,7 +3,7 @@
     public enum EItemName
     {
         Cube = 0,
-        Capsule = 1,
+        BluePotion = 1,
         Sphere = 2
     }
 }
