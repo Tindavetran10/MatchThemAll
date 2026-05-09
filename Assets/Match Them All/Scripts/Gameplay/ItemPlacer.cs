@@ -34,16 +34,14 @@ public class ItemPlacer : MonoBehaviour
 
         Random.InitState(seed);
 
-        for (int i = 0; i < itemData.Count; i++)
+        foreach (var data in itemData)
         {
-            ItemLevelData data = itemData[i];
-
             for (int j = 0; j < data.amount; j++)
             {
                 Vector3 spawnPos = GetSpawnPosition();
                 
                 Item itemInstance = PrefabUtility.InstantiatePrefab(data.itemPrefab, transform) as Item;
-                itemInstance.transform.position = spawnPos;
+                itemInstance!.transform.position = spawnPos;
                 itemInstance.transform.rotation = Quaternion.Euler(Random.onUnitSphere * 360);
             }
         }

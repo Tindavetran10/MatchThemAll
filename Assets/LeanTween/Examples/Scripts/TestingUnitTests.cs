@@ -244,7 +244,7 @@ namespace DentedPixel.LTExamples
                     LTDescr descr = LeanTween.moveLocalX(cube, 5, 0.1f).setOnComplete((object obj) => {
                         GameObject cubeIn = obj as GameObject;
                         totalEasingCheck++;
-                        if (cubeIn.transform.position.x == 5f)
+                        if (cubeIn != null && Mathf.Approximately(cubeIn.transform.position.x, 5f))
                         {
                             totalEasingCheckSuccess++;
                         }
@@ -523,7 +523,7 @@ namespace DentedPixel.LTExamples
             Time.timeScale = 1f;
 
             int ltCount = 0;
-            GameObject[] allGos = FindObjectsOfType(typeof(GameObject)) as GameObject[];
+            GameObject[] allGos = FindObjectsByType(typeof(GameObject)) as GameObject[];
             foreach (GameObject go in allGos)
             {
                 if (go.name == "~LeanTween")

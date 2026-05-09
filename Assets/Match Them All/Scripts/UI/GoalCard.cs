@@ -1,5 +1,4 @@
-﻿using System;
-using TMPro;
+﻿using TMPro;
 using UnityEngine;
 
 namespace MatchThemAll.Scripts.UI
@@ -8,17 +7,7 @@ namespace MatchThemAll.Scripts.UI
     {
        [Header(" Elements ")]
        [SerializeField] private TextMeshProUGUI amountText;
-
-       private void Start()
-       {
-           
-       }
-
-       private void Update()
-       {
-           
-       }
-
+       
        public void Configure(int initialAmount)
        {
            amountText.text = initialAmount.ToString();

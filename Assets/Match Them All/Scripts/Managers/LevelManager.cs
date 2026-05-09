@@ -1,5 +1,4 @@
 ﻿using System;
-using MatchThemAll.Scripts.Extensions;
 using UnityEngine;
 
 namespace MatchThemAll.Scripts
