@@ -1,20 +1,23 @@
 ﻿using UnityEngine;
+using NaughtyAttributes; // Critical: Added missing namespace!
 
 namespace MatchThemAll.Scripts
 {
     [System.Serializable]
     public struct ItemLevelData
     {
-        public Item itemPrefab;
-        public bool isGoal;
-        
-        [NaughtyAttributes.ValidateInput("ValidateAmount", "Amount must be a multiple of 3")]
-        [NaughtyAttributes.AllowNesting]
-        [Range(0, 100)]
-        public int amount;
+        [SerializeField] public Item itemPrefab; // Explicit serialization
+        [SerializeField] public bool isGoal;
 
-        private bool ValidateAmount() => amount % 3 == 0;
-        
-        
+
+        [Header("Data Configuration")] // Optional: Groups fields in Inspector
+        // ⬜Restores the slider UI in Unity Editor
+        [ValidateInput(nameof(ValidateAmount), "Amount must be a multiple of 3")] // ✅Validation callback
+        [SerializeField] [Range(1, 100)] public int amount;
+
+        public bool ValidateAmount(int value) // ✅Public method with required signature
+        {
+            return value % 3 == 0;
+        }
     }
 }

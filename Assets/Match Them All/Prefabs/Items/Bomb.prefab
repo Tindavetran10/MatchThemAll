@@ -27,13 +27,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3487816914417995206}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
+  m_LocalRotation: {x: 0, y: 0, z: -0.7071068, w: 0.7071068}
+  m_LocalPosition: {x: 0, y: 0, z: -0.75}
+  m_LocalScale: {x: 0.35, y: 0.35, z: 0.35}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 3244675087009641747}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: -90}
 --- !u!33 &2740338783754735457
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -41,7 +41,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3487816914417995206}
-  m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
+  m_Mesh: {fileID: -849867405023671905, guid: b69ab7dc4a09f094885bf950a65c44c3, type: 3}
 --- !u!23 &7031606126136459614
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -67,7 +67,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 15806d9ab2dc54043aa36c9189ec2309, type: 2}
+  - {fileID: 2100000, guid: 580d7e954bbff174794836248c2cc077, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -110,7 +110,7 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 0.5
+  m_Radius: 1.05
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &6411822754767568755
 GameObject:
@@ -124,7 +124,7 @@ GameObject:
   - component: {fileID: 7186403820946334010}
   - component: {fileID: 2244121086638147798}
   m_Layer: 0
-  m_Name: Sphere
+  m_Name: Bomb
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -141,7 +141,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 1, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 1991853842384373342}
   m_Father: {fileID: 0}
@@ -186,5 +186,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   itemNameKey: 2
+  icon: {fileID: 1778104517, guid: 5bdfb888a2745d94cb40e2bfafc3a98c, type: 3}
   _renderer: {fileID: 7031606126136459614}
   _collider: {fileID: 4645935438248245275}

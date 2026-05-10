@@ -42,7 +42,7 @@ public class GoalManager : MonoBehaviour
     {
         var cardInstance = Instantiate(goalCardPrefab, goalCardParent);
         
-        cardInstance.Configure(goal.amount);
+        cardInstance.Configure(goal.amount, goal.itemPrefab.Icon);
         goalCards.Add(cardInstance);
     }
 

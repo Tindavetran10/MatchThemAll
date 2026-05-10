@@ -40,7 +40,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 100, y: 0}
+  m_SizeDelta: {x: 100, y: 200}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &4610621789587990144
 MonoBehaviour:
@@ -74,6 +74,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7c4e8776569548169bcfdd2db1a0ad93, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MatchThemAll.Scripts.UI.GoalCard
+  iconImage: {fileID: 3169985352731629924}
   amountText: {fileID: 7060555914013725755}
 --- !u!1 &2006753700358310915
 GameObject:

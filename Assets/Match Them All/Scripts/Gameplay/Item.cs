@@ -15,8 +15,11 @@ namespace MatchThemAll.Scripts
         [SerializeField] private EItemName itemNameKey;
         public EItemName ItemNameKey => itemNameKey;
 
+        [SerializeField] private Sprite icon;
+        public Sprite Icon => icon;
+        
         public ItemSpot spot { get; private set; }
-
+        
         // Inspector section for component references
         [Header("Elements")]
         // Reference to the Renderer component for visual effects and material changes

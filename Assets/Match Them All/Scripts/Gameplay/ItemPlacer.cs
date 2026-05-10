@@ -47,6 +47,22 @@ public class ItemPlacer : MonoBehaviour
         }
     }
     
+    private void OnValidate()
+    {
+        Debug.Log("OnValidate called!"); // Add this line
+        for (int i = 0; i < itemData.Count; i++) {
+            var data = itemData[i]; // Get a copy of the struct
+
+            // Snap to nearest multiple of 3
+            int corrected = Mathf.RoundToInt(data.amount / 3f) * 3;
+
+            if (data.amount != corrected) {
+                data.amount = corrected; // Update the copy
+                itemData[i] = data;      // Reassign to the list
+            }
+        }
+    }
+    
     private Vector3 GetSpawnPosition()
     {
         float x = Random.Range(-spawnZone.size.x / 2f, spawnZone.size.x / 2f);

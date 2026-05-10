@@ -2,8 +2,8 @@
 {
     public enum EItemName
     {
-        Cube = 0,
+        HeartGem = 0,
         BluePotion = 1,
-        Sphere = 2
+        Bomb = 2
     }
 }

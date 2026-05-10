@@ -74,6 +74,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   itemNameKey: 1
+  icon: {fileID: 981902999, guid: 260ec3ba1a9a9e444b0abcaf24b3faf7, type: 3}
   _renderer: {fileID: 146297581253339410}
   _collider: {fileID: 6657396827378453809}
 --- !u!1 &3569131482340833208
@@ -105,7 +106,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: -0.7071068, w: 0.7071068}
   m_LocalPosition: {x: 0, y: 0, z: -0.75}
-  m_LocalScale: {x: 0.25, y: 0.25, z: 0.25}
+  m_LocalScale: {x: 0.35, y: 0.35, z: 0.35}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 4573404910057943716}
