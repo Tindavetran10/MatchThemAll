@@ -457,9 +457,9 @@ Canvas:
   m_OverrideSorting: 0
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
-  m_VertexColorAlwaysGammaSpace: 1
+  m_VertexColorAlwaysGammaSpace: 0
   m_UseReflectionProbes: 0
-  m_AdditionalShaderChannelsFlag: 0
+  m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
   m_SortingOrder: 0
@@ -1048,7 +1048,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   itemSpotParent: {fileID: 2114317824}
-  itemLocalPositionOnSpot: {x: 0.095, y: 0, z: 0.095}
+  itemLocalPositionOnSpot: {x: 0.075, y: 0, z: 0.095}
   itemLocalScaleOnSpot: {x: 0.2, y: 0.2, z: 0.2}
   animationDuration: 0.1
   animationEase: 7
