@@ -49,7 +49,6 @@ public class ItemPlacer : MonoBehaviour
     
     private void OnValidate()
     {
-        Debug.Log("OnValidate called!"); // Add this line
         for (int i = 0; i < itemData.Count; i++) {
             var data = itemData[i]; // Get a copy of the struct
 

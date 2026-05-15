@@ -16,40 +16,64 @@ public class InputManager : MonoBehaviour
     // Material used to create a visual outline effect when an item is selected
     [SerializeField] private Material outlineMaterial;
     
+    [Header("Optimization")]
+    [SerializeField] private LayerMask itemLayerMask;
+
+    
     // Reference to the currently selected item (if any)
     // Helps maintain the selection state during drag operations
     private Item _currentItem;
+    private MTAInputSystem_Actions _input;
+    
+    private Camera _mainCamera;
     
     // Start method is called once when the GameObject is first created
     // Currently empty but available for initialization code
     private void Start()
     {
-        
+        _mainCamera = Camera.main;
+        _input = new MTAInputSystem_Actions();
+        _input.Gameplay.Click.Enable();     // button action
+        _input.Gameplay.Pointer.Enable();  
     }
 
     // Update method is called every frame by Unity's game loop
     // Handles both drag selection and mouse release events
     private void Update()
     {
-        // Check if the left mouse button (button 0) is being held down
-        if(Input.GetMouseButton(0))
-            // While the mouse is held, continuously check for item selection
-            HandleDrag(); 
-        // Check if the left mouse button was released this frame
-        else if (Input.GetMouseButtonUp(0))
-            // When the mouse is released, finalize the item selection
-            HandleMouseUp();
+        if(GameManager.instance.IsGame())
+            HandleControl();
     }
+
+    private void HandleControl()
+    {
+        if (_input.Gameplay.Click.IsPressed())
+            HandleDrag();
+        else if (_input.Gameplay.Click.WasReleasedThisFrame()) HandleMouseUp();
+    }
+
+    private void OnDestroy() => _input?.Dispose();
 
     // Private method to handle mouse drag/hover for item selection
     // This provides real-time visual feedback as the user hovers over items
     private void HandleDrag()
     {
+        // This returns a Vector2 in *screen* pixel coordinates.
+        var pointerScreenPos = _input.Gameplay.Pointer.ReadValue<Vector2>();
+        var ray = _mainCamera.ScreenPointToRay(pointerScreenPos);
+        
         // Cast a ray from the main camera through the mouse position into the 3D world
         // The ray extends 100 units from the camera
         // out RaycastHit hit stores information about what the ray hits.
         // The Ray can only hit game objects that have a collider
-        Physics.Raycast(Camera.main!.ScreenPointToRay(Input.mousePosition), out RaycastHit hit, 100);
+        //Physics.Raycast(Camera.main!.ScreenPointToRay(Input.mousePosition), out RaycastHit hit, 100);
+        
+        // Only raycast against items (skip UI, floor, etc.)
+        if (!Physics.Raycast(ray, out var hit, 100f, itemLayerMask))
+        {
+            DeselectCurrentItem();
+            return;
+        }
         
         // If the ray didn't hit any collider, deselect the current item and exit
         if(hit.collider == null)

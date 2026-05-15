@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 4573404910057943716}
   - component: {fileID: 1413593127722505584}
   - component: {fileID: 7559479663845612207}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Blue Potion
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -89,7 +89,7 @@ GameObject:
   - component: {fileID: 3103961832388048250}
   - component: {fileID: 146297581253339410}
   - component: {fileID: 6657396827378453809}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Renderer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
