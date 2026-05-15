@@ -1,6 +1,8 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Pool;
 
 namespace MatchThemAll.Scripts
 {
@@ -17,9 +19,43 @@ namespace MatchThemAll.Scripts
 
         [Header("Particles")]
         [SerializeField] private ParticleSystem mergeParticle;
+        [SerializeField] private int particlePoolMaxSize = 10;
 
-        private void Awake() => ItemSpotManager.MergeStarted += OnMergeStarted;
-        private void OnDestroy() => ItemSpotManager.MergeStarted -= OnMergeStarted;
+        // Reuses ParticleSystem instances instead of Instantiate/Destroy each merge
+        private IObjectPool<ParticleSystem> _particlePool;
+
+        private void Awake()
+        {
+            ItemSpotManager.MergeStarted += OnMergeStarted;
+
+            _particlePool = new ObjectPool<ParticleSystem>(
+                createFunc:      CreateParticle,
+                actionOnGet:     ps => ps.gameObject.SetActive(true),
+                actionOnRelease: ps => ps.gameObject.SetActive(false),
+                actionOnDestroy: ps => Destroy(ps.gameObject),
+                collectionCheck: false,
+                defaultCapacity: 4,
+                maxSize:         particlePoolMaxSize
+            );
+        }
+
+        private void OnDestroy()
+        {
+            ItemSpotManager.MergeStarted -= OnMergeStarted;
+
+            // Stop all pending return-to-pool coroutines so none can fire
+            // against already-destroyed objects during scene teardown.
+            // The scene unload destroys pooled GameObjects automatically —
+            // no explicit pool.Clear() needed.
+            StopAllCoroutines();
+        }
+
+        private ParticleSystem CreateParticle()
+        {
+            ParticleSystem ps = Instantiate(mergeParticle, transform);
+            ps.gameObject.SetActive(false);
+            return ps;
+        }
 
         private void OnMergeStarted(List<Item> items)
         {
@@ -28,7 +64,6 @@ namespace MatchThemAll.Scripts
                 Vector3 targetPos = items[i].transform.position + items[i].transform.right * goUpDistance;
 
                 Action callback = null;
-
                 if (i == 0)
                     callback = () => SmashItem(items);
 
@@ -40,12 +75,10 @@ namespace MatchThemAll.Scripts
 
         private void SmashItem(List<Item> items)
         {
-            // Sort items from left to right
             items.Sort((a, b) => a.transform.position.x.CompareTo(b.transform.position.x));
 
             float targetX = items[1].transform.position.x;
 
-            // Move outer items to the center
             LeanTween.moveX(items[0].gameObject, targetX, smashDuration)
                 .setEase(smashEasing)
                 .setOnComplete(() => FinalizeMerge(items));
@@ -53,7 +86,6 @@ namespace MatchThemAll.Scripts
             LeanTween.moveX(items[2].gameObject, targetX, smashDuration)
                 .setEase(smashEasing);
 
-            // Subtle "bounce" on the middle item
             LeanTween.moveY(items[1].gameObject, items[1].transform.position.y + 0.1f, smashDuration * 0.5f)
                 .setEase(LeanTweenType.easeOutQuad)
                 .setLoopPingPong(1);
@@ -61,18 +93,29 @@ namespace MatchThemAll.Scripts
 
         private void FinalizeMerge(List<Item> items)
         {
-            // Cache position before destroying items to avoid accessing a destroyed transform
+            // Cache position before destroying items
             Vector3 mergePosition = items[1].transform.position;
 
             foreach (var item in items)
                 Destroy(item.gameObject);
 
-            ParticleSystem particle = Instantiate(mergeParticle, mergePosition, Quaternion.identity, transform);
-            particle.Play();
+            // Get a pooled particle instead of Instantiating a new one
+            ParticleSystem ps = _particlePool.Get();
+            ps.transform.position = mergePosition;
+            ps.Play();
 
-            // Auto-destroy the particle GameObject after it finishes playing
-            float lifetime = particle.main.duration + particle.main.startLifetime.constantMax;
-            Destroy(particle.gameObject, lifetime);
+            float lifetime = ps.main.duration + ps.main.startLifetime.constantMax;
+            StartCoroutine(ReturnParticleToPool(ps, lifetime));
+        }
+
+        private IEnumerator ReturnParticleToPool(ParticleSystem ps, float delay)
+        {
+            yield return new WaitForSeconds(delay);
+
+            // The scene may have reloaded and destroyed this object while the coroutine was waiting.
+            // Unity's == null check correctly returns true for destroyed UnityEngine.Objects.
+            if (ps != null)
+                _particlePool.Release(ps);
         }
     }
 }

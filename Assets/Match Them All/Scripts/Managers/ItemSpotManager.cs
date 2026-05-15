@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 namespace MatchThemAll.Scripts
@@ -73,20 +72,18 @@ namespace MatchThemAll.Scripts
         private ItemSpot GetIdealSpotFor(Item item)
         {
             List<Item> items = _itemMergeDataDictionary[item.ItemNameKey].Items;
-            List<ItemSpot> itemSpots = items.Select(t => t.spot).ToList();
 
-            if (itemSpots.Count >= 2)
+            // Find the rightmost sibling index among all similar items — no LINQ, zero allocation
+            int maxSiblingIndex = -1;
+            for (int i = 0; i < items.Count; i++)
             {
-                itemSpots.Sort((a, b) =>
-                    b.transform.GetSiblingIndex().CompareTo(a.transform.GetSiblingIndex()));
+                int idx = items[i].spot.transform.GetSiblingIndex();
+                if (idx > maxSiblingIndex)
+                    maxSiblingIndex = idx;
             }
 
-            // Clamp to prevent IndexOutOfRangeException when last slot is occupied
-            int idealSpotIndex = Mathf.Clamp(
-                itemSpots[0].transform.GetSiblingIndex() + 1,
-                0,
-                _spots.Length - 1);
-
+            // Clamp to prevent IndexOutOfRangeException when the last slot is occupied
+            int idealSpotIndex = Mathf.Clamp(maxSiblingIndex + 1, 0, _spots.Length - 1);
             return _spots[idealSpotIndex];
         }
 
@@ -258,10 +255,14 @@ namespace MatchThemAll.Scripts
         private void CreateItemMergeData(Item item) =>
             _itemMergeDataDictionary.Add(item.ItemNameKey, new ItemMergeData(item));
 
-        private ItemSpot GetFreeSpot() =>
-            _spots.FirstOrDefault(t => t.IsEmpty());
+        // Plain for-loop — avoids the delegate allocation that FirstOrDefault creates each call
+        private ItemSpot GetFreeSpot()
+        {
+            for (int i = 0; i < _spots.Length; i++)
+                if (_spots[i].IsEmpty()) return _spots[i];
+            return null;
+        }
 
-        // Delegates to GetFreeSpot to avoid iterating the array twice
         private bool IsFreeSpotAvailable() => GetFreeSpot() != null;
 
         private void StoreSpot()

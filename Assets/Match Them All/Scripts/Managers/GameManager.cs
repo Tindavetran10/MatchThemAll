@@ -16,7 +16,12 @@ namespace MatchThemAll.Scripts
         {
             if (instance == null)
                 instance = this;
-            else Destroy(gameObject);
+            else { Destroy(gameObject); return; }
+
+            // Mobile: cap framerate and disable vSync to reduce battery drain
+            // and prevent GPU thermal throttling on mid-range devices.
+            Application.targetFrameRate = 60;
+            QualitySettings.vSyncCount = 0;
         }
 
         private void Start()
