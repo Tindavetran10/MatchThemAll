@@ -13,8 +13,8 @@ namespace MatchThemAll.Scripts
         private int  _currentTime;
         private bool _isRunning;
 
-        private void Awake() => LevelManager.levelSpawned += OnLevelSpawned;
-        private void OnDestroy() => LevelManager.levelSpawned -= OnLevelSpawned;
+        private void Awake() => LevelManager.LevelSpawned += OnLevelSpawned;
+        private void OnDestroy() => LevelManager.LevelSpawned -= OnLevelSpawned;
 
         private void OnLevelSpawned(Level level)
         {
@@ -60,7 +60,11 @@ namespace MatchThemAll.Scripts
 
         public void GameStateChangedCallback(EGameState gameState)
         {
-            if (gameState is EGameState.LEVELCOMPLETE or EGameState.GAMEOVER)
+            if (gameState == EGameState.PAUSED)
+                StopTimer();
+            else if (gameState == EGameState.GAME && GameManager.instance.PreviousState == EGameState.PAUSED)
+                StartTimer(); // resume from pause — don't reset _currentTime
+            else if (gameState is EGameState.LEVELCOMPLETE or EGameState.GAMEOVER)
                 StopTimer();
         }
 

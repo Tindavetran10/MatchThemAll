@@ -23,5 +23,7 @@ namespace MatchThemAll.Scripts
 
         public ItemLevelData[] GetGoals() =>
             _data != null ? _data.GetGoals() : System.Array.Empty<ItemLevelData>();
+
+        public Item[] GetItems() => itemPlacer.GetItems();
     }
 }

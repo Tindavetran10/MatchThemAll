@@ -7,7 +7,7 @@ public static class StaticEventCleaner
     public static void Clear()
     {
         // Reset all static Unity events
-        LevelManager.levelSpawned = null;
+        LevelManager.LevelSpawned = null;
         InputManager.ItemClicked = null;
         ItemSpotManager.MergeStarted = null;
         ItemSpotManager.ItemPickedUp = null;

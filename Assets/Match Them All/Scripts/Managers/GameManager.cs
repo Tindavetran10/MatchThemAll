@@ -8,6 +8,10 @@ namespace MatchThemAll.Scripts
     {
         public static GameManager instance;
         private EGameState gameState;
+        private EGameState _previousGameState;
+
+        /// <summary>The state the game was in before the most recent SetGameState call.</summary>
+        public EGameState PreviousState => _previousGameState;
 
         // Cached once in Start() — avoids repeated FindObjectsByType allocations on every state change
         private IGameStateListener[] _cachedListeners;
@@ -36,15 +40,18 @@ namespace MatchThemAll.Scripts
 
         public void SetGameState(EGameState gameState)
         {
+            _previousGameState = this.gameState;
             this.gameState = gameState;
 
             foreach (IGameStateListener listener in _cachedListeners)
                 listener.GameStateChangedCallback(gameState);
         }
 
-        public void StartGame() => SetGameState(EGameState.GAME);
+        public void StartGame()  => SetGameState(EGameState.GAME);
+        public void PauseGame()  => SetGameState(EGameState.PAUSED);
+        public void ResumeGame() => SetGameState(EGameState.GAME);
 
-        public void NextButtonCallback() => SceneManager.LoadScene(0);
+        public void NextButtonCallback()  => SceneManager.LoadScene(0);
         public void RetryButtonCallback() => SceneManager.LoadScene(0);
 
         public bool IsGame() => gameState == EGameState.GAME;

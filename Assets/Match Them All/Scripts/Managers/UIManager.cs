@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 namespace MatchThemAll.Scripts
 {
@@ -7,15 +7,22 @@ namespace MatchThemAll.Scripts
         [Header("Panels")]
         [SerializeField] private GameObject menuPanel;
         [SerializeField] private GameObject gamePanel;
+        [SerializeField] private GameObject pausePanel;
         [SerializeField] private GameObject levelCompletePanel;
         [SerializeField] private GameObject gameOverPanel;
 
         public void GameStateChangedCallback(EGameState gameState)
         {
             menuPanel.SetActive(gameState == EGameState.MENU);
-            gamePanel.SetActive(gameState == EGameState.GAME);
+
+            // Keep the game HUD (goals, timer) visible while paused.
+            gamePanel.SetActive(gameState == EGameState.GAME || gameState == EGameState.PAUSED);
+
+            // Pause overlay sits on top of the game panel.
+            pausePanel.SetActive(gameState == EGameState.PAUSED);
+
             levelCompletePanel.SetActive(gameState == EGameState.LEVELCOMPLETE);
             gameOverPanel.SetActive(gameState == EGameState.GAMEOVER);
         }
     }
-}
+}

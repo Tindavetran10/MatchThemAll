@@ -1,10 +1,11 @@
-﻿namespace MatchThemAll.Scripts
+namespace MatchThemAll.Scripts
 {
     public enum EGameState
     {
         MENU = 0,
         GAME = 1,
         LEVELCOMPLETE = 2,
-        GAMEOVER = 3
+        GAMEOVER = 3,
+        PAUSED = 4
     }
 }

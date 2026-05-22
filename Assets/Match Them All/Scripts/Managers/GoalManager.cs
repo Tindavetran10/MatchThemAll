@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using MatchThemAll.Scripts;
 using MatchThemAll.Scripts.UI;
 using UnityEngine;
 
@@ -7,27 +6,37 @@ namespace MatchThemAll.Scripts
 {
     public class GoalManager : MonoBehaviour
     {
+        public static GoalManager Instance;
+        
         [Header(" References ")]
         [SerializeField] private Transform goalCardParent;
         [SerializeField] private GoalCard goalCardPrefab;
 
         [Header(" Data ")]
         private ItemLevelData[] _goals;
-        private List<GoalCard> goalCards = new List<GoalCard>();
+        private readonly List<GoalCard> _goalCards = new List<GoalCard>();
+        
+        public ItemLevelData[] Goals => _goals;
 
         // O(1) lookup: item name -> index into _goals / goalCards
         private readonly Dictionary<EItemName, int> _goalIndexByName = new Dictionary<EItemName, int>();
 
         private void Awake()
         {
-            LevelManager.levelSpawned += OnLevelSpawned;
+            if (Instance == null)
+                Instance = this;
+            else Destroy(gameObject);
+            
+            LevelManager.LevelSpawned += OnLevelSpawned;
             ItemSpotManager.ItemPickedUp += OnItemPickedUp;
+            PowerupManager.ItemPickup += OnItemPickedUp;
         }
 
         private void OnDestroy()
         {
-            LevelManager.levelSpawned -= OnLevelSpawned;
+            LevelManager.LevelSpawned -= OnLevelSpawned;
             ItemSpotManager.ItemPickedUp -= OnItemPickedUp;
+            PowerupManager.ItemPickup -= OnItemPickedUp;
         }
 
         private void OnLevelSpawned(Level level)
@@ -52,7 +61,7 @@ namespace MatchThemAll.Scripts
         {
             var cardInstance = Instantiate(goalCardPrefab, goalCardParent);
             cardInstance.Configure(goal.amount, goal.itemPrefab.Icon);
-            goalCards.Add(cardInstance);
+            _goalCards.Add(cardInstance);
         }
 
         private void OnItemPickedUp(Item item)
@@ -66,23 +75,20 @@ namespace MatchThemAll.Scripts
             if (_goals[i].amount <= 0)
                 CompleteGoals(i);
             else
-                goalCards[i].UpdateAmount(_goals[i].amount);
+                _goalCards[i].UpdateAmount(_goals[i].amount);
         }
 
         private void CompleteGoals(int goalIndex)
         {
             Debug.Log($"Goal {goalIndex} completed!");
-            goalCards[goalIndex].Complete();
+            _goalCards[goalIndex].Complete();
             CheckForLevelComplete();
         }
 
         private void CheckForLevelComplete()
         {
             for (var i = 0; i < _goals.Length; i++)
-            {
-                if (_goals[i].amount > 0)
-                    return;
-            }
+                if (_goals[i].amount > 0) return;
 
             GameManager.instance.SetGameState(EGameState.LEVELCOMPLETE);
         }

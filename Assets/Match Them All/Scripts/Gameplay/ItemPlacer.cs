@@ -15,6 +15,9 @@ namespace MatchThemAll.Scripts
     {
         [Header("Elements")]
         [SerializeField] private BoxCollider spawnZone;
+        
+        [Header("Data")]
+        private Item[] _items;
 
         /// <summary>
         /// Called by Level.Initialize() at runtime.
@@ -43,6 +46,12 @@ namespace MatchThemAll.Scripts
 
             Vector3 localPos = spawnZone.center + new Vector3(x, y, z);
             return transform.TransformPoint(localPos);
+        }
+
+        public Item[] GetItems()
+        {
+            _items ??= GetComponentsInChildren<Item>();
+            return _items;
         }
 
 #if UNITY_EDITOR

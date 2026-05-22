@@ -6,6 +6,8 @@ namespace MatchThemAll.Scripts
 {
     public class LevelManager : MonoBehaviour, IGameStateListener
     {
+        public static LevelManager Instance;
+        
         [Header("Data")]
         [Tooltip("Array of LevelDataSO assets — one per level. Order determines play sequence.")]
         [SerializeField] private LevelDataSO[] levels;
@@ -17,11 +19,19 @@ namespace MatchThemAll.Scripts
         private const string levelKey = "Level";
         private int levelIndex;
         private Level currentLevel;
+        public Item[] Items => currentLevel.GetItems();
 
         [Header("Actions")]
-        public static Action<Level> levelSpawned;
+        public static Action<Level> LevelSpawned;
+        
+        private void Awake()
+        {
+            if (Instance == null)
+                Instance = this;
+            else Destroy(gameObject);
 
-        private void Awake() => LoadData();
+            LoadData();
+        }
 
         private void SpawnLevel()
         {
@@ -37,7 +47,7 @@ namespace MatchThemAll.Scripts
             currentLevel.Initialize(levels[index]);
 
             // 3. Notify listeners (TimerManager, GoalManager, etc.)
-            levelSpawned?.Invoke(currentLevel);
+            LevelSpawned?.Invoke(currentLevel);
         }
 
         private void LoadData() => levelIndex = PlayerPrefs.GetInt(levelKey, 0);
@@ -56,7 +66,9 @@ namespace MatchThemAll.Scripts
 
         public void GameStateChangedCallback(EGameState gameState)
         {
-            if (gameState == EGameState.GAME)
+            // Only spawn a fresh level when transitioning from a non-pause state.
+            // Resuming from PAUSED should never re-spawn the current level.
+            if (gameState == EGameState.GAME && GameManager.instance.PreviousState != EGameState.PAUSED)
                 SpawnLevel();
             else if (gameState == EGameState.LEVELCOMPLETE)
             {
