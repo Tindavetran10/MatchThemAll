@@ -270,6 +270,70 @@ namespace MatchThemAll.Scripts
             _spots = new ItemSpot[itemSpotParent.childCount];
             for (int i = 0; i < itemSpotParent.childCount; i++)
                 _spots[i] = itemSpotParent.GetChild(i).GetComponent<ItemSpot>();
+
+            SnapSpotsToPixelGrid();
+        }
+
+        private void SnapSpotsToPixelGrid()
+        {
+            var cam = Camera.main;
+            if (cam == null) return;
+
+            // Get the current pixelSize from the PixelizeFeature settings
+            int pixelSize = 8; // default fallback
+            
+            var pipelineAsset = UnityEngine.Rendering.GraphicsSettings.defaultRenderPipeline as UnityEngine.Rendering.Universal.UniversalRenderPipelineAsset;
+            if (pipelineAsset != null)
+            {
+                var rendererDataField = typeof(UnityEngine.Rendering.Universal.UniversalRenderPipelineAsset).GetField("m_RendererDataList", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                if (rendererDataField != null)
+                {
+                    var dataList = rendererDataField.GetValue(pipelineAsset) as UnityEngine.Rendering.Universal.ScriptableRendererData[];
+                    if (dataList != null && dataList.Length > 0)
+                    {
+                        foreach (var data in dataList)
+                        {
+                            if (data == null) continue;
+                            foreach (var feature in data.rendererFeatures)
+                            {
+                                if (feature != null && feature.GetType().FullName.Contains("PixelizeFeature"))
+                                {
+                                    var settingsField = feature.GetType().GetField("settings", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                                    if (settingsField != null)
+                                    {
+                                        var settings = settingsField.GetValue(feature);
+                                        var pixelSizeField = settings.GetType().GetField("pixelSize", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+                                        if (pixelSizeField != null)
+                                        {
+                                            pixelSize = (int)pixelSizeField.GetValue(settings);
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Snapping calculation in Orthographic projection:
+            // 1 world unit = (screen height / (2 * orthographicSize)) screen pixels
+            // 1 low-res pixel = pixelSize screen pixels
+            // Therefore, 1 low-res pixel in world units = (2 * orthographicSize * pixelSize) / screen height
+            float orthoSize = cam.orthographicSize;
+            float screenHeight = cam.pixelHeight > 0 ? cam.pixelHeight : Screen.height;
+            float pixelSizeInWorld = (2f * orthoSize * pixelSize) / screenHeight;
+
+            if (pixelSizeInWorld <= 0f) return;
+
+            foreach (var spot in _spots)
+            {
+                if (spot == null) continue;
+                Vector3 worldPos = spot.transform.position;
+                worldPos.x = Mathf.Round(worldPos.x / pixelSizeInWorld) * pixelSizeInWorld;
+                worldPos.y = Mathf.Round(worldPos.y / pixelSizeInWorld) * pixelSizeInWorld;
+                spot.transform.position = worldPos;
+            }
         }
     }
 }
