@@ -16,8 +16,6 @@ namespace MatchThemAll.Scripts
         [SerializeField] [Range(1, 100)] public int amount;
 
         public bool ValidateAmount(int value) // ✅Public method with required signature
-        {
-            return value % 3 == 0;
-        }
+            => value % 3 == 0;
     }
 }

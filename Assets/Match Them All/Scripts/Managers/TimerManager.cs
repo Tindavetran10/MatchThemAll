@@ -1,5 +1,4 @@
 using System.Collections;
-using MatchThemAll.Scripts;
 using TMPro;
 using UnityEngine;
 
@@ -49,23 +48,29 @@ namespace MatchThemAll.Scripts
             // Direct integer math — no TimeSpan, no Substring, no extra allocations
             int minutes = _currentTime / 60;
             int seconds = _currentTime % 60;
-            timerText.text = string.Format("{0:D2}:{1:D2}", minutes, seconds);
+            timerText.text = $"{minutes:D2}:{seconds:D2}";
         }
 
         private void TimerFinished()
         {
             StopTimer();
-            GameManager.instance.SetGameState(EGameState.GAMEOVER);
+            GameManager.Instance.SetGameState(EGameState.GAMEOVER);
         }
 
         public void GameStateChangedCallback(EGameState gameState)
         {
-            if (gameState == EGameState.PAUSED)
-                StopTimer();
-            else if (gameState == EGameState.GAME && GameManager.instance.PreviousState == EGameState.PAUSED)
-                StartTimer(); // resume from pause — don't reset _currentTime
-            else if (gameState is EGameState.LEVELCOMPLETE or EGameState.GAMEOVER)
-                StopTimer();
+            switch (gameState)
+            {
+                case EGameState.PAUSED:
+                    StopTimer();
+                    break;
+                case EGameState.GAME when GameManager.Instance.PreviousState == EGameState.PAUSED:
+                    StartTimer(); // resume from pause — don't reset _currentTime
+                    break;
+                case EGameState.LEVELCOMPLETE or EGameState.GAMEOVER:
+                    StopTimer();
+                    break;
+            }
         }
 
         private void StopTimer()

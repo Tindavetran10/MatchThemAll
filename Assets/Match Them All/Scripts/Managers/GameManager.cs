@@ -6,8 +6,8 @@ namespace MatchThemAll.Scripts
 {
     public class GameManager : MonoBehaviour
     {
-        public static GameManager instance;
-        private EGameState gameState;
+        public static GameManager Instance;
+        private EGameState _gameState;
         private EGameState _previousGameState;
 
         /// <summary>The state the game was in before the most recent SetGameState call.</summary>
@@ -18,8 +18,8 @@ namespace MatchThemAll.Scripts
 
         private void Awake()
         {
-            if (instance == null)
-                instance = this;
+            if (Instance == null)
+                Instance = this;
             else { Destroy(gameObject); return; }
 
             // Mobile: cap framerate and disable vSync to reduce battery drain
@@ -40,8 +40,8 @@ namespace MatchThemAll.Scripts
 
         public void SetGameState(EGameState gameState)
         {
-            _previousGameState = this.gameState;
-            this.gameState = gameState;
+            _previousGameState = _gameState;
+            _gameState = gameState;
 
             foreach (IGameStateListener listener in _cachedListeners)
                 listener.GameStateChangedCallback(gameState);
@@ -54,6 +54,6 @@ namespace MatchThemAll.Scripts
         public void NextButtonCallback()  => SceneManager.LoadScene(0);
         public void RetryButtonCallback() => SceneManager.LoadScene(0);
 
-        public bool IsGame() => gameState == EGameState.GAME;
+        public bool IsGame() => _gameState == EGameState.GAME;
     }
 }

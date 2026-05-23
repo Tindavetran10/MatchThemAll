@@ -3,7 +3,18 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 3
-  tags: []
+  tags:
+  - AttackCollider
+  - Shield
+  - clawInside
+  - Slot02
+  - Slot01
+  - Slot04
+  - Slot05
+  - Slot03
+  - DropReward
+  - PinPoint
+  - FxTemporaire
   layers:
   - Default
   - TransparentFX
@@ -12,7 +23,7 @@ TagManager:
   - Water
   - UI
   - Match Stuff
-  - 
+  - Power Ups
   - 
   - 
   - 

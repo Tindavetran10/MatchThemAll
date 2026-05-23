@@ -90,7 +90,7 @@ namespace MatchThemAll.Scripts
             for (var i = 0; i < _goals.Length; i++)
                 if (_goals[i].amount > 0) return;
 
-            GameManager.instance.SetGameState(EGameState.LEVELCOMPLETE);
+            GameManager.Instance.SetGameState(EGameState.LEVELCOMPLETE);
         }
     }
 }

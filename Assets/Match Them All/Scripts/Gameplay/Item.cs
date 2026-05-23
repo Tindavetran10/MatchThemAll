@@ -12,7 +12,7 @@ namespace MatchThemAll.Scripts
         [SerializeField] private Sprite icon;
         public Sprite Icon => icon;
 
-        public ItemSpot spot { get; private set; }
+        public ItemSpot Spot { get; private set; }
 
         [Header("Elements")]
         [SerializeField] private Renderer _renderer;
@@ -28,15 +28,21 @@ namespace MatchThemAll.Scripts
             _rigidbody = GetComponent<Rigidbody>();
         }
 
-        public void AssignSpot(ItemSpot spot) => this.spot = spot;
+        public void AssignSpot(ItemSpot spot) => this.Spot = spot;
 
         public void DisableShadow() =>
             _renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
 
         public void DisablePhysics()
         {
-            _rigidbody.isKinematic = true;
-            _collider.enabled = false;
+            if (_rigidbody != null)
+            {
+                _rigidbody.isKinematic = true;
+            }
+            if (_collider != null)
+            {
+                _collider.enabled = false;
+            }
         }
 
         public void Select(Material outlineMaterial) =>

@@ -50,8 +50,7 @@ namespace MatchThemAll.Scripts
 
         public Item[] GetItems()
         {
-            _items ??= GetComponentsInChildren<Item>();
-            return _items;
+            return GetComponentsInChildren<Item>();
         }
 
 #if UNITY_EDITOR

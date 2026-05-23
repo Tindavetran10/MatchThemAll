@@ -1,4 +1,5 @@
 using System;
+using Match_Them_All.Scripts.Power_Ups;
 using MatchThemAll.Scripts;
 using UnityEngine;
 
@@ -11,6 +12,7 @@ public class InputManager : MonoBehaviour
     // Multiple observers can subscribe to this event without the InputManager knowing about them.
     // This creates loose coupling - InputManager doesn't depend on specific observer classes
     public static Action<Item> ItemClicked;
+    public static Action<Powerup> powerupClicked;
     
     [Header("Settings")] 
     // Material used to create a visual outline effect when an item is selected
@@ -18,6 +20,7 @@ public class InputManager : MonoBehaviour
     
     [Header("Optimization")]
     [SerializeField] private LayerMask itemLayerMask;
+    [SerializeField] private LayerMask powerupLayerMask;
 
     
     // Reference to the currently selected item (if any)
@@ -41,19 +44,35 @@ public class InputManager : MonoBehaviour
     // Handles both drag selection and mouse release events
     private void Update()
     {
-        if(GameManager.instance.IsGame())
+        if(GameManager.Instance.IsGame())
             HandleControl();
     }
 
     private void HandleControl()
     {
-        if (_input.Gameplay.Click.IsPressed())
+        if (_input.Gameplay.Click.WasPressedThisFrame())
+            HandleMouseDown();
+        else if (_input.Gameplay.Click.IsPressed())
             HandleDrag();
         else if (_input.Gameplay.Click.WasReleasedThisFrame()) HandleMouseUp();
     }
 
     private void OnDestroy() => _input?.Dispose();
 
+    private void HandleMouseDown()
+    {
+        // This returns a Vector2 in *screen* pixel coordinates.
+        var pointerScreenPos = _input.Gameplay.Pointer.ReadValue<Vector2>();
+        var ray = _mainCamera.ScreenPointToRay(pointerScreenPos);
+
+        Physics.Raycast(ray, out var hit, 100f, powerupLayerMask);
+        
+        if(hit.collider == null)
+            return;
+        
+        powerupClicked?.Invoke(hit.collider.GetComponent<Powerup>());
+    }
+    
     // Private method to handle mouse drag/hover for item selection
     // This provides real-time visual feedback as the user hovers over items
     private void HandleDrag()

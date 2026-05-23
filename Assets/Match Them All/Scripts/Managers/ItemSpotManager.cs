@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using UnityEngine;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
 
 namespace MatchThemAll.Scripts
 {
@@ -30,10 +33,40 @@ namespace MatchThemAll.Scripts
         private void Awake()
         {
             InputManager.ItemClicked += OnItemClicked;
+            LevelManager.LevelSpawned += OnLevelSpawned;
             StoreSpot();
         }
 
-        private void OnDestroy() => InputManager.ItemClicked -= OnItemClicked;
+        private void OnDestroy()
+        {
+            InputManager.ItemClicked -= OnItemClicked;
+            LevelManager.LevelSpawned -= OnLevelSpawned;
+        }
+
+        private void OnLevelSpawned(Level level)
+        {
+            ResetSpotsAndState();
+        }
+
+        public void ResetSpotsAndState()
+        {
+            _itemMergeDataDictionary.Clear();
+            _isBusy = false;
+            if (_spots != null)
+            {
+                foreach (var spot in _spots)
+                {
+                    if (spot != null)
+                    {
+                        if (spot.Item != null)
+                        {
+                            Destroy(spot.Item.gameObject);
+                        }
+                        spot.Clear();
+                    }
+                }
+            }
+        }
 
         private void OnItemClicked(Item item)
         {
@@ -77,7 +110,7 @@ namespace MatchThemAll.Scripts
             int maxSiblingIndex = -1;
             for (int i = 0; i < items.Count; i++)
             {
-                int idx = items[i].spot.transform.GetSiblingIndex();
+                int idx = items[i].Spot.transform.GetSiblingIndex();
                 if (idx > maxSiblingIndex)
                     maxSiblingIndex = idx;
             }
@@ -117,7 +150,7 @@ namespace MatchThemAll.Scripts
 
         private void HandleItemReachedSpot(Item item, bool checkForMerge = true)
         {
-            item.spot.BumpDown();
+            item.Spot.BumpDown();
 
             if (!checkForMerge) return;
 
@@ -134,7 +167,7 @@ namespace MatchThemAll.Scripts
             _itemMergeDataDictionary.Remove(itemMergeData.ItemName);
 
             foreach (var item in items)
-                item.spot.Clear();
+                item.Spot.Clear();
 
             if (_itemMergeDataDictionary.Count <= 0)
                 _isBusy = false;
@@ -240,14 +273,14 @@ namespace MatchThemAll.Scripts
 
         private void HandleFirstItemReachSpot(Item item)
         {
-            item.spot.BumpDown();
+            item.Spot.BumpDown();
             CheckForGameOver();
         }
 
         private void CheckForGameOver()
         {
             if (GetFreeSpot() == null)
-                GameManager.instance.SetGameState(EGameState.GAMEOVER);
+                GameManager.Instance.SetGameState(EGameState.GAMEOVER);
             else
                 _isBusy = false;
         }
@@ -270,70 +303,6 @@ namespace MatchThemAll.Scripts
             _spots = new ItemSpot[itemSpotParent.childCount];
             for (int i = 0; i < itemSpotParent.childCount; i++)
                 _spots[i] = itemSpotParent.GetChild(i).GetComponent<ItemSpot>();
-
-            SnapSpotsToPixelGrid();
-        }
-
-        private void SnapSpotsToPixelGrid()
-        {
-            var cam = Camera.main;
-            if (cam == null) return;
-
-            // Get the current pixelSize from the PixelizeFeature settings
-            int pixelSize = 8; // default fallback
-            
-            var pipelineAsset = UnityEngine.Rendering.GraphicsSettings.defaultRenderPipeline as UnityEngine.Rendering.Universal.UniversalRenderPipelineAsset;
-            if (pipelineAsset != null)
-            {
-                var rendererDataField = typeof(UnityEngine.Rendering.Universal.UniversalRenderPipelineAsset).GetField("m_RendererDataList", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                if (rendererDataField != null)
-                {
-                    var dataList = rendererDataField.GetValue(pipelineAsset) as UnityEngine.Rendering.Universal.ScriptableRendererData[];
-                    if (dataList != null && dataList.Length > 0)
-                    {
-                        foreach (var data in dataList)
-                        {
-                            if (data == null) continue;
-                            foreach (var feature in data.rendererFeatures)
-                            {
-                                if (feature != null && feature.GetType().FullName.Contains("PixelizeFeature"))
-                                {
-                                    var settingsField = feature.GetType().GetField("settings", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                                    if (settingsField != null)
-                                    {
-                                        var settings = settingsField.GetValue(feature);
-                                        var pixelSizeField = settings.GetType().GetField("pixelSize", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
-                                        if (pixelSizeField != null)
-                                        {
-                                            pixelSize = (int)pixelSizeField.GetValue(settings);
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            // Snapping calculation in Orthographic projection:
-            // 1 world unit = (screen height / (2 * orthographicSize)) screen pixels
-            // 1 low-res pixel = pixelSize screen pixels
-            // Therefore, 1 low-res pixel in world units = (2 * orthographicSize * pixelSize) / screen height
-            float orthoSize = cam.orthographicSize;
-            float screenHeight = cam.pixelHeight > 0 ? cam.pixelHeight : Screen.height;
-            float pixelSizeInWorld = (2f * orthoSize * pixelSize) / screenHeight;
-
-            if (pixelSizeInWorld <= 0f) return;
-
-            foreach (var spot in _spots)
-            {
-                if (spot == null) continue;
-                Vector3 worldPos = spot.transform.position;
-                worldPos.x = Mathf.Round(worldPos.x / pixelSizeInWorld) * pixelSizeInWorld;
-                worldPos.y = Mathf.Round(worldPos.y / pixelSizeInWorld) * pixelSizeInWorld;
-                spot.transform.position = worldPos;
-            }
         }
     }
 }

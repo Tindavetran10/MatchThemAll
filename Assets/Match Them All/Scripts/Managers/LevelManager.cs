@@ -16,10 +16,10 @@ namespace MatchThemAll.Scripts
         [Tooltip("A single generic Level prefab (no baked items). Reused for every level.")]
         [SerializeField] private Level levelPrefab;
 
-        private const string levelKey = "Level";
-        private int levelIndex;
-        private Level currentLevel;
-        public Item[] Items => currentLevel.GetItems();
+        private const string LevelKey = "Level";
+        private int _levelIndex;
+        private Level _currentLevel;
+        public Item[] Items => _currentLevel.GetItems();
 
         [Header("Actions")]
         public static Action<Level> LevelSpawned;
@@ -37,43 +37,52 @@ namespace MatchThemAll.Scripts
         {
             transform.Clear();
 
-            int index = levelIndex % levels.Length;
+            int index = _levelIndex % levels.Length;
 
             // 1. Instantiate the generic Level prefab
-            currentLevel = Instantiate(levelPrefab, transform);
+            _currentLevel = Instantiate(levelPrefab, transform);
 
             // 2. Initialize with SO data (spawns items, sets duration)
             //    Must happen BEFORE levelSpawned fires so listeners read correct data.
-            currentLevel.Initialize(levels[index]);
+            _currentLevel.Initialize(levels[index]);
 
             // 3. Notify listeners (TimerManager, GoalManager, etc.)
-            LevelSpawned?.Invoke(currentLevel);
+            LevelSpawned?.Invoke(_currentLevel);
         }
 
-        private void LoadData() => levelIndex = PlayerPrefs.GetInt(levelKey, 0);
+        private void LoadData() => _levelIndex = PlayerPrefs.GetInt(LevelKey, 0);
 
-        private void SaveData() => PlayerPrefs.SetInt(levelKey, levelIndex);
+        private void SaveData() => PlayerPrefs.SetInt(LevelKey, _levelIndex);
 
         /// <summary>Resets saved level progress back to Level 1.</summary>
         [Button("Reset Level Progress")]
         public void ResetLevelProgress()
         {
-            levelIndex = 0;
-            PlayerPrefs.DeleteKey(levelKey);
+            _levelIndex = 0;
+            PlayerPrefs.DeleteKey(LevelKey);
             PlayerPrefs.Save();
             Debug.Log("Level progress reset to Level 1.");
         }
 
         public void GameStateChangedCallback(EGameState gameState)
         {
-            // Only spawn a fresh level when transitioning from a non-pause state.
-            // Resuming from PAUSED should never re-spawn the current level.
-            if (gameState == EGameState.GAME && GameManager.instance.PreviousState != EGameState.PAUSED)
-                SpawnLevel();
-            else if (gameState == EGameState.LEVELCOMPLETE)
+            switch (gameState)
             {
-                levelIndex++;
-                SaveData();
+                // Only spawn a fresh level when transitioning from a non-pause state.
+                // Resuming from PAUSED should never re-spawn the current level.
+                case EGameState.GAME when GameManager.Instance.PreviousState != EGameState.PAUSED:
+                    SpawnLevel();
+                    break;
+                case EGameState.LEVELCOMPLETE:
+                    _levelIndex++;
+                    SaveData();
+                    break;
+                case EGameState.MENU:
+                case EGameState.GAMEOVER:
+                case EGameState.PAUSED:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(gameState), gameState, null);
             }
         }
     }

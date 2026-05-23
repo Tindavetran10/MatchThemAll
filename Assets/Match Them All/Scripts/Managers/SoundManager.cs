@@ -19,7 +19,7 @@ namespace MatchThemAll.Scripts
     /// </summary>
     public class SoundManager : MonoBehaviour
     {
-        public static SoundManager Instance { get; private set; }
+        private static SoundManager Instance { get; set; }
 
         [Header("Mixer")]
         [Tooltip("Assign your project's AudioMixer asset here.")]
@@ -45,20 +45,18 @@ namespace MatchThemAll.Scripts
             if (Instance == null)
             {
                 Instance = this;
+                transform.SetParent(null); // Detach from parent to ensure it's a root GameObject for DontDestroyOnLoad
                 DontDestroyOnLoad(gameObject);
                 BuildPool();
             }
-            else
-            {
-                Destroy(gameObject);
-            }
+            else Destroy(gameObject);
         }
 
         /// <summary>Creates the AudioSource components that act as the SFX pool.</summary>
         private void BuildPool()
         {
             _sfxPool = new AudioSource[sfxPoolSize];
-            for (int i = 0; i < sfxPoolSize; i++)
+            for (var i = 0; i < sfxPoolSize; i++)
             {
                 _sfxPool[i]            = gameObject.AddComponent<AudioSource>();
                 _sfxPool[i].playOnAwake = false;
@@ -83,7 +81,7 @@ namespace MatchThemAll.Scripts
                 return;
             }
 
-            AudioSource source                = GetFreeSource();
+            var source                = GetFreeSource();
             source.clip                       = data.clip;
             source.volume                     = data.volume;
             source.pitch                      = data.pitch;
@@ -98,12 +96,12 @@ namespace MatchThemAll.Scripts
         /// </summary>
         private AudioSource GetFreeSource()
         {
-            for (int i = 0; i < _sfxPool.Length; i++)
-                if (!_sfxPool[i].isPlaying)
-                    return _sfxPool[i];
+            foreach (var sfx in _sfxPool)
+                if (!sfx.isPlaying)
+                    return sfx;
 
             // All busy — steal the next source in order and restart it
-            AudioSource stolen = _sfxPool[_poolCursor % _sfxPool.Length];
+            var stolen = _sfxPool[_poolCursor % _sfxPool.Length];
             _poolCursor++;
             return stolen;
         }
@@ -151,7 +149,7 @@ namespace MatchThemAll.Scripts
             if (audioMixer == null) return;
 
             // Clamp to avoid log10(0) = -Infinity
-            float db = Mathf.Log10(Mathf.Max(0.0001f, normalizedValue)) * 20f;
+            var db = Mathf.Log10(Mathf.Max(0.0001f, normalizedValue)) * 20f;
             audioMixer.SetFloat(parameter, db);
         }
     }
