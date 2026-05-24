@@ -18,6 +18,9 @@ namespace MatchThemAll.Scripts
 
         private int _vacuumItemToCollect;
         private int _vacuumCounter;
+
+        // Optimized: pre-allocated list container reused on every call to avoid runtime list creations and GC allocations
+        private readonly List<Item> _itemsToCollect = new(3);
         
         [Header("Actions")]
         public static Action<Item> ItemPickup;
@@ -69,36 +72,35 @@ namespace MatchThemAll.Scripts
         [Button]
         private void VacuumPower()
         {
-            Item[] items = LevelManager.Instance.Items;
+            var items = LevelManager.Instance.Items;
             ItemLevelData[] goals = GoalManager.Instance.Goals;
             
-            ItemLevelData? greatestGoal = GetGreatestGoal(goals);
-            
-            if (greatestGoal == null)
+            int greatestGoalIndex = GetGreatestGoalIndex(goals);
+            if (greatestGoalIndex == -1)
                 return;
             
-            ItemLevelData goal = (ItemLevelData) greatestGoal;
+            ItemLevelData goal = goals[greatestGoalIndex];
             
             _isBusy = true;
             _vacuumCounter = 0;
-            
-            List<Item> itemsToCollect = new List<Item>();
+            _itemsToCollect.Clear();
 
             if (items != null)
             {
-                foreach (var item in items)
+                for (int i = 0; i < items.Count; i++)
                 {
+                    Item item = items[i];
                     if (item == null) continue;
                     if (item.ItemNameKey == goal.itemPrefab.ItemNameKey)
                     {
-                        itemsToCollect.Add(item);
-                        if(itemsToCollect.Count >= 3)
+                        _itemsToCollect.Add(item);
+                        if (_itemsToCollect.Count >= 3)
                             break;
                     }
                 }
             }
             
-            _vacuumItemToCollect = itemsToCollect.Count;
+            _vacuumItemToCollect = _itemsToCollect.Count;
 
             if (_vacuumItemToCollect == 0)
             {
@@ -106,25 +108,32 @@ namespace MatchThemAll.Scripts
                 return;
             }
 
-            for (int i = 0; i < itemsToCollect.Count; i++)
+            for (int i = 0; i < _itemsToCollect.Count; i++)
             {
-                if (itemsToCollect[i] == null) continue;
-                itemsToCollect[i].DisablePhysics();
-
-                Item itemToCollect = itemsToCollect[i];
+                Item itemToCollect = _itemsToCollect[i];
+                if (itemToCollect == null) continue;
                 
-                LeanTween.move(itemsToCollect[i].gameObject, vacuumSuckPosition.position, .5f)
+                itemToCollect.DisablePhysics();
+
+                // 1. Vortex move to vacuum suck position
+                LeanTween.move(itemToCollect.gameObject, vacuumSuckPosition.position, 0.5f)
                     .setEase(LeanTweenType.easeInCubic)
                     .setOnComplete(() => ItemReachedVacuum(itemToCollect));
 
-                LeanTween.scale(itemsToCollect[i].gameObject, Vector3.zero, .5f);
+                // 2. Shrink down to 0
+                LeanTween.scale(itemToCollect.gameObject, Vector3.zero, 0.5f)
+                    .setEase(LeanTweenType.easeInCubic);
+
+                // 3. Dynamic spin for aesthetic vortex feel
+                LeanTween.rotateAroundLocal(itemToCollect.gameObject, Vector3.up, 720f, 0.5f)
+                    .setEase(LeanTweenType.easeInCubic);
             }
             
-            for (int i = itemsToCollect.Count - 1; i >= 0; i--)
+            for (int i = _itemsToCollect.Count - 1; i >= 0; i--)
             {
-                if (itemsToCollect[i] == null) continue;
-                ItemPickup.Invoke(itemsToCollect[i]);
-                //Destroy(itemToCollect[i].gameObject);
+                Item itemToCollect = _itemsToCollect[i];
+                if (itemToCollect == null) continue;
+                ItemPickup?.Invoke(itemToCollect);
             }
         }
 
@@ -136,24 +145,25 @@ namespace MatchThemAll.Scripts
             Destroy(item.gameObject);
         }
 
-        private ItemLevelData? GetGreatestGoal(ItemLevelData[] goals)
+        // Optimized: Returns clean goal array index to completely avoid Nullable struct boxing overhead
+        private int GetGreatestGoalIndex(ItemLevelData[] goals)
         {
+            if (goals == null || goals.Length == 0)
+                return -1;
+
             int max = 0;
             int goalIndex = -1;
 
             for (int i = 0; i < goals.Length; i++)
             {
-                if(goals[i].amount >= max)
+                if (goals[i].amount > max)
                 {
                     max = goals[i].amount;
                     goalIndex = i;
                 }
             }
             
-            if(goals.Length <= -1)
-                return null;
-            
-            return goals[goalIndex];
+            return goalIndex;
         }
     }
 }

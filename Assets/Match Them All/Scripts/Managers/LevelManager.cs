@@ -19,7 +19,7 @@ namespace MatchThemAll.Scripts
         private const string LevelKey = "Level";
         private int _levelIndex;
         private Level _currentLevel;
-        public Item[] Items => _currentLevel.GetItems();
+        public System.Collections.Generic.List<Item> Items => _currentLevel.GetItems();
 
         [Header("Actions")]
         public static Action<Level> LevelSpawned;

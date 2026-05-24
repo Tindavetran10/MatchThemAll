@@ -17,7 +17,7 @@ namespace MatchThemAll.Scripts
         [SerializeField] private BoxCollider spawnZone;
         
         [Header("Data")]
-        private Item[] _items;
+        private readonly System.Collections.Generic.List<Item> _activeItems = new();
 
         /// <summary>
         /// Called by Level.Initialize() at runtime.
@@ -25,6 +25,7 @@ namespace MatchThemAll.Scripts
         /// </summary>
         public void Initialize(LevelDataSO data)
         {
+            _activeItems.Clear();
             Random.InitState(data.seed);
 
             foreach (var entry in data.itemData)
@@ -34,6 +35,7 @@ namespace MatchThemAll.Scripts
                     Item item = Instantiate(entry.itemPrefab, transform);
                     item.transform.position = GetSpawnPosition();
                     item.transform.rotation = Quaternion.Euler(Random.onUnitSphere * 360f);
+                    _activeItems.Add(item);
                 }
             }
         }
@@ -48,9 +50,14 @@ namespace MatchThemAll.Scripts
             return transform.TransformPoint(localPos);
         }
 
-        public Item[] GetItems()
+        public System.Collections.Generic.List<Item> GetItems()
         {
-            return GetComponentsInChildren<Item>();
+            for (int i = _activeItems.Count - 1; i >= 0; i--)
+            {
+                if (_activeItems[i] == null)
+                    _activeItems.RemoveAt(i);
+            }
+            return _activeItems;
         }
 
 #if UNITY_EDITOR

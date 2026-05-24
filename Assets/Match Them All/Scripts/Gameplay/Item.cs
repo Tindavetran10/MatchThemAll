@@ -35,14 +35,10 @@ namespace MatchThemAll.Scripts
 
         public void DisablePhysics()
         {
-            if (_rigidbody != null)
-            {
+            if (_rigidbody != null) 
                 _rigidbody.isKinematic = true;
-            }
-            if (_collider != null)
-            {
+            if (_collider != null) 
                 _collider.enabled = false;
-            }
         }
 
         public void Select(Material outlineMaterial) =>
