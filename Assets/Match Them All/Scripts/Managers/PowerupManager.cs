@@ -25,8 +25,13 @@ namespace MatchThemAll.Scripts
         [Header("Actions")]
         public static Action<Item> ItemPickup;
 
+        [Header("Data")] [SerializeField] private int initialPUCount;
+        private int vacuumPUCount;
+
         private void Awake()
         {
+            LoadData();
+            
             Vacuum.Started += OnVacuumStarted;
             InputManager.powerupClicked += OnPowerupClicked;
         }
@@ -46,6 +51,7 @@ namespace MatchThemAll.Scripts
             {
                 case EPowerupType.Vacuum:
                     HandleVacuumClicked();
+                    UpdateVacuumVisuals();
                     break;
                 case EPowerupType.Spring:
                 case EPowerupType.Fan:
@@ -59,18 +65,32 @@ namespace MatchThemAll.Scripts
         private void HandleVacuumClicked()
         {
             _vacuumRequested = true;
-            vacuum.Play();
+
+            if (vacuumPUCount <= 0)
+            {
+                vacuumPUCount = 3;
+                SaveData();
+            }
+            else
+            {
+                _isBusy = true;
+
+                vacuumPUCount--;
+                SaveData();
+                vacuum.Play();
+            }
+            
         }
 
         private void OnVacuumStarted()
         {
             if (!_vacuumRequested) return;
             _vacuumRequested = false;
-            VacuumPower();
+            VacuumPowerup();
         }
 
         [Button]
-        private void VacuumPower()
+        private void VacuumPowerup()
         {
             var items = LevelManager.Instance.Items;
             ItemLevelData[] goals = GoalManager.Instance.Goals;
@@ -81,7 +101,7 @@ namespace MatchThemAll.Scripts
             
             ItemLevelData goal = goals[greatestGoalIndex];
             
-            _isBusy = true;
+            //_isBusy = true;
             _vacuumCounter = 0;
             _itemsToCollect.Clear();
 
@@ -164,6 +184,23 @@ namespace MatchThemAll.Scripts
             }
             
             return goalIndex;
+        }
+
+        private void UpdateVacuumVisuals()
+        {
+            vacuum.UpdateVisuals(vacuumPUCount);
+        }
+
+        private void LoadData()
+        {
+            vacuumPUCount = PlayerPrefs.GetInt("vacuumPUCount", initialPUCount);
+
+            UpdateVacuumVisuals();
+        }
+
+        private void SaveData()
+        {
+            PlayerPrefs.SetInt("vacuumPUCount", vacuumPUCount);
         }
     }
 }
