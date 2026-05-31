@@ -42,7 +42,7 @@ namespace ProPixelizer
         public RTHandle _OutlineBuffer;
 
         // ----- Private -----
-        private MaterialLibrary _materials;
+        private readonly MaterialLibrary _materials;
 
         // -----------------------------------------------------------------------
         //  Shader resources
@@ -159,88 +159,86 @@ namespace ProPixelizer
             var listParams     = new RendererListParams(renderingData.cullResults, drawSettings, filterSettings);
             var rendererList   = renderGraph.CreateRendererList(listParams);
 
-            using (var builder = renderGraph.AddUnsafePass<PassData>(PROFILER_TAG, out var passData))
+            using var builder = renderGraph.AddUnsafePass<PassData>(PROFILER_TAG, out var passData);
+            // Populate pass data.
+            passData.DepthTestOutlines        = DepthTestOutlines;
+            passData.DepthTestThreshold       = DepthTestThreshold;
+            passData.UseNormals               = UseNormalsForEdgeDetection;
+            passData.NormalSensitivity        = NormalEdgeDetectionSensitivity;
+            passData.PixelScale               = cameraData.cameraType == CameraType.Preview ? 0.01f : 1f;
+            passData.TexelSize                = texelSize;
+            var hp = RTHandles.rtHandleProperties;
+            passData.RenderTargetInfo         = new Vector4(
+                cameraData.cameraTargetDescriptor.width,
+                cameraData.cameraTargetDescriptor.height,
+                hp.rtHandleScale.x,
+                hp.rtHandleScale.y);
+            passData.ViewMatrix               = cameraData.GetViewMatrix();
+            passData.ProjectionMatrix         = cameraData.GetProjectionMatrix();
+            passData.Materials                = _materials;
+            passData.OutlineObjectBuffer      = _OutlineObjectBuffer;
+            passData.OutlineObjectBuffer_Depth = _OutlineObjectBuffer_Depth;
+            passData.OutlineBuffer            = _OutlineBuffer;
+            passData.RendererList             = rendererList;
+
+            // Declare resource accesses.
+            builder.UseTexture(hObjectBuffer,      AccessFlags.ReadWrite);
+            builder.UseTexture(hObjectBufferDepth, AccessFlags.ReadWrite);
+            builder.UseTexture(hOutlineBuffer,     AccessFlags.ReadWrite);
+            builder.UseRendererList(rendererList);
+
+            builder.AllowGlobalStateModification(true);
+            builder.AllowPassCulling(false);
+
+            builder.SetRenderFunc((PassData data, UnsafeGraphContext ctx) =>
             {
-                // Populate pass data.
-                passData.DepthTestOutlines        = DepthTestOutlines;
-                passData.DepthTestThreshold       = DepthTestThreshold;
-                passData.UseNormals               = UseNormalsForEdgeDetection;
-                passData.NormalSensitivity        = NormalEdgeDetectionSensitivity;
-                passData.PixelScale               = cameraData.cameraType == CameraType.Preview ? 0.01f : 1f;
-                passData.TexelSize                = texelSize;
-                var hp = RTHandles.rtHandleProperties;
-                passData.RenderTargetInfo         = new Vector4(
-                    cameraData.cameraTargetDescriptor.width,
-                    cameraData.cameraTargetDescriptor.height,
-                    hp.rtHandleScale.x,
-                    hp.rtHandleScale.y);
-                passData.ViewMatrix               = cameraData.GetViewMatrix();
-                passData.ProjectionMatrix         = cameraData.GetProjectionMatrix();
-                passData.Materials                = _materials;
-                passData.OutlineObjectBuffer      = _OutlineObjectBuffer;
-                passData.OutlineObjectBuffer_Depth = _OutlineObjectBuffer_Depth;
-                passData.OutlineBuffer            = _OutlineBuffer;
-                passData.RendererList             = rendererList;
+                var cmd = CommandBufferHelpers.GetNativeCommandBuffer(ctx.cmd);
 
-                // Declare resource accesses.
-                builder.UseTexture(hObjectBuffer,      AccessFlags.ReadWrite);
-                builder.UseTexture(hObjectBufferDepth, AccessFlags.ReadWrite);
-                builder.UseTexture(hOutlineBuffer,     AccessFlags.ReadWrite);
-                builder.UseRendererList(rendererList);
+                // Set render target info global (replaces Prepare() from legacy path).
+                cmd.SetGlobalVector(ProPixelizerRenderTargetInfo, data.RenderTargetInfo);
 
-                builder.AllowGlobalStateModification(true);
-                builder.AllowPassCulling(false);
-
-                builder.SetRenderFunc((PassData data, UnsafeGraphContext ctx) =>
+                if (data.DepthTestOutlines)
                 {
-                    var cmd = CommandBufferHelpers.GetNativeCommandBuffer(ctx.cmd);
+                    data.Materials.OutlineDetection.EnableKeyword("DEPTH_TEST_OUTLINES_ON");
+                    data.Materials.OutlineDetection.SetFloat(OutlineDepthTestThreshold, data.DepthTestThreshold);
+                }
+                else
+                {
+                    data.Materials.OutlineDetection.DisableKeyword("DEPTH_TEST_OUTLINES_ON");
+                }
 
-                    // Set render target info global (replaces Prepare() from legacy path).
-                    cmd.SetGlobalVector(ProPixelizerRenderTargetInfo, data.RenderTargetInfo);
+                if (data.UseNormals)
+                {
+                    data.Materials.OutlineDetection.SetFloat(EdgeDetectionSensitivity, data.NormalSensitivity);
+                    cmd.EnableShaderKeyword("NORMAL_EDGE_DETECTION_ON");
+                }
+                else
+                {
+                    cmd.DisableShaderKeyword("NORMAL_EDGE_DETECTION_ON");
+                }
 
-                    if (data.DepthTestOutlines)
-                    {
-                        data.Materials.OutlineDetection.EnableKeyword("DEPTH_TEST_OUTLINES_ON");
-                        data.Materials.OutlineDetection.SetFloat(OutlineDepthTestThreshold, data.DepthTestThreshold);
-                    }
-                    else
-                    {
-                        data.Materials.OutlineDetection.DisableKeyword("DEPTH_TEST_OUTLINES_ON");
-                    }
+                // Camera matrices & global pixel scale.
+                cmd.SetGlobalFloat(ProPixelizerPixelScale, data.PixelScale);
+                cmd.SetViewMatrix(data.ViewMatrix);
+                cmd.SetProjectionMatrix(data.ProjectionMatrix);
 
-                    if (data.UseNormals)
-                    {
-                        data.Materials.OutlineDetection.SetFloat(EdgeDetectionSensitivity, data.NormalSensitivity);
-                        cmd.EnableShaderKeyword("NORMAL_EDGE_DETECTION_ON");
-                    }
-                    else
-                    {
-                        cmd.DisableShaderKeyword("NORMAL_EDGE_DETECTION_ON");
-                    }
+                // Clear and render ProPixelizer object metadata.
+                cmd.SetRenderTarget(data.OutlineObjectBuffer, data.OutlineObjectBuffer_Depth);
+                cmd.ClearRenderTarget(true, true, Color.white);
 
-                    // Camera matrices & global pixel scale.
-                    cmd.SetGlobalFloat(ProPixelizerPixelScale, data.PixelScale);
-                    cmd.SetViewMatrix(data.ViewMatrix);
-                    cmd.SetProjectionMatrix(data.ProjectionMatrix);
+                // Draw all objects tagged with the ProPixelizer shader tag.
+                cmd.DrawRendererList(data.RendererList);
 
-                    // Clear and render ProPixelizer object metadata.
-                    cmd.SetRenderTarget(data.OutlineObjectBuffer, data.OutlineObjectBuffer_Depth);
-                    cmd.ClearRenderTarget(true, true, Color.white);
+                // Detect outlines by blitting through the outline detection shader.
+                cmd.SetGlobalTexture(MainTex,     data.OutlineObjectBuffer);
+                cmd.SetGlobalTexture(MainTexDepth, data.OutlineObjectBuffer_Depth);
+                cmd.SetGlobalVector(Size, data.TexelSize);
+                Blitter.BlitCameraTexture(cmd, data.OutlineObjectBuffer, data.OutlineBuffer,
+                    data.Materials.OutlineDetection, 0);
 
-                    // Draw all objects tagged with the ProPixelizer shader tag.
-                    cmd.DrawRendererList(data.RendererList);
-
-                    // Detect outlines by blitting through the outline detection shader.
-                    cmd.SetGlobalTexture(MainTex,     data.OutlineObjectBuffer);
-                    cmd.SetGlobalTexture(MainTexDepth, data.OutlineObjectBuffer_Depth);
-                    cmd.SetGlobalVector(Size, data.TexelSize);
-                    Blitter.BlitCameraTexture(cmd, data.OutlineObjectBuffer, data.OutlineBuffer,
-                                              data.Materials.OutlineDetection, 0);
-
-                    // Expose the outline buffer as a global shader texture.
-                    cmd.SetGlobalTexture(ProPixelizerOutlines, data.OutlineBuffer);
-                });
-            }
+                // Expose the outline buffer as a global shader texture.
+                cmd.SetGlobalTexture(ProPixelizerOutlines, data.OutlineBuffer);
+            });
         }
 
         // -----------------------------------------------------------------------

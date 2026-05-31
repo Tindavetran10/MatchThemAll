@@ -12,7 +12,7 @@ namespace ProPixelizer
     {
         private static readonly int ProPixelizerRenderTargetInfo = Shader.PropertyToID("_ProPixelizer_RenderTargetInfo");
 
-        public void Prepare(CommandBuffer buffer, ref RenderingData renderingData)
+        protected void Prepare(CommandBuffer buffer, ref RenderingData renderingData)
         {
             // Store the render target's size in a global variable.
             // This is required because Unity's RenderScale is not reliable, see

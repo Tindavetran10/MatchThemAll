@@ -34,11 +34,13 @@ namespace ProPixelizer
         {
             PixelizationShaders = new PixelizationPass.ShaderResources().Load();
             OutlineShaders = new OutlineDetectionPassRG.ShaderResources().Load();
-            _OutlinePass = new OutlineDetectionPassRG(OutlineShaders);
-            _OutlinePass.DepthTestOutlines = UseDepthTestingForIDOutlines;
-            _OutlinePass.DepthTestThreshold = DepthTestThreshold;
-            _OutlinePass.UseNormalsForEdgeDetection = UseNormalsForEdgeDetection;
-            _OutlinePass.NormalEdgeDetectionSensitivity = NormalEdgeDetectionSensitivity;
+            _OutlinePass = new OutlineDetectionPassRG(OutlineShaders)
+            {
+                DepthTestOutlines = UseDepthTestingForIDOutlines,
+                DepthTestThreshold = DepthTestThreshold,
+                UseNormalsForEdgeDetection = UseNormalsForEdgeDetection,
+                NormalEdgeDetectionSensitivity = NormalEdgeDetectionSensitivity
+            };
             _PixelisationPass = new PixelizationPass(PixelizationShaders, _OutlinePass);
         }
 

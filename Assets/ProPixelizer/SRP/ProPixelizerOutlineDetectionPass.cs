@@ -82,9 +82,9 @@ public RTHandle _OutlineBuffer;
         public const string PROPIXELIZER_OBJECT_BUFFER = "ProPixelizerMetadata";
         public const string OUTLINE_BUFFER = "_ProPixelizerOutlines";
         private const string PROPIXELIZER_SHADER_TAG = "ProPixelizer";
-
-        #pragma warning disable 618, 672
-public override void Configure(CommandBuffer cmd, RenderTextureDescriptor cameraTextureDescriptor)
+        
+        [Obsolete("This rendering path is for compatibility mode only (when Render Graph is disabled). Use Render Graph API instead.", false)]
+        public override void Configure(CommandBuffer cmd, RenderTextureDescriptor cameraTextureDescriptor)
         {
             var outlineDescriptor = cameraTextureDescriptor;
             outlineDescriptor.useMipMap = false;
@@ -107,14 +107,13 @@ public override void Configure(CommandBuffer cmd, RenderTextureDescriptor camera
 // NOTE: ConfigureTarget is obsolete in newer URP versions. The preferred approach is to use the Render Graph API.
 // For compatibility, we rely on the automatic handling of RTHandles without manually calling ConfigureTarget.
         }
-#pragma warning restore 618, 672
 
         public override void FrameCleanup(CommandBuffer cmd)
         {
             // RTHandles are managed by the renderer and will be automatically released
         }
 
-public void Dispose()
+        public void Dispose()
         {
             _OutlineObjectBuffer?.Release();
             _OutlineObjectBuffer_Depth?.Release();
@@ -133,9 +132,7 @@ public void Dispose()
         {
             Prepare(cmd, ref renderingData);
         }
-#pragma warning restore 618, 672
-
-        #pragma warning disable 618, 672
+        
         public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
         {
             if (DepthTestOutlines)
@@ -217,6 +214,5 @@ public void Dispose()
             context.ExecuteCommandBuffer(buffer);
             CommandBufferPool.Release(buffer);
         }
-#pragma warning restore 618, 672
     }
 }
