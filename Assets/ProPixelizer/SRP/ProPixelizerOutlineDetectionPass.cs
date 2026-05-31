@@ -1,4 +1,4 @@
-﻿// Copyright Elliot Bentine, 2018-
+// Copyright Elliot Bentine, 2018-
 using System;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -83,7 +83,7 @@ public RTHandle _OutlineBuffer;
         public const string OUTLINE_BUFFER = "_ProPixelizerOutlines";
         private const string PROPIXELIZER_SHADER_TAG = "ProPixelizer";
 
-        #pragma warning disable 618
+        #pragma warning disable 618, 672
 public override void Configure(CommandBuffer cmd, RenderTextureDescriptor cameraTextureDescriptor)
         {
             var outlineDescriptor = cameraTextureDescriptor;
@@ -107,7 +107,7 @@ public override void Configure(CommandBuffer cmd, RenderTextureDescriptor camera
 // NOTE: ConfigureTarget is obsolete in newer URP versions. The preferred approach is to use the Render Graph API.
 // For compatibility, we rely on the automatic handling of RTHandles without manually calling ConfigureTarget.
         }
-#pragma warning restore 618
+#pragma warning restore 618, 672
 
         public override void FrameCleanup(CommandBuffer cmd)
         {
@@ -128,14 +128,14 @@ public void Dispose()
 
         public const string PROFILER_TAG = "ProPixelizerOutlines";
 
-        #pragma warning disable 618
+        #pragma warning disable 618, 672
         public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
         {
             Prepare(cmd, ref renderingData);
         }
-#pragma warning restore 618
+#pragma warning restore 618, 672
 
-        #pragma warning disable 618
+        #pragma warning disable 618, 672
         public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
         {
             if (DepthTestOutlines)
@@ -217,6 +217,6 @@ public void Dispose()
             context.ExecuteCommandBuffer(buffer);
             CommandBufferPool.Release(buffer);
         }
-#pragma warning restore 618
+#pragma warning restore 618, 672
     }
 }

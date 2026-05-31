@@ -1,11 +1,10 @@
-﻿// Copyright Elliot Bentine, 2018-
+// Copyright Elliot Bentine, 2018-
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
 using UnityEngine.Serialization;
 
 namespace ProPixelizer
 {
-
     public class PixelisationFeature : ScriptableRendererFeature
     {
         [FormerlySerializedAs("DepthTestOutlines")]
@@ -26,16 +25,16 @@ namespace ProPixelizer
         [HideInInspector, SerializeField]
         PixelizationPass.ShaderResources PixelizationShaders;
         [HideInInspector, SerializeField]
-        OutlineDetectionPass.ShaderResources OutlineShaders;
+        OutlineDetectionPassRG.ShaderResources OutlineShaders;
 
         PixelizationPass _PixelisationPass;
-        OutlineDetectionPass _OutlinePass;
+        OutlineDetectionPassRG _OutlinePass;
 
         public override void Create()
         {
             PixelizationShaders = new PixelizationPass.ShaderResources().Load();
-            OutlineShaders = new OutlineDetectionPass.ShaderResources().Load();
-            _OutlinePass = new OutlineDetectionPass(OutlineShaders);
+            OutlineShaders = new OutlineDetectionPassRG.ShaderResources().Load();
+            _OutlinePass = new OutlineDetectionPassRG(OutlineShaders);
             _OutlinePass.DepthTestOutlines = UseDepthTestingForIDOutlines;
             _OutlinePass.DepthTestThreshold = DepthTestThreshold;
             _OutlinePass.UseNormalsForEdgeDetection = UseNormalsForEdgeDetection;
@@ -46,10 +45,6 @@ namespace ProPixelizer
         public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
         {
             _PixelisationPass.ConfigureInput(ScriptableRenderPassInput.Color);
-            #if UNITY_2022_1_OR_NEWER
-            #else
-            _PixelisationPass.ConfigureInput(ScriptableRenderPassInput.Depth);
-            #endif
             renderer.EnqueuePass(_PixelisationPass);
             renderer.EnqueuePass(_OutlinePass);
 
@@ -57,23 +52,14 @@ namespace ProPixelizer
                 ProPixelizerVerification.GenerateWarnings();
         }
 
-#if BLIT_API
-    public override void SetupRenderPasses(ScriptableRenderer renderer, in RenderingData renderingData)
-    {
-        _PixelisationPass.ConfigureInput(ScriptableRenderPassInput.Color);
-    }
-#endif
-
-#if URP_13
-    protected override void Dispose(bool disposing)
-    {
-        base.Dispose(disposing);
-        if (disposing)
+        protected override void Dispose(bool disposing)
         {
-            _OutlinePass.Dispose();
-            _PixelisationPass.Dispose();
+            base.Dispose(disposing);
+            if (disposing)
+            {
+                _OutlinePass.Dispose();
+                _PixelisationPass.Dispose();
+            }
         }
-    }
-#endif
     }
 }

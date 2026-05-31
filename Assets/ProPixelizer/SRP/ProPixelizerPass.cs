@@ -10,6 +10,7 @@ namespace ProPixelizer
     /// </summary>
     public abstract class ProPixelizerPass : ScriptableRenderPass
     {
+        private static readonly int ProPixelizerRenderTargetInfo = Shader.PropertyToID("_ProPixelizer_RenderTargetInfo");
 
         public void Prepare(CommandBuffer buffer, ref RenderingData renderingData)
         {
@@ -30,7 +31,7 @@ namespace ProPixelizer
             //{
 #if URP_13
             var handleProps = RTHandles.rtHandleProperties;
-            buffer.SetGlobalVector("_ProPixelizer_RenderTargetInfo", new Vector4(renderingData.cameraData.cameraTargetDescriptor.width, renderingData.cameraData.cameraTargetDescriptor.height, handleProps.rtHandleScale.x, handleProps.rtHandleScale.y));
+            buffer.SetGlobalVector(ProPixelizerRenderTargetInfo, new Vector4(renderingData.cameraData.cameraTargetDescriptor.width, renderingData.cameraData.cameraTargetDescriptor.height, handleProps.rtHandleScale.x, handleProps.rtHandleScale.y));
 #else
             buffer.SetGlobalVector("_ProPixelizer_RenderTargetInfo", new Vector4(renderingData.cameraData.cameraTargetDescriptor.width, renderingData.cameraData.cameraTargetDescriptor.height, 1.0f, 1.0f));
 #endif
