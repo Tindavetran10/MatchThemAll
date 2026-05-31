@@ -13,7 +13,7 @@ namespace ProPixelizer
         [Tooltip("ID to use when drawing the outlines of this object. Outlines occur when two adjacent pixels have different IDs")]
         public byte ID;
 
-        float FloatUID { get { return ID % 255f; } }
+        float FloatUID => ID % 255f;
 
         [Tooltip("If true, randomly generate a random outline ID for this object at runtime.")]
         public bool UseRandomUID = true;

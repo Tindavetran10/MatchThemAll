@@ -9,7 +9,7 @@ namespace ProPixelizer
 {
 
     /// <summary>
-    /// Camera behaviour that snaps the positions of all RenderSnapables before rendering and releases them afterwards.
+    /// Camera behavior that snaps the positions of all RenderSnapables before rendering and releases them afterwards.
     /// </summary>
     [
         RequireComponent(typeof(Camera))

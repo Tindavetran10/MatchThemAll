@@ -18,7 +18,7 @@ namespace ProPixelizer
                 "Please use the ProPixelizer PixelizedWithOutline material instead.", MessageType.Error);
             EditorGUILayout.HelpBox(
                 "This shader is generated from the ProPixelizerBase ShaderGraph and provides " +
-                "the 'Universal Forward', 'Shadowcaster' and 'Depth' passes used by the " +
+                "the 'Universal Forward', 'Shadow-caster' and 'Depth' passes used by the " +
                 "PixelizedWithOutline shader. The PixelizedWithOutline shader also adds other " +
                 "passes required to support ProPixelizer. If you wish to render pixelated objects " +
                 "without outlines, you should still use the PixelizedWithOutline shader and set " +

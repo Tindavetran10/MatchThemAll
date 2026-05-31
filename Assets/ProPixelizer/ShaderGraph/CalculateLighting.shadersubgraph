@@ -1,5 +1,5 @@
 {
-    "m_SGVersion": 2,
+    "m_SGVersion": 3,
     "m_Type": "UnityEditor.ShaderGraph.GraphData",
     "m_ObjectId": "6171b20127724f39b512df42143f2941",
     "m_Properties": [
@@ -16,6 +16,12 @@
     "m_Keywords": [
         {
             "m_Id": "a96319399bae43ef80adeb785861a83c"
+        }
+    ],
+    "m_Dropdowns": [],
+    "m_CategoryData": [
+        {
+            "m_Id": "11620680ad5441298a505088e950232e"
         }
     ],
     "m_Nodes": [
@@ -696,14 +702,16 @@
         "serializedMesh": {
             "m_SerializedMesh": "{\"mesh\":{\"fileID\":4300000,\"guid\":\"320b1c2af77554f99a1658df4a6d3d5c\",\"type\":3}}",
             "m_Guid": ""
-        }
+        },
+        "preventRotation": false
     },
     "m_Path": "ProPixelizer/SRP",
-    "m_ConcretePrecision": 0,
+    "m_GraphPrecision": 0,
     "m_PreviewMode": 2,
     "m_OutputNode": {
         "m_Id": "44bf7134930b9d8393fb08ad1289c132"
     },
+    "m_SubDatas": [],
     "m_ActiveTargets": []
 }
 
@@ -737,7 +745,7 @@
     "m_ObjectId": "05156609dba24787aae387e0c51db230",
     "m_Title": "Normals",
     "m_Position": {
-        "x": -1833.0,
+        "x": -1833.3333740234375,
         "y": -166.0
     }
 }
@@ -819,7 +827,7 @@
     "m_SlotType": 0,
     "m_Hidden": false,
     "m_ShaderOutputName": "Specular",
-    "m_StageCapability": 2,
+    "m_StageCapability": 3,
     "m_Value": {
         "x": 0.0,
         "y": 0.0,
@@ -861,6 +869,27 @@
         "X",
         "Y",
         "Z"
+    ]
+}
+
+{
+    "m_SGVersion": 0,
+    "m_Type": "UnityEditor.ShaderGraph.CategoryData",
+    "m_ObjectId": "11620680ad5441298a505088e950232e",
+    "m_Name": "",
+    "m_ChildObjectList": [
+        {
+            "m_Id": "4f13d41138aa178a9d2a601d66e7d9e2"
+        },
+        {
+            "m_Id": "8cf41097bb2e39809a1fac666cd47b4f"
+        },
+        {
+            "m_Id": "f14ecd8eb98b4f33a17c751bfe264930"
+        },
+        {
+            "m_Id": "a96319399bae43ef80adeb785861a83c"
+        }
     ]
 }
 
@@ -944,6 +973,7 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": true,
+    "m_DismissedVersion": 0,
     "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
@@ -982,6 +1012,7 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": false,
+    "m_DismissedVersion": 0,
     "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
@@ -1078,6 +1109,7 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": false,
+    "m_DismissedVersion": 0,
     "m_PreviewMode": 2,
     "m_CustomColors": {
         "m_SerializableColors": []
@@ -1271,6 +1303,7 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": true,
+    "m_DismissedVersion": 0,
     "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
@@ -1278,6 +1311,7 @@
     "m_SourceType": 0,
     "m_FunctionName": "MainLight",
     "m_FunctionSource": "523c78f1296e0f743b52926c061d4b8c",
+    "m_FunctionSourceUsePragmas": true,
     "m_FunctionBody": "Enter function body here..."
 }
 
@@ -1334,11 +1368,13 @@
     "synonyms": [],
     "m_Precision": 1,
     "m_PreviewExpanded": false,
+    "m_DismissedVersion": 0,
     "m_PreviewMode": 2,
     "m_CustomColors": {
         "m_SerializableColors": []
     },
-    "m_Space": 2
+    "m_Space": 2,
+    "m_PositionSource": 0
 }
 
 {
@@ -1396,7 +1432,7 @@
     "m_Group": {
         "m_Id": "05156609dba24787aae387e0c51db230"
     },
-    "m_Name": "ScaleOffset",
+    "m_Name": "Scale Offset",
     "m_DrawState": {
         "m_Expanded": true,
         "m_Position": {
@@ -1418,6 +1454,7 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": false,
+    "m_DismissedVersion": 0,
     "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
@@ -1428,7 +1465,9 @@
     ],
     "m_PropertyIds": [
         2117903982
-    ]
+    ],
+    "m_Dropdowns": [],
+    "m_DropdownSelectedEntries": []
 }
 
 {
@@ -1505,11 +1544,13 @@
     "synonyms": [],
     "m_Precision": 1,
     "m_PreviewExpanded": false,
+    "m_DismissedVersion": 0,
     "m_PreviewMode": 2,
     "m_CustomColors": {
         "m_SerializableColors": []
     },
-    "m_Space": 2
+    "m_Space": 2,
+    "m_PositionSource": 0
 }
 
 {
@@ -1544,6 +1585,7 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": false,
+    "m_DismissedVersion": 0,
     "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
@@ -1604,8 +1646,8 @@
     "m_ObjectId": "3c7c8c6797524ee0b6399602b514a3c0",
     "m_Title": "MainLightShadow",
     "m_Position": {
-        "x": -446.40008544921877,
-        "y": -464.0
+        "x": -661.333251953125,
+        "y": -466.00006103515627
     }
 }
 
@@ -1660,11 +1702,13 @@
     "synonyms": [],
     "m_Precision": 1,
     "m_PreviewExpanded": false,
+    "m_DismissedVersion": 0,
     "m_PreviewMode": 2,
     "m_CustomColors": {
         "m_SerializableColors": []
     },
-    "m_Space": 2
+    "m_Space": 2,
+    "m_PositionSource": 0
 }
 
 {
@@ -1777,6 +1821,7 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": true,
+    "m_DismissedVersion": 0,
     "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
@@ -1812,6 +1857,7 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": true,
+    "m_DismissedVersion": 0,
     "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
@@ -1899,17 +1945,25 @@
         "m_GuidSerialized": "5e57c984-2b74-4144-95da-5e232a63d81f"
     },
     "m_Name": "Normal Map",
+    "m_DefaultRefNameVersion": 0,
+    "m_RefNameGeneratedByDisplayName": "",
     "m_DefaultReferenceName": "Texture2D_C2D599B8",
     "m_OverrideReferenceName": "",
     "m_GeneratePropertyBlock": true,
+    "m_UseCustomSlotLabel": false,
+    "m_CustomSlotLabel": "",
+    "m_DismissedVersion": 0,
     "m_Precision": 0,
     "overrideHLSLDeclaration": false,
     "hlslDeclarationOverride": 2,
     "m_Hidden": false,
     "m_Value": {
-        "m_SerializedTexture": "{\"texture\":{\"fileID\":2800000,\"guid\":\"94c473c9137744d7eabd829f1150da8d\",\"type\":3}}",
+        "m_SerializedTexture": "",
         "m_Guid": ""
     },
+    "isMainTexture": false,
+    "useTilingAndOffset": false,
+    "isHDR": false,
     "m_Modifiable": true,
     "m_DefaultType": 0
 }
@@ -1961,12 +2015,15 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": false,
+    "m_DismissedVersion": 0,
     "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
     },
     "m_TextureType": 1,
-    "m_NormalMapSpace": 0
+    "m_NormalMapSpace": 0,
+    "m_EnableGlobalMipBias": true,
+    "m_MipSamplingMode": 0
 }
 
 {
@@ -1975,8 +2032,8 @@
     "m_ObjectId": "50720a752ae14c8c8e918a0525e54c6a",
     "m_Title": "MainLight",
     "m_Position": {
-        "x": -694.0,
-        "y": -5.00006103515625
+        "x": -694.6666259765625,
+        "y": -5.33331298828125
     }
 }
 
@@ -2099,6 +2156,7 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": false,
+    "m_DismissedVersion": 0,
     "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
@@ -2267,6 +2325,7 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": true,
+    "m_DismissedVersion": 0,
     "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
@@ -2302,6 +2361,7 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": true,
+    "m_DismissedVersion": 0,
     "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
@@ -2335,7 +2395,7 @@
     "m_StageCapability": 3,
     "m_BareResource": false,
     "m_Texture": {
-        "m_SerializedTexture": "{\"texture\":{\"instanceID\":0}}",
+        "m_SerializedTexture": "",
         "m_Guid": ""
     },
     "m_DefaultType": 3
@@ -2370,6 +2430,7 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": true,
+    "m_DismissedVersion": 0,
     "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
@@ -2522,6 +2583,7 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": true,
+    "m_DismissedVersion": 0,
     "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
@@ -2529,6 +2591,7 @@
     "m_SourceType": 0,
     "m_FunctionName": "AdditionalLights",
     "m_FunctionSource": "523c78f1296e0f743b52926c061d4b8c",
+    "m_FunctionSourceUsePragmas": true,
     "m_FunctionBody": "Enter function body here..."
 }
 
@@ -2575,6 +2638,7 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": true,
+    "m_DismissedVersion": 0,
     "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
@@ -2590,8 +2654,8 @@
     "m_ObjectId": "76151f20eaf54bb48fa9fac5b6fd77a2",
     "m_Title": "Ambient & Spherical Harmonics",
     "m_Position": {
-        "x": -717.9999389648438,
-        "y": 861.0
+        "x": -697.333251953125,
+        "y": 870.666748046875
     }
 }
 
@@ -2697,6 +2761,7 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": true,
+    "m_DismissedVersion": 0,
     "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
@@ -2704,6 +2769,7 @@
     "m_SourceType": 0,
     "m_FunctionName": "MainLightShadow",
     "m_FunctionSource": "523c78f1296e0f743b52926c061d4b8c",
+    "m_FunctionSourceUsePragmas": true,
     "m_FunctionBody": "Enter function body here..."
 }
 
@@ -2740,8 +2806,8 @@
     "m_ObjectId": "7fca539d489248ffb9476e86bad5b482",
     "m_Title": "Combine Lights",
     "m_Position": {
-        "x": -128.9998779296875,
-        "y": -233.99996948242188
+        "x": -129.3331298828125,
+        "y": -233.99993896484376
     }
 }
 
@@ -2828,6 +2894,7 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": true,
+    "m_DismissedVersion": 0,
     "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
@@ -2842,9 +2909,14 @@
         "m_GuidSerialized": "a9cac90b-8656-42ab-802d-66e74430312d"
     },
     "m_Name": "Normal Map_ST",
+    "m_DefaultRefNameVersion": 0,
+    "m_RefNameGeneratedByDisplayName": "",
     "m_DefaultReferenceName": "Vector4_E17B8609",
     "m_OverrideReferenceName": "",
     "m_GeneratePropertyBlock": true,
+    "m_UseCustomSlotLabel": false,
+    "m_CustomSlotLabel": "",
+    "m_DismissedVersion": 0,
     "m_Precision": 0,
     "overrideHLSLDeclaration": false,
     "hlslDeclarationOverride": 0,
@@ -2901,6 +2973,7 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": false,
+    "m_DismissedVersion": 0,
     "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
@@ -2963,6 +3036,7 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": false,
+    "m_DismissedVersion": 0,
     "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
@@ -3042,6 +3116,7 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": true,
+    "m_DismissedVersion": 0,
     "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
@@ -3092,6 +3167,7 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": true,
+    "m_DismissedVersion": 0,
     "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
@@ -3247,19 +3323,25 @@
 }
 
 {
-    "m_SGVersion": 0,
+    "m_SGVersion": 1,
     "m_Type": "UnityEditor.ShaderGraph.ShaderKeyword",
     "m_ObjectId": "a96319399bae43ef80adeb785861a83c",
     "m_Guid": {
         "m_GuidSerialized": "c1624743-4cb1-4818-8a2e-a311dccc38e4"
     },
     "m_Name": "Receive shadows",
+    "m_DefaultRefNameVersion": 0,
+    "m_RefNameGeneratedByDisplayName": "",
     "m_DefaultReferenceName": "BOOLEAN_A96319399BAE43EF80ADEB785861A83C_ON",
     "m_OverrideReferenceName": "RECEIVE_SHADOWS_ON",
     "m_GeneratePropertyBlock": true,
+    "m_UseCustomSlotLabel": false,
+    "m_CustomSlotLabel": "",
+    "m_DismissedVersion": 0,
     "m_KeywordType": 0,
     "m_KeywordDefinition": 0,
     "m_KeywordScope": 0,
+    "m_KeywordStages": 63,
     "m_Entries": [],
     "m_Value": 1,
     "m_IsEditable": true
@@ -3305,8 +3387,8 @@
     "m_ObjectId": "ae579a7f07c049e483379c105fff4898",
     "m_Title": "Additional Lights",
     "m_Position": {
-        "x": 10.0,
-        "y": 10.0
+        "x": -702.6666259765625,
+        "y": 422.0
     }
 }
 
@@ -3562,6 +3644,7 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": true,
+    "m_DismissedVersion": 0,
     "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
@@ -3621,6 +3704,7 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": true,
+    "m_DismissedVersion": 0,
     "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
@@ -3729,6 +3813,7 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": false,
+    "m_DismissedVersion": 0,
     "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
@@ -3737,7 +3822,8 @@
         "from": 3,
         "to": 2
     },
-    "m_ConversionType": 1
+    "m_ConversionType": 1,
+    "m_Normalize": true
 }
 
 {
@@ -3909,6 +3995,7 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": true,
+    "m_DismissedVersion": 0,
     "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
@@ -3983,6 +4070,7 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": false,
+    "m_DismissedVersion": 0,
     "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
@@ -4045,6 +4133,7 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": false,
+    "m_DismissedVersion": 0,
     "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
@@ -4076,9 +4165,14 @@
         "m_GuidSerialized": "95c1686c-adbd-4453-aebc-9593ee82a03f"
     },
     "m_Name": "AmbientLight",
+    "m_DefaultRefNameVersion": 0,
+    "m_RefNameGeneratedByDisplayName": "",
     "m_DefaultReferenceName": "Color_f14ecd8eb98b4f33a17c751bfe264930",
     "m_OverrideReferenceName": "",
     "m_GeneratePropertyBlock": true,
+    "m_UseCustomSlotLabel": false,
+    "m_CustomSlotLabel": "",
+    "m_DismissedVersion": 0,
     "m_Precision": 0,
     "overrideHLSLDeclaration": false,
     "hlslDeclarationOverride": 0,
@@ -4089,6 +4183,7 @@
         "b": 0.10000000149011612,
         "a": 0.501960813999176
     },
+    "isMainColor": false,
     "m_ColorMode": 0
 }
 
@@ -4151,6 +4246,7 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": false,
+    "m_DismissedVersion": 0,
     "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
@@ -4302,6 +4398,7 @@
     "synonyms": [],
     "m_Precision": 1,
     "m_PreviewExpanded": false,
+    "m_DismissedVersion": 0,
     "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
@@ -4309,6 +4406,7 @@
     "m_SourceType": 0,
     "m_FunctionName": "AmbientSampleSH",
     "m_FunctionSource": "523c78f1296e0f743b52926c061d4b8c",
+    "m_FunctionSourceUsePragmas": true,
     "m_FunctionBody": "Enter function body here..."
 }
 

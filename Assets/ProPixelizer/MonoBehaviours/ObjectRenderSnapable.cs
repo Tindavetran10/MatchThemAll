@@ -106,7 +106,7 @@ namespace ProPixelizer
 
         public void Start()
         {
-            //Determine depth of the given behaviour's transform
+            //Determine depth of the given behavior's transform
             int depth = 0;
             Transform iter = transform;
             while (iter.parent != null && depth < 100)

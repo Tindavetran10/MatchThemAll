@@ -164,7 +164,7 @@ public void Dispose()
             else
                 buffer.DisableShaderKeyword("NORMAL_EDGE_DETECTION_ON");
 
-
+            
             // Set up matrices for rendering outlines.
 #if CAMERADATA_MATRICES
             buffer.SetViewMatrix(renderingData.cameraData.GetViewMatrix());
