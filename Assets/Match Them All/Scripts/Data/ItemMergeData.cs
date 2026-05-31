@@ -2,9 +2,9 @@
 
 namespace MatchThemAll.Scripts
 {
-    public struct ItemMergeData
+    public readonly struct ItemMergeData
     {
-        public EItemName ItemName;
+        public readonly EItemName ItemName;
         public readonly List<Item> Items;
         
         public ItemMergeData(Item firstItem)
@@ -14,6 +14,8 @@ namespace MatchThemAll.Scripts
         }
         
         public void Add(Item item) => Items.Add(item);
+        
+        public void Remove(Item item) => Items.Remove(item);
         
         // MERGE CHECKER: Determines if we have enough items of the same type to merge them
         // In this game, when you collect 3 or more identical items, they disappear (merge)

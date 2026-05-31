@@ -1,14 +1,14 @@
 using System;
 using System.Collections.Generic;
-using System.Reflection;
+using ZLinq;
 using UnityEngine;
-using UnityEngine.Rendering;
-using UnityEngine.Rendering.Universal;
 
 namespace MatchThemAll.Scripts
 {
     public class ItemSpotManager : MonoBehaviour
     {
+        public static ItemSpotManager Instance { get; private set; }
+        
         [Header("Elements")]
         [SerializeField] private Transform itemSpotParent;
         private ItemSpot[] _spots;
@@ -32,8 +32,14 @@ namespace MatchThemAll.Scripts
 
         private void Awake()
         {
+            if (Instance == null)
+                Instance = this;
+            else Destroy(gameObject);
+            
             InputManager.ItemClicked += OnItemClicked;
             LevelManager.LevelSpawned += OnLevelSpawned;
+
+            PowerupManager.ItemBackToGame += OnItemBackToGame;
             StoreSpot();
         }
 
@@ -41,14 +47,27 @@ namespace MatchThemAll.Scripts
         {
             InputManager.ItemClicked -= OnItemClicked;
             LevelManager.LevelSpawned -= OnLevelSpawned;
+            PowerupManager.ItemBackToGame -= OnItemBackToGame;
         }
 
-        private void OnLevelSpawned(Level level)
+        private void OnItemBackToGame(Item releasedItem)
         {
-            ResetSpotsAndState();
+            if(!_itemMergeDataDictionary.TryGetValue(releasedItem.ItemNameKey, out var item))
+                return;
+            
+            // remove the item from the Dictionary
+            item.Remove(releasedItem);
+            
+            // Check if we have more items with the same
+            // If not, remove the dictionary entry
+            if(_itemMergeDataDictionary[releasedItem.ItemNameKey].Items.Count <= 0)
+                _itemMergeDataDictionary.Remove(releasedItem.ItemNameKey);
+            
         }
 
-        public void ResetSpotsAndState()
+        private void OnLevelSpawned(Level level) => ResetSpotsAndState();
+
+        private void ResetSpotsAndState()
         {
             _itemMergeDataDictionary.Clear();
             _isBusy = false;
@@ -106,14 +125,8 @@ namespace MatchThemAll.Scripts
         {
             List<Item> items = _itemMergeDataDictionary[item.ItemNameKey].Items;
 
-            // Find the rightmost sibling index among all similar items — no LINQ, zero allocation
-            int maxSiblingIndex = -1;
-            for (int i = 0; i < items.Count; i++)
-            {
-                int idx = items[i].Spot.transform.GetSiblingIndex();
-                if (idx > maxSiblingIndex)
-                    maxSiblingIndex = idx;
-            }
+            // Find the rightmost sibling index among all similar items — using ZLinq, zero allocation
+            int maxSiblingIndex = items.AsValueEnumerable().Select(t => t.Spot.transform.GetSiblingIndex()).Prepend(-1).Max();
 
             // Clamp to prevent IndexOutOfRangeException when the last slot is occupied
             int idealSpotIndex = Mathf.Clamp(maxSiblingIndex + 1, 0, _spots.Length - 1);
@@ -289,12 +302,7 @@ namespace MatchThemAll.Scripts
             _itemMergeDataDictionary.Add(item.ItemNameKey, new ItemMergeData(item));
 
         // Plain for-loop — avoids the delegate allocation that FirstOrDefault creates each call
-        private ItemSpot GetFreeSpot()
-        {
-            for (int i = 0; i < _spots.Length; i++)
-                if (_spots[i].IsEmpty()) return _spots[i];
-            return null;
-        }
+        private ItemSpot GetFreeSpot() => _spots.AsValueEnumerable().FirstOrDefault(t => t.IsEmpty());
 
         private bool IsFreeSpotAvailable() => GetFreeSpot() != null;
 
@@ -303,6 +311,12 @@ namespace MatchThemAll.Scripts
             _spots = new ItemSpot[itemSpotParent.childCount];
             for (int i = 0; i < itemSpotParent.childCount; i++)
                 _spots[i] = itemSpotParent.GetChild(i).GetComponent<ItemSpot>();
+        }
+
+        public ItemSpot GetRandomOccupiedSpot()
+        {
+            List<ItemSpot> occupiedSpots = _spots.AsValueEnumerable().Where(t => !t.IsEmpty()).ToList();
+            return occupiedSpots.Count <= 0 ? null : occupiedSpots[UnityEngine.Random.Range(0, occupiedSpots.Count)];
         }
     }
 }

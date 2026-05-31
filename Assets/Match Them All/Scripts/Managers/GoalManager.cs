@@ -29,14 +29,35 @@ namespace MatchThemAll.Scripts
             
             LevelManager.LevelSpawned += OnLevelSpawned;
             ItemSpotManager.ItemPickedUp += OnItemPickedUp;
+            
             PowerupManager.ItemPickup += OnItemPickedUp;
+            PowerupManager.ItemBackToGame += OnItemBackToGame;
         }
 
         private void OnDestroy()
         {
             LevelManager.LevelSpawned -= OnLevelSpawned;
             ItemSpotManager.ItemPickedUp -= OnItemPickedUp;
+            
             PowerupManager.ItemPickup -= OnItemPickedUp;
+            PowerupManager.ItemBackToGame -= OnItemBackToGame;
+        }
+
+        private void OnItemBackToGame(Item releasedItem)
+        {
+            // Loop through our goals
+            // if this item is a goal
+            // Increase the goal amount
+            // Update the cards
+
+            for (int i = 0; i < _goals.Length; i++)
+            {
+                if(_goals[i].itemPrefab.ItemNameKey != releasedItem.ItemNameKey)
+                    continue;
+
+                _goals[i].amount++;
+                _goalCards[i].UpdateAmount(_goals[i].amount);
+            }
         }
 
         private void OnLevelSpawned(Level level)

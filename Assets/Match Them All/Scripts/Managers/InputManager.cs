@@ -12,7 +12,7 @@ public class InputManager : MonoBehaviour
     // Multiple observers can subscribe to this event without the InputManager knowing about them.
     // This creates loose coupling - InputManager doesn't depend on specific observer classes
     public static Action<Item> ItemClicked;
-    public static Action<Powerup> powerupClicked;
+    public static Action<Powerup> PowerupClicked;
     
     [Header("Settings")] 
     // Material used to create a visual outline effect when an item is selected
@@ -70,7 +70,7 @@ public class InputManager : MonoBehaviour
         if(hit.collider == null)
             return;
         
-        powerupClicked?.Invoke(hit.collider.GetComponent<Powerup>());
+        PowerupClicked?.Invoke(hit.collider.GetComponent<Powerup>());
     }
     
     // Private method to handle mouse drag/hover for item selection

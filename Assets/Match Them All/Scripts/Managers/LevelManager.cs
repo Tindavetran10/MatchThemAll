@@ -20,6 +20,8 @@ namespace MatchThemAll.Scripts
         private int _levelIndex;
         private Level _currentLevel;
         public System.Collections.Generic.List<Item> Items => _currentLevel.GetItems();
+        
+        public Transform ItemParent => _currentLevel.ItemParent;
 
         [Header("Actions")]
         public static Action<Level> LevelSpawned;

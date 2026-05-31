@@ -16,7 +16,7 @@ namespace MatchThemAll.Scripts
             menuPanel.SetActive(gameState == EGameState.MENU);
 
             // Keep the game HUD (goals, timer) visible while paused.
-            gamePanel.SetActive(gameState == EGameState.GAME || gameState == EGameState.PAUSED);
+            gamePanel.SetActive(gameState is EGameState.GAME or EGameState.PAUSED);
 
             // Pause overlay sits on top of the game panel.
             pausePanel.SetActive(gameState == EGameState.PAUSED);
@@ -25,4 +25,4 @@ namespace MatchThemAll.Scripts
             gameOverPanel.SetActive(gameState == EGameState.GAMEOVER);
         }
     }
-}
+}

@@ -8,17 +8,13 @@ namespace MatchThemAll.Scripts.Extensions
         {
             while (transform.childCount > 0)
             {
-                Transform child = transform.GetChild(0);
+                var child = transform.GetChild(0);
                 child.parent = null;
                 Object.Destroy(child.gameObject);
             }
         }
         
-        public static Transform GetLast(this Transform transform)
-        {
-            if (transform.childCount <= 0) return null;
-            
-            return transform.GetChild(transform.childCount - 1);
-        }
+        public static Transform GetLast(this Transform transform) => 
+            transform.childCount <= 0 ? null : transform.GetChild(transform.childCount - 1);
     }
 }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using ZLinq;
 using Match_Them_All.Scripts.Power_Ups;
 using NaughtyAttributes;
 using UnityEngine;
@@ -24,6 +25,7 @@ namespace MatchThemAll.Scripts
         
         [Header("Actions")]
         public static Action<Item> ItemPickup;
+        public static Action<Item> ItemBackToGame;
 
         [Header("Data")] [SerializeField] private int initialPUCount;
         private int vacuumPUCount;
@@ -33,13 +35,13 @@ namespace MatchThemAll.Scripts
             LoadData();
             
             Vacuum.Started += OnVacuumStarted;
-            InputManager.powerupClicked += OnPowerupClicked;
+            InputManager.PowerupClicked += OnPowerupClicked;
         }
 
         private void OnDestroy()
         {
             Vacuum.Started -= OnVacuumStarted;
-            InputManager.powerupClicked -= OnPowerupClicked;
+            InputManager.PowerupClicked -= OnPowerupClicked;
         }
 
         private void OnPowerupClicked(Powerup powerup)
@@ -62,6 +64,7 @@ namespace MatchThemAll.Scripts
             }
         }
 
+        #region Vacuum Powerup
         private void HandleVacuumClicked()
         {
             _vacuumRequested = true;
@@ -107,16 +110,11 @@ namespace MatchThemAll.Scripts
 
             if (items != null)
             {
-                for (int i = 0; i < items.Count; i++)
+                foreach (var item in items.AsValueEnumerable().Where(item => item != null).Where(item => item.ItemNameKey == goal.itemPrefab.ItemNameKey))
                 {
-                    Item item = items[i];
-                    if (item == null) continue;
-                    if (item.ItemNameKey == goal.itemPrefab.ItemNameKey)
-                    {
-                        _itemsToCollect.Add(item);
-                        if (_itemsToCollect.Count >= 3)
-                            break;
-                    }
+                    _itemsToCollect.Add(item);
+                    if (_itemsToCollect.Count >= 3)
+                        break;
                 }
             }
             
@@ -128,17 +126,15 @@ namespace MatchThemAll.Scripts
                 return;
             }
 
-            for (int i = 0; i < _itemsToCollect.Count; i++)
+            foreach (var itemToCollect in _itemsToCollect.AsValueEnumerable().Where(itemToCollect => itemToCollect != null))
             {
-                Item itemToCollect = _itemsToCollect[i];
-                if (itemToCollect == null) continue;
-                
                 itemToCollect.DisablePhysics();
 
                 // 1. Vortex move to vacuum suck position
+                var collect = itemToCollect;
                 LeanTween.move(itemToCollect.gameObject, vacuumSuckPosition.position, 0.5f)
                     .setEase(LeanTweenType.easeInCubic)
-                    .setOnComplete(() => ItemReachedVacuum(itemToCollect));
+                    .setOnComplete(() => ItemReachedVacuum(collect));
 
                 // 2. Shrink down to 0
                 LeanTween.scale(itemToCollect.gameObject, Vector3.zero, 0.5f)
@@ -164,9 +160,37 @@ namespace MatchThemAll.Scripts
                 _isBusy = false;
             Destroy(item.gameObject);
         }
+        
+        private void UpdateVacuumVisuals() => vacuum.UpdateVisuals(vacuumPUCount);
+        #endregion
 
+        #region Spring Powerup
+        [Button]
+        public void SpringPowerup()
+        {
+            ItemSpot spot = ItemSpotManager.Instance.GetRandomOccupiedSpot();
+            
+            if(spot == null)
+                return;
+            _isBusy = true;
+
+            Item itemToRelease = spot.Item;
+            
+            spot.Clear();
+            
+            itemToRelease.UnassignSpot();
+            itemToRelease.EnablePhysics();
+            
+            itemToRelease.transform.parent = LevelManager.Instance.ItemParent;
+            itemToRelease.transform.localPosition = Vector3.up * 3f;
+            itemToRelease.transform.localScale = Vector3.one;
+            
+            ItemBackToGame?.Invoke(itemToRelease);
+        }
+        #endregion
+        
         // Optimized: Returns clean goal array index to completely avoid Nullable struct boxing overhead
-        private int GetGreatestGoalIndex(ItemLevelData[] goals)
+        private static int GetGreatestGoalIndex(ItemLevelData[] goals)
         {
             if (goals == null || goals.Length == 0)
                 return -1;
@@ -186,21 +210,14 @@ namespace MatchThemAll.Scripts
             return goalIndex;
         }
 
-        private void UpdateVacuumVisuals()
-        {
-            vacuum.UpdateVisuals(vacuumPUCount);
-        }
+        
 
         private void LoadData()
         {
             vacuumPUCount = PlayerPrefs.GetInt("vacuumPUCount", initialPUCount);
-
             UpdateVacuumVisuals();
         }
 
-        private void SaveData()
-        {
-            PlayerPrefs.SetInt("vacuumPUCount", vacuumPUCount);
-        }
+        private void SaveData() => PlayerPrefs.SetInt("vacuumPUCount", vacuumPUCount);
     }
 }

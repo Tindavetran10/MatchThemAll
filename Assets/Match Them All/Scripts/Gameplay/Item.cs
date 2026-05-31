@@ -28,11 +28,24 @@ namespace MatchThemAll.Scripts
             _rigidbody = GetComponent<Rigidbody>();
         }
 
-        public void AssignSpot(ItemSpot spot) => this.Spot = spot;
+        public void AssignSpot(ItemSpot spot) => Spot = spot;
+        
+        public void UnassignSpot() => Spot = null;
+        
+        public void EnableShadow() =>
+            _renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.On;
 
         public void DisableShadow() =>
             _renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
 
+        public void EnablePhysics()
+        {
+            if (_rigidbody != null) 
+                _rigidbody.isKinematic = false;
+            if (_collider != null) 
+                _collider.enabled = true;
+        }
+        
         public void DisablePhysics()
         {
             if (_rigidbody != null) 

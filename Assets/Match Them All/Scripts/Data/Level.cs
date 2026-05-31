@@ -7,6 +7,8 @@ namespace MatchThemAll.Scripts
         [Header("Elements")]
         [SerializeField] private ItemPlacer itemPlacer;
 
+        public Transform ItemParent => itemPlacer.transform;
+
         private LevelDataSO _data;
 
         /// <summary>

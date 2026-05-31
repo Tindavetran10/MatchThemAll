@@ -1,4 +1,4 @@
-using System.Linq;
+using ZLinq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -32,6 +32,7 @@ namespace MatchThemAll.Scripts
         {
             // Cache all listeners before the first state broadcast
             _cachedListeners = FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None)
+                .AsValueEnumerable()
                 .OfType<IGameStateListener>()
                 .ToArray();
 

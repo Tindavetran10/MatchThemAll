@@ -52,7 +52,7 @@ namespace MatchThemAll.Scripts
 
         private ParticleSystem CreateParticle()
         {
-            ParticleSystem ps = Instantiate(mergeParticle, transform);
+            var ps = Instantiate(mergeParticle, transform);
             ps.gameObject.SetActive(false);
             return ps;
         }

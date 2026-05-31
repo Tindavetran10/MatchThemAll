@@ -10,14 +10,14 @@ namespace MatchThemAll.Scripts
     [DisallowMultipleComponent]
     public class ItemSpotLayout : MonoBehaviour
     {
-        public enum LayoutMode
+        private enum LayoutMode
         {
             SpacingFromFirst,
             FitBetweenEnds,
             Centered
         }
 
-        public enum Axis
+        private enum Axis
         {
             X,
             Y,
