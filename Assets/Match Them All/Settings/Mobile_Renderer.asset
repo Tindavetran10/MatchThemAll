@@ -24,8 +24,9 @@ MonoBehaviour:
     probeSamplingDebugMesh: {fileID: 0}
     probeSamplingDebugTexture: {fileID: 0}
     probeVolumeBlendStatesCS: {fileID: 0}
-  m_RendererFeatures: []
-  m_RendererFeatureMap: 
+  m_RendererFeatures:
+  - {fileID: 574781647397367691}
+  m_RendererFeatureMap: 8baf88ecdc08fa07
   m_UseNativeRenderPass: 1
   xrSystemData: {fileID: 0}
   postProcessData: {fileID: 11400000, guid: 41439944d30ece34e96484bdb6645b55, type: 2}
@@ -54,6 +55,22 @@ MonoBehaviour:
   m_DepthTextureFormat: 0
   m_AccurateGbufferNormals: 0
   m_IntermediateTextureMode: 0
+--- !u!114 &574781647397367691
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f54437255e640a5af3914389af6f6e1, type: 3}
+  m_Name: PixelizeFeature
+  m_EditorClassIdentifier: Assembly-CSharp::Match_Them_All.Scripts.Pixelate.PixelizeFeature
+  m_Active: 1
+  settings:
+    renderPassEvent: 550
+    pixelSize: 5
 --- !u!114 &5708571596748996836
 MonoBehaviour:
   m_ObjectHideFlags: 0

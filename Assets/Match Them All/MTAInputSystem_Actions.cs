@@ -177,9 +177,6 @@ public partial class @MTAInputSystem_Actions: IInputActionCollection2, IDisposab
     /// </summary>
     public void Dispose()
     {
-        // Ensure the input actions are disabled before destroying the asset to avoid leaks.
-        // This prevents the finalizer warning.
-        Disable();
         UnityEngine.Object.Destroy(asset);
     }
 

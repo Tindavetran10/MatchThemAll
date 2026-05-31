@@ -31,7 +31,7 @@ namespace MatchThemAll.Scripts
         private void Start()
         {
             // Cache all listeners before the first state broadcast
-            _cachedListeners = FindObjectsByType<MonoBehaviour>()
+            _cachedListeners = FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None)
                 .OfType<IGameStateListener>()
                 .ToArray();
 
