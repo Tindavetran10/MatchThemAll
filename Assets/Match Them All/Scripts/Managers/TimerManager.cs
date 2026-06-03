@@ -6,13 +6,23 @@ namespace MatchThemAll.Scripts
 {
     public class TimerManager : MonoBehaviour, IGameStateListener
     {
+        public static TimerManager instance;
+        
         [Header("Elements")]
         [SerializeField] private TextMeshProUGUI timerText;
 
         private int  _currentTime;
         private bool _isRunning;
 
-        private void Awake() => LevelManager.LevelSpawned += OnLevelSpawned;
+        private void Awake()
+        {
+            if (instance == null)
+                instance = this;
+            else Destroy(gameObject);
+            
+            LevelManager.LevelSpawned += OnLevelSpawned;
+        }
+
         private void OnDestroy() => LevelManager.LevelSpawned -= OnLevelSpawned;
 
         private void OnLevelSpawned(Level level)
@@ -77,6 +87,12 @@ namespace MatchThemAll.Scripts
         {
             _isRunning = false;
             StopAllCoroutines();
+        }
+
+        public void FreezeTimer()
+        {
+            StopTimer();
+            Invoke(nameof(StartTimer), 10f);
         }
     }
 }

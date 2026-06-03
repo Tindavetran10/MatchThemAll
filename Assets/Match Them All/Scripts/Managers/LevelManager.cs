@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using MatchThemAll.Scripts.SaveSystem;
 using NaughtyAttributes;
 using UnityEngine;
 
@@ -19,7 +21,7 @@ namespace MatchThemAll.Scripts
         private const string LevelKey = "Level";
         private int _levelIndex;
         private Level _currentLevel;
-        public System.Collections.Generic.List<Item> Items => _currentLevel.GetItems();
+        public List<Item> Items => _currentLevel.GetItems();
         
         public Transform ItemParent => _currentLevel.ItemParent;
 
@@ -52,18 +54,22 @@ namespace MatchThemAll.Scripts
             LevelSpawned?.Invoke(_currentLevel);
         }
 
-        private void LoadData() => _levelIndex = PlayerPrefs.GetInt(LevelKey, 0);
+        private void LoadData() => _levelIndex = SaveManager.Load().currentLevelIndex;
 
-        private void SaveData() => PlayerPrefs.SetInt(LevelKey, _levelIndex);
+        private void SaveData()
+        {
+            PlayerData data = SaveManager.Load();
+            data.currentLevelIndex = _levelIndex;
+            SaveManager.Save(data);
+        }
 
-        /// <summary>Resets saved level progress back to Level 1.</summary>
+        /// <summary>Wipes all save data and resets to Level 1.</summary>
         [Button("Reset Level Progress")]
         public void ResetLevelProgress()
         {
             _levelIndex = 0;
-            PlayerPrefs.DeleteKey(LevelKey);
-            PlayerPrefs.Save();
-            Debug.Log("Level progress reset to Level 1.");
+            SaveManager.Wipe();
+            Debug.Log("All save data wiped. Starting from Level 1.");
         }
 
         public void GameStateChangedCallback(EGameState gameState)

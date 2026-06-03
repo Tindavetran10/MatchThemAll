@@ -59,5 +59,10 @@ namespace MatchThemAll.Scripts
 
         public void Deselect() =>
             _renderer.materials = new[] { _baseMaterial };
+
+        public void ApplyRandomForce(float magnitude)
+        {
+            GetComponent<Rigidbody>().AddForce(Random.insideUnitSphere * magnitude, ForceMode.VelocityChange);
+        }
     }
 }

@@ -3,25 +3,51 @@ using System;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
+using UnityEngine.Rendering.RenderGraphModule;
 
 namespace ProPixelizer
 {
     /// <summary>
-    /// Performs the outline rendering and detection pass.
+    /// Render-Graph-only implementation of the ProPixelizer outline detection pass for URP 17+.
+    /// Uses AddUnsafePass / RecordRenderGraph exclusively — no legacy Execute/Configure path.
     /// </summary>
     public class OutlineDetectionPass : ProPixelizerPass
     {
-        public OutlineDetectionPass(ShaderResources resources)
-        {
-            renderPassEvent = RenderPassEvent.BeforeRenderingOpaques;
-            Materials = new MaterialLibrary(resources);
-        }
+        // ----- Constants -----
+        private const string OutlineDetectionShaderName  = "Hidden/ProPixelizer/SRP/OutlineDetection";
+        public  const string PROPIXELIZER_OBJECT_BUFFER  = "ProPixelizerMetadata";
+        public  const string OUTLINE_BUFFER              = "_ProPixelizerOutlines";
+        public  const string PROFILER_TAG                = "ProPixelizerOutlines";
+        private const string PROPIXELIZER_SHADER_TAG     = "ProPixelizer";
 
-        private MaterialLibrary Materials;
+        // ----- Shader property IDs -----
+        private static readonly int OutlineDepthTestThreshold  = Shader.PropertyToID("_OutlineDepthTestThreshold");
+        private static readonly int EdgeDetectionSensitivity   = Shader.PropertyToID("_NormalEdgeDetectionSensitivity");
+        private static readonly int ProPixelizerPixelScale     = Shader.PropertyToID("_ProPixelizer_Pixel_Scale");
+        private static readonly int MainTex                    = Shader.PropertyToID("_MainTex");
+        private static readonly int MainTexDepth               = Shader.PropertyToID("_MainTex_Depth");
+        private static readonly int Size                       = Shader.PropertyToID("_TexelSize");
+        private static readonly int ProPixelizerOutlines       = Shader.PropertyToID(OUTLINE_BUFFER);
+        private static readonly int ProPixelizerRenderTargetInfo = Shader.PropertyToID("_ProPixelizer_RenderTargetInfo");
+        private static readonly ShaderTagId ProPixelizerShaderTagID = new ShaderTagId(PROPIXELIZER_SHADER_TAG);
 
-        /// <summary>
-        /// Shader resources used by the OutlineDetectionPass.
-        /// </summary>
+        // ----- Public configuration -----
+        public bool  DepthTestOutlines;
+        public float DepthTestThreshold;
+        public bool  UseNormalsForEdgeDetection  = true;
+        public float NormalEdgeDetectionSensitivity = 1f;
+
+        // ----- RTHandles (public so PixelizationPass can import them) -----
+        public RTHandle _OutlineObjectBuffer;
+        public RTHandle _OutlineObjectBuffer_Depth;
+        public RTHandle _OutlineBuffer;
+
+        // ----- Private -----
+        private MaterialLibrary _materials;
+
+        // -----------------------------------------------------------------------
+        //  Shader resources
+        // -----------------------------------------------------------------------
         [Serializable]
         public sealed class ShaderResources
         {
@@ -29,190 +55,205 @@ namespace ProPixelizer
 
             public ShaderResources Load()
             {
-                OutlineDetection = Shader.Find(OutlineDetectionShader);
+                OutlineDetection = Shader.Find(OutlineDetectionShaderName);
                 return this;
             }
         }
 
-        /// <summary>
-        /// Materials used by the OutlineDetectionPass.
-        /// </summary>
+        // -----------------------------------------------------------------------
+        //  Material library
+        // -----------------------------------------------------------------------
         private sealed class MaterialLibrary
         {
-            private ShaderResources Resources;
+            private readonly ShaderResources _resources;
+            private Material _outlineDetection;
+
             public Material OutlineDetection
             {
                 get
                 {
-                    if (_OutlineDetection == null)
-                        _OutlineDetection = new Material(Resources.OutlineDetection);
-                    return _OutlineDetection;
+                    if (_outlineDetection == null)
+                        _outlineDetection = new Material(_resources.OutlineDetection);
+                    return _outlineDetection;
                 }
             }
-            private Material _OutlineDetection;
 
-            public MaterialLibrary(ShaderResources resources)
+            public MaterialLibrary(ShaderResources resources) { _resources = resources; }
+        }
+
+        // -----------------------------------------------------------------------
+        //  Constructor
+        // -----------------------------------------------------------------------
+        public OutlineDetectionPass(ShaderResources resources)
+        {
+            _materials = new MaterialLibrary(resources);
+            renderPassEvent = RenderPassEvent.BeforeRenderingOpaques;
+        }
+
+        // -----------------------------------------------------------------------
+        //  Pass data
+        // -----------------------------------------------------------------------
+        private class PassData
+        {
+            // Config
+            public bool  DepthTestOutlines;
+            public float DepthTestThreshold;
+            public bool  UseNormals;
+            public float NormalSensitivity;
+            public float PixelScale;
+            public Vector4 TexelSize;
+            public Vector4 RenderTargetInfo;
+            public Matrix4x4 ViewMatrix;
+            public Matrix4x4 ProjectionMatrix;
+
+            // Materials
+            public MaterialLibrary Materials;
+
+            // RTHandles (for raw cmd access inside the render func)
+            public RTHandle OutlineObjectBuffer;
+            public RTHandle OutlineObjectBuffer_Depth;
+            public RTHandle OutlineBuffer;
+
+            // Renderer list declared to the graph
+            public RendererListHandle RendererList;
+        }
+
+        // -----------------------------------------------------------------------
+        //  RecordRenderGraph  (URP 17 RG path)
+        // -----------------------------------------------------------------------
+        public override void RecordRenderGraph(RenderGraph renderGraph, ContextContainer frameData)
+        {
+            var cameraData    = frameData.Get<UniversalCameraData>();
+            var renderingData = frameData.Get<UniversalRenderingData>();
+
+            // Allocate / reallocate persistent RTHandles.
+            var desc = cameraData.cameraTargetDescriptor;
+            desc.useMipMap     = false;
+            desc.colorFormat   = RenderTextureFormat.ARGB32;
+            desc.graphicsFormat = UnityEngine.Experimental.Rendering.GraphicsFormat.R8G8B8A8_UNorm;
+
+            var depthDesc = desc;
+            depthDesc.colorFormat = RenderTextureFormat.Depth;
+            desc.depthBufferBits  = 0;
+
+            RenderingUtils.ReAllocateHandleIfNeeded(ref _OutlineObjectBuffer,       desc,      name: PROPIXELIZER_OBJECT_BUFFER);
+            RenderingUtils.ReAllocateHandleIfNeeded(ref _OutlineObjectBuffer_Depth, depthDesc, name: PROPIXELIZER_OBJECT_BUFFER + "_Depth");
+            RenderingUtils.ReAllocateHandleIfNeeded(ref _OutlineBuffer,             desc,      name: OUTLINE_BUFFER);
+
+            var texelSize = new Vector4(
+                1f / cameraData.cameraTargetDescriptor.width,
+                1f / cameraData.cameraTargetDescriptor.height,
+                cameraData.cameraTargetDescriptor.width,
+                cameraData.cameraTargetDescriptor.height);
+
+            // Compute render target info (replaces Prepare() from legacy path).
+            var hp = RTHandles.rtHandleProperties;
+            var renderTargetInfo = new Vector4(
+                cameraData.cameraTargetDescriptor.width,
+                cameraData.cameraTargetDescriptor.height,
+                hp.rtHandleScale.x,
+                hp.rtHandleScale.y);
+
+            // Import RTHandles into the render graph.
+            var hObjectBuffer      = renderGraph.ImportTexture(_OutlineObjectBuffer);
+            var hObjectBufferDepth = renderGraph.ImportTexture(_OutlineObjectBuffer_Depth);
+            var hOutlineBuffer     = renderGraph.ImportTexture(_OutlineBuffer);
+
+            // Build the renderer list for drawing ProPixelizer-tagged objects.
+            var sort           = new SortingSettings(cameraData.camera);
+            var drawSettings   = new DrawingSettings(ProPixelizerShaderTagID, sort);
+            var filterSettings = new FilteringSettings(RenderQueueRange.all);
+            var listParams     = new RendererListParams(renderingData.cullResults, drawSettings, filterSettings);
+            var rendererList   = renderGraph.CreateRendererList(listParams);
+
+            using (var builder = renderGraph.AddUnsafePass<PassData>(PROFILER_TAG, out var passData))
             {
-                Resources = resources;
+                // Populate pass data.
+                passData.DepthTestOutlines         = DepthTestOutlines;
+                passData.DepthTestThreshold        = DepthTestThreshold;
+                passData.UseNormals                = UseNormalsForEdgeDetection;
+                passData.NormalSensitivity         = NormalEdgeDetectionSensitivity;
+                passData.PixelScale                = cameraData.cameraType == CameraType.Preview ? 0.01f : 1f;
+                passData.TexelSize                 = texelSize;
+                passData.RenderTargetInfo          = renderTargetInfo;
+                passData.ViewMatrix                = cameraData.GetViewMatrix();
+                passData.ProjectionMatrix          = cameraData.GetProjectionMatrix();
+                passData.Materials                 = _materials;
+                passData.OutlineObjectBuffer       = _OutlineObjectBuffer;
+                passData.OutlineObjectBuffer_Depth = _OutlineObjectBuffer_Depth;
+                passData.OutlineBuffer             = _OutlineBuffer;
+                passData.RendererList              = rendererList;
+
+                // Declare resource accesses.
+                builder.UseTexture(hObjectBuffer,      AccessFlags.ReadWrite);
+                builder.UseTexture(hObjectBufferDepth, AccessFlags.ReadWrite);
+                builder.UseTexture(hOutlineBuffer,     AccessFlags.ReadWrite);
+                builder.UseRendererList(rendererList);
+
+                builder.AllowGlobalStateModification(true);
+                builder.AllowPassCulling(false);
+
+                builder.SetRenderFunc((PassData data, UnsafeGraphContext ctx) =>
+                {
+                    var cmd = CommandBufferHelpers.GetNativeCommandBuffer(ctx.cmd);
+
+                    // Set render target info and pixel scale globals.
+                    cmd.SetGlobalVector(ProPixelizerRenderTargetInfo, data.RenderTargetInfo);
+                    cmd.SetGlobalFloat(ProPixelizerPixelScale, data.PixelScale);
+
+                    // Configure material keywords.
+                    if (data.DepthTestOutlines)
+                    {
+                        data.Materials.OutlineDetection.EnableKeyword("DEPTH_TEST_OUTLINES_ON");
+                        data.Materials.OutlineDetection.SetFloat(OutlineDepthTestThreshold, data.DepthTestThreshold);
+                    }
+                    else
+                    {
+                        data.Materials.OutlineDetection.DisableKeyword("DEPTH_TEST_OUTLINES_ON");
+                    }
+
+                    if (data.UseNormals)
+                    {
+                        data.Materials.OutlineDetection.SetFloat(EdgeDetectionSensitivity, data.NormalSensitivity);
+                        cmd.EnableShaderKeyword("NORMAL_EDGE_DETECTION_ON");
+                    }
+                    else
+                    {
+                        cmd.DisableShaderKeyword("NORMAL_EDGE_DETECTION_ON");
+                    }
+
+                    // Set camera matrices.
+                    cmd.SetViewMatrix(data.ViewMatrix);
+                    cmd.SetProjectionMatrix(data.ProjectionMatrix);
+
+                    // Clear and render ProPixelizer object metadata into the outline object buffer.
+                    cmd.SetRenderTarget(data.OutlineObjectBuffer, data.OutlineObjectBuffer_Depth);
+                    cmd.ClearRenderTarget(true, true, Color.white);
+
+                    // Draw all objects tagged with the ProPixelizer shader tag.
+                    cmd.DrawRendererList(data.RendererList);
+
+                    // Detect outlines by blitting through the outline detection shader.
+                    cmd.SetGlobalTexture(MainTex,      data.OutlineObjectBuffer);
+                    cmd.SetGlobalTexture(MainTexDepth, data.OutlineObjectBuffer_Depth);
+                    cmd.SetGlobalVector(Size, data.TexelSize);
+                    Blitter.BlitCameraTexture(cmd, data.OutlineObjectBuffer, data.OutlineBuffer,
+                                              data.Materials.OutlineDetection, 0);
+
+                    // Expose the outline buffer as a global shader texture for subsequent passes.
+                    cmd.SetGlobalTexture(ProPixelizerOutlines, data.OutlineBuffer);
+                });
             }
         }
 
-
-        public bool DepthTestOutlines;
-        public float DepthTestThreshold;
-        public bool UseNormalsForEdgeDetection = true;
-        public float NormalEdgeDetectionSensitivity = 1f;
-
-public RTHandle _OutlineObjectBuffer;
-public RTHandle _OutlineObjectBuffer_Depth;
-public RTHandle _OutlineBuffer;
-
-        static ShaderTagId ProPixelizerShaderTagID = new ShaderTagId(PROPIXELIZER_SHADER_TAG);
-        private static readonly int OutlineDepthTestThreshold = Shader.PropertyToID("_OutlineDepthTestThreshold");
-        private static readonly int EdgeDetectionSensitivity = Shader.PropertyToID("_NormalEdgeDetectionSensitivity");
-        private static readonly int ProPixelizerPixelScale = Shader.PropertyToID("_ProPixelizer_Pixel_Scale");
-        private static readonly int MainTex = Shader.PropertyToID("_MainTex");
-        private static readonly int MainTexDepth = Shader.PropertyToID("_MainTex_Depth");
-        private static readonly int Size = Shader.PropertyToID("_TexelSize");
-        private static readonly int ProPixelizerOutlines = Shader.PropertyToID(OUTLINE_BUFFER);
-
-        private const string OutlineDetectionShader = "Hidden/ProPixelizer/SRP/OutlineDetection";
-
-        private Vector4 TexelSize;
-        public const string PROPIXELIZER_OBJECT_BUFFER = "ProPixelizerMetadata";
-        public const string OUTLINE_BUFFER = "_ProPixelizerOutlines";
-        private const string PROPIXELIZER_SHADER_TAG = "ProPixelizer";
-        
-        [Obsolete("This rendering path is for compatibility mode only (when Render Graph is disabled). Use Render Graph API instead.", false)]
-        public override void Configure(CommandBuffer cmd, RenderTextureDescriptor cameraTextureDescriptor)
-        {
-            var outlineDescriptor = cameraTextureDescriptor;
-            outlineDescriptor.useMipMap = false;
-            outlineDescriptor.colorFormat = RenderTextureFormat.ARGB32;
-            outlineDescriptor.graphicsFormat = UnityEngine.Experimental.Rendering.GraphicsFormat.R8G8B8A8_UNorm;
-            var depthDescriptor = outlineDescriptor;
-            depthDescriptor.colorFormat = RenderTextureFormat.Depth;
-            outlineDescriptor.depthBufferBits = 0;
-            RenderingUtils.ReAllocateHandleIfNeeded(ref _OutlineObjectBuffer, outlineDescriptor, name: PROPIXELIZER_OBJECT_BUFFER);
-            RenderingUtils.ReAllocateHandleIfNeeded(ref _OutlineObjectBuffer_Depth, depthDescriptor, name: PROPIXELIZER_OBJECT_BUFFER);
-            RenderingUtils.ReAllocateHandleIfNeeded(ref _OutlineBuffer, outlineDescriptor, name: OUTLINE_BUFFER);
-
-            TexelSize = new Vector4(
-                1f / cameraTextureDescriptor.width,
-                1f / cameraTextureDescriptor.height,
-                cameraTextureDescriptor.width,
-                cameraTextureDescriptor.height
-            );
-
-// NOTE: ConfigureTarget is obsolete in newer URP versions. The preferred approach is to use the Render Graph API.
-// For compatibility, we rely on the automatic handling of RTHandles without manually calling ConfigureTarget.
-        }
-
-        public override void FrameCleanup(CommandBuffer cmd)
-        {
-            // RTHandles are managed by the renderer and will be automatically released
-        }
-
+        // -----------------------------------------------------------------------
+        //  Cleanup
+        // -----------------------------------------------------------------------
         public void Dispose()
         {
             _OutlineObjectBuffer?.Release();
             _OutlineObjectBuffer_Depth?.Release();
             _OutlineBuffer?.Release();
-        }
-
-        public override void OnCameraCleanup(CommandBuffer cmd)
-        {
-            // set externally managed RTHandle references to null.
-        }
-
-        public const string PROFILER_TAG = "ProPixelizerOutlines";
-
-        #pragma warning disable 618, 672
-        public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
-        {
-            Prepare(cmd, ref renderingData);
-        }
-        
-        public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
-        {
-            if (DepthTestOutlines)
-            {
-                Materials.OutlineDetection.EnableKeyword("DEPTH_TEST_OUTLINES_ON");
-                Materials.OutlineDetection.SetFloat(OutlineDepthTestThreshold, DepthTestThreshold);
-            }
-            else
-                Materials.OutlineDetection.DisableKeyword("DEPTH_TEST_OUTLINES_ON");
-
-            if (UseNormalsForEdgeDetection)
-            {
-                Materials.OutlineDetection.SetFloat(EdgeDetectionSensitivity, NormalEdgeDetectionSensitivity);
-            }
-
-            CommandBuffer buffer = CommandBufferPool.Get(PROFILER_TAG);
-            buffer.name = "ProPixelizer Outline Pass";
-            Prepare(buffer, ref renderingData);
-
-            // Preview cameras must unfortunately disable dither expansion
-            buffer.SetGlobalFloat(ProPixelizerPixelScale,
-                renderingData.cameraData.camera.cameraType == CameraType.Preview ? 0.01f : 1f);
-
-            if (UseNormalsForEdgeDetection)
-                buffer.EnableShaderKeyword("NORMAL_EDGE_DETECTION_ON");
-            else
-                buffer.DisableShaderKeyword("NORMAL_EDGE_DETECTION_ON");
-
-            
-            // Set up matrices for rendering outlines.
-#if CAMERADATA_MATRICES
-            buffer.SetViewMatrix(renderingData.cameraData.GetViewMatrix());
-            buffer.SetProjectionMatrix(renderingData.cameraData.GetProjectionMatrix());
-#else
-            buffer.SetViewMatrix(renderingData.cameraData.camera.worldToCameraMatrix);
-            buffer.SetProjectionMatrix(renderingData.cameraData.camera.projectionMatrix);
-#endif
-
-            // Render outlines into a render target.
-            buffer.SetRenderTarget(_OutlineObjectBuffer, _OutlineObjectBuffer_Depth);
-            buffer.ClearRenderTarget(true, true, Color.white);
-            context.ExecuteCommandBuffer(buffer);
-            CommandBufferPool.Release(buffer);
-
-            var sort = new SortingSettings(renderingData.cameraData.camera);
-            var drawingSettings = new DrawingSettings(ProPixelizerShaderTagID, sort);
-            var filteringSettings = new FilteringSettings(RenderQueueRange.all);
-#if UNITY_2023_2_OR_NEWER
-            buffer = CommandBufferPool.Get(PROFILER_TAG);
-            buffer.name = "ProPixelizer Outline Pass (Render Objects)";
-            var renderListParams = new RendererListParams(renderingData.cullResults, drawingSettings, filteringSettings);
-            var renderList = context.CreateRendererList(ref renderListParams);
-            buffer.DrawRendererList(renderList);
-            context.ExecuteCommandBuffer(buffer);
-            CommandBufferPool.Release(buffer);
-#else
-            context.DrawRenderers(renderingData.cullResults, ref drawingSettings, ref filteringSettings);
-#endif
-
-            // Perform outline detection
-            buffer = CommandBufferPool.Get(PROFILER_TAG);
-            buffer.name = "ProPixelizer Outline Detection";
-            buffer.SetGlobalTexture(MainTex, _OutlineObjectBuffer);
-#if URP_13
-            buffer.SetGlobalTexture(MainTexDepth, _OutlineObjectBuffer_Depth);//, RenderTextureSubElement.Depth);
-#else
-            buffer.SetGlobalTexture("_MainTex_Depth", _OutlineObjectBuffer_Depth, RenderTextureSubElement.Depth);
-#endif
-            buffer.SetGlobalVector(Size, TexelSize);
-
-#if BLIT_API
-            Blitter.BlitCameraTexture(buffer, _OutlineObjectBuffer, _OutlineBuffer, Materials.OutlineDetection, 0);
-#else
-            Blit(buffer, _OutlineObjectBuffer, _OutlineBuffer, Materials.OutlineDetection);
-#endif
-
-            buffer.SetGlobalTexture(ProPixelizerOutlines, _OutlineBuffer);
-
-            context.ExecuteCommandBuffer(buffer);
-            CommandBufferPool.Release(buffer);
         }
     }
 }

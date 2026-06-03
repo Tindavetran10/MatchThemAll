@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using ZLinq;
 using Match_Them_All.Scripts.Power_Ups;
+using MatchThemAll.Scripts.SaveSystem;
 using NaughtyAttributes;
 using UnityEngine;
 
@@ -12,6 +13,15 @@ namespace MatchThemAll.Scripts
         [Header("Vacuum Elements")]
         [SerializeField] private Vacuum vacuum;
         [SerializeField] private Transform vacuumSuckPosition;
+        
+        [Header("Fan Settings")]
+        [SerializeField] private float fanMagnitude;
+
+        [Header("Initial Powerup Charges")]
+        [SerializeField] private int initialVacuumCount = 3;
+        [SerializeField] private int initialSpringCount = 3;
+        [SerializeField] private int initialFanCount    = 3;
+        [SerializeField] private int initialFreezeCount = 3;
 
         [Header("Settings")] 
         private bool _isBusy;
@@ -27,8 +37,11 @@ namespace MatchThemAll.Scripts
         public static Action<Item> ItemPickup;
         public static Action<Item> ItemBackToGame;
 
-        [Header("Data")] [SerializeField] private int initialPUCount;
+        [Header("Data")]
         private int vacuumPUCount;
+        private int springPUCount;
+        private int fanPUCount;
+        private int freezePUCount;
 
         private void Awake()
         {
@@ -56,8 +69,13 @@ namespace MatchThemAll.Scripts
                     UpdateVacuumVisuals();
                     break;
                 case EPowerupType.Spring:
+                    SpringPowerup();
+                    break;
                 case EPowerupType.Fan:
+                    FanPowerup();
+                    break;
                 case EPowerupType.FreezeGun:
+                    FreezePowerup();
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -186,7 +204,28 @@ namespace MatchThemAll.Scripts
             itemToRelease.transform.localScale = Vector3.one;
             
             ItemBackToGame?.Invoke(itemToRelease);
+            _isBusy = false;
         }
+        #endregion
+
+        #region Fan Powerup
+        [Button]
+        public void FanPowerup()
+        {
+            Item[] items = LevelManager.Instance.Items.ToArray();
+
+            foreach (var item in items) 
+                item.ApplyRandomForce(fanMagnitude);
+        }
+        
+
+        #endregion
+
+        #region Freeze Powerup
+        [Button]
+        public void FreezePowerup() => 
+            TimerManager.instance.FreezeTimer();
+
         #endregion
         
         // Optimized: Returns clean goal array index to completely avoid Nullable struct boxing overhead
@@ -209,15 +248,28 @@ namespace MatchThemAll.Scripts
             
             return goalIndex;
         }
-
         
-
         private void LoadData()
         {
-            vacuumPUCount = PlayerPrefs.GetInt("vacuumPUCount", initialPUCount);
+            PlayerData data = SaveManager.Load();
+
+            // If count is 0 (first launch or wiped save), seed with the configured initial value
+            vacuumPUCount = data.vacuumCount > 0 ? data.vacuumCount : initialVacuumCount;
+            springPUCount = data.springCount > 0 ? data.springCount : initialSpringCount;
+            fanPUCount    = data.fanCount    > 0 ? data.fanCount    : initialFanCount;
+            freezePUCount = data.freezeCount > 0 ? data.freezeCount : initialFreezeCount;
+
             UpdateVacuumVisuals();
         }
 
-        private void SaveData() => PlayerPrefs.SetInt("vacuumPUCount", vacuumPUCount);
+        private void SaveData()
+        {
+            PlayerData data = SaveManager.Load();
+            data.vacuumCount = vacuumPUCount;
+            data.springCount = springPUCount;
+            data.fanCount    = fanPUCount;
+            data.freezeCount = freezePUCount;
+            SaveManager.Save(data);
+        }
     }
 }
