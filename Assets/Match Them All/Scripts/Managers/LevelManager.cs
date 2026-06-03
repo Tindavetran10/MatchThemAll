@@ -18,12 +18,15 @@ namespace MatchThemAll.Scripts
         [Tooltip("A single generic Level prefab (no baked items). Reused for every level.")]
         [SerializeField] private Level levelPrefab;
 
-        private const string LevelKey = "Level";
-        private int _levelIndex;
+        private int _savedProgressIndex;  // the player's real progress (never overwritten by replay)
+        private int _levelIndex;          // the actual level being played this session (may differ during replay)
         private Level _currentLevel;
-        public List<Item> Items => _currentLevel.GetItems();
-        
-        public Transform ItemParent => _currentLevel.ItemParent;
+
+        public List<Item> Items        => _currentLevel.GetItems();
+        public Transform ItemParent    => _currentLevel.ItemParent;
+        public int CurrentLevelIndex   => _levelIndex;
+        public int TotalLevelDuration  => _currentLevel != null ? _currentLevel.Duration : 1;
+        public int TotalLevelCount     => levels.Length;
 
         [Header("Actions")]
         public static Action<Level> LevelSpawned;
@@ -41,6 +44,12 @@ namespace MatchThemAll.Scripts
         {
             transform.Clear();
 
+            // Use the level requested by SceneLoader (replay) if set, otherwise use saved progress
+            int requested = SceneLoader.RequestedLevelIndex;
+            _levelIndex = (requested >= 0 && requested < levels.Length)
+                ? requested
+                : _savedProgressIndex;
+
             int index = _levelIndex % levels.Length;
 
             // 1. Instantiate the generic Level prefab
@@ -54,12 +63,31 @@ namespace MatchThemAll.Scripts
             LevelSpawned?.Invoke(_currentLevel);
         }
 
-        private void LoadData() => _levelIndex = SaveManager.Load().currentLevelIndex;
+        private void LoadData()
+        {
+            _savedProgressIndex = SaveManager.Load().currentLevelIndex;
+            _levelIndex = _savedProgressIndex;
+        }
 
-        private void SaveData()
+        /// <summary>
+        /// Saves progress and stars on level complete.
+        /// Only advances currentLevelIndex if the player just beat their furthest level
+        /// (not a replay of an old level).
+        /// </summary>
+        public void SaveLevelComplete(int starsEarned)
         {
             PlayerData data = SaveManager.Load();
-            data.currentLevelIndex = _levelIndex;
+
+            // Only advance progress if this was a new level (not a replay)
+            bool isNewLevel = _levelIndex == _savedProgressIndex;
+            if (isNewLevel)
+            {
+                _savedProgressIndex++;
+                data.currentLevelIndex = _savedProgressIndex;
+            }
+
+            // Always save best star score for this level
+            data.SetLevelStars(_levelIndex, starsEarned);
             SaveManager.Save(data);
         }
 
@@ -67,6 +95,7 @@ namespace MatchThemAll.Scripts
         [Button("Reset Level Progress")]
         public void ResetLevelProgress()
         {
+            _savedProgressIndex = 0;
             _levelIndex = 0;
             SaveManager.Wipe();
             Debug.Log("All save data wiped. Starting from Level 1.");
@@ -81,9 +110,10 @@ namespace MatchThemAll.Scripts
                 case EGameState.GAME when GameManager.Instance.PreviousState != EGameState.PAUSED:
                     SpawnLevel();
                     break;
+                case EGameState.GAME: // resuming from pause — do nothing, level already exists
+                    break;
                 case EGameState.LEVELCOMPLETE:
-                    _levelIndex++;
-                    SaveData();
+                    // Stars are saved by WinPanelManager after calculating time remaining
                     break;
                 case EGameState.MENU:
                 case EGameState.GAMEOVER:

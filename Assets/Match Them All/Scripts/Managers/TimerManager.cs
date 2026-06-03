@@ -12,6 +12,9 @@ namespace MatchThemAll.Scripts
         [SerializeField] private TextMeshProUGUI timerText;
 
         private int  _currentTime;
+        /// <summary>Remaining time in seconds. Read by WinPanelManager for star calculation.</summary>
+        public int CurrentTime => _currentTime;
+
         private bool _isRunning;
 
         private void Awake()

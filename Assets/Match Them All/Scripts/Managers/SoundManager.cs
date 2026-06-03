@@ -19,7 +19,7 @@ namespace MatchThemAll.Scripts
     /// </summary>
     public class SoundManager : MonoBehaviour
     {
-        private static SoundManager Instance { get; set; }
+        public static SoundManager Instance { get; private set; }
 
         [Header("Mixer")]
         [Tooltip("Assign your project's AudioMixer asset here.")]

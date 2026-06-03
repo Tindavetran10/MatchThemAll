@@ -57,7 +57,12 @@ public class InputManager : MonoBehaviour
         else if (_input.Gameplay.Click.WasReleasedThisFrame()) HandleMouseUp();
     }
 
-    private void OnDestroy() => _input?.Dispose();
+    private void OnDestroy()
+    {
+        if (_input == null) return;
+        _input.Gameplay.Disable(); // must be called before Dispose() to satisfy the finalizer assertion
+        _input.Dispose();
+    }
 
     private void HandleMouseDown()
     {
