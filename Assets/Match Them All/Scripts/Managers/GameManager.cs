@@ -36,7 +36,7 @@ namespace MatchThemAll.Scripts
                 .OfType<IGameStateListener>()
                 .ToArray();
 
-            SetGameState(EGameState.MENU);
+            StartGame();
         }
 
         public void SetGameState(EGameState gameState)

@@ -5,7 +5,6 @@ namespace MatchThemAll.Scripts
     public class UIManager : MonoBehaviour, IGameStateListener
     {
         [Header("Panels")]
-        [SerializeField] private GameObject menuPanel;
         [SerializeField] private GameObject gamePanel;
         [SerializeField] private GameObject pausePanel;
         [SerializeField] private GameObject levelCompletePanel;
@@ -13,7 +12,6 @@ namespace MatchThemAll.Scripts
 
         public void GameStateChangedCallback(EGameState gameState)
         {
-            menuPanel.SetActive(gameState == EGameState.MENU);
 
             // Keep the game HUD (goals, timer) visible while paused.
             gamePanel.SetActive(gameState is EGameState.GAME or EGameState.PAUSED);

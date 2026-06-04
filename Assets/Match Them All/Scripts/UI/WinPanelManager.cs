@@ -72,14 +72,15 @@ namespace MatchThemAll.Scripts.UI
         {
             for (int i = 0; i < starObjects.Length; i++)
             {
-                if (starObjects[i] == null) continue;
+                GameObject star = starObjects[i];
+                if (star == null) continue;
 
                 bool earned = i < count;
                 if (!earned)
                 {
                     // Unearned stars stay small / greyed out — just show them at scale 0.6
                     float delay = starPopDelay * i + 0.2f;
-                    LeanTween.scale(starObjects[i], Vector3.one * 0.6f, starPopDuration * 0.5f)
+                    LeanTween.scale(star, Vector3.one * 0.6f, starPopDuration * 0.5f)
                              .setDelay(delay)
                              .setEase(LeanTweenType.easeOutBack);
                     continue;
@@ -87,12 +88,12 @@ namespace MatchThemAll.Scripts.UI
 
                 // Earned star: pop in with overshoot bounce
                 float popDelay = starPopDelay * i + 0.2f;
-                LeanTween.scale(starObjects[i], Vector3.one * starOvershoot, starPopDuration)
+                LeanTween.scale(star, Vector3.one * starOvershoot, starPopDuration)
                          .setDelay(popDelay)
                          .setEase(LeanTweenType.easeOutBack)
                          .setOnComplete(() =>
                          {
-                             LeanTween.scale(starObjects[i], Vector3.one, starPopDuration * 0.4f)
+                             LeanTween.scale(star, Vector3.one, starPopDuration * 0.4f)
                                       .setEase(LeanTweenType.easeInOutSine);
                          });
             }
