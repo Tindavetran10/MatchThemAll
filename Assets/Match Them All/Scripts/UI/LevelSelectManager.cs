@@ -37,9 +37,6 @@ namespace MatchThemAll.Scripts.UI
         }
 
         /// <summary>Called by the Back button. Returns to the Main Menu.</summary>
-        public void OnBackClicked()
-        {
-            SceneLoader.Load(SceneLoader.MainMenu);
-        }
+        public void OnBackClicked() => SceneLoader.Load(SceneLoader.MainMenu);
     }
 }

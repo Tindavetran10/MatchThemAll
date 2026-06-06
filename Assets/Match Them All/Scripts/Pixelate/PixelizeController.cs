@@ -11,7 +11,7 @@ namespace Match_Them_All.Scripts.Pixelate
     {
         public void GameStateChangedCallback(EGameState newState)
         {
-            PixelizeFeature.IsActive = (newState == EGameState.PAUSED);
+            PixelizeFeature.IsActive = newState == EGameState.PAUSED;
         }
     }
 }

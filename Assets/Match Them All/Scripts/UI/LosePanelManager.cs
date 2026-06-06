@@ -18,9 +18,7 @@ namespace MatchThemAll.Scripts.UI
         }
 
         /// <summary>Called by the Level Select button.</summary>
-        public void OnLevelSelectClicked()
-        {
+        public void OnLevelSelectClicked() => 
             SceneLoader.Load(SceneLoader.LevelSelect);
-        }
     }
 }

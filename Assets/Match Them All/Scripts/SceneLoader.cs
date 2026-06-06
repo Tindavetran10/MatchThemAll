@@ -1,5 +1,5 @@
+using UnityEngine;
 using UnityEngine.SceneManagement;
-
 namespace MatchThemAll.Scripts
 {
     /// <summary>
@@ -15,7 +15,7 @@ namespace MatchThemAll.Scripts
         // Scene name constants — update these if you rename your scenes
         public const string MainMenu    = "MainMenu";
         public const string LevelSelect = "LevelSelect";
-        public const string Loading     = "LoadingScene";
+        private const string Loading     = "LoadingScene";
         public const string Game        = "MainScene";
 
         /// <summary>
@@ -35,7 +35,7 @@ namespace MatchThemAll.Scripts
         {
             TargetScene = sceneName;
             RequestedLevelIndex = -1;
-            SceneManager.LoadScene(Loading);
+            FadeAndLoad(Loading);
         }
 
         /// <summary>
@@ -46,7 +46,48 @@ namespace MatchThemAll.Scripts
         {
             TargetScene = Game;
             RequestedLevelIndex = levelIndex;
-            SceneManager.LoadScene(Loading);
+            FadeAndLoad(Loading);
+        }
+
+        private static void FadeAndLoad(string nextScene)
+        {
+            // Create a persistent canvas for the fade
+            var go = new GameObject("SceneTransitionFader");
+            Object.DontDestroyOnLoad(go);
+
+            var canvas = go.AddComponent<Canvas>();
+            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            canvas.sortingOrder = 999; // Render on top of everything
+
+            var img = go.AddComponent<UnityEngine.UI.Image>();
+            img.color = new Color(0, 0, 0, 0); // Start transparent
+
+            // Fade to black over 0.25 seconds
+            LeanTween.value(go, 0f, 1f, 0.25f)
+                .setIgnoreTimeScale(true)
+                .setOnUpdate(val =>
+                {
+                    img.color = new Color(0, 0, 0, val);
+                })
+                .setOnComplete(() =>
+                {
+                    // Actually switch the scene once it's completely black
+                    SceneManager.LoadScene(nextScene);
+
+                    // Fade back out from black to transparent over 0.35 seconds
+                    LeanTween.value(go, 1f, 0f, 0.35f)
+                        .setIgnoreTimeScale(true)
+                        .setDelay(0.1f)
+                        .setOnUpdate(val =>
+                        {
+                            if (img != null) img.color = new Color(0, 0, 0, val);
+                        })
+                        .setOnComplete(() =>
+                        {
+                            // Clean up the fader when done
+                            Object.Destroy(go);
+                        });
+                });
         }
     }
 }

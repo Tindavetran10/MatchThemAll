@@ -32,7 +32,7 @@ namespace Match_Them_All.Scripts.Pixelate
                 return;
             }
 
-            int ps = Mathf.Max(2, _settings.pixelSize); // pixelSize=1 = no visible effect, skip
+            var ps = Mathf.Max(2, _settings.pixelSize); // pixelSize=1 = no visible effect, skip
             Shader.SetGlobalFloat(PixelizeSize, ps);
 
             var resourceData = frameData.Get<UniversalResourceData>();

@@ -19,12 +19,12 @@ namespace MatchThemAll.Scripts
         [SerializeField] private Level levelPrefab;
 
         private int _savedProgressIndex;  // the player's real progress (never overwritten by replay)
-        private int _levelIndex;          // the actual level being played this session (may differ during replay)
         private Level _currentLevel;
 
         public List<Item> Items        => _currentLevel.GetItems();
         public Transform ItemParent    => _currentLevel.ItemParent;
-        public int CurrentLevelIndex   => _levelIndex;
+        public int CurrentLevelIndex { get; private set; }
+
         public int TotalLevelDuration  => _currentLevel != null ? _currentLevel.Duration : 1;
         public int TotalLevelCount     => levels.Length;
 
@@ -46,11 +46,11 @@ namespace MatchThemAll.Scripts
 
             // Use the level requested by SceneLoader (replay) if set, otherwise use saved progress
             int requested = SceneLoader.RequestedLevelIndex;
-            _levelIndex = (requested >= 0 && requested < levels.Length)
+            CurrentLevelIndex = (requested >= 0 && requested < levels.Length)
                 ? requested
                 : _savedProgressIndex;
 
-            int index = _levelIndex % levels.Length;
+            int index = CurrentLevelIndex % levels.Length;
 
             // 1. Instantiate the generic Level prefab
             _currentLevel = Instantiate(levelPrefab, transform);
@@ -66,7 +66,7 @@ namespace MatchThemAll.Scripts
         private void LoadData()
         {
             _savedProgressIndex = SaveManager.Load().currentLevelIndex;
-            _levelIndex = _savedProgressIndex;
+            CurrentLevelIndex = _savedProgressIndex;
         }
 
         /// <summary>
@@ -79,7 +79,7 @@ namespace MatchThemAll.Scripts
             PlayerData data = SaveManager.Load();
 
             // Only advance progress if this was a new level (not a replay)
-            bool isNewLevel = _levelIndex == _savedProgressIndex;
+            bool isNewLevel = CurrentLevelIndex == _savedProgressIndex;
             if (isNewLevel)
             {
                 _savedProgressIndex++;
@@ -87,7 +87,7 @@ namespace MatchThemAll.Scripts
             }
 
             // Always save best star score for this level
-            data.SetLevelStars(_levelIndex, starsEarned);
+            data.SetLevelStars(CurrentLevelIndex, starsEarned);
             SaveManager.Save(data);
         }
 
@@ -96,7 +96,7 @@ namespace MatchThemAll.Scripts
         public void ResetLevelProgress()
         {
             _savedProgressIndex = 0;
-            _levelIndex = 0;
+            CurrentLevelIndex = 0;
             SaveManager.Wipe();
             Debug.Log("All save data wiped. Starting from Level 1.");
         }

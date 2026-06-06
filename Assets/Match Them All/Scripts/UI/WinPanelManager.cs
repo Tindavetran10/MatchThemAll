@@ -46,7 +46,7 @@ namespace MatchThemAll.Scripts.UI
             if (LevelManager.Instance == null) return 1;
 
             int total     = LevelManager.Instance.TotalLevelDuration;
-            int remaining = TimerManager.instance != null ? TimerManager.instance.CurrentTime : 0;
+            int remaining = TimerManager.Instance != null ? TimerManager.Instance.CurrentTime : 0;
 
             if (total <= 0) return 1;
 
@@ -70,12 +70,12 @@ namespace MatchThemAll.Scripts.UI
 
         private void AnimateStars(int count)
         {
-            for (int i = 0; i < starObjects.Length; i++)
+            for (var i = 0; i < starObjects.Length; i++)
             {
                 GameObject star = starObjects[i];
                 if (star == null) continue;
 
-                bool earned = i < count;
+                var earned = i < count;
                 if (!earned)
                 {
                     // Unearned stars stay small / greyed out — just show them at scale 0.6
@@ -87,7 +87,7 @@ namespace MatchThemAll.Scripts.UI
                 }
 
                 // Earned star: pop in with overshoot bounce
-                float popDelay = starPopDelay * i + 0.2f;
+                var popDelay = starPopDelay * i + 0.2f;
                 LeanTween.scale(star, Vector3.one * starOvershoot, starPopDuration)
                          .setDelay(popDelay)
                          .setEase(LeanTweenType.easeOutBack)
@@ -109,9 +109,6 @@ namespace MatchThemAll.Scripts.UI
         }
 
         /// <summary>Called by the Level Select button.</summary>
-        public void OnLevelSelectClicked()
-        {
-            SceneLoader.Load(SceneLoader.LevelSelect);
-        }
+        public void OnLevelSelectClicked() => SceneLoader.Load(SceneLoader.LevelSelect);
     }
 }

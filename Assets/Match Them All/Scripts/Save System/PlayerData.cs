@@ -1,5 +1,3 @@
-using System;
-
 namespace MatchThemAll.Scripts.SaveSystem
 {
     /// <summary>

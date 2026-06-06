@@ -38,12 +38,13 @@ namespace MatchThemAll.Scripts
                 tipText.text = Tips[Random.Range(0, Tips.Length)];
 
             // Determine target scene
-            string target = SceneLoader.TargetScene;
+            var target = SceneLoader.TargetScene;
             if (string.IsNullOrEmpty(target))
                 target = SceneLoader.Game; // fallback
 
             // Begin async load but don't activate yet
             AsyncOperation op = SceneManager.LoadSceneAsync(target);
+            if (op == null) yield break;
             op.allowSceneActivation = false;
 
             float elapsed = 0f;
@@ -53,17 +54,49 @@ namespace MatchThemAll.Scripts
                 elapsed += Time.deltaTime;
 
                 // AsyncOperation reports 0-0.9 while loading, then jumps to 1 on activation
-                float loadProgress  = Mathf.Clamp01(op.progress / 0.9f);
-                float timeProgress  = Mathf.Clamp01(elapsed / minimumLoadTime);
+                float loadProgress = Mathf.Clamp01(op.progress / 0.9f);
+                float timeProgress = Mathf.Clamp01(elapsed / minimumLoadTime);
                 float displayProgress = Mathf.Min(loadProgress, timeProgress);
 
                 if (progressBar != null) progressBar.value = displayProgress;
                 if (progressText != null) progressText.text = $"{Mathf.RoundToInt(displayProgress * 100)}%";
 
                 // Activate scene only when both loading and minimum time are done
-                if (op.progress >= 0.9f && elapsed >= minimumLoadTime)
-                    op.allowSceneActivation = true;
+                if (op.progress >= 0.9f && elapsed >= minimumLoadTime && !op.allowSceneActivation)
+                {
+                    // Create a fader to transition out of the loading screen smoothly
+                    var go = new GameObject("LoadingTransitionFader");
+                    DontDestroyOnLoad(go);
 
+                    var canvas = go.AddComponent<Canvas>();
+                    canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+                    canvas.sortingOrder = 999;
+
+                    var img = go.AddComponent<Image>();
+                    img.color = new Color(0, 0, 0, 0);
+
+                    LeanTween.value(go, 0f, 1f, 0.25f)
+                        .setIgnoreTimeScale(true)
+                        .setOnUpdate(val => { img.color = new Color(0, 0, 0, val); })
+                        .setOnComplete(() =>
+                        {
+                            // Activate the scene
+                            op.allowSceneActivation = true;
+
+                            // Fade back in
+                            LeanTween.value(go, 1f, 0f, 0.35f)
+                                .setIgnoreTimeScale(true)
+                                .setDelay(0.1f)
+                                .setOnUpdate(val =>
+                                {
+                                    if (img != null) img.color = new Color(0, 0, 0, val);
+                                })
+                                .setOnComplete(() => { Destroy(go); });
+                        });
+
+                    // Break out of the loop since we handle activation via LeanTween now
+                    break;
+                }
                 yield return null;
             }
         }

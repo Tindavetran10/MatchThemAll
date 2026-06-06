@@ -38,10 +38,10 @@ namespace MatchThemAll.Scripts
         public static Action<Item> ItemBackToGame;
 
         [Header("Data")]
-        private int vacuumPUCount;
-        private int springPUCount;
-        private int fanPUCount;
-        private int freezePUCount;
+        private int _vacuumPuCount;
+        private int _springPuCount;
+        private int _fanPuCount;
+        private int _freezePuCount;
 
         private void Awake()
         {
@@ -87,16 +87,16 @@ namespace MatchThemAll.Scripts
         {
             _vacuumRequested = true;
 
-            if (vacuumPUCount <= 0)
+            if (_vacuumPuCount <= 0)
             {
-                vacuumPUCount = 3;
+                _vacuumPuCount = 3;
                 SaveData();
             }
             else
             {
                 _isBusy = true;
 
-                vacuumPUCount--;
+                _vacuumPuCount--;
                 SaveData();
                 vacuum.Play();
             }
@@ -179,12 +179,12 @@ namespace MatchThemAll.Scripts
             Destroy(item.gameObject);
         }
         
-        private void UpdateVacuumVisuals() => vacuum.UpdateVisuals(vacuumPUCount);
+        private void UpdateVacuumVisuals() => vacuum.UpdateVisuals(_vacuumPuCount);
         #endregion
 
         #region Spring Powerup
         [Button]
-        public void SpringPowerup()
+        private void SpringPowerup()
         {
             ItemSpot spot = ItemSpotManager.Instance.GetRandomOccupiedSpot();
             
@@ -210,7 +210,7 @@ namespace MatchThemAll.Scripts
 
         #region Fan Powerup
         [Button]
-        public void FanPowerup()
+        private void FanPowerup()
         {
             Item[] items = LevelManager.Instance.Items.ToArray();
 
@@ -223,8 +223,8 @@ namespace MatchThemAll.Scripts
 
         #region Freeze Powerup
         [Button]
-        public void FreezePowerup() => 
-            TimerManager.instance.FreezeTimer();
+        private static void FreezePowerup() => 
+            TimerManager.Instance.FreezeTimer();
 
         #endregion
         
@@ -251,24 +251,24 @@ namespace MatchThemAll.Scripts
         
         private void LoadData()
         {
-            PlayerData data = SaveManager.Load();
+            var data = SaveManager.Load();
 
             // If count is 0 (first launch or wiped save), seed with the configured initial value
-            vacuumPUCount = data.vacuumCount > 0 ? data.vacuumCount : initialVacuumCount;
-            springPUCount = data.springCount > 0 ? data.springCount : initialSpringCount;
-            fanPUCount    = data.fanCount    > 0 ? data.fanCount    : initialFanCount;
-            freezePUCount = data.freezeCount > 0 ? data.freezeCount : initialFreezeCount;
+            _vacuumPuCount = data.vacuumCount > 0 ? data.vacuumCount : initialVacuumCount;
+            _springPuCount = data.springCount > 0 ? data.springCount : initialSpringCount;
+            _fanPuCount    = data.fanCount    > 0 ? data.fanCount    : initialFanCount;
+            _freezePuCount = data.freezeCount > 0 ? data.freezeCount : initialFreezeCount;
 
             UpdateVacuumVisuals();
         }
 
         private void SaveData()
         {
-            PlayerData data = SaveManager.Load();
-            data.vacuumCount = vacuumPUCount;
-            data.springCount = springPUCount;
-            data.fanCount    = fanPUCount;
-            data.freezeCount = freezePUCount;
+            var data = SaveManager.Load();
+            data.vacuumCount = _vacuumPuCount;
+            data.springCount = _springPuCount;
+            data.fanCount    = _fanPuCount;
+            data.freezeCount = _freezePuCount;
             SaveManager.Save(data);
         }
     }

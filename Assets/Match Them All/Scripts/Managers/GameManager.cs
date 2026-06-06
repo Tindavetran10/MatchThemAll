@@ -52,8 +52,21 @@ namespace MatchThemAll.Scripts
         public void PauseGame()  => SetGameState(EGameState.PAUSED);
         public void ResumeGame() => SetGameState(EGameState.GAME);
 
-        public void NextButtonCallback()  => SceneManager.LoadScene(0);
-        public void RetryButtonCallback() => SceneManager.LoadScene(0);
+        public void QuitToMenuCallback()
+        {
+            ResumeGame(); // Resumes game state which smoothly closes the Pause panel
+            SceneLoader.Load(SceneLoader.MainMenu);
+        }
+
+        public void RetryLevelCallback()
+        {
+            // Just reload the current level from the Game Over or Pause menu
+            SceneLoader.LoadLevel(SceneLoader.RequestedLevelIndex);
+        }
+
+        // Keep these for backward compatibility if any old buttons use them
+        public void NextButtonCallback()  => SceneLoader.LoadLevel(-1);
+        public void RetryButtonCallback() => RetryLevelCallback();
 
         public bool IsGame() => _gameState == EGameState.GAME;
     }

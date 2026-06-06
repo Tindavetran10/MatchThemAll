@@ -6,21 +6,20 @@ namespace MatchThemAll.Scripts
 {
     public class TimerManager : MonoBehaviour, IGameStateListener
     {
-        public static TimerManager instance;
+        public static TimerManager Instance;
         
         [Header("Elements")]
         [SerializeField] private TextMeshProUGUI timerText;
 
-        private int  _currentTime;
         /// <summary>Remaining time in seconds. Read by WinPanelManager for star calculation.</summary>
-        public int CurrentTime => _currentTime;
+        public int CurrentTime { get; private set; }
 
         private bool _isRunning;
 
         private void Awake()
         {
-            if (instance == null)
-                instance = this;
+            if (Instance == null)
+                Instance = this;
             else Destroy(gameObject);
             
             LevelManager.LevelSpawned += OnLevelSpawned;
@@ -30,7 +29,7 @@ namespace MatchThemAll.Scripts
 
         private void OnLevelSpawned(Level level)
         {
-            _currentTime = level.Duration;
+            CurrentTime = level.Duration;
             UpdateTimerText();
             StartTimer();
         }
@@ -44,12 +43,12 @@ namespace MatchThemAll.Scripts
 
         private IEnumerator TimerCoroutine()
         {
-            while (_currentTime > 0)
+            while (CurrentTime > 0)
             {
                 yield return new WaitForSeconds(1f); // wait a full second before decrementing
                 if (!_isRunning) yield break;        // respect Stop/Pause
 
-                _currentTime--;
+                CurrentTime--;
                 UpdateTimerText();
             }
 
@@ -59,8 +58,8 @@ namespace MatchThemAll.Scripts
         private void UpdateTimerText()
         {
             // Direct integer math — no TimeSpan, no Substring, no extra allocations
-            int minutes = _currentTime / 60;
-            int seconds = _currentTime % 60;
+            int minutes = CurrentTime / 60;
+            int seconds = CurrentTime % 60;
             timerText.text = $"{minutes:D2}:{seconds:D2}";
         }
 

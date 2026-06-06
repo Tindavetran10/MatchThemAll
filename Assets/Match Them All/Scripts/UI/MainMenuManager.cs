@@ -17,10 +17,7 @@ namespace MatchThemAll.Scripts.UI
         }
 
         /// <summary>Called by the Play button. Goes to Level Select.</summary>
-        public void OnPlayClicked()
-        {
-            SceneLoader.Load(SceneLoader.LevelSelect);
-        }
+        public void OnPlayClicked() => SceneLoader.Load(SceneLoader.LevelSelect);
 
         /// <summary>Called by the Settings button. Opens the settings overlay.</summary>
         public void OnSettingsClicked()
@@ -32,8 +29,11 @@ namespace MatchThemAll.Scripts.UI
         /// <summary>Called by the Settings close button.</summary>
         public void OnSettingsCloseClicked()
         {
-            if (settingsPanel != null)
-                settingsPanel.SetActive(false);
+            if (settingsPanel == null) return;
+
+            var animator = settingsPanel.GetComponent<UIAnimator>();
+            if (animator != null) animator.ClosePanel();
+            else settingsPanel.SetActive(false);
         }
     }
 }
