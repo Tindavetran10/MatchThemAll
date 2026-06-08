@@ -13,6 +13,7 @@ namespace MatchThemAll.Scripts
         public Sprite Icon => icon;
 
         public ItemSpot Spot { get; private set; }
+        public bool IsMovingToSpot { get; set; } = false;
 
         [Header("Elements")]
         [SerializeField] private Renderer _renderer;

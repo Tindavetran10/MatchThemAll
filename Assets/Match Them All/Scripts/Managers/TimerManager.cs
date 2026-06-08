@@ -96,5 +96,21 @@ namespace MatchThemAll.Scripts
             StopTimer();
             Invoke(nameof(StartTimer), 10f);
         }
+
+        public void SetTutorialPause(bool isPaused)
+        {
+            if (isPaused)
+            {
+                StopTimer();
+            }
+            else
+            {
+                // Only start if we are in the GAME state
+                if (GameManager.Instance.IsGame())
+                {
+                    StartTimer();
+                }
+            }
+        }
     }
 }

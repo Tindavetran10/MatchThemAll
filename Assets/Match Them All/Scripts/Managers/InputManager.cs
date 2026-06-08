@@ -14,6 +14,9 @@ public class InputManager : MonoBehaviour
     public static Action<Item> ItemClicked;
     public static Action<Powerup> PowerupClicked;
     
+    public static bool IsTutorialActive;
+    public static Item[] TutorialTargets;
+
     [Header("Settings")] 
     // Material used to create a visual outline effect when an item is selected
     [SerializeField] private Material outlineMaterial;
@@ -38,6 +41,11 @@ public class InputManager : MonoBehaviour
         _input = new MTAInputSystem_Actions();
         _input.Gameplay.Click.Enable();     // button action
         _input.Gameplay.Pointer.Enable();  
+
+        int tutorialLayer = LayerMask.NameToLayer("Tutorial");
+        if (tutorialLayer != -1) {
+            itemLayerMask.value |= (1 << tutorialLayer);
+        }
     }
 
     // Update method is called every frame by Unity's game loop
@@ -116,6 +124,25 @@ public class InputManager : MonoBehaviour
         {
             DeselectCurrentItem();
             return;
+        }
+
+        // TUTORIAL OVERRIDE: If tutorial is active, block selecting non-tutorial targets
+        if (IsTutorialActive)
+        {
+            bool isTarget = false;
+            if (TutorialTargets != null)
+            {
+                foreach (var target in TutorialTargets)
+                {
+                    if (target == item) isTarget = true;
+                }
+            }
+            
+            if (!isTarget)
+            {
+                DeselectCurrentItem();
+                return;
+            }
         }
 
         // Ensure only one item is selected at a time by deselecting the previous one

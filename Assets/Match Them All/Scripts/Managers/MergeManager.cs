@@ -102,6 +102,14 @@ namespace MatchThemAll.Scripts
             // Get a pooled particle instead of Instantiating a new one
             ParticleSystem ps = _particlePool.Get();
             ps.transform.position = mergePosition;
+            if (InputManager.IsTutorialActive)
+            {
+                ps.gameObject.layer = LayerMask.NameToLayer("Tutorial");
+            }
+            else
+            {
+                ps.gameObject.layer = LayerMask.NameToLayer("Default");
+            }
             ps.Play();
 
             float lifetime = ps.main.duration + ps.main.startLifetime.constantMax;

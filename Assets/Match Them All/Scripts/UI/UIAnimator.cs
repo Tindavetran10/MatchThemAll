@@ -1,38 +1,92 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace MatchThemAll.Scripts.UI
 {
     /// <summary>
-    /// Attach this to any UI Panel to give it an automatic pop-in animation when it turns on.
-    /// Uses LeanTween to scale the panel up smoothly.
+    /// Attach this to a UI Panel. It expects the root to have the background Image (which it fades)
+    /// and a child named "Card" (which it scales up).
     /// </summary>
     public class UIAnimator : MonoBehaviour
     {
         [SerializeField] private float animationDuration = 0.3f;
         [SerializeField] private LeanTweenType easeType = LeanTweenType.easeOutBack;
 
-        private void OnEnable()
-        {
-            // Start at a smaller scale (e.g., 50%)
-            transform.localScale = Vector3.one * 0.5f;
+        private Transform targetToScale;
+        private Image backgroundImage;
+        private float originalAlpha;
+        private Vector3 originalScale;
 
-            // Animate to full scale. We use setIgnoreTimeScale(true) so it still animates
-            // even if the game is paused (Time.timeScale = 0).
-            LeanTween.scale(gameObject, Vector3.one, animationDuration)
-                     .setEase(easeType)
-                     .setIgnoreTimeScale(true);
+        private void Awake()
+        {
+            // Find the child named "Card" to scale. If not found, fallback to scaling everything.
+            targetToScale = transform.Find("Card");
+            if (targetToScale == null) targetToScale = transform;
+
+            originalScale = targetToScale.localScale; // Save the designer's custom scale
+
+            backgroundImage = GetComponent<Image>();
+            if (backgroundImage != null)
+            {
+                // Ensure we don't accidentally save an alpha of 0 if it was saved hidden
+                originalAlpha = backgroundImage.color.a > 0.1f ? backgroundImage.color.a : 0.78f;
+            }
         }
 
-        /// <summary>
-        /// Smoothly shrinks the panel and deactivates it upon completion.
-        /// </summary>
+        private void OnEnable()
+        {
+            LeanTween.cancel(targetToScale.gameObject);
+            
+            // Pop up the card using its original scale
+            targetToScale.localScale = originalScale * 0.5f;
+            LeanTween.scale(targetToScale.gameObject, originalScale, animationDuration)
+                     .setEase(easeType)
+                     .setIgnoreTimeScale(true);
+
+            // Fade the background overlay
+            if (backgroundImage != null)
+            {
+                LeanTween.cancel(gameObject);
+                Color c = backgroundImage.color;
+                c.a = 0f;
+                backgroundImage.color = c;
+
+                LeanTween.value(gameObject, 0f, originalAlpha, animationDuration)
+                         .setEase(LeanTweenType.easeOutQuad)
+                         .setIgnoreTimeScale(true)
+                         .setOnUpdate((float a) => 
+                         {
+                             Color col = backgroundImage.color;
+                             col.a = a;
+                             backgroundImage.color = col;
+                         });
+            }
+        }
+
         public void ClosePanel()
         {
-            LeanTween.cancel(gameObject); // Cancel any opening tweens
-            LeanTween.scale(gameObject, Vector3.one * 0.5f, animationDuration)
+            LeanTween.cancel(targetToScale.gameObject);
+            
+            // Shrink the card
+            LeanTween.scale(targetToScale.gameObject, originalScale * 0.5f, animationDuration)
                      .setEase(LeanTweenType.easeInBack)
                      .setIgnoreTimeScale(true)
                      .setOnComplete(() => gameObject.SetActive(false));
+
+            // Fade out the background overlay
+            if (backgroundImage != null)
+            {
+                LeanTween.cancel(gameObject);
+                LeanTween.value(gameObject, backgroundImage.color.a, 0f, animationDuration)
+                         .setEase(LeanTweenType.easeOutQuad)
+                         .setIgnoreTimeScale(true)
+                         .setOnUpdate((float a) => 
+                         {
+                             Color col = backgroundImage.color;
+                             col.a = a;
+                             backgroundImage.color = col;
+                         });
+            }
         }
     }
 }

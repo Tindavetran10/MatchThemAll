@@ -146,6 +146,7 @@ namespace MatchThemAll.Scripts
 
         private void MoveItemToSpot(Item item, ItemSpot targetSpot, Action completeCallback)
         {
+            item.IsMovingToSpot = true;
             targetSpot.Populate(item);
 
             LeanTween.moveLocal(item.gameObject, itemLocalPositionOnSpot, animationDuration)
@@ -163,6 +164,7 @@ namespace MatchThemAll.Scripts
 
         private void HandleItemReachedSpot(Item item, bool checkForMerge = true)
         {
+            item.IsMovingToSpot = false;
             item.Spot.BumpDown();
 
             if (!checkForMerge) return;
