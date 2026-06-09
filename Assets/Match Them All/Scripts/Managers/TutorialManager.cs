@@ -38,12 +38,14 @@ namespace MatchThemAll.Scripts.Managers
         {
             LevelManager.LevelSpawned += OnLevelSpawned;
             InputManager.ItemClicked += OnItemClicked;
+            ItemSpotManager.MergeStarted += OnMergeStarted;
         }
 
         private void OnDisable()
         {
             LevelManager.LevelSpawned -= OnLevelSpawned;
             InputManager.ItemClicked -= OnItemClicked;
+            ItemSpotManager.MergeStarted -= OnMergeStarted;
         }
 
         private void OnLevelSpawned(Level level)
@@ -118,13 +120,24 @@ namespace MatchThemAll.Scripts.Managers
             if (_targetItems.Contains(item))
             {
                 _itemsClicked++;
-                
-                // Wait until all 3 are clicked before dismissing the tutorial
-                if (_itemsClicked >= 3)
-                {
-                    EndTutorial();
-                }
             }
+        }
+
+        // Called by ItemSpotManager when 3 identical items have all landed and merge begins
+        private void OnMergeStarted(List<Item> items)
+        {
+            if (!InputManager.IsTutorialActive) return;
+
+            // Check that the merge involves our tutorial items
+            bool isTutorialMerge = false;
+            foreach (var item in items)
+            {
+                if (_targetItems.Contains(item)) { isTutorialMerge = true; break; }
+            }
+
+            if (!isTutorialMerge) return;
+
+            EndTutorial();
         }
 
         private void EndTutorial()
@@ -143,7 +156,8 @@ namespace MatchThemAll.Scripts.Managers
 
         private IEnumerator ResetLayersDelayed()
         {
-            yield return new WaitForSeconds(1f);
+            // Wait slightly longer than the merge animation so items are already destroyed
+            yield return new WaitForSeconds(2f);
             foreach (var item in _targetItems)
             {
                 if (item != null)

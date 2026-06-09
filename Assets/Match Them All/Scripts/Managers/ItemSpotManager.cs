@@ -288,6 +288,7 @@ namespace MatchThemAll.Scripts
 
         private void HandleFirstItemReachSpot(Item item)
         {
+            item.IsMovingToSpot = false;
             item.Spot.BumpDown();
             CheckForGameOver();
         }

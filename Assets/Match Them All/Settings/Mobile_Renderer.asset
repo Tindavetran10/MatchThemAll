@@ -30,10 +30,7 @@ MonoBehaviour:
   m_UseNativeRenderPass: 1
   xrSystemData: {fileID: 0}
   postProcessData: {fileID: 11400000, guid: 41439944d30ece34e96484bdb6645b55, type: 2}
-  m_AssetVersion: 3
-  m_PrepassLayerMask:
-    serializedVersion: 2
-    m_Bits: 4294967295
+  m_AssetVersion: 2
   m_OpaqueLayerMask:
     serializedVersion: 2
     m_Bits: 4294967295
@@ -67,7 +64,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5f54437255e640a5af3914389af6f6e1, type: 3}
   m_Name: PixelizeFeature
   m_EditorClassIdentifier: Assembly-CSharp::Match_Them_All.Scripts.Pixelate.PixelizeFeature
-  m_Active: 1
+  m_Active: 0
   settings:
     renderPassEvent: 550
     pixelSize: 5
