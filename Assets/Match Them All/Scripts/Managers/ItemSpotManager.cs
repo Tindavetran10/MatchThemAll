@@ -75,7 +75,7 @@ namespace MatchThemAll.Scripts
             {
                 foreach (var spot in _spots)
                 {
-                    if (spot != null)
+                    if (spot)
                     {
                         if (spot.Item != null)
                         {
@@ -295,7 +295,7 @@ namespace MatchThemAll.Scripts
 
         private void CheckForGameOver()
         {
-            if (GetFreeSpot() == null)
+            if (!GetFreeSpot())
                 GameManager.Instance.SetGameState(EGameState.GAMEOVER);
             else
                 _isBusy = false;

@@ -42,7 +42,7 @@ namespace MatchThemAll.Scripts
         }
 
         
-public ItemLevelData[] GetGoals()
+        public ItemLevelData[] GetGoals()
         {
             var goals = new List<ItemLevelData>();
             for (int i = 0; i < itemData.Count; i++)

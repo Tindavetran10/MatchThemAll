@@ -46,7 +46,7 @@ namespace MatchThemAll.Scripts
 
             // Use the level requested by SceneLoader (replay) if set, otherwise use saved progress
             int requested = SceneLoader.RequestedLevelIndex;
-            CurrentLevelIndex = (requested >= 0 && requested < levels.Length)
+            CurrentLevelIndex = requested >= 0 && requested < levels.Length
                 ? requested
                 : _savedProgressIndex;
 

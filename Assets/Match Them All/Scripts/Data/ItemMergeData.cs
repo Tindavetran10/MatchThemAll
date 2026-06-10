@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using System.Linq;
+using ZLinq;
 
 namespace MatchThemAll.Scripts
 {
@@ -20,14 +22,6 @@ namespace MatchThemAll.Scripts
         // MERGE CHECKER: Determines if we have enough items of the same type to merge them
         // In this game, when you collect 3 or more identical items, they disappear (merge)
         // Like having 3 matching cards in a card game - you can play them together
-        public bool CanMergeItems()
-        {
-            if (Items.Count < 3) return false;
-            foreach (var item in Items)
-            {
-                if (item.IsMovingToSpot) return false;
-            }
-            return true;
-        }
+        public bool CanMergeItems() => Items.Count >= 3 && Items.AsValueEnumerable().All(item => !item.IsMovingToSpot);
     }
 }

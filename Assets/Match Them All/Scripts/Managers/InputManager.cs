@@ -44,7 +44,7 @@ public class InputManager : MonoBehaviour
 
         int tutorialLayer = LayerMask.NameToLayer("Tutorial");
         if (tutorialLayer != -1) {
-            itemLayerMask.value |= (1 << tutorialLayer);
+            itemLayerMask.value |= 1 << tutorialLayer;
         }
     }
 
@@ -108,7 +108,7 @@ public class InputManager : MonoBehaviour
         }
         
         // If the ray didn't hit any collider, deselect the current item and exit
-        if(hit.collider == null)
+        if(!hit.collider)
         {
             DeselectCurrentItem();
             return;
@@ -159,7 +159,7 @@ public class InputManager : MonoBehaviour
     private void DeselectCurrentItem()
     {
         // If there's a currently selected item, remove its selection visual
-        if(_currentItem != null)
+        if(_currentItem)
             _currentItem.Deselect();
         
         // Clear the current item reference
@@ -171,7 +171,7 @@ public class InputManager : MonoBehaviour
     private void HandleMouseUp()
     {
         // If no item is currently selected, there's nothing to do
-        if(_currentItem == null)
+        if(!_currentItem)
             return;
         
         // Remove visual selection feedback

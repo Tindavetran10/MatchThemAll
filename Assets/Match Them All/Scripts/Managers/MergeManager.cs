@@ -102,14 +102,7 @@ namespace MatchThemAll.Scripts
             // Get a pooled particle instead of Instantiating a new one
             ParticleSystem ps = _particlePool.Get();
             ps.transform.position = mergePosition;
-            if (InputManager.IsTutorialActive)
-            {
-                ps.gameObject.layer = LayerMask.NameToLayer("Tutorial");
-            }
-            else
-            {
-                ps.gameObject.layer = LayerMask.NameToLayer("Default");
-            }
+            ps.gameObject.layer = LayerMask.NameToLayer(InputManager.IsTutorialActive ? "Tutorial" : "Default");
             ps.Play();
 
             float lifetime = ps.main.duration + ps.main.startLifetime.constantMax;
@@ -122,7 +115,7 @@ namespace MatchThemAll.Scripts
 
             // The scene may have reloaded and destroyed this object while the coroutine was waiting.
             // Unity's == null check correctly returns true for destroyed UnityEngine.Objects.
-            if (ps != null)
+            if (ps)
                 _particlePool.Release(ps);
         }
     }

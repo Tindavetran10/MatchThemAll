@@ -12,14 +12,13 @@ namespace MatchThemAll.Scripts
         [SerializeField] private Transform goalCardParent;
         [SerializeField] private GoalCard goalCardPrefab;
 
-        [Header(" Data ")]
-        private ItemLevelData[] _goals;
-        private readonly List<GoalCard> _goalCards = new List<GoalCard>();
+        private readonly List<GoalCard> _goalCards = new();
         
-        public ItemLevelData[] Goals => _goals;
+        [field: Header(" Data ")]
+        public ItemLevelData[] Goals { get; private set; }
 
         // O(1) lookup: item name -> index into _goals / goalCards
-        private readonly Dictionary<EItemName, int> _goalIndexByName = new Dictionary<EItemName, int>();
+        private readonly Dictionary<EItemName, int> _goalIndexByName = new();
 
         private void Awake()
         {
@@ -50,31 +49,31 @@ namespace MatchThemAll.Scripts
             // Increase the goal amount
             // Update the cards
 
-            for (int i = 0; i < _goals.Length; i++)
+            for (int i = 0; i < Goals.Length; i++)
             {
-                if(_goals[i].itemPrefab.ItemNameKey != releasedItem.ItemNameKey)
+                if(Goals[i].itemPrefab.ItemNameKey != releasedItem.ItemNameKey)
                     continue;
 
-                _goals[i].amount++;
-                _goalCards[i].UpdateAmount(_goals[i].amount);
+                Goals[i].amount++;
+                _goalCards[i].UpdateAmount(Goals[i].amount);
             }
         }
 
         private void OnLevelSpawned(Level level)
         {
-            _goals = level.GetGoals();
+            Goals = level.GetGoals();
 
             // Build lookup dictionary so OnItemPickedUp is O(1) instead of O(n)
             _goalIndexByName.Clear();
-            for (int i = 0; i < _goals.Length; i++)
-                _goalIndexByName[_goals[i].itemPrefab.ItemNameKey] = i;
+            for (int i = 0; i < Goals.Length; i++)
+                _goalIndexByName[Goals[i].itemPrefab.ItemNameKey] = i;
 
             GenerateGoalCards();
         }
 
         private void GenerateGoalCards()
         {
-            foreach (var goal in _goals)
+            foreach (var goal in Goals)
                 GenerateGoalCard(goal);
         }
 
@@ -91,12 +90,12 @@ namespace MatchThemAll.Scripts
             if (!_goalIndexByName.TryGetValue(item.ItemNameKey, out int i))
                 return;
 
-            _goals[i].amount--;
+            Goals[i].amount--;
 
-            if (_goals[i].amount <= 0)
+            if (Goals[i].amount <= 0)
                 CompleteGoals(i);
             else
-                _goalCards[i].UpdateAmount(_goals[i].amount);
+                _goalCards[i].UpdateAmount(Goals[i].amount);
         }
 
         private void CompleteGoals(int goalIndex)
@@ -108,8 +107,8 @@ namespace MatchThemAll.Scripts
 
         private void CheckForLevelComplete()
         {
-            for (var i = 0; i < _goals.Length; i++)
-                if (_goals[i].amount > 0) return;
+            for (var i = 0; i < Goals.Length; i++)
+                if (Goals[i].amount > 0) return;
 
             GameManager.Instance.SetGameState(EGameState.LEVELCOMPLETE);
         }

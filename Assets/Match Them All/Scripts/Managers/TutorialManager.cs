@@ -1,9 +1,8 @@
 using UnityEngine;
-using UnityEngine.UI;
 using System.Collections.Generic;
 using System.Collections;
+using ZLinq;
 using TMPro;
-using MatchThemAll.Scripts;
 
 namespace MatchThemAll.Scripts.Managers
 {
@@ -12,12 +11,12 @@ namespace MatchThemAll.Scripts.Managers
         public static TutorialManager Instance;
         
         [Header("UI")]
-        [SerializeField] private CanvasGroup tutorialCanvasGroup;
+        [SerializeField] private CanvasGroup tutorialCanvasGroup;       // TutorialCanvas (dark background - ScreenSpaceCamera)
+        [SerializeField] private CanvasGroup tutorialTextCanvasGroup;   // TutorialTextCanvas (text overlay - ScreenSpaceOverlay)
         [SerializeField] private TextMeshProUGUI tutorialText;
         [SerializeField] private string message = "Tap these 3 identical items!";
 
-        private List<Item> _targetItems = new List<Item>();
-        private int _itemsClicked = 0;
+        private readonly List<Item> _targetItems = new();
         private int _originalLayer;
         private int _tutorialLayer;
 
@@ -32,6 +31,11 @@ namespace MatchThemAll.Scripts.Managers
             
             tutorialCanvasGroup.alpha = 0f;
             tutorialCanvasGroup.gameObject.SetActive(false);
+            if (tutorialTextCanvasGroup != null)
+            {
+                tutorialTextCanvasGroup.alpha = 0f;
+                tutorialTextCanvasGroup.gameObject.SetActive(false);
+            }
         }
 
         private void OnEnable()
@@ -51,10 +55,8 @@ namespace MatchThemAll.Scripts.Managers
         private void OnLevelSpawned(Level level)
         {
             // Only run on Level 1
-            if (LevelManager.Instance.CurrentLevelIndex == 0)
-            {
+            if (LevelManager.Instance.CurrentLevelIndex == 0) 
                 StartCoroutine(SetupTutorialDelay());
-            }
         }
 
         private IEnumerator SetupTutorialDelay()
@@ -74,27 +76,22 @@ namespace MatchThemAll.Scripts.Managers
             }
 
             _targetItems.Clear();
-            foreach (var group in groups.Values)
+            foreach (var kvp in groups.AsValueEnumerable().Where(kvp => kvp.Value.Count >= 3))
             {
-                if (group.Count >= 3)
-                {
-                    _targetItems.Add(group[0]);
-                    _targetItems.Add(group[1]);
-                    _targetItems.Add(group[2]);
-                    break;
-                }
+                var group = kvp.Value;
+                _targetItems.Add(group[0]);
+                _targetItems.Add(group[1]);
+                _targetItems.Add(group[2]);
+                break;
             }
 
             if (_targetItems.Count < 3) yield break; // Fallback
-
-
-
+            
             StartTutorial();
         }
 
         private void StartTutorial()
         {
-            _itemsClicked = 0;
             InputManager.IsTutorialActive = true;
             InputManager.TutorialTargets = _targetItems.ToArray();
             
@@ -107,20 +104,21 @@ namespace MatchThemAll.Scripts.Managers
                 SetLayerRecursively(item.gameObject, _tutorialLayer);
             }
 
-            // Show UI
+            // Show UI (dark background canvas + text canvas)
             tutorialText.text = message;
             tutorialCanvasGroup.gameObject.SetActive(true);
             LeanTween.alphaCanvas(tutorialCanvasGroup, 1f, 0.5f).setIgnoreTimeScale(true);
+            if (tutorialTextCanvasGroup != null)
+            {
+                tutorialTextCanvasGroup.gameObject.SetActive(true);
+                LeanTween.alphaCanvas(tutorialTextCanvasGroup, 1f, 0.5f).setIgnoreTimeScale(true);
+            }
         }
 
         private void OnItemClicked(Item item)
         {
             if (!InputManager.IsTutorialActive) return;
-
-            if (_targetItems.Contains(item))
-            {
-                _itemsClicked++;
-            }
+            if (_targetItems.Contains(item)) {}
         }
 
         // Called by ItemSpotManager when 3 identical items have all landed and merge begins
@@ -129,11 +127,7 @@ namespace MatchThemAll.Scripts.Managers
             if (!InputManager.IsTutorialActive) return;
 
             // Check that the merge involves our tutorial items
-            bool isTutorialMerge = false;
-            foreach (var item in items)
-            {
-                if (_targetItems.Contains(item)) { isTutorialMerge = true; break; }
-            }
+            bool isTutorialMerge = items.AsValueEnumerable().Any(item => _targetItems.Contains(item));
 
             if (!isTutorialMerge) return;
 
@@ -149,6 +143,12 @@ namespace MatchThemAll.Scripts.Managers
             LeanTween.alphaCanvas(tutorialCanvasGroup, 0f, 0.5f)
                      .setIgnoreTimeScale(true)
                      .setOnComplete(() => tutorialCanvasGroup.gameObject.SetActive(false));
+            if (tutorialTextCanvasGroup != null)
+            {
+                LeanTween.alphaCanvas(tutorialTextCanvasGroup, 0f, 0.5f)
+                         .setIgnoreTimeScale(true)
+                         .setOnComplete(() => tutorialTextCanvasGroup.gameObject.SetActive(false));
+            }
                      
             // Wait a bit, then reset the layers in case they didn't get destroyed
             StartCoroutine(ResetLayersDelayed());
@@ -158,12 +158,9 @@ namespace MatchThemAll.Scripts.Managers
         {
             // Wait slightly longer than the merge animation so items are already destroyed
             yield return new WaitForSeconds(2f);
-            foreach (var item in _targetItems)
+            foreach (var item in _targetItems.AsValueEnumerable().Where(item => item != null))
             {
-                if (item != null)
-                {
-                    SetLayerRecursively(item.gameObject, _originalLayer);
-                }
+                SetLayerRecursively(item.gameObject, _originalLayer);
             }
         }
 
@@ -171,10 +168,7 @@ namespace MatchThemAll.Scripts.Managers
         {
             if (obj == null) return;
             obj.layer = newLayer;
-            foreach (Transform child in obj.transform)
-            {
-                SetLayerRecursively(child.gameObject, newLayer);
-            }
+            foreach (Transform child in obj.transform) SetLayerRecursively(child.gameObject, newLayer);
         }
     }
 }

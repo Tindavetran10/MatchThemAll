@@ -146,7 +146,7 @@ namespace MatchThemAll.Scripts
         /// </summary>
         private void SetMixerVolume(string parameter, float normalizedValue)
         {
-            if (audioMixer == null) return;
+            if (!audioMixer) return;
 
             // Clamp to avoid log10(0) = -Infinity
             var db = Mathf.Log10(Mathf.Max(0.0001f, normalizedValue)) * 20f;

@@ -21,10 +21,10 @@ namespace MatchThemAll.Scripts
             itemPlacer.Initialize(data);
         }
 
-        public int Duration => _data != null ? _data.duration : 0;
+        public int Duration => _data ? _data.duration : 0;
 
         public ItemLevelData[] GetGoals() =>
-            _data != null ? _data.GetGoals() : System.Array.Empty<ItemLevelData>();
+            _data ? _data.GetGoals() : System.Array.Empty<ItemLevelData>();
 
         public System.Collections.Generic.List<Item> GetItems() => itemPlacer.GetItems();
     }

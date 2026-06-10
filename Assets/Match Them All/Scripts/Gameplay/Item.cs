@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Rendering;
 
 namespace MatchThemAll.Scripts
 {
@@ -13,7 +14,7 @@ namespace MatchThemAll.Scripts
         public Sprite Icon => icon;
 
         public ItemSpot Spot { get; private set; }
-        public bool IsMovingToSpot { get; set; } = false;
+        public bool IsMovingToSpot { get; set; }
 
         [Header("Elements")]
         [SerializeField] private Renderer _renderer;
@@ -34,10 +35,10 @@ namespace MatchThemAll.Scripts
         public void UnassignSpot() => Spot = null;
         
         public void EnableShadow() =>
-            _renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.On;
+            _renderer.shadowCastingMode = ShadowCastingMode.On;
 
         public void DisableShadow() =>
-            _renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            _renderer.shadowCastingMode = ShadowCastingMode.Off;
 
         public void EnablePhysics()
         {
@@ -61,9 +62,7 @@ namespace MatchThemAll.Scripts
         public void Deselect() =>
             _renderer.materials = new[] { _baseMaterial };
 
-        public void ApplyRandomForce(float magnitude)
-        {
+        public void ApplyRandomForce(float magnitude) => 
             GetComponent<Rigidbody>().AddForce(Random.insideUnitSphere * magnitude, ForceMode.VelocityChange);
-        }
     }
 }

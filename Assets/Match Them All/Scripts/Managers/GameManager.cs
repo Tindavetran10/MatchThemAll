@@ -1,6 +1,5 @@
 using ZLinq;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 namespace MatchThemAll.Scripts
 {
@@ -8,10 +7,9 @@ namespace MatchThemAll.Scripts
     {
         public static GameManager Instance;
         private EGameState _gameState;
-        private EGameState _previousGameState;
 
         /// <summary>The state the game was in before the most recent SetGameState call.</summary>
-        public EGameState PreviousState => _previousGameState;
+        public EGameState PreviousState { get; private set; }
 
         // Cached once in Start() — avoids repeated FindObjectsByType allocations on every state change
         private IGameStateListener[] _cachedListeners;
@@ -41,7 +39,7 @@ namespace MatchThemAll.Scripts
 
         public void SetGameState(EGameState gameState)
         {
-            _previousGameState = _gameState;
+            PreviousState = _gameState;
             _gameState = gameState;
 
             foreach (IGameStateListener listener in _cachedListeners)
@@ -58,11 +56,9 @@ namespace MatchThemAll.Scripts
             SceneLoader.Load(SceneLoader.MainMenu);
         }
 
-        public void RetryLevelCallback()
-        {
+        private static void RetryLevelCallback() =>
             // Just reload the current level from the Game Over or Pause menu
             SceneLoader.LoadLevel(SceneLoader.RequestedLevelIndex);
-        }
 
         // Keep these for backward compatibility if any old buttons use them
         public void NextButtonCallback()  => SceneLoader.LoadLevel(-1);

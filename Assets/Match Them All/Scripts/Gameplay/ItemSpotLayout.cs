@@ -33,15 +33,9 @@ namespace MatchThemAll.Scripts
         [Tooltip("Fixes other axes to their current values instead of overriding them.")]
         [SerializeField] private bool lockOtherAxes = true;
 
-        private void OnTransformChildrenChanged()
-        {
-            UpdateLayout();
-        }
+        private void OnTransformChildrenChanged() => UpdateLayout();
 
-        private void OnValidate()
-        {
-            UpdateLayout();
-        }
+        private void OnValidate() => UpdateLayout();
 
         [ContextMenu("Update Layout")]
         public void UpdateLayout()
