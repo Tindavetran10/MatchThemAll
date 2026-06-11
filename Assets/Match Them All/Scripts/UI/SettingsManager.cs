@@ -20,6 +20,13 @@ namespace MatchThemAll.Scripts.UI
         [SerializeField] private Slider sfxSlider;
         [SerializeField] private Toggle hapticsToggle;
 
+        private void Awake()
+        {
+            if (musicSlider != null) musicSlider.onValueChanged.AddListener(OnMusicVolumeChanged);
+            if (sfxSlider != null) sfxSlider.onValueChanged.AddListener(OnSfxVolumeChanged);
+            if (hapticsToggle != null) hapticsToggle.onValueChanged.AddListener(OnHapticsChanged);
+        }
+
         private void OnEnable()
         {
             // Populate controls with saved values when the panel opens
