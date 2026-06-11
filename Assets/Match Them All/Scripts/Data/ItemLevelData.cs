@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using NaughtyAttributes; // Critical: Added missing namespace!
 
 namespace MatchThemAll.Scripts
@@ -8,6 +8,7 @@ namespace MatchThemAll.Scripts
     {
         [SerializeField] public Item itemPrefab; // Explicit serialization
         [SerializeField] public bool isGoal;
+        [SerializeField] public int multiplier;
 
 
         [Header("Data Configuration")] // Optional: Groups fields in Inspector

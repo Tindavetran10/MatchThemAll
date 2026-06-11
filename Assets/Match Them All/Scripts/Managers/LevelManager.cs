@@ -67,6 +67,15 @@ namespace MatchThemAll.Scripts
         {
             _savedProgressIndex = SaveManager.Load().currentLevelIndex;
             CurrentLevelIndex = _savedProgressIndex;
+            
+            // Automatically load all levels from the Resources/Levels folder
+            var loadedLevels = Resources.LoadAll<LevelDataSO>("Levels");
+            if (loadedLevels != null && loadedLevels.Length > 0)
+            {
+                // Sort alphabetically to ensure LevelData01 comes before LevelData02, etc.
+                Array.Sort(loadedLevels, (a, b) => string.Compare(a.name, b.name, StringComparison.Ordinal));
+                levels = loadedLevels;
+            }
         }
 
         /// <summary>

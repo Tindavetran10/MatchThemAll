@@ -1745,7 +1745,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   musicSlider: {fileID: 526353121}
-  sfxSlider: {fileID: 0}
+  sfxSlider: {fileID: 1764691474}
   hapticsToggle: {fileID: 1437160822}
 --- !u!1 &1286953932
 GameObject:

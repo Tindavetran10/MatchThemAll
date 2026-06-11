@@ -15,11 +15,11 @@ namespace Match_Them_All.Scripts.Editor
     public class LevelEditorWindow : EditorWindow
     {
         // ── State ────────────────────────────────────────────────────────────
-        private List<LevelDataSO> _levels = new();
+        private readonly List<LevelDataSO> _levels = new();
         private int _selectedLevelIndex = -1;
         private LevelDataSO _selectedLevel;
 
-        private List<GameObject> _itemPrefabs = new();
+        private readonly List<GameObject> _itemPrefabs = new();
 
         private Vector2 _levelListScroll;
         private Vector2 _itemListScroll;
@@ -31,7 +31,7 @@ namespace Match_Them_All.Scripts.Editor
         private bool _showNewLevelField;
 
         private const string ItemPrefabFolder = "Assets/Match Them All/Prefabs/Items";
-        private const string LevelDataFolder  = "Assets/Match Them All/Level Data";
+        private const string LevelDataFolder  = "Assets/Match Them All/Resources/Levels";
 
         // ── Styles (lazy init) ────────────────────────────────────────────────
         private GUIStyle _cardStyle;
@@ -108,9 +108,12 @@ namespace Match_Them_All.Scripts.Editor
             _cardStyle = new GUIStyle(GUI.skin.box)
             {
                 padding = new RectOffset(12, 12, 10, 10),
-                margin  = new RectOffset(4, 4, 4, 4)
+                margin  = new RectOffset(4, 4, 4, 4),
+                normal =
+                {
+                    background = MakeTex(2, 2, CardBg)
+                }
             };
-            _cardStyle.normal.background = MakeTex(2, 2, CardBg);
 
             _headerStyle = new GUIStyle(EditorStyles.boldLabel)
             {
@@ -130,15 +133,26 @@ namespace Match_Them_All.Scripts.Editor
                 alignment = TextAnchor.MiddleLeft,
                 padding = new RectOffset(12, 8, 8, 8),
                 margin  = new RectOffset(4, 4, 2, 2),
-                fontSize = 12
+                fontSize = 12,
+                normal =
+                {
+                    background = MakeTex(2, 2, new Color(0.25f, 0.25f, 0.28f)),
+                    textColor = Color.white
+                },
+                hover =
+                {
+                    background = MakeTex(2, 2, new Color(0.30f, 0.30f, 0.34f))
+                }
             };
-            _levelButtonStyle.normal.background  = MakeTex(2, 2, new Color(0.25f, 0.25f, 0.28f));
-            _levelButtonStyle.hover.background   = MakeTex(2, 2, new Color(0.30f, 0.30f, 0.34f));
-            _levelButtonStyle.normal.textColor   = Color.white;
 
-            _selectedLevelButtonStyle = new GUIStyle(_levelButtonStyle);
-            _selectedLevelButtonStyle.normal.background = MakeTex(2, 2, new Color(AccentBlue.r * 0.7f, AccentBlue.g * 0.7f, AccentBlue.b * 0.7f));
-            _selectedLevelButtonStyle.fontStyle = FontStyle.Bold;
+            _selectedLevelButtonStyle = new GUIStyle(_levelButtonStyle)
+            {
+                normal =
+                {
+                    background = MakeTex(2, 2, new Color(AccentBlue.r * 0.7f, AccentBlue.g * 0.7f, AccentBlue.b * 0.7f))
+                },
+                fontStyle = FontStyle.Bold
+            };
 
             _goalBadgeStyle = new GUIStyle(EditorStyles.miniLabel)
             {
@@ -149,11 +163,21 @@ namespace Match_Them_All.Scripts.Editor
                 normal    = { textColor = Color.white }
             };
 
-            _rowStyleEven = new GUIStyle();
-            _rowStyleEven.normal.background = MakeTex(2, 2, new Color(0.20f, 0.20f, 0.23f));
+            _rowStyleEven = new GUIStyle
+            {
+                normal =
+                {
+                    background = MakeTex(2, 2, new Color(0.20f, 0.20f, 0.23f))
+                }
+            };
 
-            _rowStyleOdd = new GUIStyle();
-            _rowStyleOdd.normal.background = MakeTex(2, 2, new Color(0.23f, 0.23f, 0.26f));
+            _rowStyleOdd = new GUIStyle
+            {
+                normal =
+                {
+                    background = MakeTex(2, 2, new Color(0.23f, 0.23f, 0.26f))
+                }
+            };
         }
 
         // ── Main OnGUI ───────────────────────────────────────────────────────
@@ -168,8 +192,8 @@ namespace Match_Them_All.Scripts.Editor
             DrawToolbar();
 
             // Two-column layout — left panel is 27% of window width, min 180 px
-            float leftWidth  = Mathf.Max(180f, position.width * 0.27f);
-            float rightWidth = position.width - leftWidth - 2;
+            var leftWidth  = Mathf.Max(180f, position.width * 0.27f);
+            var rightWidth = position.width - leftWidth - 2;
 
             GUILayout.BeginHorizontal();
 
@@ -285,14 +309,14 @@ namespace Match_Them_All.Scripts.Editor
             GUILayout.Space(4);
 
             // Level list scroll — defer mutations until after EndScrollView
-            int pendingDeleteIndex = -1;
-            int pendingSelectIndex = -1;
+            var pendingDeleteIndex = -1;
+            var pendingSelectIndex = -1;
 
             _levelListScroll = GUILayout.BeginScrollView(_levelListScroll);
-            for (int i = 0; i < _levels.Count; i++)
+            for (var i = 0; i < _levels.Count; i++)
             {
                 var lv = _levels[i];
-                bool selected = i == _selectedLevelIndex;
+                var selected = i == _selectedLevelIndex;
                 var style = selected ? _selectedLevelButtonStyle : _levelButtonStyle;
 
                 GUILayout.BeginHorizontal();
@@ -349,7 +373,7 @@ namespace Match_Them_All.Scripts.Editor
             }
 
             // Proportional label column: 22% of panel, clamped 120–220 px
-            float labelW = Mathf.Clamp(panelWidth * 0.22f, 120f, 220f);
+            var labelW = Mathf.Clamp(panelWidth * 0.22f, 120f, 220f);
 
             GUILayout.Space(10);
             GUILayout.BeginHorizontal();
@@ -377,7 +401,7 @@ namespace Match_Them_All.Scripts.Editor
 
             GUILayout.BeginHorizontal();
             GUILayout.Label("Duration (seconds)", GUILayout.Width(labelW));
-            int newDuration = EditorGUILayout.IntSlider(_selectedLevel.duration, 15, 300);
+            var newDuration = EditorGUILayout.IntSlider(_selectedLevel.duration, 15, 300);
             if (newDuration != _selectedLevel.duration)
             {
                 Undo.RecordObject(_selectedLevel, "Set Duration");
@@ -388,7 +412,7 @@ namespace Match_Them_All.Scripts.Editor
 
             GUILayout.BeginHorizontal();
             GUILayout.Label("Random Seed", GUILayout.Width(labelW));
-            int newSeed = EditorGUILayout.IntField(_selectedLevel.seed);
+            var newSeed = EditorGUILayout.IntField(_selectedLevel.seed);
             if (newSeed != _selectedLevel.seed)
             {
                 Undo.RecordObject(_selectedLevel, "Set Seed");
@@ -398,9 +422,37 @@ namespace Match_Them_All.Scripts.Editor
             GUI.color = new Color(0.65f, 0.65f, 0.7f);
             if (GUILayout.Button("🎲 Random", GUILayout.Width(88)))
             {
-                Undo.RecordObject(_selectedLevel, "Randomize Seed");
+                GUI.FocusControl(null); // Clear IMGUI focus so integer fields update properly
+                Undo.RecordObject(_selectedLevel, "Randomize Level");
                 _selectedLevel.seed = UnityEngine.Random.Range(0, 99999);
+                
+                var availablePrefabs = _itemPrefabs?.ToList() ?? new List<GameObject>();
+                // Pick between 2 to 6 item types, capped by how many prefabs actually exist
+                var minTypes = Mathf.Min(2, availablePrefabs.Count);
+                var maxTypes = Mathf.Min(7, availablePrefabs.Count + 1);
+                var typeCount = availablePrefabs.Count > 0 ? UnityEngine.Random.Range(minTypes, maxTypes) : 3;
+
+                _selectedLevel.itemData = new List<ItemLevelData>();
+                var goalCount = UnityEngine.Random.Range(1, Mathf.Min(4, typeCount + 1));
+                var shuffled = Enumerable.Range(0, typeCount).OrderBy(x => UnityEngine.Random.value).ToList();
+                
+                for (var i = 0; i < typeCount; i++)
+                {
+                    var entry = new ItemLevelData();
+                    if (availablePrefabs.Count > 0)
+                    {
+                        var r = UnityEngine.Random.Range(0, availablePrefabs.Count);
+                        entry.itemPrefab = availablePrefabs[r].GetComponent<Item>();
+                        availablePrefabs.RemoveAt(r); // Ensure no duplicate items
+                    }
+                    entry.amount = UnityEngine.Random.Range(1, 11) * 3;
+                    entry.multiplier = UnityEngine.Random.Range(1, 6);
+                    entry.isGoal = shuffled.IndexOf(i) < goalCount;
+                    _selectedLevel.itemData.Add(entry);
+                }
+
                 MarkDirty();
+                GUIUtility.ExitGUI(); // Force abort GUI pass so layout redraws cleanly with new data
             }
             GUI.color = Color.white;
             GUILayout.EndHorizontal();
@@ -433,13 +485,13 @@ namespace Match_Them_All.Scripts.Editor
             const float fixedW     = iconW + totalW + goalW + removeW + 24f;
             // Subtract card padding (12+12) + card margin (4+4) + a few px of GUILayout inter-element spacing
             const float cardOverhead = 40f;
-            float drawableW = Mathf.Max(0f, panelWidth - cardOverhead);
-            float flex      = Mathf.Max(60f, drawableW - fixedW);
-            float nameW     = Mathf.Max(80f, flex * 0.38f);
-            float sliderW   = Mathf.Max(80f, flex * 0.62f);
+            var drawableW = Mathf.Max(0f, panelWidth - cardOverhead);
+            var flex      = Mathf.Max(60f, drawableW - fixedW);
+            var nameW     = Mathf.Max(80f, flex * 0.38f);
+            var sliderW   = Mathf.Max(80f, flex * 0.62f);
 
             // Item list grows to fill remaining vertical space (window height - toolbar - cards above - summary)
-            float scrollH  = Mathf.Max(80f, position.height - 340f);
+            var scrollH  = Mathf.Max(80f, position.height - 340f);
 
             GUILayout.BeginHorizontal();
             GUILayout.Label("Items", _subHeaderStyle);
@@ -470,7 +522,7 @@ namespace Match_Them_All.Scripts.Editor
             GUILayout.Label("",       GUILayout.Width(iconW));
             GUILayout.Label("Item",   GUILayout.Width(nameW));
             GUILayout.Label("Amount", GUILayout.Width(sliderW));
-            GUILayout.Label("Total",  GUILayout.Width(totalW));
+            GUILayout.Label("Multiplier", GUILayout.Width(totalW));
             var centeredLabel = new GUIStyle(EditorStyles.label) { alignment = TextAnchor.MiddleCenter };
             GUILayout.Label("Goal?",  centeredLabel, GUILayout.Width(goalW));
             GUILayout.Label("",       GUILayout.Width(removeW));
@@ -480,13 +532,13 @@ namespace Match_Them_All.Scripts.Editor
             GUILayout.Space(4);
 
             // Pending change — applied AFTER the scroll view closes to avoid GUILayout mismatch
-            int pendingChangeIndex   = -1;
+            var pendingChangeIndex   = -1;
             ItemLevelData pendingEntry = default;
-            int removeIndex          = -1;
+            var removeIndex          = -1;
 
             _itemListScroll = GUILayout.BeginScrollView(_itemListScroll, GUILayout.Height(scrollH));
 
-            for (int i = 0; i < _selectedLevel.itemData.Count; i++)
+            for (var i = 0; i < _selectedLevel.itemData.Count; i++)
             {
                 var entry = _selectedLevel.itemData[i];
                 var rowStyle = i % 2 == 0 ? _rowStyleEven : _rowStyleOdd;
@@ -496,7 +548,7 @@ namespace Match_Them_All.Scripts.Editor
 
                 // Icon
                 GUILayout.Space(6);
-                Texture2D preview = entry.itemPrefab != null
+                var preview = entry.itemPrefab != null
                     ? AssetPreview.GetAssetPreview(entry.itemPrefab.gameObject) : null;
                 if (preview != null)
                     GUILayout.Label(preview, GUILayout.Width(iconW - 6), GUILayout.Height(30));
@@ -504,20 +556,20 @@ namespace Match_Them_All.Scripts.Editor
                     GUILayout.Label("◉", GUILayout.Width(iconW - 6), GUILayout.Height(30));
 
                 // Item popup — read only, queue change
-                int currentIdx   = _itemPrefabs.FindIndex(p => p == entry.itemPrefab?.gameObject);
-                string[] prefabNames = _itemPrefabs.Select(p => p.name).ToArray();
-                int newIdx = EditorGUILayout.Popup(currentIdx, prefabNames, GUILayout.Width(nameW));
+                var currentIdx   = _itemPrefabs.FindIndex(p => p == entry.itemPrefab?.gameObject);
+                var prefabNames = _itemPrefabs.Select(p => p.name).ToArray();
+                var newIdx = EditorGUILayout.Popup(currentIdx, prefabNames, GUILayout.Width(nameW));
                 if (newIdx != currentIdx && newIdx >= 0)
                 {
-                    var itemComp = _itemPrefabs[newIdx].GetComponent<MatchThemAll.Scripts.Item>();
+                    var itemComp = _itemPrefabs[newIdx].GetComponent<Item>();
                     entry.itemPrefab = itemComp;
                     pendingEntry = entry;
                     pendingChangeIndex = i;
                 }
 
                 // Amount slider — read only, queue change
-                int rawAmt  = EditorGUILayout.IntSlider(entry.amount, 3, 30, GUILayout.Width(sliderW));
-                int snapped = Mathf.Max(3, Mathf.RoundToInt(rawAmt / 3f) * 3);
+                var rawAmt  = EditorGUILayout.IntSlider(entry.amount, 3, 30, GUILayout.Width(sliderW));
+                var snapped = Mathf.Max(3, Mathf.RoundToInt(rawAmt / 3f) * 3);
                 if (snapped != entry.amount)
                 {
                     entry.amount = snapped;
@@ -525,15 +577,19 @@ namespace Match_Them_All.Scripts.Editor
                     else pendingEntry.amount = snapped;
                 }
 
-                // Total (display current or pending amount)
-                int displayAmt = (pendingChangeIndex == i) ? pendingEntry.amount : entry.amount;
-                GUI.color = TextMuted;
-                GUILayout.Label($"×{displayAmt}", GUILayout.Width(totalW));
-                GUI.color = Color.white;
+                // Multiplier
+                var displayMult = (pendingChangeIndex == i) ? pendingEntry.multiplier : entry.multiplier;
+                var rawMult = EditorGUILayout.IntField(displayMult, GUILayout.Width(totalW));
+                if (rawMult != entry.multiplier)
+                {
+                    entry.multiplier = Mathf.Max(1, rawMult); // ensure it's at least 1
+                    if (pendingChangeIndex != i) { pendingEntry = entry; pendingChangeIndex = i; }
+                    else pendingEntry.multiplier = entry.multiplier;
+                }
 
                 // Goal toggle — queue change
-                bool wasGoal = entry.isGoal;
-                bool displayGoal = (pendingChangeIndex == i) ? pendingEntry.isGoal : wasGoal;
+                var wasGoal = entry.isGoal;
+                var displayGoal = (pendingChangeIndex == i) ? pendingEntry.isGoal : wasGoal;
                 bool newGoal;
                 if (displayGoal)
                 {
@@ -585,13 +641,13 @@ namespace Match_Them_All.Scripts.Editor
         {
             if (_selectedLevel?.itemData == null) return; // safe: no BeginCard open here
 
-            int totalItems = _selectedLevel.itemData.Sum(i => i.amount);
-            int goalItems  = _selectedLevel.itemData.Where(i => i.isGoal).Sum(i => i.amount);
-            int goalTypes  = _selectedLevel.itemData.Count(i => i.isGoal);
-            bool valid     = _selectedLevel.itemData.Count > 0 && goalTypes > 0;
+            var totalItems = _selectedLevel.itemData.Sum(i => i.amount);
+            var goalItems  = _selectedLevel.itemData.Where(i => i.isGoal).Sum(i => i.amount);
+            var goalTypes  = _selectedLevel.itemData.Count(i => i.isGoal);
+            var valid     = _selectedLevel.itemData.Count > 0 && goalTypes > 0;
 
             // Stat block width scales: 4 stats share 55% of panel, rest goes to validation label
-            float statW = Mathf.Max(70f, panelWidth * 0.55f / 4f);
+            var statW = Mathf.Max(70f, panelWidth * 0.55f / 4f);
 
             BeginCard();
             GUILayout.BeginHorizontal();
@@ -620,7 +676,7 @@ namespace Match_Them_All.Scripts.Editor
             EndCard();
         }
 
-        private void DrawStat(string label, string value, Color color, float width = 100f)
+        private static void DrawStat(string label, string value, Color color, float width = 100f)
         {
             GUILayout.BeginVertical(GUILayout.Width(width));
             GUI.color = color;
@@ -632,7 +688,7 @@ namespace Match_Them_All.Scripts.Editor
         }
 
         // ── Empty State ──────────────────────────────────────────────────────
-        private void DrawEmptyState()
+        private static void DrawEmptyState()
         {
             GUILayout.FlexibleSpace();
             GUILayout.BeginHorizontal();
@@ -667,12 +723,13 @@ namespace Match_Them_All.Scripts.Editor
         {
             Undo.RecordObject(_selectedLevel, "Add Item");
             _selectedLevel.itemData ??= new List<ItemLevelData>();
-            var itemComp = prefab.GetComponent<MatchThemAll.Scripts.Item>();
+            var itemComp = prefab.GetComponent<Item>();
             _selectedLevel.itemData.Add(new ItemLevelData
             {
                 itemPrefab = itemComp,
                 amount = 3,
-                isGoal = false
+                isGoal = false,
+                multiplier = 1
             });
             MarkDirty();
             Repaint();
@@ -681,13 +738,13 @@ namespace Match_Them_All.Scripts.Editor
         // ── CRUD Operations ───────────────────────────────────────────────────
         private void CreateNewLevel()
         {
-            if (string.IsNullOrWhiteSpace(_newLevelName)) return;
+            var safeName = string.IsNullOrWhiteSpace(_newLevelName) 
+                ? $"LevelData{_levels.Count + 1:D2}" 
+                : _newLevelName.Trim();
 
             if (!Directory.Exists(LevelDataFolder))
                 Directory.CreateDirectory(LevelDataFolder);
-
-            string safeName = _newLevelName.Trim();
-            string path = AssetDatabase.GenerateUniqueAssetPath($"{LevelDataFolder}/{safeName}.asset");
+            var path = AssetDatabase.GenerateUniqueAssetPath($"{LevelDataFolder}/{safeName}.asset");
 
             var newLevel = CreateInstance<LevelDataSO>();
             newLevel.duration = 60;
@@ -710,7 +767,7 @@ namespace Match_Them_All.Scripts.Editor
         private void DeleteLevel(int idx)
         {
             var lv = _levels[idx];
-            string path = AssetDatabase.GetAssetPath(lv);
+            var path = AssetDatabase.GetAssetPath(lv);
             AssetDatabase.DeleteAsset(path);
 
             LoadAll();
@@ -736,12 +793,12 @@ namespace Match_Them_All.Scripts.Editor
 
         // ── Layout Helpers ─────────────────────────────────────────────────────
         private void BeginCard()  => GUILayout.BeginVertical(_cardStyle);
-        private void EndCard()    => GUILayout.EndVertical();
+        private static void EndCard()    => GUILayout.EndVertical();
 
         private static Texture2D MakeTex(int w, int h, Color col)
         {
             var pix = new Color[w * h];
-            for (int i = 0; i < pix.Length; i++) pix[i] = col;
+            for (var i = 0; i < pix.Length; i++) pix[i] = col;
             var t = new Texture2D(w, h);
             t.SetPixels(pix);
             t.Apply();

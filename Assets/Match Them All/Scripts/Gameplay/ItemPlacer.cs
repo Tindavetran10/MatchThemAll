@@ -25,12 +25,19 @@ namespace MatchThemAll.Scripts
         /// </summary>
         public void Initialize(LevelDataSO data)
         {
+            // Clear any previously spawned or baked items at runtime
+            for (int i = transform.childCount - 1; i >= 0; i--)
+            {
+                Destroy(transform.GetChild(i).gameObject);
+            }
+
             _activeItems.Clear();
             Random.InitState(data.seed);
 
             foreach (var entry in data.itemData)
             {
-                for (int i = 0; i < entry.amount; i++)
+                int totalAmount = entry.amount * Mathf.Max(1, entry.multiplier);
+                for (int i = 0; i < totalAmount; i++)
                 {
                     Item item = Instantiate(entry.itemPrefab, transform);
                     item.transform.position = GetSpawnPosition();
