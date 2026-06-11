@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: LevelData01
   m_EditorClassIdentifier: Assembly-CSharp::MatchThemAll.Scripts.LevelDataSO
   duration: 60
-  seed: 1
+  seed: 2
   itemData:
   - itemPrefab: {fileID: 7559479663845612207, guid: 93584426185aff349b2e5fb2e65c9314, type: 3}
     isGoal: 1

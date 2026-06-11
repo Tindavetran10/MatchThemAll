@@ -33,6 +33,10 @@ namespace MatchThemAll.Scripts
         [Tooltip("Fixes other axes to their current values instead of overriding them.")]
         [SerializeField] private bool lockOtherAxes = true;
 
+        [Header("Filter Settings")]
+        [Tooltip("Optional list of children to ignore during layout.")]
+        [SerializeField] private System.Collections.Generic.List<Transform> ignoredChildren = new System.Collections.Generic.List<Transform>();
+
         private void OnTransformChildrenChanged() => UpdateLayout();
 
         private void OnValidate() => UpdateLayout();
@@ -43,17 +47,22 @@ namespace MatchThemAll.Scripts
             int childCount = transform.childCount;
             if (childCount <= 1) return;
 
-            // Collect all children
-            Transform[] children = new Transform[childCount];
+            // Collect valid children
+            System.Collections.Generic.List<Transform> children = new System.Collections.Generic.List<Transform>();
             for (int i = 0; i < childCount; i++)
             {
-                children[i] = transform.GetChild(i);
+                Transform child = transform.GetChild(i);
+                if (ignoredChildren != null && ignoredChildren.Contains(child)) continue;
+                children.Add(child);
             }
+
+            int count = children.Count;
+            if (count <= 1) return;
 
             if (layoutMode == LayoutMode.SpacingFromFirst)
             {
                 Vector3 firstPos = children[0].localPosition;
-                for (int i = 1; i < childCount; i++)
+                for (int i = 1; i < count; i++)
                 {
                     Vector3 localPos = children[i].localPosition;
                     float offset = i * spacing;
@@ -68,13 +77,13 @@ namespace MatchThemAll.Scripts
             else if (layoutMode == LayoutMode.FitBetweenEnds)
             {
                 Vector3 firstPos = children[0].localPosition;
-                Vector3 lastPos = children[childCount - 1].localPosition;
+                Vector3 lastPos = children[count - 1].localPosition;
                 float startVal = GetCoordinate(firstPos);
                 float endVal = GetCoordinate(lastPos);
 
-                for (int i = 0; i < childCount; i++)
+                for (int i = 0; i < count; i++)
                 {
-                    float t = (float)i / (childCount - 1);
+                    float t = (float)i / (count - 1);
                     Vector3 localPos = children[i].localPosition;
                     SetCoordinate(ref localPos, Mathf.Lerp(startVal, endVal, t));
                     if (!lockOtherAxes)
@@ -86,10 +95,10 @@ namespace MatchThemAll.Scripts
             }
             else if (layoutMode == LayoutMode.Centered)
             {
-                float totalLength = (childCount - 1) * spacing;
+                float totalLength = (count - 1) * spacing;
                 float startVal = -totalLength / 2f;
 
-                for (int i = 0; i < childCount; i++)
+                for (int i = 0; i < count; i++)
                 {
                     Vector3 localPos = children[i].localPosition;
                     float offset = startVal + i * spacing;

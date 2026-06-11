@@ -1,9 +1,10 @@
-﻿namespace MatchThemAll.Scripts
+namespace MatchThemAll.Scripts
 {
     public enum EItemName
     {
         HeartGem = 0,
         BluePotion = 1,
-        Bomb = 2
+        Bomb = 2,
+        Skull = 3
     }
 }

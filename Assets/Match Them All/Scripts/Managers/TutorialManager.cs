@@ -1,34 +1,63 @@
-using UnityEngine;
-using System.Collections.Generic;
 using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
 using ZLinq;
 using TMPro;
+using Match_Them_All.Scripts.Power_Ups;
+using MatchThemAll.Scripts.Tutorial;
+using MatchThemAll.Scripts.UI;
 
 namespace MatchThemAll.Scripts.Managers
 {
     public class TutorialManager : MonoBehaviour
     {
         public static TutorialManager Instance;
-        
-        [Header("UI")]
-        [SerializeField] private CanvasGroup tutorialCanvasGroup;       // TutorialCanvas (dark background - ScreenSpaceCamera)
-        [SerializeField] private CanvasGroup tutorialTextCanvasGroup;   // TutorialTextCanvas (text overlay - ScreenSpaceOverlay)
-        [SerializeField] private TextMeshProUGUI tutorialText;
-        [SerializeField] private string message = "Tap these 3 identical items!";
 
-        private readonly List<Item> _targetItems = new();
+        // ─────────────────────────────────────────────────────────────────
+        // Inspector
+        // ─────────────────────────────────────────────────────────────────
+        [Header("UI")]
+        [SerializeField] private CanvasGroup tutorialCanvasGroup;       // TutorialCanvas (dark bg – ScreenSpaceCamera)
+        [SerializeField] private CanvasGroup tutorialTextCanvasGroup;   // TutorialTextCanvas (text – ScreenSpaceOverlay)
+        [SerializeField] private TextMeshProUGUI tutorialText;
+
+        [Header("Tutorial Steps")]
+        [Tooltip("One ScriptableObject per tutorial step. Executed in order on the level defined by levelIndex.")]
+        [SerializeField] private List<TutorialStepSO> steps = new();
+
+        [Tooltip("Build index of the level on which these steps run (0 = first level).")]
+        [SerializeField] private int levelIndex = 0;
+
+        // ─────────────────────────────────────────────────────────────────
+        // Runtime state
+        // ─────────────────────────────────────────────────────────────────
+        private int _currentStepIndex;
+        private TutorialStepSO _currentStep;
+
+        // Objects currently on the Tutorial layer
+        private readonly List<GameObject> _highlightedObjects = new();
         private int _originalLayer;
         private int _tutorialLayer;
 
+        // Items kept for merge-detection (SpecificItem / AutoFind)
+        private readonly List<Item> _targetItems = new();
+
+        // Powerup kept for powerup-used detection
+        private Powerup _targetPowerup;
+
+        // Auto-timer handle
+        private Coroutine _timerCoroutine;
+
+        // ─────────────────────────────────────────────────────────────────
+        // Unity lifecycle
+        // ─────────────────────────────────────────────────────────────────
         private void Awake()
         {
             Instance = this;
             _tutorialLayer = LayerMask.NameToLayer("Tutorial");
             if (_tutorialLayer == -1)
-            {
-                Debug.LogError("Tutorial layer does not exist! Please create it.");
-            }
-            
+                Debug.LogError("[TutorialManager] 'Tutorial' layer does not exist! Please create it.");
+
             tutorialCanvasGroup.alpha = 0f;
             tutorialCanvasGroup.gameObject.SetActive(false);
             if (tutorialTextCanvasGroup != null)
@@ -42,6 +71,7 @@ namespace MatchThemAll.Scripts.Managers
         {
             LevelManager.LevelSpawned += OnLevelSpawned;
             InputManager.ItemClicked += OnItemClicked;
+            InputManager.PowerupClicked += OnPowerupClicked;
             ItemSpotManager.MergeStarted += OnMergeStarted;
         }
 
@@ -49,63 +79,194 @@ namespace MatchThemAll.Scripts.Managers
         {
             LevelManager.LevelSpawned -= OnLevelSpawned;
             InputManager.ItemClicked -= OnItemClicked;
+            InputManager.PowerupClicked -= OnPowerupClicked;
             ItemSpotManager.MergeStarted -= OnMergeStarted;
         }
 
+        // ─────────────────────────────────────────────────────────────────
+        // Step orchestration
+        // ─────────────────────────────────────────────────────────────────
         private void OnLevelSpawned(Level level)
         {
-            // Only run on Level 1
-            if (LevelManager.Instance.CurrentLevelIndex == 0) 
-                StartCoroutine(SetupTutorialDelay());
+            if (LevelManager.Instance.CurrentLevelIndex != levelIndex) return;
+            if (steps == null || steps.Count == 0) return;
+
+            _currentStepIndex = 0;
+            StartCoroutine(RunStepDelayed(_currentStepIndex));
         }
 
-        private IEnumerator SetupTutorialDelay()
+        private IEnumerator RunStepDelayed(int index)
         {
-            // Wait for items to drop and settle
-            yield return new WaitForSeconds(1.5f);
+            if (index >= steps.Count) yield break;
 
-            var allItems = LevelManager.Instance.Items;
-            if (allItems.Count < 3) yield break;
+            TutorialStepSO step = steps[index];
+            if (step == null) yield break;
 
-            // Find 3 identical items
-            Dictionary<EItemName, List<Item>> groups = new Dictionary<EItemName, List<Item>>();
-            foreach (var item in allItems)
+            yield return new WaitForSeconds(step.startDelay);
+
+            List<GameObject> targets = ResolveTargets(step);
+            if (targets == null || targets.Count == 0)
             {
-                if (!groups.ContainsKey(item.ItemNameKey)) groups[item.ItemNameKey] = new List<Item>();
-                groups[item.ItemNameKey].Add(item);
+                Debug.LogWarning($"[TutorialManager] Step {index} ('{step.name}') found no valid targets – skipping.");
+                yield break;
             }
 
-            _targetItems.Clear();
-            foreach (var kvp in groups.AsValueEnumerable().Where(kvp => kvp.Value.Count >= 3))
-            {
-                var group = kvp.Value;
-                _targetItems.Add(group[0]);
-                _targetItems.Add(group[1]);
-                _targetItems.Add(group[2]);
-                break;
-            }
-
-            if (_targetItems.Count < 3) yield break; // Fallback
-            
-            StartTutorial();
+            BeginStep(step, targets);
         }
 
-        private void StartTutorial()
+        // ─────────────────────────────────────────────────────────────────
+        // Target resolution
+        // ─────────────────────────────────────────────────────────────────
+        private List<GameObject> ResolveTargets(TutorialStepSO step)
         {
-            InputManager.IsTutorialActive = true;
-            InputManager.TutorialTargets = _targetItems.ToArray();
-            
-            TimerManager.Instance.SetTutorialPause(true);
+            var result = new List<GameObject>();
 
-            // Move targets to Tutorial layer so the Overlay camera sees them
-            _originalLayer = _targetItems[0].gameObject.layer;
-            foreach (var item in _targetItems)
+            switch (step.highlightTarget)
             {
-                SetLayerRecursively(item.gameObject, _tutorialLayer);
+                // ── Auto-find any 3 identical items ──────────────────────
+                case EHighlightTarget.AutoFindItems:
+                {
+                    var allItems = LevelManager.Instance.Items;
+                    if (allItems.Count < 3) return null;
+
+                    var groups = new Dictionary<EItemName, List<Item>>();
+                    foreach (var item in allItems)
+                    {
+                        if (!groups.ContainsKey(item.ItemNameKey)) groups[item.ItemNameKey] = new List<Item>();
+                        groups[item.ItemNameKey].Add(item);
+                    }
+
+                    _targetItems.Clear();
+                    foreach (var kvp in groups.AsValueEnumerable().Where(kvp => kvp.Value.Count >= 3))
+                    {
+                        var g = kvp.Value;
+                        _targetItems.Add(g[0]); _targetItems.Add(g[1]); _targetItems.Add(g[2]);
+                        break;
+                    }
+
+                    if (_targetItems.Count < 3) return null;
+                    foreach (var i in _targetItems) result.Add(i.gameObject);
+                    break;
+                }
+
+                // ── Specific item type ───────────────────────────────────
+                case EHighlightTarget.SpecificItem:
+                {
+                    var allItems = LevelManager.Instance.Items;
+                    _targetItems.Clear();
+                    foreach (var item in allItems)
+                    {
+                        if (item.ItemNameKey != step.itemName) continue;
+                        _targetItems.Add(item);
+                        result.Add(item.gameObject);
+                        if (_targetItems.Count >= 3) break;
+                    }
+
+                    if (_targetItems.Count < 3)
+                    {
+                        Debug.LogWarning($"[TutorialManager] SpecificItem: fewer than 3 '{step.itemName}' items found.");
+                        return null;
+                    }
+                    break;
+                }
+
+                // ── Powerup slot ─────────────────────────────────────────
+                case EHighlightTarget.Powerup:
+                {
+                    var allPowerups = FindObjectsByType<Powerup>(FindObjectsSortMode.None);
+                    _targetPowerup = null;
+                    foreach (var p in allPowerups)
+                    {
+                        if (p.Type != step.powerupType) continue;
+                        _targetPowerup = p;
+                        break;
+                    }
+
+                    if (_targetPowerup == null)
+                    {
+                        Debug.LogWarning($"[TutorialManager] Powerup: no powerup of type '{step.powerupType}' found.");
+                        return null;
+                    }
+                    result.Add(_targetPowerup.gameObject);
+                    break;
+                }
+
+                // ── Goal card ────────────────────────────────────────────
+                case EHighlightTarget.GoalCard:
+                {
+                    var goalManager = GoalManager.Instance;
+                    if (goalManager == null)
+                    {
+                        Debug.LogWarning("[TutorialManager] GoalCard: GoalManager.Instance is null.");
+                        return null;
+                    }
+
+                    var goals = goalManager.Goals;
+                    var allCards = FindObjectsByType<GoalCard>(FindObjectsSortMode.None);
+
+                    int targetIndex = -1;
+                    for (int i = 0; i < goals.Length; i++)
+                    {
+                        if (goals[i].itemPrefab.ItemNameKey == step.itemName) { targetIndex = i; break; }
+                    }
+
+                    if (targetIndex < 0 || targetIndex >= allCards.Length)
+                    {
+                        Debug.LogWarning($"[TutorialManager] GoalCard: no card found for '{step.itemName}'.");
+                        return null;
+                    }
+                    result.Add(allCards[targetIndex].gameObject);
+                    break;
+                }
+
+                // ── Manual list ──────────────────────────────────────────
+                case EHighlightTarget.Manual:
+                {
+                    foreach (var go in step.manualTargets)
+                        if (go != null) result.Add(go);
+
+                    if (result.Count == 0)
+                    {
+                        Debug.LogWarning("[TutorialManager] Manual step has no targets assigned in the Inspector.");
+                        return null;
+                    }
+                    break;
+                }
             }
 
-            // Show UI (dark background canvas + text canvas)
-            tutorialText.text = message;
+            return result;
+        }
+
+        // ─────────────────────────────────────────────────────────────────
+        // Step begin
+        // ─────────────────────────────────────────────────────────────────
+        private void BeginStep(TutorialStepSO step, List<GameObject> targets)
+        {
+            _currentStep = step;
+
+            // Move objects to Tutorial layer so the Overlay camera sees them
+            _highlightedObjects.Clear();
+            _originalLayer = targets[0].layer;
+            foreach (var go in targets)
+            {
+                SetLayerRecursively(go, _tutorialLayer);
+                _highlightedObjects.Add(go);
+            }
+
+            // Wire InputManager for item-based steps
+            if (step.highlightTarget == EHighlightTarget.AutoFindItems ||
+                step.highlightTarget == EHighlightTarget.SpecificItem)
+            {
+                InputManager.IsTutorialActive = true;
+                InputManager.TutorialTargets = _targetItems.ToArray();
+            }
+
+            // Pause timer
+            if (step.pauseTimer)
+                TimerManager.Instance.SetTutorialPause(true);
+
+            // Show UI
+            tutorialText.text = step.message;
             tutorialCanvasGroup.gameObject.SetActive(true);
             LeanTween.alphaCanvas(tutorialCanvasGroup, 1f, 0.5f).setIgnoreTimeScale(true);
             if (tutorialTextCanvasGroup != null)
@@ -113,55 +274,103 @@ namespace MatchThemAll.Scripts.Managers
                 tutorialTextCanvasGroup.gameObject.SetActive(true);
                 LeanTween.alphaCanvas(tutorialTextCanvasGroup, 1f, 0.5f).setIgnoreTimeScale(true);
             }
+
+            // Auto-timer
+            if (step.completionCondition == ECompletionCondition.OnTimer)
+                _timerCoroutine = StartCoroutine(AutoCompleteAfterDelay(step.autoCompleteDelay));
         }
 
-        private void OnItemClicked(Item item)
+        private IEnumerator AutoCompleteAfterDelay(float delay)
         {
-            if (!InputManager.IsTutorialActive) return;
-            if (_targetItems.Contains(item)) {}
+            yield return new WaitForSecondsRealtime(delay);
+            CompleteCurrentStep();
         }
 
-        // Called by ItemSpotManager when 3 identical items have all landed and merge begins
+        // ─────────────────────────────────────────────────────────────────
+        // Event listeners
+        // ─────────────────────────────────────────────────────────────────
+        private void OnItemClicked(Item item) { /* merge detection handles completion */ }
+
+        private void OnPowerupClicked(Powerup powerup)
+        {
+            if (_currentStep == null) return;
+            if (_currentStep.completionCondition != ECompletionCondition.OnPowerupUsed) return;
+            if (powerup == _targetPowerup)
+                CompleteCurrentStep();
+        }
+
         private void OnMergeStarted(List<Item> items)
         {
-            if (!InputManager.IsTutorialActive) return;
+            if (_currentStep == null) return;
+            if (_currentStep.completionCondition != ECompletionCondition.OnMerge) return;
 
-            // Check that the merge involves our tutorial items
             bool isTutorialMerge = items.AsValueEnumerable().Any(item => _targetItems.Contains(item));
-
             if (!isTutorialMerge) return;
 
-            EndTutorial();
+            CompleteCurrentStep();
         }
 
-        private void EndTutorial()
+        // ─────────────────────────────────────────────────────────────────
+        // Public API
+        // ─────────────────────────────────────────────────────────────────
+        /// <summary>
+        /// Completes the current step and advances to the next.
+        /// Call this when using <see cref="ECompletionCondition.Manual"/>.
+        /// </summary>
+        public void CompleteCurrentStep()
         {
+            if (_currentStep == null) return;
+
+            bool wasTimerPaused = _currentStep.pauseTimer;
+
+            EndStep(wasTimerPaused);
+
+            _currentStepIndex++;
+            if (_currentStepIndex < steps.Count)
+                StartCoroutine(RunStepDelayed(_currentStepIndex));
+        }
+
+        // ─────────────────────────────────────────────────────────────────
+        // Step teardown
+        // ─────────────────────────────────────────────────────────────────
+        private void EndStep(bool resumeTimer)
+        {
+            if (_timerCoroutine != null)
+            {
+                StopCoroutine(_timerCoroutine);
+                _timerCoroutine = null;
+            }
+
             InputManager.IsTutorialActive = false;
             InputManager.TutorialTargets = null;
-            TimerManager.Instance.SetTutorialPause(false);
+            _targetPowerup = null;
+            _currentStep = null;
 
+            if (resumeTimer)
+                TimerManager.Instance.SetTutorialPause(false);
+
+            // Fade out UI
             LeanTween.alphaCanvas(tutorialCanvasGroup, 0f, 0.5f)
                      .setIgnoreTimeScale(true)
                      .setOnComplete(() => tutorialCanvasGroup.gameObject.SetActive(false));
+
             if (tutorialTextCanvasGroup != null)
             {
                 LeanTween.alphaCanvas(tutorialTextCanvasGroup, 0f, 0.5f)
                          .setIgnoreTimeScale(true)
                          .setOnComplete(() => tutorialTextCanvasGroup.gameObject.SetActive(false));
             }
-                     
-            // Wait a bit, then reset the layers in case they didn't get destroyed
+
             StartCoroutine(ResetLayersDelayed());
         }
 
         private IEnumerator ResetLayersDelayed()
         {
-            // Wait slightly longer than the merge animation so items are already destroyed
             yield return new WaitForSeconds(2f);
-            foreach (var item in _targetItems.AsValueEnumerable().Where(item => item != null))
-            {
-                SetLayerRecursively(item.gameObject, _originalLayer);
-            }
+            foreach (var go in _highlightedObjects.AsValueEnumerable().Where(go => go != null))
+                SetLayerRecursively(go, _originalLayer);
+            _highlightedObjects.Clear();
+            _targetItems.Clear();
         }
 
         private void SetLayerRecursively(GameObject obj, int newLayer)
