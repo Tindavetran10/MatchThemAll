@@ -471,7 +471,8 @@ namespace Match_Them_All.Scripts.Editor
             GUILayout.Label("Item",   GUILayout.Width(nameW));
             GUILayout.Label("Amount", GUILayout.Width(sliderW));
             GUILayout.Label("Total",  GUILayout.Width(totalW));
-            GUILayout.Label("Goal?",  GUILayout.Width(goalW));
+            var centeredLabel = new GUIStyle(EditorStyles.label) { alignment = TextAnchor.MiddleCenter };
+            GUILayout.Label("Goal?",  centeredLabel, GUILayout.Width(goalW));
             GUILayout.Label("",       GUILayout.Width(removeW));
             GUI.color = Color.white;
             GUILayout.EndHorizontal();
