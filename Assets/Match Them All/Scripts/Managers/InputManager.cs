@@ -100,8 +100,18 @@ public class InputManager : MonoBehaviour
         // The Ray can only hit game objects that have a collider
         //Physics.Raycast(Camera.main!.ScreenPointToRay(Input.mousePosition), out RaycastHit hit, 100);
         
+        int currentMask = itemLayerMask;
+        if (IsTutorialActive)
+        {
+            int tutorialLayer = LayerMask.NameToLayer("Tutorial");
+            if (tutorialLayer != -1)
+            {
+                currentMask = 1 << tutorialLayer;
+            }
+        }
+
         // Only raycast against items (skip UI, floor, etc.)
-        if (!Physics.Raycast(ray, out var hit, 100f, itemLayerMask))
+        if (!Physics.Raycast(ray, out var hit, 100f, currentMask))
         {
             DeselectCurrentItem();
             return;
