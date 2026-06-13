@@ -32,6 +32,10 @@ namespace MatchThemAll.Scripts.UI
             // Calculate stars from remaining time
             int stars = CalculateStars();
 
+            // Reward coins: 10 per star
+            int coinsEarned = stars * 10;
+            MatchThemAll.Scripts.SaveSystem.SaveManager.AddCoins(coinsEarned);
+
             // Save progress (advances level index if this was a new level)
             LevelManager.Instance?.SaveLevelComplete(stars);
 

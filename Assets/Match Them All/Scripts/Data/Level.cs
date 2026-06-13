@@ -26,6 +26,9 @@ namespace MatchThemAll.Scripts
         public ItemLevelData[] GetGoals() =>
             _data ? _data.GetGoals() : System.Array.Empty<ItemLevelData>();
 
+        public System.Collections.Generic.List<Tutorial.TutorialStep> GetTutorialSteps() =>
+            _data ? _data.tutorialSteps : null;
+
         public System.Collections.Generic.List<Item> GetItems() => itemPlacer.GetItems();
     }
 }

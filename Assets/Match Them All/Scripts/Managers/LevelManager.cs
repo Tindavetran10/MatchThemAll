@@ -70,7 +70,7 @@ namespace MatchThemAll.Scripts
             
             // Automatically load all levels from the Resources/Levels folder
             var loadedLevels = Resources.LoadAll<LevelDataSO>("Levels");
-            if (loadedLevels != null && loadedLevels.Length > 0)
+            if (loadedLevels is { Length: > 0 })
             {
                 // Sort alphabetically to ensure LevelData01 comes before LevelData02, etc.
                 Array.Sort(loadedLevels, (a, b) => string.Compare(a.name, b.name, StringComparison.Ordinal));
@@ -114,12 +114,12 @@ namespace MatchThemAll.Scripts
         {
             switch (gameState)
             {
-                // Only spawn a fresh level when transitioning from a non-pause state.
-                // Resuming from PAUSED should never re-spawn the current level.
-                case EGameState.GAME when GameManager.Instance.PreviousState != EGameState.PAUSED:
+                // Only spawn a fresh level when transitioning from a non-pause and non-continue state.
+                // Resuming from PAUSED or OUTOFTIME should never re-spawn the current level.
+                case EGameState.GAME when GameManager.Instance.PreviousState != EGameState.PAUSED && GameManager.Instance.PreviousState != EGameState.OUTOFTIME:
                     SpawnLevel();
                     break;
-                case EGameState.GAME: // resuming from pause — do nothing, level already exists
+                case EGameState.GAME: // resuming from pause/out of time — do nothing, level already exists
                     break;
                 case EGameState.LEVELCOMPLETE:
                     // Stars are saved by WinPanelManager after calculating time remaining
@@ -127,6 +127,7 @@ namespace MatchThemAll.Scripts
                 case EGameState.MENU:
                 case EGameState.GAMEOVER:
                 case EGameState.PAUSED:
+                case EGameState.OUTOFTIME:
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(gameState), gameState, null);

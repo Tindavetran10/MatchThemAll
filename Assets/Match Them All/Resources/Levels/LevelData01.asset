@@ -27,3 +27,13 @@ MonoBehaviour:
     isGoal: 1
     multiplier: 1
     amount: 3
+  tutorialSteps:
+  - message: Tap these 3 identical items!
+    highlightTarget: 0
+    itemName: 0
+    powerupType: 0
+    manualTargets: []
+    completionCondition: 0
+    autoCompleteDelay: 3
+    startDelay: 1
+    pauseTimer: 1

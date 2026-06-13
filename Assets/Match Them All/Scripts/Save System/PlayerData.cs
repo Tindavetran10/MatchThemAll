@@ -12,6 +12,9 @@ namespace MatchThemAll.Scripts.SaveSystem
         // ── Level Progress ─────────────────────────────────────────────────
         public int currentLevelIndex;
 
+        // ── Economy ────────────────────────────────────────────────────────
+        public int coins;
+
         /// <summary>Best star rating (0-3) earned per level index.</summary>
         public int[] levelStars = System.Array.Empty<int>();
 

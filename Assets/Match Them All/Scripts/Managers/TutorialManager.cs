@@ -21,18 +21,12 @@ namespace MatchThemAll.Scripts.Managers
         [SerializeField] private CanvasGroup tutorialTextCanvasGroup;   // TutorialTextCanvas (text – ScreenSpaceOverlay)
         [SerializeField] private TextMeshProUGUI tutorialText;
 
-        [Header("Tutorial Steps")]
-        [Tooltip("One ScriptableObject per tutorial step. Executed in order on the level defined by levelIndex.")]
-        [SerializeField] private List<TutorialStepSO> steps = new();
-
-        [Tooltip("Build index of the level on which these steps run (0 = first level).")]
-        [SerializeField] private int levelIndex = 0;
-
         // ─────────────────────────────────────────────────────────────────
         // Runtime state
         // ─────────────────────────────────────────────────────────────────
         private int _currentStepIndex;
-        private TutorialStepSO _currentStep;
+        private TutorialStep _currentStep;
+        private List<TutorialStep> _currentSteps;
 
         // Objects currently on the Tutorial layer
         private readonly List<GameObject> _highlightedObjects = new();
@@ -88,8 +82,9 @@ namespace MatchThemAll.Scripts.Managers
         // ─────────────────────────────────────────────────────────────────
         private void OnLevelSpawned(Level level)
         {
-            if (LevelManager.Instance.CurrentLevelIndex != levelIndex) return;
-            if (steps == null || steps.Count == 0) return;
+            _currentSteps = level.GetTutorialSteps();
+            
+            if (_currentSteps == null || _currentSteps.Count == 0) return;
 
             _currentStepIndex = 0;
             StartCoroutine(RunStepDelayed(_currentStepIndex));
@@ -97,9 +92,9 @@ namespace MatchThemAll.Scripts.Managers
 
         private IEnumerator RunStepDelayed(int index)
         {
-            if (index >= steps.Count) yield break;
+            if (_currentSteps == null || index >= _currentSteps.Count) yield break;
 
-            TutorialStepSO step = steps[index];
+            TutorialStep step = _currentSteps[index];
             if (step == null) yield break;
 
             yield return new WaitForSeconds(step.startDelay);
@@ -107,7 +102,7 @@ namespace MatchThemAll.Scripts.Managers
             List<GameObject> targets = ResolveTargets(step);
             if (targets == null || targets.Count == 0)
             {
-                Debug.LogWarning($"[TutorialManager] Step {index} ('{step.name}') found no valid targets – skipping.");
+                Debug.LogWarning($"[TutorialManager] Step {index} found no valid targets – skipping.");
                 yield break;
             }
 
@@ -117,7 +112,7 @@ namespace MatchThemAll.Scripts.Managers
         // ─────────────────────────────────────────────────────────────────
         // Target resolution
         // ─────────────────────────────────────────────────────────────────
-        private List<GameObject> ResolveTargets(TutorialStepSO step)
+        private List<GameObject> ResolveTargets(TutorialStep step)
         {
             var result = new List<GameObject>();
 
@@ -240,7 +235,7 @@ namespace MatchThemAll.Scripts.Managers
         // ─────────────────────────────────────────────────────────────────
         // Step begin
         // ─────────────────────────────────────────────────────────────────
-        private void BeginStep(TutorialStepSO step, List<GameObject> targets)
+        private void BeginStep(TutorialStep step, List<GameObject> targets)
         {
             _currentStep = step;
 
@@ -317,7 +312,7 @@ namespace MatchThemAll.Scripts.Managers
         /// Completes the current step and advances to the next.
         /// Call this when using <see cref="ECompletionCondition.Manual"/>.
         /// </summary>
-        public void CompleteCurrentStep()
+        private void CompleteCurrentStep()
         {
             if (_currentStep == null) return;
 
@@ -326,7 +321,7 @@ namespace MatchThemAll.Scripts.Managers
             EndStep(wasTimerPaused);
 
             _currentStepIndex++;
-            if (_currentStepIndex < steps.Count)
+            if (_currentSteps != null && _currentStepIndex < _currentSteps.Count)
                 StartCoroutine(RunStepDelayed(_currentStepIndex));
         }
 

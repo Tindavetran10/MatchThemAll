@@ -19,7 +19,7 @@ namespace MatchThemAll.Scripts.UI
             
             // Auto-detect total levels from the Resources folder (same as LevelManager)
             var loadedLevels = Resources.LoadAll<LevelDataSO>("Levels");
-            int totalLevelsCount = loadedLevels != null ? loadedLevels.Length : 0;
+            int totalLevelsCount = loadedLevels?.Length ?? 0;
 
             GenerateButtons(data, totalLevelsCount);
         }

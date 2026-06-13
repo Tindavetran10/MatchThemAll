@@ -6,6 +6,7 @@ namespace MatchThemAll.Scripts
         GAME = 1,
         LEVELCOMPLETE = 2,
         GAMEOVER = 3,
-        PAUSED = 4
+        PAUSED = 4,
+        OUTOFTIME = 5
     }
 }

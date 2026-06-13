@@ -1,4 +1,3 @@
-using System.Collections;
 using TMPro;
 using UnityEngine;
 
@@ -18,12 +17,12 @@ namespace MatchThemAll.Scripts.UI
         private void Awake()
         {
             _rect = GetComponent<RectTransform>();
-            if (textMesh == null) textMesh = GetComponentInChildren<TextMeshProUGUI>();
+            if (!textMesh) textMesh = GetComponentInChildren<TextMeshProUGUI>();
         }
 
         public void Setup(string text, Color color)
         {
-            if (textMesh != null)
+            if (textMesh)
             {
                 textMesh.text = text;
                 textMesh.color = color;
@@ -45,12 +44,12 @@ namespace MatchThemAll.Scripts.UI
             // Rise
             LeanTween.value(gameObject, startY, targetY, riseAndFadeDuration)
                 .setEaseOutSine()
-                .setOnUpdate((float v) => _rect.anchoredPosition = new Vector2(_rect.anchoredPosition.x, v));
+                .setOnUpdate(v => _rect.anchoredPosition = new Vector2(_rect.anchoredPosition.x, v));
 
             // Fade out
             LeanTween.value(gameObject, 1f, 0f, riseAndFadeDuration)
                 .setEaseInQuad()
-                .setOnUpdate((float alpha) => { if (textMesh != null) textMesh.alpha = alpha; })
+                .setOnUpdate(alpha => { if (textMesh) textMesh.alpha = alpha; })
                 .setOnComplete(() => Destroy(gameObject));
         }
     }

@@ -15,12 +15,12 @@ namespace MatchThemAll.Scripts.UI
 
         private void Awake()
         {
-            if (Instance == null) Instance = this;
+            if (!Instance) Instance = this;
             else { Destroy(gameObject); return; }
 
             // Cache the root canvas for coordinate conversion
             _rootCanvas = GetComponentInParent<Canvas>();
-            if (_rootCanvas != null && _rootCanvas.isRootCanvas == false)
+            if (_rootCanvas && _rootCanvas.isRootCanvas == false)
                 _rootCanvas = _rootCanvas.rootCanvas;
         }
 
@@ -29,13 +29,13 @@ namespace MatchThemAll.Scripts.UI
         /// </summary>
         public void Spawn(string text, Vector3 uiWorldPosition, Color color)
         {
-            if (floatingTextPrefab == null || container == null) return;
+            if (!floatingTextPrefab || !container) return;
 
             var inst = Instantiate(floatingTextPrefab, container);
             var instRect = inst.GetComponent<RectTransform>();
 
             // Convert world position to canvas local position
-            Camera cam = (_rootCanvas != null && _rootCanvas.renderMode == RenderMode.ScreenSpaceCamera)
+            Camera cam = (_rootCanvas && _rootCanvas.renderMode == RenderMode.ScreenSpaceCamera)
                 ? _rootCanvas.worldCamera
                 : null; // null = screen space overlay
 
@@ -55,7 +55,7 @@ namespace MatchThemAll.Scripts.UI
         /// </summary>
         public void SpawnAtCenter(string text, Color color)
         {
-            if (floatingTextPrefab == null || container == null) return;
+            if (!floatingTextPrefab || !container) return;
 
             var inst = Instantiate(floatingTextPrefab, container);
             inst.GetComponent<RectTransform>().anchoredPosition = Vector2.zero;

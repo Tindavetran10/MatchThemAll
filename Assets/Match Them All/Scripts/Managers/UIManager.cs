@@ -12,9 +12,8 @@ namespace MatchThemAll.Scripts
 
         public void GameStateChangedCallback(EGameState gameState)
         {
-
-            // Keep the game HUD (goals, timer) visible while paused.
-            gamePanel.SetActive(gameState is EGameState.GAME or EGameState.PAUSED);
+            // Keep the game HUD (goals, timer) visible while paused or out of time.
+            gamePanel.SetActive(gameState is EGameState.GAME or EGameState.PAUSED or EGameState.OUTOFTIME);
 
             // Pause overlay sits on top of the game panel.
             SetPanelActive(pausePanel, gameState == EGameState.PAUSED);
@@ -23,9 +22,9 @@ namespace MatchThemAll.Scripts
             SetPanelActive(gameOverPanel, gameState == EGameState.GAMEOVER);
         }
 
-        private void SetPanelActive(GameObject panel, bool active)
+        private static void SetPanelActive(GameObject panel, bool active)
         {
-            if (panel == null) return;
+            if (!panel) return;
 
             if (active)
             {
@@ -33,8 +32,8 @@ namespace MatchThemAll.Scripts
             }
             else if (panel.activeSelf)
             {
-                var anim = panel.GetComponent<MatchThemAll.Scripts.UI.UIAnimator>();
-                if (anim != null) anim.ClosePanel();
+                var anim = panel.GetComponent<UI.UIAnimator>();
+                if (anim) anim.ClosePanel();
                 else panel.SetActive(false);
             }
         }

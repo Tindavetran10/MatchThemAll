@@ -44,7 +44,7 @@ namespace MatchThemAll.Scripts.UI
             SaveSetting(data => data.musicVolume = value);
         }
 
-        public void OnSfxVolumeChanged(float value)
+        private static void OnSfxVolumeChanged(float value)
         {
             SoundManager.Instance?.SetSFXVolume(value);
             SaveSetting(data => data.sfxVolume = value);

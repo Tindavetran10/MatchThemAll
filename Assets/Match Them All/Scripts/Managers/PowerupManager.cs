@@ -62,10 +62,28 @@ namespace MatchThemAll.Scripts
             if(_isBusy) 
                 return;
 
+            // Try to use a charge, if not, try to buy one
+            if (!TryUsePowerupCharge(powerup.Type))
+            {
+                const int powerupCost = 50;
+                if (SaveManager.SpendCoins(powerupCost))
+                {
+                    // Successfully bought
+                }
+                else
+                {
+                    // Not enough coins
+                    Debug.Log($"Not enough coins to buy {powerup.Type}! Needs {powerupCost}.");
+                    return;
+                }
+            }
+
             switch (powerup.Type)
             {
                 case EPowerupType.Vacuum:
-                    HandleVacuumClicked();
+                    _vacuumRequested = true;
+                    _isBusy = true;
+                    vacuum.Play();
                     UpdateVacuumVisuals();
                     break;
                 case EPowerupType.Spring:
@@ -82,26 +100,36 @@ namespace MatchThemAll.Scripts
             }
         }
 
-        #region Vacuum Powerup
-        private void HandleVacuumClicked()
+        private bool TryUsePowerupCharge(EPowerupType type)
         {
-            _vacuumRequested = true;
-
-            if (_vacuumPuCount <= 0)
+            switch (type)
             {
-                _vacuumPuCount = 3;
-                SaveData();
+                case EPowerupType.Vacuum:
+                    if (_vacuumPuCount <= 0) return false;
+                    _vacuumPuCount--;
+                    SaveData();
+                    return true;
+                case EPowerupType.Spring:
+                    if (_springPuCount <= 0) return false;
+                    _springPuCount--;
+                    SaveData();
+                    return true;
+                case EPowerupType.Fan:
+                    if (_fanPuCount <= 0) return false;
+                    _fanPuCount--;
+                    SaveData();
+                    return true;
+                case EPowerupType.FreezeGun:
+                    if (_freezePuCount <= 0) return false;
+                    _freezePuCount--;
+                    SaveData();
+                    return true;
+                default:
+                    return false;
             }
-            else
-            {
-                _isBusy = true;
-
-                _vacuumPuCount--;
-                SaveData();
-                vacuum.Play();
-            }
-            
         }
+
+        #region Vacuum Powerup
 
         private void OnVacuumStarted()
         {

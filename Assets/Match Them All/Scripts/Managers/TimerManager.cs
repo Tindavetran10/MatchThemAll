@@ -66,7 +66,7 @@ namespace MatchThemAll.Scripts
         private void TimerFinished()
         {
             StopTimer();
-            GameManager.Instance.SetGameState(EGameState.GAMEOVER);
+            GameManager.Instance.SetGameState(EGameState.OUTOFTIME);
         }
 
         public void GameStateChangedCallback(EGameState gameState)
@@ -74,10 +74,11 @@ namespace MatchThemAll.Scripts
             switch (gameState)
             {
                 case EGameState.PAUSED:
+                case EGameState.OUTOFTIME:
                     StopTimer();
                     break;
-                case EGameState.GAME when GameManager.Instance.PreviousState == EGameState.PAUSED:
-                    StartTimer(); // resume from pause — don't reset _currentTime
+                case EGameState.GAME when GameManager.Instance.PreviousState == EGameState.PAUSED || GameManager.Instance.PreviousState == EGameState.OUTOFTIME:
+                    StartTimer(); // resume from pause or out of time
                     break;
                 case EGameState.LEVELCOMPLETE or EGameState.GAMEOVER:
                     StopTimer();
@@ -119,5 +120,16 @@ namespace MatchThemAll.Scripts
                 }
             }
         }
+
+#if UNITY_EDITOR
+        [NaughtyAttributes.Button("Test: Run Out of Time")]
+        private void DebugRunOutOfTime()
+        {
+            if (!GameManager.Instance.IsGame()) return;
+            CurrentTime = 0;
+            UpdateTimerText();
+            TimerFinished();
+        }
+#endif
     }
 }

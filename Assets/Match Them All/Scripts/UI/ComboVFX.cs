@@ -12,7 +12,7 @@ namespace MatchThemAll.Scripts.UI
         [SerializeField] private float popDuration = 0.3f;
         [SerializeField] private float stayDuration = 0.5f;
         [SerializeField] private float fadeDuration = 0.3f;
-        [SerializeField] private Vector3 maxScale = new Vector3(1.5f, 1.5f, 1.5f);
+        [SerializeField] private Vector3 maxScale = new(1.5f, 1.5f, 1.5f);
 
         private void Awake()
         {
@@ -63,7 +63,7 @@ namespace MatchThemAll.Scripts.UI
                     // 3. Fade out
                     LeanTween.value(gameObject, 1f, 0f, fadeDuration)
                         .setDelay(stayDuration)
-                        .setOnUpdate((float alpha) => {
+                        .setOnUpdate(alpha => {
                             _comboText.alpha = alpha;
                         });
                 });

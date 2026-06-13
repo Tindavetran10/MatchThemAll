@@ -34,7 +34,7 @@ namespace MatchThemAll.Scripts
         private IEnumerator LoadAsync()
         {
             // Show a random tip
-            if (tipText != null)
+            if (tipText)
                 tipText.text = Tips[Random.Range(0, Tips.Length)];
 
             // Determine target scene
@@ -77,7 +77,7 @@ namespace MatchThemAll.Scripts
 
                     LeanTween.value(go, 0f, 1f, 0.25f)
                         .setIgnoreTimeScale(true)
-                        .setOnUpdate(val => { img.color = new Color(0, 0, 0, val); })
+                        .setOnUpdate((float val) => { img.color = new Color(0, 0, 0, val); })
                         .setOnComplete(() =>
                         {
                             // Activate the scene
@@ -87,7 +87,7 @@ namespace MatchThemAll.Scripts
                             LeanTween.value(go, 1f, 0f, 0.35f)
                                 .setIgnoreTimeScale(true)
                                 .setDelay(0.1f)
-                                .setOnUpdate(val =>
+                                .setOnUpdate((float val) =>
                                 {
                                     if (img != null) img.color = new Color(0, 0, 0, val);
                                 })

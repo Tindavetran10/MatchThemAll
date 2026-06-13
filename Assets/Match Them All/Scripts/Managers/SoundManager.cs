@@ -42,7 +42,7 @@ namespace MatchThemAll.Scripts
 
         private void Awake()
         {
-            if (Instance == null)
+            if (!Instance)
             {
                 Instance = this;
                 transform.SetParent(null); // Detach from parent to ensure it's a root GameObject for DontDestroyOnLoad
@@ -75,7 +75,7 @@ namespace MatchThemAll.Scripts
         /// </summary>
         public void Play(SoundDataSO data)
         {
-            if (data == null || data.clip == null)
+            if (!data || !data.clip)
             {
                 Debug.LogWarning("SoundManager.Play: SoundDataSO or its clip is null.");
                 return;
@@ -111,7 +111,7 @@ namespace MatchThemAll.Scripts
         /// <summary>Starts background music. Ignored if the same clip is already playing.</summary>
         public void PlayMusic(SoundDataSO data)
         {
-            if (data == null || data.clip == null) return;
+            if (!data || !data.clip) return;
 
             // Avoid restarting the same track if it is already running
             if (_musicSource.clip == data.clip && _musicSource.isPlaying) return;

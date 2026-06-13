@@ -43,8 +43,8 @@ namespace MatchThemAll.Scripts.Tutorial
         Manual
     }
 
-    [CreateAssetMenu(fileName = "TutorialStep", menuName = "Match Them All/Tutorial Step")]
-    public class TutorialStepSO : ScriptableObject
+    [System.Serializable]
+    public class TutorialStep
     {
         [Header("Message")]
         [Tooltip("Text shown in the tutorial overlay while this step is active.")]

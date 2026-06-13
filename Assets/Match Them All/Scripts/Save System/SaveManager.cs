@@ -65,5 +65,28 @@ namespace MatchThemAll.Scripts.SaveSystem
 
             Debug.Log("[SaveManager] Save file wiped.");
         }
+
+        public static event System.Action<int> OnCoinsChanged;
+
+        public static void AddCoins(int amount)
+        {
+            var data = Load();
+            data.coins += amount;
+            Save(data);
+            OnCoinsChanged?.Invoke(data.coins);
+        }
+
+        public static bool SpendCoins(int amount)
+        {
+            var data = Load();
+            if (data.coins >= amount)
+            {
+                data.coins -= amount;
+                Save(data);
+                OnCoinsChanged?.Invoke(data.coins);
+                return true;
+            }
+            return false;
+        }
     }
 }

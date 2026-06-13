@@ -20,6 +20,9 @@ namespace MatchThemAll.Scripts
         [Header("Items")]
         [SerializeField] public List<ItemLevelData> itemData;
 
+        [Header("Tutorial")]
+        [SerializeField] public List<Tutorial.TutorialStep> tutorialSteps = new();
+
         /// <summary>Returns only the entries marked as goals.</summary>
         /// <summary>
         /// Snaps every item's amount to the nearest multiple of 3.

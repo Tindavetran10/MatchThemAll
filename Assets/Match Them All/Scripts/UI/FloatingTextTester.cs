@@ -21,17 +21,17 @@ namespace MatchThemAll.Scripts.Testing
                 btn.onClick.AddListener(TestSpawn);
         }
 
-        public void TestSpawn()
+        private void TestSpawn()
         {
             if (FloatingTextSpawner.Instance == null)
             {
-                UnityEngine.Debug.LogWarning("[FloatingTextTester] FloatingTextSpawner.Instance is null! " +
+                Debug.LogWarning("[FloatingTextTester] FloatingTextSpawner.Instance is null! " +
                     "Make sure FloatingTextSpawner is active in the hierarchy when the game starts.");
                 return;
             }
 
             FloatingTextSpawner.Instance.SpawnAtCenter(testText, testColor);
-            UnityEngine.Debug.Log("[FloatingTextTester] Spawned floating text.");
+            Debug.Log("[FloatingTextTester] Spawned floating text.");
         }
     }
 }

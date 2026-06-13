@@ -23,6 +23,7 @@ namespace Match_Them_All.Scripts.Editor
 
         private Vector2 _levelListScroll;
         private Vector2 _itemListScroll;
+        private Vector2 _detailScroll;
 
         private bool _isDirty;
 
@@ -372,6 +373,8 @@ namespace Match_Them_All.Scripts.Editor
                 return;
             }
 
+            _detailScroll = GUILayout.BeginScrollView(_detailScroll);
+
             // Proportional label column: 22% of panel, clamped 120–220 px
             var labelW = Mathf.Clamp(panelWidth * 0.22f, 120f, 220f);
 
@@ -471,6 +474,14 @@ namespace Match_Them_All.Scripts.Editor
             // ─ Summary footer ─
             GUILayout.Space(8);
             DrawLevelSummary(panelWidth);
+
+            // ─ Tutorial Card ─
+            GUILayout.Space(8);
+            BeginCard();
+            DrawTutorialSection(panelWidth);
+            EndCard();
+
+            GUILayout.EndScrollView();
         }
 
         // ── Items Section ────────────────────────────────────────────────────
@@ -490,8 +501,8 @@ namespace Match_Them_All.Scripts.Editor
             var nameW     = Mathf.Max(80f, flex * 0.38f);
             var sliderW   = Mathf.Max(80f, flex * 0.62f);
 
-            // Item list grows to fill remaining vertical space (window height - toolbar - cards above - summary)
-            var scrollH  = Mathf.Max(80f, position.height - 340f);
+            // Item list uses a fixed height in the scrollable detail view
+            var scrollH  = 200f;
 
             GUILayout.BeginHorizontal();
             GUILayout.Label("Items", _subHeaderStyle);
@@ -674,6 +685,150 @@ namespace Match_Them_All.Scripts.Editor
             GUILayout.Space(4);
             GUILayout.EndHorizontal(); // ← must close Horizontal BEFORE EndCard (EndVertical)
             EndCard();
+        }
+
+        // ── Tutorial Section ──────────────────────────────────────────────────
+        private void DrawTutorialSection(float panelWidth)
+        {
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Tutorial Steps", _subHeaderStyle);
+            GUILayout.FlexibleSpace();
+            
+            GUI.color = AccentBlue;
+            if (GUILayout.Button("+ Add Step", GUILayout.Width(90), GUILayout.Height(22)))
+            {
+                Undo.RecordObject(_selectedLevel, "Add Tutorial Step");
+                _selectedLevel.tutorialSteps ??= new List<MatchThemAll.Scripts.Tutorial.TutorialStep>();
+                _selectedLevel.tutorialSteps.Add(new MatchThemAll.Scripts.Tutorial.TutorialStep());
+                MarkDirty();
+            }
+            GUI.color = Color.white;
+            GUILayout.EndHorizontal();
+            GUILayout.Space(8);
+
+            if (_selectedLevel.tutorialSteps == null || _selectedLevel.tutorialSteps.Count == 0)
+            {
+                GUI.color = TextMuted;
+                GUILayout.Label("No tutorial steps for this level.", EditorStyles.centeredGreyMiniLabel);
+                GUI.color = Color.white;
+                return;
+            }
+
+            var labelW = Mathf.Clamp(panelWidth * 0.22f, 120f, 220f);
+            var stepsToRemove = new List<int>();
+
+            for (int i = 0; i < _selectedLevel.tutorialSteps.Count; i++)
+            {
+                var step = _selectedLevel.tutorialSteps[i];
+                
+                GUILayout.BeginVertical("box");
+                
+                GUILayout.BeginHorizontal();
+                GUILayout.Label($"Step {i + 1}", EditorStyles.boldLabel);
+                GUILayout.FlexibleSpace();
+                GUI.color = AccentRed;
+                if (GUILayout.Button("✕", GUILayout.Width(24), GUILayout.Height(20)))
+                {
+                    stepsToRemove.Add(i);
+                }
+                GUI.color = Color.white;
+                GUILayout.EndHorizontal();
+
+                EditorGUI.BeginChangeCheck();
+
+                GUILayout.BeginHorizontal();
+                GUILayout.Label("Message", GUILayout.Width(labelW));
+                step.message = EditorGUILayout.TextArea(step.message, GUILayout.Height(40));
+                GUILayout.EndHorizontal();
+
+                GUILayout.BeginHorizontal();
+                GUILayout.Label("Highlight Target", GUILayout.Width(labelW));
+                step.highlightTarget = (MatchThemAll.Scripts.Tutorial.EHighlightTarget)EditorGUILayout.EnumPopup(step.highlightTarget);
+                GUILayout.EndHorizontal();
+
+                if (step.highlightTarget == MatchThemAll.Scripts.Tutorial.EHighlightTarget.SpecificItem || 
+                    step.highlightTarget == MatchThemAll.Scripts.Tutorial.EHighlightTarget.GoalCard)
+                {
+                    GUILayout.BeginHorizontal();
+                    GUILayout.Label("Item Name", GUILayout.Width(labelW));
+                    step.itemName = (MatchThemAll.Scripts.EItemName)EditorGUILayout.EnumPopup(step.itemName);
+                    GUILayout.EndHorizontal();
+                }
+                else if (step.highlightTarget == MatchThemAll.Scripts.Tutorial.EHighlightTarget.Powerup)
+                {
+                    GUILayout.BeginHorizontal();
+                    GUILayout.Label("Powerup Type", GUILayout.Width(labelW));
+                    step.powerupType = (Match_Them_All.Scripts.Power_Ups.EPowerupType)EditorGUILayout.EnumPopup(step.powerupType);
+                    GUILayout.EndHorizontal();
+                }
+                else if (step.highlightTarget == MatchThemAll.Scripts.Tutorial.EHighlightTarget.Manual)
+                {
+                    GUILayout.BeginHorizontal();
+                    GUILayout.Label("Manual Targets", GUILayout.Width(labelW));
+                    GUILayout.BeginVertical();
+                    step.manualTargets ??= new List<GameObject>();
+                    
+                    for (int j = 0; j < step.manualTargets.Count; j++)
+                    {
+                        GUILayout.BeginHorizontal();
+                        step.manualTargets[j] = (GameObject)EditorGUILayout.ObjectField(step.manualTargets[j], typeof(GameObject), true);
+                        if (GUILayout.Button("-", GUILayout.Width(20)))
+                        {
+                            step.manualTargets.RemoveAt(j);
+                            j--;
+                        }
+                        GUILayout.EndHorizontal();
+                    }
+                    if (GUILayout.Button("+ Add Target", GUILayout.Width(100)))
+                    {
+                        step.manualTargets.Add(null);
+                    }
+                    GUILayout.EndVertical();
+                    GUILayout.EndHorizontal();
+                }
+
+                GUILayout.BeginHorizontal();
+                GUILayout.Label("Completion Condition", GUILayout.Width(labelW));
+                step.completionCondition = (MatchThemAll.Scripts.Tutorial.ECompletionCondition)EditorGUILayout.EnumPopup(step.completionCondition);
+                GUILayout.EndHorizontal();
+
+                if (step.completionCondition == MatchThemAll.Scripts.Tutorial.ECompletionCondition.OnTimer)
+                {
+                    GUILayout.BeginHorizontal();
+                    GUILayout.Label("Auto Complete Delay", GUILayout.Width(labelW));
+                    step.autoCompleteDelay = EditorGUILayout.FloatField(step.autoCompleteDelay);
+                    GUILayout.EndHorizontal();
+                }
+
+                GUILayout.BeginHorizontal();
+                GUILayout.Label("Start Delay", GUILayout.Width(labelW));
+                step.startDelay = EditorGUILayout.FloatField(step.startDelay);
+                GUILayout.EndHorizontal();
+
+                GUILayout.BeginHorizontal();
+                GUILayout.Label("Pause Timer", GUILayout.Width(labelW));
+                step.pauseTimer = EditorGUILayout.Toggle(step.pauseTimer);
+                GUILayout.EndHorizontal();
+
+                if (EditorGUI.EndChangeCheck())
+                {
+                    Undo.RecordObject(_selectedLevel, "Edit Tutorial Step");
+                    MarkDirty();
+                }
+
+                GUILayout.EndVertical();
+                GUILayout.Space(8);
+            }
+
+            if (stepsToRemove.Count > 0)
+            {
+                Undo.RecordObject(_selectedLevel, "Remove Tutorial Step");
+                for (int i = stepsToRemove.Count - 1; i >= 0; i--)
+                {
+                    _selectedLevel.tutorialSteps.RemoveAt(stepsToRemove[i]);
+                }
+                MarkDirty();
+            }
         }
 
         private static void DrawStat(string label, string value, Color color, float width = 100f)
