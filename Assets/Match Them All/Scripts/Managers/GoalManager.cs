@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using MatchThemAll.Scripts.UI;
 using UnityEngine;
 
@@ -80,9 +81,9 @@ namespace MatchThemAll.Scripts
 
         private void GenerateGoalCards()
         {
-            foreach (var card in _goalCards)
+            foreach (var card in _goalCards.Where(card => card))
             {
-                if (card != null) Destroy(card.gameObject);
+                Destroy(card.gameObject);
             }
             _goalCards.Clear();
 
@@ -121,11 +122,11 @@ namespace MatchThemAll.Scripts
             Debug.Log($"Goal {goalIndex} completed!");
             
             // Add time bonus!
-            if (TimerManager.Instance != null)
+            if (TimerManager.Instance)
                 TimerManager.Instance.AddTime(5);
 
             // Spawn floating text
-            if (FloatingTextSpawner.Instance != null && _goalCards[goalIndex] != null)
+            if (FloatingTextSpawner.Instance && _goalCards[goalIndex])
             {
                 FloatingTextSpawner.Instance.Spawn("+5s", _goalCards[goalIndex].transform.position, Color.yellow);
             }

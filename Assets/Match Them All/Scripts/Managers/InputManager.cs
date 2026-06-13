@@ -125,7 +125,7 @@ public class InputManager : MonoBehaviour
         }
 
         // Check if the hit item with the Collider has a parent 
-        if (hit.collider.transform.parent == null)
+        if (!hit.collider.transform.parent)
             return;
 
         // Try to get an Item component from the hit collider's parent

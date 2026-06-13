@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -140,7 +141,7 @@ namespace MatchThemAll.Scripts.Managers
                     }
 
                     if (_targetItems.Count < 3) return null;
-                    foreach (var i in _targetItems) result.Add(i.gameObject);
+                    foreach (var i in _targetItems.AsValueEnumerable()) result.Add(i.gameObject);
                     break;
                 }
 
@@ -149,9 +150,8 @@ namespace MatchThemAll.Scripts.Managers
                 {
                     var allItems = LevelManager.Instance.Items;
                     _targetItems.Clear();
-                    foreach (var item in allItems)
+                    foreach (var item in allItems.AsValueEnumerable().Where(item => item.ItemNameKey == step.itemName))
                     {
-                        if (item.ItemNameKey != step.itemName) continue;
                         _targetItems.Add(item);
                         result.Add(item.gameObject);
                         if (_targetItems.Count >= 3) break;
@@ -177,7 +177,7 @@ namespace MatchThemAll.Scripts.Managers
                         break;
                     }
 
-                    if (_targetPowerup == null)
+                    if (!_targetPowerup)
                     {
                         Debug.LogWarning($"[TutorialManager] Powerup: no powerup of type '{step.powerupType}' found.");
                         return null;
@@ -217,8 +217,7 @@ namespace MatchThemAll.Scripts.Managers
                 // ── Manual list ──────────────────────────────────────────
                 case EHighlightTarget.Manual:
                 {
-                    foreach (var go in step.manualTargets)
-                        if (go != null) result.Add(go);
+                    foreach (var go in step.manualTargets.AsValueEnumerable().Where(go => go)) result.Add(go);
 
                     if (result.Count == 0)
                     {
@@ -227,6 +226,8 @@ namespace MatchThemAll.Scripts.Managers
                     }
                     break;
                 }
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
 
             return result;
@@ -249,8 +250,7 @@ namespace MatchThemAll.Scripts.Managers
             }
 
             // Wire InputManager for item-based steps
-            if (step.highlightTarget == EHighlightTarget.AutoFindItems ||
-                step.highlightTarget == EHighlightTarget.SpecificItem)
+            if (step.highlightTarget is EHighlightTarget.AutoFindItems or EHighlightTarget.SpecificItem)
             {
                 InputManager.IsTutorialActive = true;
                 InputManager.TutorialTargets = _targetItems.ToArray();
@@ -264,7 +264,7 @@ namespace MatchThemAll.Scripts.Managers
             tutorialText.text = step.message;
             tutorialCanvasGroup.gameObject.SetActive(true);
             LeanTween.alphaCanvas(tutorialCanvasGroup, 1f, 0.5f).setIgnoreTimeScale(true);
-            if (tutorialTextCanvasGroup != null)
+            if (tutorialTextCanvasGroup)
             {
                 tutorialTextCanvasGroup.gameObject.SetActive(true);
                 LeanTween.alphaCanvas(tutorialTextCanvasGroup, 1f, 0.5f).setIgnoreTimeScale(true);
@@ -284,7 +284,7 @@ namespace MatchThemAll.Scripts.Managers
         // ─────────────────────────────────────────────────────────────────
         // Event listeners
         // ─────────────────────────────────────────────────────────────────
-        private void OnItemClicked(Item item) { /* merge detection handles completion */ }
+        private static void OnItemClicked(Item item) { /* merge detection handles completion */ }
 
         private void OnPowerupClicked(Powerup powerup)
         {
@@ -362,15 +362,15 @@ namespace MatchThemAll.Scripts.Managers
         private IEnumerator ResetLayersDelayed()
         {
             yield return new WaitForSeconds(2f);
-            foreach (var go in _highlightedObjects.AsValueEnumerable().Where(go => go != null))
+            foreach (var go in _highlightedObjects.AsValueEnumerable().Where(go => go))
                 SetLayerRecursively(go, _originalLayer);
             _highlightedObjects.Clear();
             _targetItems.Clear();
         }
 
-        private void SetLayerRecursively(GameObject obj, int newLayer)
+        private static void SetLayerRecursively(GameObject obj, int newLayer)
         {
-            if (obj == null) return;
+            if (!obj) return;
             obj.layer = newLayer;
             foreach (Transform child in obj.transform) SetLayerRecursively(child.gameObject, newLayer);
         }

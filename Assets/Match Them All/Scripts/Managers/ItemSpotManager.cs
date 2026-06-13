@@ -32,7 +32,7 @@ namespace MatchThemAll.Scripts
 
         private void Awake()
         {
-            if (Instance == null)
+            if (!Instance)
                 Instance = this;
             else Destroy(gameObject);
             
@@ -77,7 +77,7 @@ namespace MatchThemAll.Scripts
                 {
                     if (spot)
                     {
-                        if (spot.Item != null)
+                        if (spot.Item)
                         {
                             Destroy(spot.Item.gameObject);
                         }

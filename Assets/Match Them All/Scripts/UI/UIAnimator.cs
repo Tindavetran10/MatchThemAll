@@ -22,7 +22,7 @@ namespace MatchThemAll.Scripts.UI
             // Find the child named "Card" to scale. If not found, we just won't scale anything.
             _targetToScale = transform.Find("Card");
 
-            if (_targetToScale != null)
+            if (_targetToScale)
                 _originalScale = _targetToScale.localScale; // Save the designer's custom scale
 
             _backgroundImage = GetComponent<Image>();
@@ -35,7 +35,7 @@ namespace MatchThemAll.Scripts.UI
 
         private void OnEnable()
         {
-            if (_targetToScale != null)
+            if (_targetToScale)
             {
                 // Pop up the card using its original scale
                 _targetToScale.localScale = _originalScale * 0.5f;
@@ -66,7 +66,7 @@ namespace MatchThemAll.Scripts.UI
 
         public void ClosePanel()
         {
-            if (_targetToScale != null)
+            if (_targetToScale)
             {
                 LeanTween.cancel(_targetToScale.gameObject);
                 
