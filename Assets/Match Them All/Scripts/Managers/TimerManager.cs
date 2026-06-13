@@ -97,6 +97,13 @@ namespace MatchThemAll.Scripts
             Invoke(nameof(StartTimer), 10f);
         }
 
+        public void AddTime(int seconds)
+        {
+            if (!_isRunning) return;
+            CurrentTime += seconds;
+            UpdateTimerText();
+        }
+
         public void SetTutorialPause(bool isPaused)
         {
             if (isPaused)

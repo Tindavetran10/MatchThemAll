@@ -570,7 +570,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   levelButtonPrefab: {fileID: 5564393436628164573, guid: 08c69fd7996711643b9f2ccaca752a70, type: 3}
   buttonContainer: {fileID: 282119421}
-  totalLevels: 3
+  totalLevels: 5
 --- !u!4 &1041039318
 Transform:
   m_ObjectHideFlags: 0

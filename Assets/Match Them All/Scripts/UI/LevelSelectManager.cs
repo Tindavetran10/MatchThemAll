@@ -13,19 +13,20 @@ namespace MatchThemAll.Scripts.UI
         [SerializeField] private LevelButtonUI levelButtonPrefab;
         [SerializeField] private Transform     buttonContainer;
 
-        [Header("Settings")]
-        [Tooltip("Total number of levels in the game. Must match LevelManager's levels array length.")]
-        [SerializeField] private int totalLevels = 10;
-
         private void Start()
         {
             PlayerData data = SaveManager.Load();
-            GenerateButtons(data);
+            
+            // Auto-detect total levels from the Resources folder (same as LevelManager)
+            var loadedLevels = Resources.LoadAll<LevelDataSO>("Levels");
+            int totalLevelsCount = loadedLevels != null ? loadedLevels.Length : 0;
+
+            GenerateButtons(data, totalLevelsCount);
         }
 
-        private void GenerateButtons(PlayerData data)
+        private void GenerateButtons(PlayerData data, int totalLevelsCount)
         {
-            for (int i = 0; i < totalLevels; i++)
+            for (int i = 0; i < totalLevelsCount; i++)
             {
                 LevelButtonUI btn = Instantiate(levelButtonPrefab, buttonContainer);
                 btn.Configure(

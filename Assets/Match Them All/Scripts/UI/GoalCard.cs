@@ -51,5 +51,14 @@ namespace MatchThemAll.Scripts.UI
             amountText.text = "";
             animator.Play("Complete");
         }
+
+        public void Uncomplete()
+        {
+            _isAnimating = false;
+            animator.enabled = false;
+            checkMark.SetActive(false);
+            backFace.SetActive(true);
+            transform.localRotation = Quaternion.identity;
+        }
     }
 }

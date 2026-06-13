@@ -17,8 +17,7 @@ namespace MatchThemAll.Scripts
         [field: Header(" Data ")]
         public ItemLevelData[] Goals { get; private set; }
 
-        // O(1) lookup: item name -> index into _goals / goalCards
-        private readonly Dictionary<EItemName, int> _goalIndexByName = new();
+        private int[] _initialGoalAmounts;
 
         private void Awake()
         {
@@ -44,18 +43,25 @@ namespace MatchThemAll.Scripts
 
         private void OnItemBackToGame(Item releasedItem)
         {
-            // Loop through our goals
-            // if this item is a goal
-            // Increase the goal amount
-            // Update the cards
-
-            for (int i = 0; i < Goals.Length; i++)
+            // Find the LAST goal of this type that is not full
+            // (i.e. we fill the latest partially-completed or fully-completed goal)
+            for (int i = Goals.Length - 1; i >= 0; i--)
             {
-                if(Goals[i].itemPrefab.ItemNameKey != releasedItem.ItemNameKey)
-                    continue;
-
-                Goals[i].amount++;
-                _goalCards[i].UpdateAmount(Goals[i].amount);
+                if (Goals[i].itemPrefab.ItemNameKey == releasedItem.ItemNameKey && 
+                    Goals[i].amount < _initialGoalAmounts[i])
+                {
+                    bool wasCompleted = Goals[i].amount <= 0;
+                    
+                    Goals[i].amount++;
+                    
+                    if (wasCompleted)
+                    {
+                        _goalCards[i].Uncomplete();
+                    }
+                    
+                    _goalCards[i].UpdateAmount(Goals[i].amount);
+                    return; // Only restore one item
+                }
             }
         }
 
@@ -63,16 +69,23 @@ namespace MatchThemAll.Scripts
         {
             Goals = level.GetGoals();
 
-            // Build lookup dictionary so OnItemPickedUp is O(1) instead of O(n)
-            _goalIndexByName.Clear();
+            _initialGoalAmounts = new int[Goals.Length];
             for (int i = 0; i < Goals.Length; i++)
-                _goalIndexByName[Goals[i].itemPrefab.ItemNameKey] = i;
+            {
+                _initialGoalAmounts[i] = Goals[i].amount;
+            }
 
             GenerateGoalCards();
         }
 
         private void GenerateGoalCards()
         {
+            foreach (var card in _goalCards)
+            {
+                if (card != null) Destroy(card.gameObject);
+            }
+            _goalCards.Clear();
+
             foreach (var goal in Goals)
                 GenerateGoalCard(goal);
         }
@@ -86,21 +99,37 @@ namespace MatchThemAll.Scripts
 
         private void OnItemPickedUp(Item item)
         {
-            // O(1) dictionary lookup instead of linear scan
-            if (!_goalIndexByName.TryGetValue(item.ItemNameKey, out int i))
-                return;
+            // Find the FIRST incomplete goal for this item type
+            for (int i = 0; i < Goals.Length; i++)
+            {
+                if (Goals[i].itemPrefab.ItemNameKey == item.ItemNameKey && Goals[i].amount > 0)
+                {
+                    Goals[i].amount--;
 
-            Goals[i].amount--;
-
-            if (Goals[i].amount <= 0)
-                CompleteGoals(i);
-            else
-                _goalCards[i].UpdateAmount(Goals[i].amount);
+                    if (Goals[i].amount <= 0)
+                        CompleteGoals(i);
+                    else
+                        _goalCards[i].UpdateAmount(Goals[i].amount);
+                        
+                    return; // We decreased one goal, we shouldn't decrease others
+                }
+            }
         }
 
         private void CompleteGoals(int goalIndex)
         {
             Debug.Log($"Goal {goalIndex} completed!");
+            
+            // Add time bonus!
+            if (TimerManager.Instance != null)
+                TimerManager.Instance.AddTime(5);
+
+            // Spawn floating text
+            if (FloatingTextSpawner.Instance != null && _goalCards[goalIndex] != null)
+            {
+                FloatingTextSpawner.Instance.Spawn("+5s", _goalCards[goalIndex].transform.position, Color.yellow);
+            }
+
             _goalCards[goalIndex].Complete();
             CheckForLevelComplete();
         }
