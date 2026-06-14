@@ -20,7 +20,7 @@ namespace MatchThemAll.Scripts.UI
 
             // Cache the root canvas for coordinate conversion
             _rootCanvas = GetComponentInParent<Canvas>();
-            if (_rootCanvas && _rootCanvas.isRootCanvas == false)
+            if (_rootCanvas && !_rootCanvas.isRootCanvas)
                 _rootCanvas = _rootCanvas.rootCanvas;
         }
 
@@ -35,7 +35,7 @@ namespace MatchThemAll.Scripts.UI
             var instRect = inst.GetComponent<RectTransform>();
 
             // Convert world position to canvas local position
-            Camera cam = (_rootCanvas && _rootCanvas.renderMode == RenderMode.ScreenSpaceCamera)
+            Camera cam = _rootCanvas && _rootCanvas.renderMode == RenderMode.ScreenSpaceCamera
                 ? _rootCanvas.worldCamera
                 : null; // null = screen space overlay
 

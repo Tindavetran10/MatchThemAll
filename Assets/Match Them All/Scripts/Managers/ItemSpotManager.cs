@@ -18,6 +18,7 @@ namespace MatchThemAll.Scripts
         [SerializeField] private Vector3 itemLocalScaleOnSpot;
 
         private bool _isBusy;
+        public bool IsBusy => _isBusy;
 
         [Header("Data")]
         private readonly Dictionary<EItemName, ItemMergeData> _itemMergeDataDictionary = new();
@@ -126,7 +127,7 @@ namespace MatchThemAll.Scripts
             List<Item> items = _itemMergeDataDictionary[item.ItemNameKey].Items;
 
             // Find the rightmost sibling index among all similar items — using ZLinq, zero allocation
-            int maxSiblingIndex = items.AsValueEnumerable().Select(t => t.Spot.transform.GetSiblingIndex()).Prepend(-1).Max();
+            int maxSiblingIndex = items.AsValueEnumerable().Select(t => t.Spot.transform.GetSiblingIndex()).DefaultIfEmpty(-1).Max();
 
             // Clamp to prevent IndexOutOfRangeException when the last slot is occupied
             int idealSpotIndex = Mathf.Clamp(maxSiblingIndex + 1, 0, _spots.Length - 1);
@@ -276,7 +277,7 @@ namespace MatchThemAll.Scripts
         {
             var targetSpot = GetFreeSpot();
 
-            if (targetSpot == null)
+            if (!targetSpot)
             {
                 Debug.Log("Target spot not found — should not happen");
                 return;
@@ -307,7 +308,7 @@ namespace MatchThemAll.Scripts
         // Plain for-loop — avoids the delegate allocation that FirstOrDefault creates each call
         private ItemSpot GetFreeSpot() => _spots.AsValueEnumerable().FirstOrDefault(t => t.IsEmpty());
 
-        private bool IsFreeSpotAvailable() => GetFreeSpot() != null;
+        private bool IsFreeSpotAvailable() => GetFreeSpot();
 
         private void StoreSpot()
         {
@@ -320,6 +321,89 @@ namespace MatchThemAll.Scripts
         {
             List<ItemSpot> occupiedSpots = _spots.AsValueEnumerable().Where(t => !t.IsEmpty()).ToList();
             return occupiedSpots.Count <= 0 ? null : occupiedSpots[UnityEngine.Random.Range(0, occupiedSpots.Count)];
+        }
+
+        public List<Item> GetBestHintItems(int count = 3)
+        {
+            var allItems = LevelManager.Instance.Items;
+            if (allItems == null) return new List<Item>();
+
+            EItemName? targetType = null;
+
+            // Tier 1: Combo Nudge (Items already partially collected)
+            foreach (var kvp in _itemMergeDataDictionary.AsValueEnumerable().Where(kvp => kvp.Value.Items.Count > 0).Where(kvp => allItems.AsValueEnumerable().Any(i => i != null && i.ItemNameKey == kvp.Key && i.Spot == null && !i.IsMovingToSpot)))
+            {
+                targetType = kvp.Key;
+                break;
+            }
+
+            // Tier 2: Objective Nudge
+            if (targetType == null)
+            {
+                var goals = GoalManager.Instance.Goals;
+                if (goals is { Length: > 0 })
+                {
+                    int maxGoalAmount = -1;
+                    foreach (var goal in goals)
+                    {
+                        if (goal.amount > maxGoalAmount && goal.amount > 0)
+                        {
+                            if (allItems.AsValueEnumerable().Any(i => i != null && i.ItemNameKey == goal.itemPrefab.ItemNameKey && i.Spot == null && !i.IsMovingToSpot))
+                            {
+                                maxGoalAmount = goal.amount;
+                                targetType = goal.itemPrefab.ItemNameKey;
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Tier 3: Progress Nudge (Random fallback)
+            if (targetType == null)
+            {
+                var fallback = allItems.AsValueEnumerable().FirstOrDefault(i => i != null && i.Spot == null && !i.IsMovingToSpot);
+                if (fallback)
+                {
+                    targetType = fallback.ItemNameKey;
+                }
+            }
+
+            // Collect up to 'count' items of the chosen type, grouped by proximity
+            if (targetType.HasValue)
+            {
+                var availableItems = allItems.AsValueEnumerable()
+                    .Where(i => i && i.ItemNameKey == targetType.Value && !i.Spot && !i.IsMovingToSpot)
+                    .ToList();
+
+                if (availableItems.Count <= count)
+                    return availableItems;
+
+                // Find the cluster of 'count' items with the minimum total distance to their center
+                List<Item> bestCluster = null;
+                float minDistanceSum = float.MaxValue;
+
+                foreach (var seed in availableItems)
+                {
+                    // Order by distance to the seed item
+                    var cluster = availableItems.AsValueEnumerable()
+                        .OrderBy(i => Vector3.Distance(seed.transform.position, i.transform.position))
+                        .Take(count)
+                        .ToList();
+
+                    // Calculate total distance spread in this cluster
+                    float distanceSum = cluster.AsValueEnumerable().Sum(item => Vector3.Distance(seed.transform.position, item.transform.position));
+
+                    if (distanceSum < minDistanceSum)
+                    {
+                        minDistanceSum = distanceSum;
+                        bestCluster = cluster;
+                    }
+                }
+
+                return bestCluster ?? availableItems.AsValueEnumerable().Take(count).ToList();
+            }
+
+            return new List<Item>();
         }
     }
 }

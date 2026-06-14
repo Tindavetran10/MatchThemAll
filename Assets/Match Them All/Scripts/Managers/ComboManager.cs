@@ -19,7 +19,7 @@ namespace MatchThemAll.Scripts
 
         private void Awake()
         {
-            if (Instance == null)
+            if (!Instance)
                 Instance = this;
             else Destroy(gameObject);
 
@@ -37,12 +37,10 @@ namespace MatchThemAll.Scripts
 
         private void Update()
         {
-            if (CurrentCombo > 0 && GameManager.Instance.IsGame())
+            if (CurrentCombo <= 0 || !GameManager.Instance.IsGame()) return;
+            if (Time.time - _lastMergeTime > comboTimeout)
             {
-                if (Time.time - _lastMergeTime > comboTimeout)
-                {
-                    ResetCombo();
-                }
+                ResetCombo();
             }
         }
 
@@ -61,7 +59,7 @@ namespace MatchThemAll.Scripts
                 CurrentCombo++;
                 
                 // Grant bonus time
-                if (TimerManager.Instance != null)
+                if (TimerManager.Instance)
                 {
                     TimerManager.Instance.AddTime(bonusTimePerCombo);
                 }

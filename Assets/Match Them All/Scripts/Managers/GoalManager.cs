@@ -1,7 +1,7 @@
 using System.Collections.Generic;
-using System.Linq;
 using MatchThemAll.Scripts.UI;
 using UnityEngine;
+using ZLinq;
 
 namespace MatchThemAll.Scripts
 {
@@ -22,7 +22,7 @@ namespace MatchThemAll.Scripts
 
         private void Awake()
         {
-            if (Instance == null)
+            if (!Instance)
                 Instance = this;
             else Destroy(gameObject);
             
@@ -81,7 +81,7 @@ namespace MatchThemAll.Scripts
 
         private void GenerateGoalCards()
         {
-            foreach (var card in _goalCards.Where(card => card))
+            foreach (var card in _goalCards.AsValueEnumerable().Where(card => card))
             {
                 Destroy(card.gameObject);
             }

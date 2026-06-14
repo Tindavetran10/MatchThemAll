@@ -9,10 +9,8 @@ namespace MatchThemAll.Scripts.UI
     {
         private TextMeshProUGUI _coinText;
 
-        private void Awake()
-        {
+        private void Awake() => 
             _coinText = GetComponent<TextMeshProUGUI>();
-        }
 
         private void OnEnable()
         {
@@ -23,14 +21,10 @@ namespace MatchThemAll.Scripts.UI
             UpdateDisplay(data.coins);
         }
 
-        private void OnDisable()
-        {
+        private void OnDisable() => 
             SaveManager.OnCoinsChanged -= UpdateDisplay;
-        }
 
-        private void UpdateDisplay(int currentCoins)
-        {
+        private void UpdateDisplay(int currentCoins) => 
             _coinText.text = currentCoins.ToString("N0");
-        }
     }
 }

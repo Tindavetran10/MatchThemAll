@@ -17,9 +17,13 @@ public class InputManager : MonoBehaviour
     public static bool IsTutorialActive;
     public static Item[] TutorialTargets;
 
+    public static InputManager Instance { get; private set; }
+
     [Header("Settings")] 
     // Material used to create a visual outline effect when an item is selected
     [SerializeField] private Material outlineMaterial;
+    public Material OutlineMaterial => outlineMaterial;
+    public bool IsPointerActive => _input != null && _input.Gameplay.Click.IsPressed();
     
     [Header("Optimization")]
     [SerializeField] private LayerMask itemLayerMask;
@@ -33,6 +37,12 @@ public class InputManager : MonoBehaviour
     
     private Camera _mainCamera;
     
+    private void Awake()
+    {
+        if (!Instance) Instance = this;
+        else Destroy(gameObject);
+    }
+
     // Start method is called once when the GameObject is first created
     // Currently empty but available for initialization code
     private void Start()
@@ -80,7 +90,7 @@ public class InputManager : MonoBehaviour
 
         Physics.Raycast(ray, out var hit, 100f, powerupLayerMask);
         
-        if(hit.collider == null)
+        if(!hit.collider)
             return;
         
         PowerupClicked?.Invoke(hit.collider.GetComponent<Powerup>());

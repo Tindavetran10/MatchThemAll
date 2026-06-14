@@ -29,10 +29,10 @@ namespace MatchThemAll.Scripts.UI
         /// <summary>Called by the Settings close button.</summary>
         public void OnSettingsCloseClicked()
         {
-            if (settingsPanel == null) return;
+            if (!settingsPanel) return;
 
             var animator = settingsPanel.GetComponent<UIAnimator>();
-            if (animator != null) animator.ClosePanel();
+            if (animator) animator.ClosePanel();
             else settingsPanel.SetActive(false);
         }
     }

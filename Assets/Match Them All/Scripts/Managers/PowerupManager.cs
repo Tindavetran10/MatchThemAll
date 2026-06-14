@@ -84,7 +84,7 @@ namespace MatchThemAll.Scripts
                     _vacuumRequested = true;
                     _isBusy = true;
                     vacuum.Play();
-                    UpdateVacuumVisuals();
+                    UpdateAllPowerupVisuals();
                     break;
                 case EPowerupType.Spring:
                     SpringPowerup();
@@ -108,21 +108,25 @@ namespace MatchThemAll.Scripts
                     if (_vacuumPuCount <= 0) return false;
                     _vacuumPuCount--;
                     SaveData();
+                    UpdateAllPowerupVisuals();
                     return true;
                 case EPowerupType.Spring:
                     if (_springPuCount <= 0) return false;
                     _springPuCount--;
                     SaveData();
+                    UpdateAllPowerupVisuals();
                     return true;
                 case EPowerupType.Fan:
                     if (_fanPuCount <= 0) return false;
                     _fanPuCount--;
                     SaveData();
+                    UpdateAllPowerupVisuals();
                     return true;
                 case EPowerupType.FreezeGun:
                     if (_freezePuCount <= 0) return false;
                     _freezePuCount--;
                     SaveData();
+                    UpdateAllPowerupVisuals();
                     return true;
                 default:
                     return false;
@@ -206,8 +210,22 @@ namespace MatchThemAll.Scripts
                 _isBusy = false;
             Destroy(item.gameObject);
         }
-        
-        private void UpdateVacuumVisuals() => vacuum.UpdateVisuals(_vacuumPuCount);
+        private void UpdateAllPowerupVisuals()
+        {
+            var powerups = FindObjectsOfType<Powerup>(true);
+            foreach (var pu in powerups)
+            {
+                switch (pu.Type)
+                {
+                    case EPowerupType.Vacuum: pu.UpdateVisuals(_vacuumPuCount); break;
+                    case EPowerupType.Spring: pu.UpdateVisuals(_springPuCount); break;
+                    case EPowerupType.Fan: pu.UpdateVisuals(_fanPuCount); break;
+                    case EPowerupType.FreezeGun: pu.UpdateVisuals(_freezePuCount); break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+            }
+        }
         #endregion
 
         #region Spring Powerup
@@ -216,7 +234,7 @@ namespace MatchThemAll.Scripts
         {
             ItemSpot spot = ItemSpotManager.Instance.GetRandomOccupiedSpot();
             
-            if(spot == null)
+            if(!spot)
                 return;
             _isBusy = true;
 
@@ -287,7 +305,7 @@ namespace MatchThemAll.Scripts
             _fanPuCount    = data.fanCount    > 0 ? data.fanCount    : initialFanCount;
             _freezePuCount = data.freezeCount > 0 ? data.freezeCount : initialFreezeCount;
 
-            UpdateVacuumVisuals();
+            UpdateAllPowerupVisuals();
         }
 
         private void SaveData()

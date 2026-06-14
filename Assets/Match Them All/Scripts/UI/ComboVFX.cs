@@ -22,10 +22,7 @@ namespace MatchThemAll.Scripts.UI
             ComboManager.OnComboUpdated += HandleComboUpdated;
         }
 
-        private void OnDestroy()
-        {
-            ComboManager.OnComboUpdated -= HandleComboUpdated;
-        }
+        private void OnDestroy() => ComboManager.OnComboUpdated -= HandleComboUpdated;
 
         private void HandleComboUpdated(int combo)
         {

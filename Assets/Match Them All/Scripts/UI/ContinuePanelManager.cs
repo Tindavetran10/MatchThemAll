@@ -95,7 +95,7 @@ namespace MatchThemAll.Scripts.UI
             payCoinsButton.interactable = false;
 
             // Play the LeanTween close animation, then switch state after it finishes
-            var anim = continuePanel != null ? continuePanel.GetComponent<UIAnimator>() : null;
+            var anim = continuePanel ? continuePanel.GetComponent<UIAnimator>() : null;
             if (anim)
             {
                 anim.ClosePanel();

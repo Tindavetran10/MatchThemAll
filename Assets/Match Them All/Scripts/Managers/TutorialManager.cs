@@ -55,7 +55,7 @@ namespace MatchThemAll.Scripts.Managers
 
             tutorialCanvasGroup.alpha = 0f;
             tutorialCanvasGroup.gameObject.SetActive(false);
-            if (tutorialTextCanvasGroup != null)
+            if (tutorialTextCanvasGroup)
             {
                 tutorialTextCanvasGroup.alpha = 0f;
                 tutorialTextCanvasGroup.gameObject.SetActive(false);
@@ -190,7 +190,7 @@ namespace MatchThemAll.Scripts.Managers
                 case EHighlightTarget.GoalCard:
                 {
                     var goalManager = GoalManager.Instance;
-                    if (goalManager == null)
+                    if (!goalManager)
                     {
                         Debug.LogWarning("[TutorialManager] GoalCard: GoalManager.Instance is null.");
                         return null;

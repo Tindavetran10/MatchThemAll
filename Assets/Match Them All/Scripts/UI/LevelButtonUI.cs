@@ -31,20 +31,20 @@ namespace MatchThemAll.Scripts.UI
             _isUnlocked  = levelIndex <= currentProgress;
 
             // Level number label (1-based for display)
-            if (levelNumberText != null)
+            if (levelNumberText)
                 levelNumberText.text = (levelIndex + 1).ToString();
 
             // Lock state
-            if (lockIcon != null)
+            if (lockIcon)
                 lockIcon.SetActive(!_isUnlocked);
 
-            if (button != null)
+            if (button)
                 button.interactable = _isUnlocked;
 
             // Stars
             for (int i = 0; i < starIcons.Length; i++)
             {
-                if (starIcons[i] != null)
+                if (starIcons[i])
                     starIcons[i].SetActive(i < bestStars);
             }
         }

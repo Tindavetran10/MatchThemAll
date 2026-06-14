@@ -43,7 +43,7 @@ namespace MatchThemAll.Scripts
                 target = SceneLoader.Game; // fallback
 
             // Begin async load but don't activate yet
-            AsyncOperation op = SceneManager.LoadSceneAsync(target);
+            var op = SceneManager.LoadSceneAsync(target);
             if (op == null) yield break;
             op.allowSceneActivation = false;
 

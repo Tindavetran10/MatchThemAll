@@ -34,7 +34,7 @@ namespace MatchThemAll.Scripts.UI
 
             // Reward coins: 10 per star
             int coinsEarned = stars * 10;
-            MatchThemAll.Scripts.SaveSystem.SaveManager.AddCoins(coinsEarned);
+            SaveSystem.SaveManager.AddCoins(coinsEarned);
 
             // Save progress (advances level index if this was a new level)
             LevelManager.Instance?.SaveLevelComplete(stars);
@@ -50,7 +50,7 @@ namespace MatchThemAll.Scripts.UI
             if (LevelManager.Instance == null) return 1;
 
             int total     = LevelManager.Instance.TotalLevelDuration;
-            int remaining = TimerManager.Instance != null ? TimerManager.Instance.CurrentTime : 0;
+            int remaining = TimerManager.Instance ? TimerManager.Instance.CurrentTime : 0;
 
             if (total <= 0) return 1;
 
@@ -66,7 +66,7 @@ namespace MatchThemAll.Scripts.UI
         {
             foreach (var star in starObjects)
             {
-                if (star == null) continue;
+                if (!star) continue;
                 star.SetActive(true);
                 star.transform.localScale = Vector3.zero;
             }
@@ -77,7 +77,7 @@ namespace MatchThemAll.Scripts.UI
             for (var i = 0; i < starObjects.Length; i++)
             {
                 GameObject star = starObjects[i];
-                if (star == null) continue;
+                if (!star) continue;
 
                 var earned = i < count;
                 if (!earned)

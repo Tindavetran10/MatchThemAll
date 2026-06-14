@@ -22,18 +22,18 @@ namespace MatchThemAll.Scripts.UI
 
         private void Awake()
         {
-            if (musicSlider != null) musicSlider.onValueChanged.AddListener(OnMusicVolumeChanged);
-            if (sfxSlider != null) sfxSlider.onValueChanged.AddListener(OnSfxVolumeChanged);
-            if (hapticsToggle != null) hapticsToggle.onValueChanged.AddListener(OnHapticsChanged);
+            if (musicSlider) musicSlider.onValueChanged.AddListener(OnMusicVolumeChanged);
+            if (sfxSlider) sfxSlider.onValueChanged.AddListener(OnSfxVolumeChanged);
+            if (hapticsToggle) hapticsToggle.onValueChanged.AddListener(OnHapticsChanged);
         }
 
         private void OnEnable()
         {
             // Populate controls with saved values when the panel opens
             PlayerData data = SaveManager.Load();
-            if (musicSlider  != null) musicSlider.value  = data.musicVolume;
-            if (sfxSlider    != null) sfxSlider.value    = data.sfxVolume;
-            if (hapticsToggle != null) hapticsToggle.isOn = data.hapticsEnabled;
+            if (musicSlider) musicSlider.value  = data.musicVolume;
+            if (sfxSlider) sfxSlider.value    = data.sfxVolume;
+            if (hapticsToggle) hapticsToggle.isOn = data.hapticsEnabled;
         }
 
         // ── Callbacks (assign in Inspector via UnityEvent) ──────────────────

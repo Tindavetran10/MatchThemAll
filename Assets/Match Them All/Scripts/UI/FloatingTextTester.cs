@@ -17,13 +17,13 @@ namespace MatchThemAll.Scripts.Testing
         private void Start()
         {
             var btn = GetComponent<Button>();
-            if (btn != null)
+            if (btn)
                 btn.onClick.AddListener(TestSpawn);
         }
 
         private void TestSpawn()
         {
-            if (FloatingTextSpawner.Instance == null)
+            if (!FloatingTextSpawner.Instance)
             {
                 Debug.LogWarning("[FloatingTextTester] FloatingTextSpawner.Instance is null! " +
                     "Make sure FloatingTextSpawner is active in the hierarchy when the game starts.");
