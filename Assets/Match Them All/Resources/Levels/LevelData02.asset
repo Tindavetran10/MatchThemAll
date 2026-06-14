@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6555fd2a693358d43a48520c3eaaa4b4, type: 3}
   m_Name: LevelData02
   m_EditorClassIdentifier: Assembly-CSharp::MatchThemAll.Scripts.LevelDataSO
+  spotCount: 5
   duration: 64
   seed: 83407
   itemData:
@@ -31,3 +32,4 @@ MonoBehaviour:
     isGoal: 0
     multiplier: 3
     amount: 15
+  tutorialSteps: []

@@ -11,6 +11,10 @@ namespace MatchThemAll.Scripts
     public class LevelDataSO : ScriptableObject
     {
         [Header("Settings")]
+        [Tooltip("How many slots are available for matching items in this level.")]
+        [Range(5, 7)]
+        public int spotCount = 7;
+
         [Tooltip("How many seconds the player has to complete this level.")]
         [SerializeField] public int duration = 60;
 

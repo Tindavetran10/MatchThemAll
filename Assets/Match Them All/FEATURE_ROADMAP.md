@@ -107,14 +107,14 @@
 
 ### 6. Configurable Slot Count per Level
 **Priority:** Medium  
-**Why:** Easy difficulty scaling without changing item counts. 5 slots = brutal, 9 slots = easy.  
+**Why:** Easy difficulty scaling without changing item counts. 5 slots = brutal, 7 slots = easy.  
 **How it works:**
 - Add `int spotCount` field to `LevelDataSO` (default 7)
 - On level spawn, `ItemSpotManager` hides/shows spots based on SO value
 - Level Editor window already supports adding new SO fields
 
 **Files to touch:**
-- `LevelDataSO.cs` → add `spotCount` (default 7, range 5–9)
+- `LevelDataSO.cs` → add `spotCount` (default 7, range 5–7)
 - `ItemSpotManager.cs` → `OnLevelSpawned()` — activate only first N spots
 - `LevelEditorWindow.cs` → add slider for spot count in Settings Card
 

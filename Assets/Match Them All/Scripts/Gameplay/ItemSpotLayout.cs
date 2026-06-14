@@ -52,6 +52,7 @@ namespace MatchThemAll.Scripts
             for (int i = 0; i < childCount; i++)
             {
                 Transform child = transform.GetChild(i);
+                if (!child.gameObject.activeSelf) continue;
                 if (ignoredChildren != null && ignoredChildren.Contains(child)) continue;
                 children.Add(child);
             }

@@ -12,13 +12,13 @@ namespace MatchThemAll.Scripts
         [Header("Elements")]
         [SerializeField] private Transform itemSpotParent;
         private ItemSpot[] _spots;
+        private int _activeSpotCount = 7;
 
         [Header("Settings")]
         [SerializeField] private Vector3 itemLocalPositionOnSpot;
         [SerializeField] private Vector3 itemLocalScaleOnSpot;
 
-        private bool _isBusy;
-        public bool IsBusy => _isBusy;
+        public bool IsBusy { get; private set; }
 
         [Header("Data")]
         private readonly Dictionary<EItemName, ItemMergeData> _itemMergeDataDictionary = new();
@@ -66,12 +66,30 @@ namespace MatchThemAll.Scripts
             
         }
 
-        private void OnLevelSpawned(Level level) => ResetSpotsAndState();
+        private void OnLevelSpawned(Level level)
+        {
+            _activeSpotCount = level.SpotCount;
+            if (_spots != null)
+            {
+                for (int i = 0; i < _spots.Length; i++)
+                {
+                    if (_spots[i])
+                        _spots[i].gameObject.SetActive(i < _activeSpotCount);
+                }
+                
+                // Force the layout script to update after we've toggled active states
+                if (itemSpotParent.TryGetComponent<ItemSpotLayout>(out var layout))
+                {
+                    layout.UpdateLayout();
+                }
+            }
+            ResetSpotsAndState();
+        }
 
         private void ResetSpotsAndState()
         {
             _itemMergeDataDictionary.Clear();
-            _isBusy = false;
+            IsBusy = false;
             if (_spots != null)
             {
                 foreach (var spot in _spots)
@@ -90,7 +108,7 @@ namespace MatchThemAll.Scripts
 
         private void OnItemClicked(Item item)
         {
-            if (_isBusy)
+            if (IsBusy)
             {
                 Debug.Log("ItemSpotManager is busy");
                 return;
@@ -102,7 +120,7 @@ namespace MatchThemAll.Scripts
                 return;
             }
 
-            _isBusy = true;
+            IsBusy = true;
             ItemPickedUp?.Invoke(item);
             HandleItemClick(item);
         }
@@ -130,7 +148,7 @@ namespace MatchThemAll.Scripts
             int maxSiblingIndex = items.AsValueEnumerable().Select(t => t.Spot.transform.GetSiblingIndex()).DefaultIfEmpty(-1).Max();
 
             // Clamp to prevent IndexOutOfRangeException when the last slot is occupied
-            int idealSpotIndex = Mathf.Clamp(maxSiblingIndex + 1, 0, _spots.Length - 1);
+            int idealSpotIndex = Mathf.Clamp(maxSiblingIndex + 1, 0, _activeSpotCount - 1);
             return _spots[idealSpotIndex];
         }
 
@@ -186,7 +204,7 @@ namespace MatchThemAll.Scripts
                 item.Spot.Clear();
 
             if (_itemMergeDataDictionary.Count <= 0)
-                _isBusy = false;
+                IsBusy = false;
             else
                 MoveAllItemsToTheLeft(HandleAllItemsMovedToTheLeft);
 
@@ -201,10 +219,10 @@ namespace MatchThemAll.Scripts
             // Collect all pending moves before executing any, to avoid modifying the spots mid-loop
             var moves = new List<(Item item, ItemSpot target)>();
 
-            for (int i = 3; i < _spots.Length; i++)
+            for (int i = 3; i < _activeSpotCount; i++)
             {
                 ItemSpot spot = _spots[i];
-                if (spot.IsEmpty()) continue;
+                if (!spot.gameObject.activeInHierarchy || spot.IsEmpty()) continue;
 
                 Item item = spot.Item;
                 ItemSpot targetSpot = _spots[i - 3];
@@ -212,7 +230,7 @@ namespace MatchThemAll.Scripts
                 if (!targetSpot.IsEmpty())
                 {
                     Debug.LogWarning($"{targetSpot.Item.ItemNameKey} is not empty! Index: {targetSpot.transform.GetSiblingIndex()}");
-                    _isBusy = false;
+                    IsBusy = false;
                     return;
                 }
 
@@ -240,7 +258,7 @@ namespace MatchThemAll.Scripts
             }
         }
 
-        private void HandleAllItemsMovedToTheLeft() => _isBusy = false;
+        private void HandleAllItemsMovedToTheLeft() => IsBusy = false;
 
         private void HandleIdealSpotFull(Item item, ItemSpot idealSpot) =>
             MoveAllItemsToTheRightFrom(idealSpot, item);
@@ -249,11 +267,11 @@ namespace MatchThemAll.Scripts
         {
             int spotIndex = idealSpot.transform.GetSiblingIndex();
 
-            for (int i = _spots.Length - 2; i >= spotIndex; i--)
+            for (int i = _activeSpotCount - 2; i >= spotIndex; i--)
             {
                 ItemSpot spot = _spots[i];
 
-                if (spot.IsEmpty()) continue;
+                if (!spot.gameObject.activeInHierarchy || spot.IsEmpty()) continue;
 
                 Item item = spot.Item;
                 spot.Clear();
@@ -263,7 +281,7 @@ namespace MatchThemAll.Scripts
                 if (!targetSpot.IsEmpty())
                 {
                     Debug.LogError("Target spot not empty — should not happen");
-                    _isBusy = false;
+                    IsBusy = false;
                     return;
                 }
 
@@ -299,14 +317,14 @@ namespace MatchThemAll.Scripts
             if (!GetFreeSpot())
                 GameManager.Instance.SetGameState(EGameState.GAMEOVER);
             else
-                _isBusy = false;
+                IsBusy = false;
         }
 
         private void CreateItemMergeData(Item item) =>
             _itemMergeDataDictionary.Add(item.ItemNameKey, new ItemMergeData(item));
 
         // Plain for-loop — avoids the delegate allocation that FirstOrDefault creates each call
-        private ItemSpot GetFreeSpot() => _spots.AsValueEnumerable().FirstOrDefault(t => t.IsEmpty());
+        private ItemSpot GetFreeSpot() => _spots.AsValueEnumerable().Take(_activeSpotCount).FirstOrDefault(t => t.IsEmpty());
 
         private bool IsFreeSpotAvailable() => GetFreeSpot();
 
@@ -319,7 +337,7 @@ namespace MatchThemAll.Scripts
 
         public ItemSpot GetRandomOccupiedSpot()
         {
-            List<ItemSpot> occupiedSpots = _spots.AsValueEnumerable().Where(t => !t.IsEmpty()).ToList();
+            List<ItemSpot> occupiedSpots = _spots.AsValueEnumerable().Take(_activeSpotCount).Where(t => !t.IsEmpty()).ToList();
             return occupiedSpots.Count <= 0 ? null : occupiedSpots[UnityEngine.Random.Range(0, occupiedSpots.Count)];
         }
 

@@ -22,6 +22,7 @@ namespace MatchThemAll.Scripts
         }
 
         public int Duration => _data ? _data.duration : 0;
+        public int SpotCount => _data ? _data.spotCount : 7;
 
         public ItemLevelData[] GetGoals() =>
             _data ? _data.GetGoals() : System.Array.Empty<ItemLevelData>();

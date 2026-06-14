@@ -403,6 +403,17 @@ namespace Match_Them_All.Scripts.Editor
             EditorGUI.BeginChangeCheck();
 
             GUILayout.BeginHorizontal();
+            GUILayout.Label("Spot Count", GUILayout.Width(labelW));
+            var newSpotCount = EditorGUILayout.IntSlider(_selectedLevel.spotCount, 5, 7);
+            if (newSpotCount != _selectedLevel.spotCount)
+            {
+                Undo.RecordObject(_selectedLevel, "Set Spot Count");
+                _selectedLevel.spotCount = newSpotCount;
+                MarkDirty();
+            }
+            GUILayout.EndHorizontal();
+
+            GUILayout.BeginHorizontal();
             GUILayout.Label("Duration (seconds)", GUILayout.Width(labelW));
             var newDuration = EditorGUILayout.IntSlider(_selectedLevel.duration, 15, 300);
             if (newDuration != _selectedLevel.duration)
