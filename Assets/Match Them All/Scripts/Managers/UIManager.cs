@@ -13,7 +13,7 @@ namespace MatchThemAll.Scripts
         public void GameStateChangedCallback(EGameState gameState)
         {
             // Keep the game HUD (goals, timer) visible while paused or out of time.
-            gamePanel.SetActive(gameState is EGameState.GAME or EGameState.PAUSED or EGameState.OUTOFTIME);
+            SetPanelActive(gamePanel, gameState is EGameState.GAME or EGameState.PAUSED or EGameState.OUTOFTIME);
 
             // Pause overlay sits on top of the game panel.
             SetPanelActive(pausePanel, gameState == EGameState.PAUSED);

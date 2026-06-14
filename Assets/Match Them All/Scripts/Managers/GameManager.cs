@@ -7,6 +7,7 @@ namespace MatchThemAll.Scripts
     {
         public static GameManager Instance;
         private EGameState _gameState;
+        public EGameState State => _gameState;
 
         /// <summary>The state the game was in before the most recent SetGameState call.</summary>
         public EGameState PreviousState { get; private set; }

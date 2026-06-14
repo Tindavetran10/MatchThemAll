@@ -22,8 +22,9 @@ MonoBehaviour:
   - itemPrefab: {fileID: 7950600088722064912, guid: b2cc6bb42b096c340b3d2cfe00010ef9, type: 3}
     isGoal: 1
     multiplier: 5
-    amount: 24
+    amount: 12
   - itemPrefab: {fileID: 7559479663845612207, guid: 93584426185aff349b2e5fb2e65c9314, type: 3}
     isGoal: 0
     multiplier: 2
-    amount: 24
+    amount: 9
+  tutorialSteps: []

@@ -11,16 +11,19 @@ namespace MatchThemAll.Scripts.UI
     {
         [SerializeField] private float animationDuration = 0.3f;
         [SerializeField] private LeanTweenType easeType = LeanTweenType.easeOutBack;
+        [SerializeField] private Transform targetToScale; // Optional: specify exactly what to scale
 
         private Transform _targetToScale;
         private Image _backgroundImage;
+        private CanvasGroup _canvasGroup;
         private float _originalAlpha;
+        private float _originalCanvasAlpha = 1f;
         private Vector3 _originalScale;
 
         private void Awake()
         {
-            // Find the child named "Card" to scale. If not found, we just won't scale anything.
-            _targetToScale = transform.Find("Card");
+            // Use assigned target, or find child named "Card", or null.
+            _targetToScale = targetToScale ? targetToScale : transform.Find("Card");
 
             if (_targetToScale)
                 _originalScale = _targetToScale.localScale; // Save the designer's custom scale
@@ -30,6 +33,12 @@ namespace MatchThemAll.Scripts.UI
             {
                 // Ensure we don't accidentally save an alpha of 0 if it was saved hidden
                 _originalAlpha = _backgroundImage.color.a > 0.1f ? _backgroundImage.color.a : 0.78f;
+            }
+
+            _canvasGroup = GetComponent<CanvasGroup>();
+            if (_canvasGroup)
+            {
+                _originalCanvasAlpha = _canvasGroup.alpha > 0.1f ? _canvasGroup.alpha : 1f;
             }
         }
 
@@ -62,12 +71,24 @@ namespace MatchThemAll.Scripts.UI
                              _backgroundImage.color = col;
                          });
             }
+
+            // Fade the CanvasGroup
+            if (_canvasGroup)
+            {
+                _canvasGroup.alpha = 0f;
+                LeanTween.alphaCanvas(_canvasGroup, _originalCanvasAlpha, animationDuration)
+                         .setEase(LeanTweenType.easeOutQuad)
+                         .setIgnoreTimeScale(true);
+            }
         }
 
         public void ClosePanel()
         {
+            bool hasAnimation = false;
+
             if (_targetToScale)
             {
+                hasAnimation = true;
                 LeanTween.cancel(_targetToScale.gameObject);
                 
                 // Shrink the card
@@ -76,15 +97,11 @@ namespace MatchThemAll.Scripts.UI
                          .setIgnoreTimeScale(true)
                          .setOnComplete(() => gameObject.SetActive(false));
             }
-            else
-            {
-                // If there's no target, just set inactive after the background fades
-                LeanTween.delayedCall(gameObject, animationDuration, () => gameObject.SetActive(false)).setIgnoreTimeScale(true);
-            }
 
             // Fade out the background overlay
             if (_backgroundImage)
             {
+                hasAnimation = true;
                 LeanTween.cancel(gameObject);
                 LeanTween.value(gameObject, _backgroundImage.color.a, 0f, animationDuration)
                          .setEase(LeanTweenType.easeOutQuad)
@@ -94,7 +111,23 @@ namespace MatchThemAll.Scripts.UI
                              Color col = _backgroundImage.color;
                              col.a = a;
                              _backgroundImage.color = col;
-                         });
+                         })
+                         .setOnComplete(() => { if (!_targetToScale) gameObject.SetActive(false); });
+            }
+
+            // Fade out CanvasGroup
+            if (_canvasGroup)
+            {
+                hasAnimation = true;
+                LeanTween.alphaCanvas(_canvasGroup, 0f, animationDuration)
+                         .setEase(LeanTweenType.easeOutQuad)
+                         .setIgnoreTimeScale(true)
+                         .setOnComplete(() => { if (!_targetToScale && !_backgroundImage) gameObject.SetActive(false); });
+            }
+
+            if (!hasAnimation)
+            {
+                gameObject.SetActive(false);
             }
         }
     }

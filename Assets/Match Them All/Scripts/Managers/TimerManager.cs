@@ -100,7 +100,6 @@ namespace MatchThemAll.Scripts
 
         public void AddTime(int seconds)
         {
-            if (!_isRunning) return;
             CurrentTime += seconds;
             UpdateTimerText();
         }

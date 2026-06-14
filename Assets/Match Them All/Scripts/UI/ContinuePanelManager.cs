@@ -18,6 +18,10 @@ namespace MatchThemAll.Scripts.UI
         [SerializeField] private int continueCost = 100;
         [SerializeField] private int timeBonusSeconds = 30;
 
+        [Header("Transition")]
+        [Tooltip("Should match the animationDuration on the UIAnimator component.")]
+        [SerializeField] private float closeDuration = 0.35f;
+
         private void Awake()
         {
             watchAdButton.onClick.AddListener(OnWatchAdClicked);
@@ -35,37 +39,31 @@ namespace MatchThemAll.Scripts.UI
         public void GameStateChangedCallback(EGameState gameState)
         {
             if (gameState == EGameState.OUTOFTIME)
-            {
                 ShowPanel();
-            }
             else
-            {
                 HidePanel();
-            }
         }
 
         private void ShowPanel()
         {
-            if (continuePanel)
-                continuePanel.SetActive(true);
+            if (!continuePanel) return;
+            continuePanel.SetActive(true); // UIAnimator.OnEnable() handles the pop-in
 
-            // Update UI
             if (coinsCostText)
                 coinsCostText.text = continueCost.ToString();
 
-            // Disable coin button if not enough coins
             var playerData = SaveManager.Load();
             payCoinsButton.interactable = playerData.coins >= continueCost;
+            giveUpButton.interactable = true;
+            watchAdButton.interactable = true;
         }
 
         private void HidePanel()
         {
-            if (continuePanel && continuePanel.activeSelf)
-            {
-                var anim = continuePanel.GetComponent<UIAnimator>();
-                if (anim) anim.ClosePanel();
-                else continuePanel.SetActive(false);
-            }
+            if (!continuePanel || !continuePanel.activeSelf) return;
+            var anim = continuePanel.GetComponent<UIAnimator>();
+            if (anim) anim.ClosePanel();
+            else continuePanel.SetActive(false);
         }
 
         private void OnWatchAdClicked()
@@ -81,8 +79,7 @@ namespace MatchThemAll.Scripts.UI
             {
                 Debug.Log($"[ContinuePanel] Spent {continueCost} coins. Remaining: {SaveManager.Load().coins}");
                 
-                // Spawn floating text for minus coins
-                if (FloatingTextSpawner.Instance != null) 
+                if (FloatingTextSpawner.Instance) 
                     FloatingTextSpawner.Instance.Spawn($"-{continueCost}", payCoinsButton.transform.position, Color.red);
 
                 ContinueGame();
@@ -90,8 +87,30 @@ namespace MatchThemAll.Scripts.UI
             else Debug.LogWarning("[ContinuePanel] Not enough coins!");
         }
 
-        private static void OnGiveUpClicked() => 
-            GameManager.Instance.SetGameState(EGameState.GAMEOVER);
+        private void OnGiveUpClicked()
+        {
+            // Disable all buttons immediately so the player can't double-tap
+            giveUpButton.interactable = false;
+            watchAdButton.interactable = false;
+            payCoinsButton.interactable = false;
+
+            // Play the LeanTween close animation, then switch state after it finishes
+            var anim = continuePanel != null ? continuePanel.GetComponent<UIAnimator>() : null;
+            if (anim)
+            {
+                anim.ClosePanel();
+                // Wait for the animation to finish before showing Game Over
+                LeanTween.delayedCall(closeDuration, () =>
+                {
+                    GameManager.Instance.SetGameState(EGameState.GAMEOVER);
+                }).setIgnoreTimeScale(true);
+            }
+            else
+            {
+                // Fallback: no animator, switch immediately
+                GameManager.Instance.SetGameState(EGameState.GAMEOVER);
+            }
+        }
 
         private void ContinueGame()
         {
