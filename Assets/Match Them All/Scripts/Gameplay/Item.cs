@@ -42,17 +42,17 @@ namespace MatchThemAll.Scripts
 
         public void EnablePhysics()
         {
-            if (_rigidbody != null) 
+            if (_rigidbody) 
                 _rigidbody.isKinematic = false;
-            if (_collider != null) 
+            if (_collider) 
                 _collider.enabled = true;
         }
         
         public void DisablePhysics()
         {
-            if (_rigidbody != null) 
+            if (_rigidbody) 
                 _rigidbody.isKinematic = true;
-            if (_collider != null) 
+            if (_collider) 
                 _collider.enabled = false;
         }
 

@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace MatchThemAll.Scripts
@@ -35,7 +37,7 @@ namespace MatchThemAll.Scripts
 
         [Header("Filter Settings")]
         [Tooltip("Optional list of children to ignore during layout.")]
-        [SerializeField] private System.Collections.Generic.List<Transform> ignoredChildren = new System.Collections.Generic.List<Transform>();
+        [SerializeField] private List<Transform> ignoredChildren = new();
 
         private void OnTransformChildrenChanged() => UpdateLayout();
 
@@ -48,7 +50,7 @@ namespace MatchThemAll.Scripts
             if (childCount <= 1) return;
 
             // Collect valid children
-            System.Collections.Generic.List<Transform> children = new System.Collections.Generic.List<Transform>();
+            List<Transform> children = new List<Transform>();
             for (int i = 0; i < childCount; i++)
             {
                 Transform child = transform.GetChild(i);
@@ -127,34 +129,58 @@ namespace MatchThemAll.Scripts
 
         private void SetCoordinate(ref Vector3 vec, float value)
         {
-            if (axis == Axis.X) vec.x = value;
-            else if (axis == Axis.Y) vec.y = value;
-            else if (axis == Axis.Z) vec.z = value;
+            switch (axis)
+            {
+                case Axis.X:
+                    vec.x = value;
+                    break;
+                case Axis.Y:
+                    vec.y = value;
+                    break;
+                case Axis.Z:
+                    vec.z = value;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
         }
 
-        private void SetCoordinateOnAxis(ref Vector3 vec, Axis a, float value)
+        private static void SetCoordinateOnAxis(ref Vector3 vec, Axis a, float value)
         {
-            if (a == Axis.X) vec.x = value;
-            else if (a == Axis.Y) vec.y = value;
-            else if (a == Axis.Z) vec.z = value;
+            switch (a)
+            {
+                case Axis.X:
+                    vec.x = value;
+                    break;
+                case Axis.Y:
+                    vec.y = value;
+                    break;
+                case Axis.Z:
+                    vec.z = value;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(a), a, null);
+            }
         }
 
         private void SetOtherCoordinates(ref Vector3 vec, Vector3 source)
         {
-            if (axis == Axis.X)
+            switch (axis)
             {
-                vec.y = source.y;
-                vec.z = source.z;
-            }
-            else if (axis == Axis.Y)
-            {
-                vec.x = source.x;
-                vec.z = source.z;
-            }
-            else if (axis == Axis.Z)
-            {
-                vec.x = source.x;
-                vec.y = source.y;
+                case Axis.X:
+                    vec.y = source.y;
+                    vec.z = source.z;
+                    break;
+                case Axis.Y:
+                    vec.x = source.x;
+                    vec.z = source.z;
+                    break;
+                case Axis.Z:
+                    vec.x = source.x;
+                    vec.y = source.y;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
         }
 
