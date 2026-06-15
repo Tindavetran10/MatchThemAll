@@ -160,7 +160,7 @@ namespace MatchThemAll.Scripts
 
             if (items != null)
             {
-                foreach (var item in items.AsValueEnumerable().Where(item => item != null).Where(item => item.ItemNameKey == goal.itemPrefab.ItemNameKey))
+                foreach (var item in items.AsValueEnumerable().Where(item => item).Where(item => item.ItemNameKey == goal.itemPrefab.ItemNameKey))
                 {
                     _itemsToCollect.Add(item);
                     if (_itemsToCollect.Count >= 3)
@@ -212,7 +212,7 @@ namespace MatchThemAll.Scripts
         }
         private void UpdateAllPowerupVisuals()
         {
-            var powerups = FindObjectsOfType<Powerup>(true);
+            var powerups = FindObjectsByType<Powerup>(FindObjectsInactive.Include, FindObjectsSortMode.None);
             foreach (var pu in powerups)
             {
                 switch (pu.Type)
