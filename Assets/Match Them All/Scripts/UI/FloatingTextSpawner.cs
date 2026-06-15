@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Pool;
 
 namespace MatchThemAll.Scripts.UI
 {
@@ -12,6 +13,7 @@ namespace MatchThemAll.Scripts.UI
         [SerializeField] private RectTransform container;
 
         private Canvas _rootCanvas;
+        private ObjectPool<FloatingText> _pool;
 
         private void Awake()
         {
@@ -22,6 +24,16 @@ namespace MatchThemAll.Scripts.UI
             _rootCanvas = GetComponentInParent<Canvas>();
             if (_rootCanvas && !_rootCanvas.isRootCanvas)
                 _rootCanvas = _rootCanvas.rootCanvas;
+
+            _pool = new ObjectPool<FloatingText>(
+                createFunc: () => Instantiate(floatingTextPrefab, container),
+                actionOnGet: ft => ft.gameObject.SetActive(true),
+                actionOnRelease: ft => ft.gameObject.SetActive(false),
+                actionOnDestroy: ft => Destroy(ft.gameObject),
+                collectionCheck: false,
+                defaultCapacity: 10,
+                maxSize: 50
+            );
         }
 
         /// <summary>
@@ -31,7 +43,7 @@ namespace MatchThemAll.Scripts.UI
         {
             if (!floatingTextPrefab || !container) return;
 
-            var inst = Instantiate(floatingTextPrefab, container);
+            var inst = _pool.Get();
             var instRect = inst.GetComponent<RectTransform>();
 
             // Convert world position to canvas local position
@@ -47,7 +59,7 @@ namespace MatchThemAll.Scripts.UI
             );
 
             instRect.anchoredPosition = localPoint;
-            inst.Setup(text, color);
+            inst.SetupFloat(text, color, (ft) => _pool.Release(ft));
         }
 
         /// <summary>
@@ -57,9 +69,9 @@ namespace MatchThemAll.Scripts.UI
         {
             if (!floatingTextPrefab || !container) return;
 
-            var inst = Instantiate(floatingTextPrefab, container);
+            var inst = _pool.Get();
             inst.GetComponent<RectTransform>().anchoredPosition = Vector2.zero;
-            inst.Setup(text, color);
+            inst.SetupFloat(text, color, (ft) => _pool.Release(ft));
         }
     }
 }

@@ -12,6 +12,10 @@ namespace MatchThemAll.Scripts.SaveSystem
         // ── Level Progress ─────────────────────────────────────────────────
         public int currentLevelIndex;
 
+        // ── Player Engagement ──────────────────────────────────────────────
+        public string lastPlayedDate = "";
+        public int loginStreak = 0;
+
         // ── Economy ────────────────────────────────────────────────────────
         public int coins;
 
