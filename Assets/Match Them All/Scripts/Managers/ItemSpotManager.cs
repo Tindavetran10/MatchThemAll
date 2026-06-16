@@ -98,7 +98,8 @@ namespace MatchThemAll.Scripts
                     {
                         if (spot.Item)
                         {
-                            Destroy(spot.Item.gameObject);
+                            LeanTween.cancel(spot.Item.gameObject);
+                            ItemPoolManager.Instance.ReleaseItem(spot.Item);
                         }
                         spot.Clear();
                     }

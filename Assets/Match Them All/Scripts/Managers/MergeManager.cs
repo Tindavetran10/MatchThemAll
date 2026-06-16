@@ -97,7 +97,10 @@ namespace MatchThemAll.Scripts
             Vector3 mergePosition = items[1].transform.position;
 
             foreach (var item in items)
-                Destroy(item.gameObject);
+            {
+                LeanTween.cancel(item.gameObject);
+                ItemPoolManager.Instance.ReleaseItem(item);
+            }
 
             // Get a pooled particle instead of Instantiating a new one
             ParticleSystem ps = _particlePool.Get();

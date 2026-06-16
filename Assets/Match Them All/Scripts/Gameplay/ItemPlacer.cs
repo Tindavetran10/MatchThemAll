@@ -25,10 +25,12 @@ namespace MatchThemAll.Scripts
         /// </summary>
         public void Initialize(LevelDataSO data)
         {
-            // Clear any previously spawned or baked items at runtime
-            for (int i = transform.childCount - 1; i >= 0; i--)
+            foreach (var item in _activeItems)
             {
-                Destroy(transform.GetChild(i).gameObject);
+                if (item != null)
+                {
+                    ItemPoolManager.Instance.ReleaseItem(item);
+                }
             }
 
             _activeItems.Clear();
@@ -39,7 +41,8 @@ namespace MatchThemAll.Scripts
                 int totalAmount = entry.amount * Mathf.Max(1, entry.multiplier);
                 for (int i = 0; i < totalAmount; i++)
                 {
-                    Item item = Instantiate(entry.itemPrefab, transform);
+                    Item item = ItemPoolManager.Instance.GetItem(entry.itemPrefab);
+                    item.transform.SetParent(transform);
                     item.transform.position = GetSpawnPosition();
                     item.transform.rotation = Quaternion.Euler(Random.onUnitSphere * 360f);
                     _activeItems.Add(item);

@@ -64,5 +64,28 @@ namespace MatchThemAll.Scripts
 
         public void ApplyRandomForce(float magnitude) => 
             GetComponent<Rigidbody>().AddForce(Random.insideUnitSphere * magnitude, ForceMode.VelocityChange);
+
+        public void ResetState()
+        {
+            UnassignSpot();
+            IsMovingToSpot = false;
+            
+            Deselect();
+            EnableShadow();
+            transform.localScale = Vector3.one;
+            transform.rotation = Quaternion.identity;
+            
+            if (_rigidbody)
+            {
+                _rigidbody.isKinematic = false;
+                _rigidbody.linearVelocity = Vector3.zero;
+                _rigidbody.angularVelocity = Vector3.zero;
+            }
+            
+            if (_collider)
+            {
+                _collider.enabled = true;
+            }
+        }
     }
 }
