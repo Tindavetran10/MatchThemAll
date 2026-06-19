@@ -7,6 +7,7 @@ using TMPro;
 using Match_Them_All.Scripts.Power_Ups;
 using MatchThemAll.Scripts.Tutorial;
 using MatchThemAll.Scripts.UI;
+using PrimeTween;
 
 namespace MatchThemAll.Scripts.Managers
 {
@@ -263,11 +264,11 @@ namespace MatchThemAll.Scripts.Managers
             // Show UI
             tutorialText.text = step.message;
             tutorialCanvasGroup.gameObject.SetActive(true);
-            LeanTween.alphaCanvas(tutorialCanvasGroup, 1f, 0.5f).setIgnoreTimeScale(true);
+            Tween.Alpha(tutorialCanvasGroup, 1f, 0.5f, useUnscaledTime: true);
             if (tutorialTextCanvasGroup)
             {
                 tutorialTextCanvasGroup.gameObject.SetActive(true);
-                LeanTween.alphaCanvas(tutorialTextCanvasGroup, 1f, 0.5f).setIgnoreTimeScale(true);
+                Tween.Alpha(tutorialTextCanvasGroup, 1f, 0.5f, useUnscaledTime: true);
             }
 
             // Auto-timer
@@ -345,15 +346,13 @@ namespace MatchThemAll.Scripts.Managers
                 TimerManager.Instance.SetTutorialPause(false);
 
             // Fade out UI
-            LeanTween.alphaCanvas(tutorialCanvasGroup, 0f, 0.5f)
-                     .setIgnoreTimeScale(true)
-                     .setOnComplete(() => tutorialCanvasGroup.gameObject.SetActive(false));
+            Tween.Alpha(tutorialCanvasGroup, 0f, 0.5f, useUnscaledTime: true)
+                     .OnComplete(() => tutorialCanvasGroup.gameObject.SetActive(false));
 
             if (tutorialTextCanvasGroup != null)
             {
-                LeanTween.alphaCanvas(tutorialTextCanvasGroup, 0f, 0.5f)
-                         .setIgnoreTimeScale(true)
-                         .setOnComplete(() => tutorialTextCanvasGroup.gameObject.SetActive(false));
+                Tween.Alpha(tutorialTextCanvasGroup, 0f, 0.5f, useUnscaledTime: true)
+                         .OnComplete(() => tutorialTextCanvasGroup.gameObject.SetActive(false));
             }
 
             StartCoroutine(ResetLayersDelayed());

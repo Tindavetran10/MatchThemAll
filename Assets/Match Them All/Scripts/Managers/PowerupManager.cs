@@ -5,6 +5,7 @@ using Match_Them_All.Scripts.Power_Ups;
 using MatchThemAll.Scripts.SaveSystem;
 using NaughtyAttributes;
 using UnityEngine;
+using PrimeTween;
 
 namespace MatchThemAll.Scripts
 {
@@ -185,23 +186,21 @@ namespace MatchThemAll.Scripts
 
                 // 1. Vortex move to vacuum suck position
                 var collect = itemToCollect;
-                LeanTween.move(itemToCollect.gameObject, vacuumSuckPosition.position, 0.5f)
-                    .setEase(LeanTweenType.easeInCubic)
-                    .setOnComplete(() => ItemReachedVacuum(collect));
+                Tween.Position(itemToCollect.transform, vacuumSuckPosition.position, 0.5f, Ease.InCubic)
+                    .OnComplete(() => ItemReachedVacuum(collect));
 
                 // 2. Shrink down to 0
-                LeanTween.scale(itemToCollect.gameObject, Vector3.zero, 0.5f)
-                    .setEase(LeanTweenType.easeInCubic);
+                Tween.Scale(itemToCollect.transform, Vector3.zero, 0.5f, Ease.InCubic);
 
                 // 3. Dynamic spin for aesthetic vortex feel
-                LeanTween.rotateAroundLocal(itemToCollect.gameObject, Vector3.up, 720f, 0.5f)
-                    .setEase(LeanTweenType.easeInCubic);
+                Tween.LocalEulerAngles(itemToCollect.transform, itemToCollect.transform.localEulerAngles,
+                    itemToCollect.transform.localEulerAngles + new Vector3(0, 720f, 0), 0.5f, Ease.InCubic);
             }
             
             for (int i = _itemsToCollect.Count - 1; i >= 0; i--)
             {
                 Item itemToCollect = _itemsToCollect[i];
-                if (itemToCollect == null) continue;
+                if (!itemToCollect) continue;
                 ItemPickup?.Invoke(itemToCollect);
             }
         }

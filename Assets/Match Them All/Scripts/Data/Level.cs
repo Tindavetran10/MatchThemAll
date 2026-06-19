@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace MatchThemAll.Scripts
@@ -19,6 +20,12 @@ namespace MatchThemAll.Scripts
         {
             _data = data;
             itemPlacer.Initialize(data);
+        }
+
+        public async Task InitializeAsync(LevelDataSO data)
+        {
+            _data = data;
+            await itemPlacer.InitializeAsync(data);
         }
 
         public int Duration => _data ? _data.duration : 0;

@@ -1,11 +1,12 @@
 using UnityEngine;
+using PrimeTween;
 
 namespace MatchThemAll.Scripts.UI
 {
     /// <summary>
     /// Controls the Win/Level Complete panel.
     /// Calculates star rating based on time remaining, triggers the sequential
-    /// LeanTween star pop-in animation, saves progress via LevelManager, and
+    /// PrimeTween star pop-in animation, saves progress via LevelManager, and
     /// provides navigation callbacks.
     ///
     /// Star thresholds (based on % of level time remaining when completing):
@@ -84,21 +85,16 @@ namespace MatchThemAll.Scripts.UI
                 {
                     // Unearned stars stay small / greyed out — just show them at scale 0.6
                     float delay = starPopDelay * i + 0.2f;
-                    LeanTween.scale(star, Vector3.one * 0.6f, starPopDuration * 0.5f)
-                             .setDelay(delay)
-                             .setEase(LeanTweenType.easeOutBack);
+                    Tween.Scale(star.transform, Vector3.one * 0.6f, starPopDuration * 0.5f, Ease.OutBack, startDelay: delay);
                     continue;
                 }
 
                 // Earned star: pop in with overshoot bounce
                 var popDelay = starPopDelay * i + 0.2f;
-                LeanTween.scale(star, Vector3.one * starOvershoot, starPopDuration)
-                         .setDelay(popDelay)
-                         .setEase(LeanTweenType.easeOutBack)
-                         .setOnComplete(() =>
+                Tween.Scale(star.transform, Vector3.one * starOvershoot, starPopDuration, Ease.OutBack, startDelay: popDelay)
+                         .OnComplete(() =>
                          {
-                             LeanTween.scale(star, Vector3.one, starPopDuration * 0.4f)
-                                      .setEase(LeanTweenType.easeInOutSine);
+                             Tween.Scale(star.transform, Vector3.one, starPopDuration * 0.4f, Ease.InOutSine);
                          });
             }
         }

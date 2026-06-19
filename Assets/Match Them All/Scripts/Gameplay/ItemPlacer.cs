@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using NaughtyAttributes;
 using UnityEngine;
 
@@ -25,15 +26,7 @@ namespace MatchThemAll.Scripts
         /// </summary>
         public void Initialize(LevelDataSO data)
         {
-            foreach (var item in _activeItems)
-            {
-                if (item != null)
-                {
-                    ItemPoolManager.Instance.ReleaseItem(item);
-                }
-            }
-
-            _activeItems.Clear();
+            ClearItems();
             Random.InitState(data.seed);
 
             foreach (var entry in data.itemData)
@@ -41,13 +34,55 @@ namespace MatchThemAll.Scripts
                 int totalAmount = entry.amount * Mathf.Max(1, entry.multiplier);
                 for (int i = 0; i < totalAmount; i++)
                 {
-                    Item item = ItemPoolManager.Instance.GetItem(entry.itemPrefab);
-                    item.transform.SetParent(transform);
-                    item.transform.position = GetSpawnPosition();
-                    item.transform.rotation = Quaternion.Euler(Random.onUnitSphere * 360f);
-                    _activeItems.Add(item);
+                    SpawnItem(entry.itemPrefab);
                 }
             }
+        }
+
+        public async Task InitializeAsync(LevelDataSO data)
+        {
+            ClearItems();
+            Random.InitState(data.seed);
+
+            int itemsSpawnedThisFrame = 0;
+            const int itemsPerFrame = 5; // Spawn 5 items per frame to avoid spikes
+
+            foreach (var entry in data.itemData)
+            {
+                int totalAmount = entry.amount * Mathf.Max(1, entry.multiplier);
+                for (int i = 0; i < totalAmount; i++)
+                {
+                    SpawnItem(entry.itemPrefab);
+                    
+                    itemsSpawnedThisFrame++;
+                    if (itemsSpawnedThisFrame >= itemsPerFrame)
+                    {
+                        itemsSpawnedThisFrame = 0;
+                        await Task.Delay(10); // Task.Yield() runs synchronously in Unity. Delay(10) forces it to wait for the next frame.
+                    }
+                }
+            }
+        }
+
+        private void ClearItems()
+        {
+            foreach (var item in _activeItems)
+            {
+                if (item != null)
+                {
+                    ItemPoolManager.Instance.ReleaseItem(item);
+                }
+            }
+            _activeItems.Clear();
+        }
+
+        private void SpawnItem(Item prefab)
+        {
+            Item item = ItemPoolManager.Instance.GetItem(prefab);
+            item.transform.SetParent(transform);
+            item.transform.position = GetSpawnPosition();
+            item.transform.rotation = Quaternion.Euler(Random.onUnitSphere * 360f);
+            _activeItems.Add(item);
         }
 
         private Vector3 GetSpawnPosition()

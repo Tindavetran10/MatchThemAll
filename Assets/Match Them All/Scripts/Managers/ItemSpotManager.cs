@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using ZLinq;
 using UnityEngine;
+using PrimeTween;
 
 namespace MatchThemAll.Scripts
 {
@@ -25,7 +26,7 @@ namespace MatchThemAll.Scripts
 
         [Header("Animation Settings")]
         [SerializeField] private float animationDuration = 0.15f;
-        [SerializeField] private LeanTweenType animationEase = LeanTweenType.easeInOutCubic;
+        [SerializeField] private Ease animationEase = Ease.InOutCubic;
 
         [Header("Actions")]
         public static Action<List<Item>> MergeStarted;
@@ -98,7 +99,7 @@ namespace MatchThemAll.Scripts
                     {
                         if (spot.Item)
                         {
-                            LeanTween.cancel(spot.Item.gameObject);
+                            Tween.StopAll(spot.Item.transform);
                             ItemPoolManager.Instance.ReleaseItem(spot.Item);
                         }
                         spot.Clear();
@@ -169,14 +170,10 @@ namespace MatchThemAll.Scripts
             item.IsMovingToSpot = true;
             targetSpot.Populate(item);
 
-            LeanTween.moveLocal(item.gameObject, itemLocalPositionOnSpot, animationDuration)
-                .setEase(animationEase);
-
-            LeanTween.scale(item.gameObject, itemLocalScaleOnSpot, animationDuration)
-                .setEase(animationEase);
-
-            LeanTween.rotateLocal(item.gameObject, Vector3.zero, animationDuration)
-                .setOnComplete(completeCallback);
+            Tween.LocalPosition(item.transform, itemLocalPositionOnSpot, animationDuration, animationEase);
+            Tween.Scale(item.transform, itemLocalScaleOnSpot, animationDuration, animationEase);
+            Tween.LocalRotation(item.transform, Vector3.zero, animationDuration, animationEase)
+                .OnComplete(completeCallback);
 
             item.DisableShadow();
             item.DisablePhysics();

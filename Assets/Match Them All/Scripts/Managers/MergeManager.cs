@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Pool;
+using PrimeTween;
 
 namespace MatchThemAll.Scripts
 {
@@ -11,11 +12,11 @@ namespace MatchThemAll.Scripts
         [Header("Settings")]
         [SerializeField] private float goUpDistance;
         [SerializeField] private float goUpDuration;
-        [SerializeField] private LeanTweenType goUpEasing;
+        [SerializeField] private Ease goUpEasing;
 
         [Header("Smash Settings")]
         [SerializeField] private float smashDuration;
-        [SerializeField] private LeanTweenType smashEasing;
+        [SerializeField] private Ease smashEasing;
 
         [Header("Particles")]
         [SerializeField] private ParticleSystem mergeParticle;
@@ -75,9 +76,8 @@ namespace MatchThemAll.Scripts
                 if (i == 0)
                     callback = () => SmashItem(items);
 
-                LeanTween.move(items[i].gameObject, targetPos, goUpDuration)
-                    .setEase(goUpEasing)
-                    .setOnComplete(callback);
+                var tween = Tween.Position(items[i].transform, targetPos, goUpDuration, goUpEasing);
+                if (callback != null) tween.OnComplete(callback);
             }
         }
 
@@ -87,16 +87,12 @@ namespace MatchThemAll.Scripts
 
             float targetX = items[1].transform.position.x;
 
-            LeanTween.moveX(items[0].gameObject, targetX, smashDuration)
-                .setEase(smashEasing)
-                .setOnComplete(() => FinalizeMerge(items));
+            Tween.PositionX(items[0].transform, targetX, smashDuration, smashEasing)
+                .OnComplete(() => FinalizeMerge(items));
 
-            LeanTween.moveX(items[2].gameObject, targetX, smashDuration)
-                .setEase(smashEasing);
+            Tween.PositionX(items[2].transform, targetX, smashDuration, smashEasing);
 
-            LeanTween.moveY(items[1].gameObject, items[1].transform.position.y + 0.1f, smashDuration * 0.5f)
-                .setEase(LeanTweenType.easeOutQuad)
-                .setLoopPingPong(1);
+            Tween.PositionY(items[1].transform, items[1].transform.position.y + 0.1f, smashDuration * 0.5f, Ease.OutQuad, cycles: 2, cycleMode: CycleMode.Yoyo);
         }
 
         private void FinalizeMerge(List<Item> items)
@@ -106,7 +102,7 @@ namespace MatchThemAll.Scripts
 
             foreach (var item in items)
             {
-                LeanTween.cancel(item.gameObject);
+                Tween.StopAll(item.transform);
                 ItemPoolManager.Instance.ReleaseItem(item);
             }
 

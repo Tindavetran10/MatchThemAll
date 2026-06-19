@@ -1,5 +1,6 @@
 using ZLinq;
 using UnityEngine;
+using PrimeTween;
 
 namespace MatchThemAll.Scripts
 {
@@ -20,6 +21,9 @@ namespace MatchThemAll.Scripts
             if (Instance == null)
                 Instance = this;
             else { Destroy(gameObject); return; }
+
+            // Disable PrimeTween warning for tweening to current value (e.g., when merging items already at target scale)
+            PrimeTweenConfig.warnEndValueEqualsCurrent = false;
 
             // Mobile: cap framerate and disable vSync to reduce battery drain
             // and prevent GPU thermal throttling on mid-range devices.

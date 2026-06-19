@@ -94,16 +94,16 @@ namespace MatchThemAll.Scripts.UI
             watchAdButton.interactable = false;
             payCoinsButton.interactable = false;
 
-            // Play the LeanTween close animation, then switch state after it finishes
+            // Play the PrimeTween close animation, then switch state after it finishes
             var anim = continuePanel ? continuePanel.GetComponent<UIAnimator>() : null;
             if (anim)
             {
                 anim.ClosePanel();
                 // Wait for the animation to finish before showing Game Over
-                LeanTween.delayedCall(closeDuration, () =>
+                PrimeTween.Tween.Delay(closeDuration, () =>
                 {
                     GameManager.Instance.SetGameState(EGameState.GAMEOVER);
-                }).setIgnoreTimeScale(true);
+                }, useUnscaledTime: true);
             }
             else
             {

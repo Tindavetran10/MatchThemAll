@@ -56,6 +56,32 @@ public class InputManager : MonoBehaviour
         if (tutorialLayer != -1) {
             itemLayerMask.value |= 1 << tutorialLayer;
         }
+
+        WarmupOutlineShader();
+    }
+
+    private void WarmupOutlineShader()
+    {
+        if (outlineMaterial == null || _mainCamera == null) return;
+        
+        // Create a temporary dummy object to force the GPU to compile the Outline Shader variant immediately.
+        // This prevents a massive CPU/GPU spike the first time the HintManager or user selects an item.
+        GameObject dummy = GameObject.CreatePrimitive(PrimitiveType.Quad);
+        Destroy(dummy.GetComponent<Collider>());
+        
+        // Place it just barely inside the camera's frustum, scaled LARGE so it is guaranteed
+        // to rasterize pixels and trigger the shader compilation!
+        // We can do this safely because SceneLoader fades to black during this exact frame, 
+        // completely hiding this dummy object from the player's view.
+        dummy.transform.SetParent(_mainCamera.transform);
+        dummy.transform.localPosition = new Vector3(0, 0, _mainCamera.nearClipPlane + 0.1f);
+        dummy.transform.localScale = Vector3.one * 10f;
+        
+        var renderer = dummy.GetComponent<MeshRenderer>();
+        renderer.material = outlineMaterial;
+        
+        // Destroy it after 1 second
+        Destroy(dummy, 1f);
     }
 
     // Update method is called every frame by Unity's game loop

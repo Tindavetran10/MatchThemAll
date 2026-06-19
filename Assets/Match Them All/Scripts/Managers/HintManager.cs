@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using ZLinq;
 using UnityEngine;
+using PrimeTween;
 
 namespace MatchThemAll.Scripts.Managers
 {
@@ -31,7 +32,7 @@ namespace MatchThemAll.Scripts.Managers
                     // Player clicked the hinted item, just remove it from the list so we don't error out later
                     if (_activeHintItems.Contains(item))
                     {
-                        LeanTween.cancel(item.gameObject);
+                        Tween.StopAll(item.transform);
                         _activeHintItems.Remove(item);
                     }
                 }
@@ -74,16 +75,14 @@ namespace MatchThemAll.Scripts.Managers
             
             _currentHintType = _activeHintItems[0].ItemNameKey;
 
-            foreach (var item in _activeHintItems.AsValueEnumerable().Where(item => item))
+            foreach (var item in _activeHintItems.AsValueEnumerable().Where(item => item && item.gameObject.activeInHierarchy))
             {
                 // Apply visual highlight
                 if (InputManager.Instance && InputManager.Instance.OutlineMaterial)
                     item.Select(InputManager.Instance.OutlineMaterial);
                     
                 // Apply a persistent pulsing animation
-                LeanTween.scale(item.gameObject, item.transform.localScale * 1.3f, 0.4f)
-                    .setEase(LeanTweenType.easeInOutSine)
-                    .setLoopPingPong();
+                Tween.Scale(item.transform, item.transform.localScale * 1.3f, 0.4f, Ease.InOutSine, cycles: -1, cycleMode: CycleMode.Yoyo);
             }
         }
 
@@ -94,12 +93,12 @@ namespace MatchThemAll.Scripts.Managers
             
             if (_activeHintItems is { Count: > 0 })
             {
-                foreach (var item in _activeHintItems.AsValueEnumerable().Where(item => item))
+                foreach (var item in _activeHintItems.AsValueEnumerable().Where(item => item && item.gameObject.activeInHierarchy))
                 {
-                    LeanTween.cancel(item.gameObject);
+                    Tween.StopAll(item.transform);
                     // Reset scale to normal (assuming local scale is 1, or roughly the original)
                     // It's safer to let the Select/Deselect handle materials, but scale needs to be reset
-                    LeanTween.scale(item.gameObject, Vector3.one, 0.1f);
+                    Tween.Scale(item.transform, Vector3.one, 0.1f);
                         
                     if (!item.Spot && !item.IsMovingToSpot)
                     {

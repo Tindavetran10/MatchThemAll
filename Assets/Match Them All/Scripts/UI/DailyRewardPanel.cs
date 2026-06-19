@@ -2,6 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using PrimeTween;
 
 namespace MatchThemAll.Scripts.UI
 {
@@ -44,12 +45,12 @@ namespace MatchThemAll.Scripts.UI
             if (canvasGroup != null)
             {
                 canvasGroup.alpha = 0;
-                LeanTween.alphaCanvas(canvasGroup, 1f, 0.3f).setEase(LeanTweenType.easeOutQuad);
+                Tween.Alpha(canvasGroup, 1f, 0.3f, Ease.OutQuad);
             }
             
             Transform target = modalTransform != null ? modalTransform : transform;
             target.localScale = Vector3.one * 0.8f;
-            LeanTween.scale(target.gameObject, Vector3.one, 0.3f).setEase(LeanTweenType.easeOutBack);
+            Tween.Scale(target, Vector3.one, 0.3f, Ease.OutBack);
         }
 
         private void OnClaimClicked()
@@ -66,12 +67,11 @@ namespace MatchThemAll.Scripts.UI
             Transform target = modalTransform != null ? modalTransform : transform;
             
             // Animate Panel OUT
-            LeanTween.scale(target.gameObject, Vector3.one * 0.8f, 0.2f).setEase(LeanTweenType.easeInBack);
+            Tween.Scale(target, Vector3.one * 0.8f, 0.2f, Ease.InBack);
             if (canvasGroup != null)
             {
-                LeanTween.alphaCanvas(canvasGroup, 0f, 0.2f)
-                    .setEase(LeanTweenType.easeInQuad)
-                    .setOnComplete(() => Destroy(gameObject));
+                Tween.Alpha(canvasGroup, 0f, 0.2f, Ease.InQuad)
+                    .OnComplete(() => Destroy(gameObject));
             }
             else
             {

@@ -1,6 +1,7 @@
 using System;
 using TMPro;
 using UnityEngine;
+using PrimeTween;
 
 namespace MatchThemAll.Scripts.UI
 {
@@ -31,9 +32,8 @@ namespace MatchThemAll.Scripts.UI
             _onCompleteCallback = onComplete;
             PrepareText(text, color);
 
-            LeanTween.scale(gameObject, Vector3.one, popDuration)
-                .setEaseOutBack()
-                .setOnComplete(StartRiseAndFade);
+            Tween.Scale(gameObject.transform, Vector3.one, popDuration, Ease.OutBack)
+                .OnComplete(StartRiseAndFade);
         }
 
         public void SetupPopAndStay(string text, Color color, Action<FloatingText> onComplete = null)
@@ -41,15 +41,12 @@ namespace MatchThemAll.Scripts.UI
             _onCompleteCallback = onComplete;
             PrepareText(text, color);
 
-            LeanTween.scale(gameObject, new Vector3(1.5f, 1.5f, 1.5f), popDuration)
-                .setEase(LeanTweenType.easeOutBack)
-                .setOnComplete(() => 
+            Tween.Scale(gameObject.transform, new Vector3(1.5f, 1.5f, 1.5f), popDuration, Ease.OutBack)
+                .OnComplete(() => 
                 {
-                    LeanTween.scale(gameObject, Vector3.one, stayDuration).setEase(LeanTweenType.easeInOutSine);
-                    LeanTween.value(gameObject, 1f, 0f, 0.3f)
-                        .setDelay(stayDuration)
-                        .setOnUpdate(alpha => { if (textMesh) textMesh.alpha = alpha; })
-                        .setOnComplete(() => _onCompleteCallback?.Invoke(this));
+                    Tween.Scale(gameObject.transform, Vector3.one, stayDuration, Ease.InOutSine);
+                    Tween.Custom(1f, 0f, 0.3f, onValueChange: (float alpha) => { if (textMesh) textMesh.alpha = alpha; }, startDelay: stayDuration)
+                        .OnComplete(() => _onCompleteCallback?.Invoke(this));
                 });
         }
 
@@ -62,7 +59,7 @@ namespace MatchThemAll.Scripts.UI
                 textMesh.alpha = 1f;
             }
 
-            LeanTween.cancel(gameObject);
+            Tween.StopAll(gameObject.transform);
             _rect.localScale = Vector3.zero;
         }
 
@@ -71,14 +68,10 @@ namespace MatchThemAll.Scripts.UI
             float startY = _rect.anchoredPosition.y;
             float targetY = startY + riseDistance;
 
-            LeanTween.value(gameObject, startY, targetY, riseAndFadeDuration)
-                .setEaseOutSine()
-                .setOnUpdate(v => _rect.anchoredPosition = new Vector2(_rect.anchoredPosition.x, v));
+            Tween.Custom(startY, targetY, riseAndFadeDuration, onValueChange: (float v) => _rect.anchoredPosition = new Vector2(_rect.anchoredPosition.x, v), ease: Ease.OutSine);
 
-            LeanTween.value(gameObject, 1f, 0f, riseAndFadeDuration)
-                .setEaseInQuad()
-                .setOnUpdate(alpha => { if (textMesh) textMesh.alpha = alpha; })
-                .setOnComplete(() => _onCompleteCallback?.Invoke(this));
+            Tween.Custom(1f, 0f, riseAndFadeDuration, onValueChange: (float alpha) => { if (textMesh) textMesh.alpha = alpha; }, ease: Ease.InQuad)
+                .OnComplete(() => _onCompleteCallback?.Invoke(this));
         }
     }
 }

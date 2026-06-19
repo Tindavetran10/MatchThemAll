@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using PrimeTween;
 namespace MatchThemAll.Scripts
 {
     /// <summary>
@@ -63,26 +64,21 @@ namespace MatchThemAll.Scripts
             img.color = new Color(0, 0, 0, 0); // Start transparent
 
             // Fade to black over 0.25 seconds
-            LeanTween.value(go, 0f, 1f, 0.25f)
-                .setIgnoreTimeScale(true)
-                .setOnUpdate(val =>
+            Tween.Custom(0f, 1f, 0.25f, onValueChange: val =>
                 {
                     img.color = new Color(0, 0, 0, val);
-                })
-                .setOnComplete(() =>
+                }, useUnscaledTime: true)
+                .OnComplete(() =>
                 {
                     // Actually switch the scene once it's completely black
                     SceneManager.LoadScene(nextScene);
 
                     // Fade back out from black to transparent over 0.35 seconds
-                    LeanTween.value(go, 1f, 0f, 0.35f)
-                        .setIgnoreTimeScale(true)
-                        .setDelay(0.1f)
-                        .setOnUpdate(val =>
+                    Tween.Custom(1f, 0f, 0.35f, onValueChange: val =>
                         {
                             if (img != null) img.color = new Color(0, 0, 0, val);
-                        })
-                        .setOnComplete(() =>
+                        }, startDelay: 0.1f, useUnscaledTime: true)
+                        .OnComplete(() =>
                         {
                             // Clean up the fader when done
                             Object.Destroy(go);

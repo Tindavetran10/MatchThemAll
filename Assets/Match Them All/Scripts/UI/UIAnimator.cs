@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using PrimeTween;
 
 namespace MatchThemAll.Scripts.UI
 {
@@ -10,7 +11,7 @@ namespace MatchThemAll.Scripts.UI
     public class UIAnimator : MonoBehaviour
     {
         [SerializeField] private float animationDuration = 0.3f;
-        [SerializeField] private LeanTweenType easeType = LeanTweenType.easeOutBack;
+        [SerializeField] private Ease easeType = Ease.OutBack;
         [SerializeField] private Transform targetToScale; // Optional: specify exactly what to scale
 
         private Transform _targetToScale;
@@ -48,37 +49,30 @@ namespace MatchThemAll.Scripts.UI
             {
                 // Pop up the card using its original scale
                 _targetToScale.localScale = _originalScale * 0.5f;
-                LeanTween.scale(_targetToScale.gameObject, _originalScale, animationDuration)
-                         .setEase(easeType)
-                         .setIgnoreTimeScale(true);
+                Tween.Scale(_targetToScale.gameObject.transform, _originalScale, animationDuration, easeType, useUnscaledTime: true);
             }
 
             // Fade the background overlay
             if (_backgroundImage)
             {
-                LeanTween.cancel(gameObject);
+                Tween.StopAll(gameObject.transform);
                 Color c = _backgroundImage.color;
                 c.a = 0f;
                 _backgroundImage.color = c;
 
-                LeanTween.value(gameObject, 0f, _originalAlpha, animationDuration)
-                         .setEase(LeanTweenType.easeOutQuad)
-                         .setIgnoreTimeScale(true)
-                         .setOnUpdate((float a) => 
-                         {
-                             Color col = _backgroundImage.color;
-                             col.a = a;
-                             _backgroundImage.color = col;
-                         });
+                Tween.Custom(0f, _originalAlpha, animationDuration, onValueChange: (float a) => 
+                {
+                    Color col = _backgroundImage.color;
+                    col.a = a;
+                    _backgroundImage.color = col;
+                }, ease: Ease.OutQuad, useUnscaledTime: true);
             }
 
             // Fade the CanvasGroup
             if (_canvasGroup)
             {
                 _canvasGroup.alpha = 0f;
-                LeanTween.alphaCanvas(_canvasGroup, _originalCanvasAlpha, animationDuration)
-                         .setEase(LeanTweenType.easeOutQuad)
-                         .setIgnoreTimeScale(true);
+                Tween.Alpha(_canvasGroup, _originalCanvasAlpha, animationDuration, Ease.OutQuad, useUnscaledTime: true);
             }
         }
 
@@ -89,40 +83,33 @@ namespace MatchThemAll.Scripts.UI
             if (_targetToScale)
             {
                 hasAnimation = true;
-                LeanTween.cancel(_targetToScale.gameObject);
+                Tween.StopAll(_targetToScale.gameObject.transform);
                 
                 // Shrink the card
-                LeanTween.scale(_targetToScale.gameObject, _originalScale * 0.5f, animationDuration)
-                         .setEase(LeanTweenType.easeInBack)
-                         .setIgnoreTimeScale(true)
-                         .setOnComplete(() => gameObject.SetActive(false));
+                Tween.Scale(_targetToScale.gameObject.transform, _originalScale * 0.5f, animationDuration, Ease.InBack, useUnscaledTime: true)
+                         .OnComplete(() => gameObject.SetActive(false));
             }
 
             // Fade out the background overlay
             if (_backgroundImage)
             {
                 hasAnimation = true;
-                LeanTween.cancel(gameObject);
-                LeanTween.value(gameObject, _backgroundImage.color.a, 0f, animationDuration)
-                         .setEase(LeanTweenType.easeOutQuad)
-                         .setIgnoreTimeScale(true)
-                         .setOnUpdate((float a) => 
-                         {
-                             Color col = _backgroundImage.color;
-                             col.a = a;
-                             _backgroundImage.color = col;
-                         })
-                         .setOnComplete(() => { if (!_targetToScale) gameObject.SetActive(false); });
+                Tween.StopAll(gameObject.transform);
+                Tween.Custom(_backgroundImage.color.a, 0f, animationDuration, onValueChange: (float a) => 
+                {
+                    Color col = _backgroundImage.color;
+                    col.a = a;
+                    _backgroundImage.color = col;
+                }, ease: Ease.OutQuad, useUnscaledTime: true)
+                         .OnComplete(() => { if (!_targetToScale) gameObject.SetActive(false); });
             }
 
             // Fade out CanvasGroup
             if (_canvasGroup)
             {
                 hasAnimation = true;
-                LeanTween.alphaCanvas(_canvasGroup, 0f, animationDuration)
-                         .setEase(LeanTweenType.easeOutQuad)
-                         .setIgnoreTimeScale(true)
-                         .setOnComplete(() => { if (!_targetToScale && !_backgroundImage) gameObject.SetActive(false); });
+                Tween.Alpha(_canvasGroup, 0f, animationDuration, Ease.OutQuad, useUnscaledTime: true)
+                         .OnComplete(() => { if (!_targetToScale && !_backgroundImage) gameObject.SetActive(false); });
             }
 
             if (!hasAnimation)

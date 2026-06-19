@@ -1,6 +1,7 @@
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using PrimeTween;
 
 namespace MatchThemAll.Scripts.UI
 {
@@ -38,9 +39,9 @@ namespace MatchThemAll.Scripts.UI
 
         private void Bump()
         {
-            LeanTween.cancel(gameObject);
+            Tween.StopAll(gameObject.transform);
             transform.localScale = Vector3.one;
-            LeanTween.scale(gameObject, Vector3.one * 1.1f, 0.25f).setLoopPingPong(1);
+            Tween.Scale(gameObject.transform, Vector3.one * 1.1f, 0.25f, cycles: 2, cycleMode: CycleMode.Yoyo);
         }
 
         public void Complete()

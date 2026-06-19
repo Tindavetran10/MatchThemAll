@@ -34,6 +34,7 @@ namespace MatchThemAll.Scripts
         public static Action<Level> LevelSpawned;
         
         private Task _loadTask;
+        public Task LoadTask => _loadTask;
 
         private void Awake()
         {
@@ -47,10 +48,7 @@ namespace MatchThemAll.Scripts
         private async void SpawnLevel()
         {
             if (_loadTask != null) await _loadTask;
-            
-            transform.Clear();
 
-            // Use the level requested by SceneLoader (replay) if set, otherwise use saved progress
             int requested = SceneLoader.RequestedLevelIndex;
             CurrentLevelIndex = requested >= 0 && requested < levels.Length
                 ? requested
@@ -58,12 +56,16 @@ namespace MatchThemAll.Scripts
 
             int index = CurrentLevelIndex % levels.Length;
 
-            // 1. Instantiate the generic Level prefab
-            _currentLevel = Instantiate(levelPrefab, transform);
+            // 1. Instantiate the generic Level prefab only if it doesn't exist yet
+            if (_currentLevel == null)
+            {
+                transform.Clear();
+                _currentLevel = Instantiate(levelPrefab, transform);
+            }
 
             // 2. Initialize with SO data (spawns items, sets duration)
-            //    Must happen BEFORE levelSpawned fires so listeners read correct data.
-            _currentLevel.Initialize(levels[index]);
+            //    This will automatically release old items back to the ItemPoolManager.
+            await _currentLevel.InitializeAsync(levels[index]);
 
             // 3. Notify listeners (TimerManager, GoalManager, etc.)
             LevelSpawned?.Invoke(_currentLevel);

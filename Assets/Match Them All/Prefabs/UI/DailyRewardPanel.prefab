@@ -1437,6 +1437,8 @@ GameObject:
   - component: {fileID: 7415474618039363668}
   - component: {fileID: 2354574385904649351}
   - component: {fileID: 7179878875656466979}
+  - component: {fileID: 2462134068871039436}
+  - component: {fileID: 7694829388319577696}
   m_Layer: 0
   m_Name: DailyRewardPanel
   m_TagString: Untagged
@@ -1539,6 +1541,46 @@ MonoBehaviour:
   - {fileID: 440562410291383122}
   canvasGroup: {fileID: 2354574385904649351}
   modalTransform: {fileID: 1938325968292064487}
+--- !u!223 &2462134068871039436
+Canvas:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5012568527314162546}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_RenderMode: 2
+  m_Camera: {fileID: 0}
+  m_PlaneDistance: 100
+  m_PixelPerfect: 0
+  m_ReceivesEvents: 1
+  m_OverrideSorting: 0
+  m_OverridePixelPerfect: 0
+  m_SortingBucketNormalizedSize: 0
+  m_VertexColorAlwaysGammaSpace: 0
+  m_AdditionalShaderChannelsFlag: 0
+  m_UpdateRectTransformForStandalone: 0
+  m_SortingLayerID: 0
+  m_SortingOrder: 0
+  m_TargetDisplay: 0
+--- !u!114 &7694829388319577696
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5012568527314162546}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_IgnoreReversedGraphics: 1
+  m_BlockingObjects: 0
+  m_BlockingMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
 --- !u!1 &5497765784527427656
 GameObject:
   m_ObjectHideFlags: 0

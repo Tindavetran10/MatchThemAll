@@ -3,6 +3,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using PrimeTween;
 
 namespace MatchThemAll.Scripts
 {
@@ -75,30 +76,42 @@ namespace MatchThemAll.Scripts
                     var img = go.AddComponent<Image>();
                     img.color = new Color(0, 0, 0, 0);
 
-                    LeanTween.value(go, 0f, 1f, 0.25f)
-                        .setIgnoreTimeScale(true)
-                        .setOnUpdate((float val) => { img.color = new Color(0, 0, 0, val); })
-                        .setOnComplete(() =>
+                    Tween.Custom(0f, 1f, 0.25f, onValueChange: val => { img.color = new Color(0, 0, 0, val); }, useUnscaledTime: true)
+                        .OnComplete(() =>
                         {
-                            // Activate the scene
-                            op.allowSceneActivation = true;
-
-                            // Fade back in
-                            LeanTween.value(go, 1f, 0f, 0.35f)
-                                .setIgnoreTimeScale(true)
-                                .setDelay(0.1f)
-                                .setOnUpdate((float val) =>
-                                {
-                                    if (img != null) img.color = new Color(0, 0, 0, val);
-                                })
-                                .setOnComplete(() => { Destroy(go); });
+                            ActivateAndFadeIn(op, img, go);
                         });
 
-                    // Break out of the loop since we handle activation via LeanTween now
+                    // Break out of the loop since we handle activation via PrimeTween now
                     break;
                 }
                 yield return null;
             }
+        }
+
+        private async void ActivateAndFadeIn(AsyncOperation op, Image img, GameObject faderGo)
+        {
+            // Activate the scene
+            op.allowSceneActivation = true;
+
+            // Wait for Unity to finish scene activation
+            while (!op.isDone)
+            {
+                await System.Threading.Tasks.Task.Delay(10);
+            }
+
+            // Wait for LevelManager to finish loading Addressables data to prevent the 200ms integration spike from freezing the fade-in animation
+            if (LevelManager.Instance != null && LevelManager.Instance.LoadTask != null)
+            {
+                await LevelManager.Instance.LoadTask;
+            }
+
+            // Fade back in
+            Tween.Custom(1f, 0f, 0.35f, onValueChange: val =>
+                {
+                    if (img != null) img.color = new Color(0, 0, 0, val);
+                }, startDelay: 0.1f, useUnscaledTime: true)
+                .OnComplete(() => { Destroy(faderGo); });
         }
     }
 }
