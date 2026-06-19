@@ -9,11 +9,14 @@ using UnityEngine;
 namespace Match_Them_All.Scripts.Editor
 {
     /// <summary>
-    /// A self-contained Level Editor window.
-    /// Open via: Match Them All → Level Editor
+    /// A self-contained Template Editor window for Levels, Items, and Settings.
+    /// Open via: Match Them All → Template Editor
     /// </summary>
     public class LevelEditorWindow : EditorWindow
     {
+        // ── Tabs ─────────────────────────────────────────────────────────────
+        private int _currentTab = 0;
+        private readonly string[] _tabNames = { "Levels", "Items", "Settings" };
         // ── State ────────────────────────────────────────────────────────────
         private readonly List<LevelDataSO> _levels = new();
         private int _selectedLevelIndex = -1;
@@ -30,6 +33,17 @@ namespace Match_Them_All.Scripts.Editor
         // New level creation
         private string _newLevelName = "";
         private bool _showNewLevelField;
+        
+        // Item Creation State
+        private EItemName _newItemName;
+        private Sprite _newItemIcon;
+        private GameObject _newItemModelPrefab;
+        private bool _isAddingNewItemType;
+        private string _newItemTypeName = "";
+
+        // Settings State
+        private MatchThemAll.Scripts.Settings.GameSettingsSO _gameSettings;
+        private UnityEditor.Editor _gameSettingsEditor;
 
         private const string ItemPrefabFolder = "Assets/Match Them All/Prefabs/Items";
         private const string LevelDataFolder  = "Assets/Match Them All/Resources/Levels";
@@ -56,10 +70,10 @@ namespace Match_Them_All.Scripts.Editor
         private static readonly Color TextMuted      = new(0.60f, 0.60f, 0.65f);
 
         // ── Entry Point ──────────────────────────────────────────────────────
-        [MenuItem("Match Them All/Level Editor")]
+        [MenuItem("Match Them All/Template Editor")]
         public static void ShowWindow()
         {
-            var window = GetWindow<LevelEditorWindow>("Level Editor");
+            var window = GetWindow<LevelEditorWindow>("Template Editor");
             window.minSize = new Vector2(780, 540);
             window.LoadAll();
         }
@@ -90,6 +104,16 @@ namespace Match_Them_All.Scripts.Editor
             {
                 _selectedLevelIndex = _levels.IndexOf(_selectedLevel);
                 if (_selectedLevelIndex < 0) SelectLevel(-1);
+            }
+            
+            // Settings
+            if (_gameSettings == null)
+            {
+                _gameSettings = Resources.Load<MatchThemAll.Scripts.Settings.GameSettingsSO>("GameSettings");
+            }
+            if (_gameSettings != null)
+            {
+                _gameSettingsEditor = UnityEditor.Editor.CreateEditor(_gameSettings);
             }
         }
 
@@ -192,6 +216,23 @@ namespace Match_Them_All.Scripts.Editor
             // Top toolbar
             DrawToolbar();
 
+            // Render current tab
+            switch (_currentTab)
+            {
+                case 0:
+                    DrawLevelEditorTab();
+                    break;
+                case 1:
+                    DrawItemsTab();
+                    break;
+                case 2:
+                    DrawSettingsTab();
+                    break;
+            }
+        }
+
+        private void DrawLevelEditorTab()
+        {
             // Two-column layout — left panel is 27% of window width, min 180 px
             var leftWidth  = Mathf.Max(180f, position.width * 0.27f);
             var rightWidth = position.width - leftWidth - 2;
@@ -223,8 +264,18 @@ namespace Match_Them_All.Scripts.Editor
             GUILayout.Space(12);
 
             GUI.color = AccentBlue;
-            GUILayout.Label("⚙ Level Editor", _headerStyle, GUILayout.Height(38));
+            GUILayout.Label("⚙ Template Editor", _headerStyle, GUILayout.Height(38));
             GUI.color = Color.white;
+            
+            GUILayout.Space(20);
+            
+            // Draw Tabs
+            int newTab = GUILayout.Toolbar(_currentTab, _tabNames, GUILayout.Height(28), GUILayout.Width(250));
+            if (newTab != _currentTab)
+            {
+                _currentTab = newTab;
+                GUI.FocusControl(null); // Clear focus when switching tabs
+            }
 
             GUILayout.FlexibleSpace();
 
@@ -969,6 +1020,287 @@ namespace Match_Them_All.Scripts.Editor
             t.SetPixels(pix);
             t.Apply();
             return t;
+        }
+
+        // ── Items Tab ────────────────────────────────────────────────────────
+        private void DrawItemsTab()
+        {
+            GUILayout.Space(10);
+            GUILayout.BeginHorizontal();
+            GUILayout.Space(20);
+            GUILayout.BeginVertical();
+
+            GUILayout.Label("ITEM PREFAB GENERATOR", _headerStyle);
+            GUILayout.Space(10);
+
+            BeginCard();
+            GUILayout.Label("Create New Item Prefab", _subHeaderStyle);
+            GUILayout.Space(10);
+            
+            EditorGUI.BeginChangeCheck();
+
+            EditorGUILayout.BeginHorizontal();
+            _newItemName = (EItemName)EditorGUILayout.EnumPopup("Item Name Type", _newItemName);
+            if (GUILayout.Button("New Type...", GUILayout.Width(100)))
+            {
+                _isAddingNewItemType = !_isAddingNewItemType;
+                _newItemTypeName = "";
+            }
+            EditorGUILayout.EndHorizontal();
+
+            if (_isAddingNewItemType)
+            {
+                EditorGUILayout.BeginHorizontal();
+                GUILayout.Space(EditorGUIUtility.labelWidth);
+                _newItemTypeName = EditorGUILayout.TextField(_newItemTypeName);
+                if (GUILayout.Button("Add", GUILayout.Width(50)))
+                {
+                    AddNewItemType(_newItemTypeName);
+                }
+                EditorGUILayout.EndHorizontal();
+            }
+
+            GUILayout.Space(5);
+            _newItemIcon = (Sprite)EditorGUILayout.ObjectField("UI Icon (Sprite)", _newItemIcon, typeof(Sprite), false);
+            
+            GUILayout.Space(5);
+            _newItemModelPrefab = (GameObject)EditorGUILayout.ObjectField("3D Model Prefab", _newItemModelPrefab, typeof(GameObject), false);
+
+            if (EditorGUI.EndChangeCheck())
+            {
+                // Unsaved changes handler if needed
+            }
+
+            GUILayout.Space(15);
+
+            GUI.color = AccentGreen;
+            bool canGenerate = _newItemIcon != null && _newItemModelPrefab != null;
+            EditorGUI.BeginDisabledGroup(!canGenerate);
+            if (GUILayout.Button("🚀 Generate Item Prefab", GUILayout.Height(30)))
+            {
+                GenerateItemPrefab();
+            }
+            EditorGUI.EndDisabledGroup();
+            GUI.color = Color.white;
+            
+            if (!canGenerate)
+            {
+                EditorGUILayout.HelpBox("Please assign both an Icon and a 3D Model Prefab to generate.", MessageType.Warning);
+            }
+
+            EndCard();
+
+            GUILayout.EndVertical();
+            GUILayout.Space(20);
+            GUILayout.EndHorizontal();
+        }
+
+        private void GenerateItemPrefab()
+        {
+            if (_newItemIcon == null || _newItemModelPrefab == null) return;
+
+            string formattedName = "Item_" + _newItemName.ToString();
+            string folderPath = ItemPrefabFolder;
+
+            if (!Directory.Exists(folderPath))
+            {
+                Directory.CreateDirectory(folderPath);
+            }
+
+            string path = $"{folderPath}/{formattedName}.prefab";
+
+            if (File.Exists(path))
+            {
+                if (!EditorUtility.DisplayDialog("Overwrite?", $"A prefab named {formattedName} already exists. Overwrite?", "Yes", "Cancel"))
+                {
+                    return;
+                }
+            }
+
+            // 1. Create root
+            GameObject root = new GameObject(formattedName);
+            
+            // 2. Instantiate visual child
+            GameObject visualInstance = (GameObject)PrefabUtility.InstantiatePrefab(_newItemModelPrefab);
+            visualInstance.transform.SetParent(root.transform);
+            
+            // Apply standard transforms
+            // [FIXED Y-OFFSET: Changed from 0.04f to 0.00f]
+            visualInstance.transform.localPosition = new Vector3(0.00f, 0.00f, -0.75f);
+            visualInstance.transform.localRotation = Quaternion.Euler(0f, 0f, 270f);
+            visualInstance.transform.localScale = new Vector3(0.35f, 0.35f, 0.35f);
+            
+            visualInstance.name = "Renderer";
+
+            // 3. Setup physics on visual child
+            Collider col = visualInstance.GetComponentInChildren<Collider>();
+            if (!col)
+            {
+                MeshFilter mf = visualInstance.GetComponentInChildren<MeshFilter>();
+                if (mf)
+                {
+                    var meshCollider = mf.gameObject.AddComponent<MeshCollider>();
+                    meshCollider.convex = true;
+                    col = meshCollider;
+                }
+                else
+                {
+                    col = visualInstance.AddComponent<BoxCollider>();
+                }
+            }
+            else if (col is MeshCollider mc)
+            {
+                // Must be convex to work properly with non-kinematic Rigidbody
+                mc.convex = true; 
+            }
+
+            Renderer rend = visualInstance.GetComponentInChildren<Renderer>();
+            if (rend == null)
+            {
+                Debug.LogWarning("No Renderer found in the assigned 3D model.");
+            }
+
+            // 4. Setup root components
+            Rigidbody rb = root.AddComponent<Rigidbody>();
+            Item item = root.AddComponent<Item>();
+
+            // Set Layer
+            int matchLayer = LayerMask.NameToLayer("Match Stuff");
+            if (matchLayer != -1)
+            {
+                SetLayerRecursively(root, matchLayer);
+            }
+            else
+            {
+                Debug.LogWarning("[Template Editor] Layer 'Match Stuff' not found! Skipping layer assignment.");
+            }
+
+            // 5. Wire up serialized fields on Item.cs
+            var so = new SerializedObject(item);
+            so.FindProperty("itemNameKey").intValue = (int)_newItemName;
+            so.FindProperty("icon").objectReferenceValue = _newItemIcon;
+            
+            if (rend) 
+                so.FindProperty("_renderer").objectReferenceValue = rend;
+                
+            so.ApplyModifiedProperties();
+
+            // 6. Save prefab
+            GameObject savedPrefab = PrefabUtility.SaveAsPrefabAsset(root, path);
+            DestroyImmediate(root);
+
+            EditorGUIUtility.PingObject(savedPrefab);
+            Debug.Log($"[Template Editor] Successfully generated Item Prefab at {path}");
+            
+            // Reload prefabs list
+            LoadAll();
+        }
+
+        private void AddNewItemType(string newName)
+        {
+            if (string.IsNullOrWhiteSpace(newName)) return;
+            newName = newName.Replace(" ", ""); // Remove spaces
+            
+            if (!System.Text.RegularExpressions.Regex.IsMatch(newName, @"^[a-zA-Z_][a-zA-Z0-9_]*$"))
+            {
+                EditorUtility.DisplayDialog("Invalid Name", "The type name must be a valid C# identifier (no spaces, special characters).", "OK");
+                return;
+            }
+
+            if (Enum.TryParse(typeof(EItemName), newName, out _))
+            {
+                EditorUtility.DisplayDialog("Already Exists", $"The type '{newName}' already exists in EItemName.", "OK");
+                return;
+            }
+
+            const string enumPath = "Assets/Match Them All/Scripts/Enums/EItemName.cs";
+            if (!File.Exists(enumPath))
+            {
+                EditorUtility.DisplayDialog("Error", "Could not find EItemName.cs!", "OK");
+                return;
+            }
+
+            string fileContent = File.ReadAllText(enumPath);
+            
+            int enumStartIndex = fileContent.IndexOf("enum EItemName", StringComparison.Ordinal);
+            if (enumStartIndex == -1) return;
+
+            int firstBrace = fileContent.IndexOf("{", enumStartIndex, StringComparison.Ordinal);
+            int closeBrace = fileContent.IndexOf("}", firstBrace, StringComparison.Ordinal);
+            
+            string enumBody = fileContent.Substring(firstBrace + 1, closeBrace - firstBrace - 1);
+            
+            int highestVal = Enum.GetValues(typeof(EItemName)).Cast<int>().Prepend(-1).Max();
+            int nextVal = highestVal + 1;
+
+            string newEnumBody = enumBody.TrimEnd();
+            if (!newEnumBody.EndsWith(","))
+            {
+                newEnumBody += ",";
+            }
+            newEnumBody += $"\n        {newName} = {nextVal}\n    ";
+
+            string newFileContent = fileContent.Substring(0, firstBrace + 1) + newEnumBody + fileContent.Substring(closeBrace);
+            
+            File.WriteAllText(enumPath, newFileContent);
+            
+            _isAddingNewItemType = false;
+            AssetDatabase.Refresh();
+        }
+
+        private static void SetLayerRecursively(GameObject obj, int newLayer)
+        {
+            if (!obj) return;
+            obj.layer = newLayer;
+            foreach (Transform child in obj.transform)
+            {
+                SetLayerRecursively(child.gameObject, newLayer);
+            }
+        }
+
+        // ── Settings Tab ─────────────────────────────────────────────────────
+        private void DrawSettingsTab()
+        {
+            GUILayout.Space(10);
+            GUILayout.BeginHorizontal();
+            GUILayout.Space(20);
+            GUILayout.BeginVertical();
+
+            GUILayout.Label("GLOBAL GAME SETTINGS", _headerStyle);
+            GUILayout.Space(10);
+
+            if (_gameSettings == null)
+            {
+                EditorGUILayout.HelpBox("GameSettings.asset could not be loaded from Resources. Please ensure it exists.", MessageType.Error);
+                if (GUILayout.Button("Create GameSettings Asset"))
+                {
+                    _gameSettings = ScriptableObject.CreateInstance<MatchThemAll.Scripts.Settings.GameSettingsSO>();
+                    if (!Directory.Exists("Assets/Match Them All/Resources"))
+                    {
+                        Directory.CreateDirectory("Assets/Match Them All/Resources");
+                    }
+                    AssetDatabase.CreateAsset(_gameSettings, "Assets/Match Them All/Resources/GameSettings.asset");
+                    AssetDatabase.SaveAssets();
+                    _gameSettingsEditor = UnityEditor.Editor.CreateEditor(_gameSettings);
+                }
+            }
+            else
+            {
+                if (_gameSettingsEditor == null)
+                {
+                    _gameSettingsEditor = UnityEditor.Editor.CreateEditor(_gameSettings);
+                }
+
+                _detailScroll = GUILayout.BeginScrollView(_detailScroll);
+                BeginCard();
+                _gameSettingsEditor.OnInspectorGUI();
+                EndCard();
+                GUILayout.EndScrollView();
+            }
+
+            GUILayout.EndVertical();
+            GUILayout.Space(20);
+            GUILayout.EndHorizontal();
         }
     }
 }

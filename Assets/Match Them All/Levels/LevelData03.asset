@@ -12,18 +12,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6555fd2a693358d43a48520c3eaaa4b4, type: 3}
   m_Name: LevelData03
   m_EditorClassIdentifier: 
+  spotCount: 7
   duration: 60
-  seed: 56068
+  seed: 62206
   itemData:
-  - itemPrefab: {fileID: 7950600088722064912, guid: b2cc6bb42b096c340b3d2cfe00010ef9, type: 3}
+  - itemPrefab: {fileID: 2244121086638147798, guid: 5573a13de194e0e4b93ed33cb4f19d0c, type: 3}
     isGoal: 1
     multiplier: 3
-    amount: 18
-  - itemPrefab: {fileID: 7950600088722064912, guid: b2cc6bb42b096c340b3d2cfe00010ef9, type: 3}
-    isGoal: 1
-    multiplier: 1
     amount: 15
   - itemPrefab: {fileID: 7559479663845612207, guid: 93584426185aff349b2e5fb2e65c9314, type: 3}
     isGoal: 1
-    multiplier: 3
+    multiplier: 5
     amount: 30
+  - itemPrefab: {fileID: 7950600088722064912, guid: b2cc6bb42b096c340b3d2cfe00010ef9, type: 3}
+    isGoal: 1
+    multiplier: 4
+    amount: 27
+  tutorialSteps: []

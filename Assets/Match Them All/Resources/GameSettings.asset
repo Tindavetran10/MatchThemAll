@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 64f4e211293c4b2449055079669740c8, type: 3}
+  m_Name: GameSettings
+  m_EditorClassIdentifier: 
+  initialVacuumCount: 3
+  initialSpringCount: 3
+  initialFanCount: 3
+  initialFreezeCount: 3
+  springHorizontalForceRange: {x: 4, y: 7}
+  springVerticalForceRange: {x: 6, y: 9}
+  springSpinSpeedRange: {x: 5, y: 12}
+  springThrowZDirection: 1
+  fanMagnitude: 30

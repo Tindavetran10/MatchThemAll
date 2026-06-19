@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using ZLinq;
 using Match_Them_All.Scripts.Power_Ups;
 using MatchThemAll.Scripts.SaveSystem;
+using MatchThemAll.Scripts.Settings;
 using NaughtyAttributes;
 using UnityEngine;
 using PrimeTween;
@@ -15,14 +16,8 @@ namespace MatchThemAll.Scripts
         [SerializeField] private Vacuum vacuum;
         [SerializeField] private Transform vacuumSuckPosition;
         
-        [Header("Fan Settings")]
-        [SerializeField] private float fanMagnitude;
-
-        [Header("Initial Powerup Charges")]
-        [SerializeField] private int initialVacuumCount = 3;
-        [SerializeField] private int initialSpringCount = 3;
-        [SerializeField] private int initialFanCount    = 3;
-        [SerializeField] private int initialFreezeCount = 3;
+        [Header("Global Settings")]
+        [SerializeField] private GameSettingsSO gameSettings;
 
         [Header("Settings")] 
         private bool _isBusy;
@@ -32,16 +27,6 @@ namespace MatchThemAll.Scripts
 
         // Optimized: pre-allocated list container reused on every call to avoid runtime list creations and GC allocations
         private readonly List<Item> _itemsToCollect = new(3);
-        
-        [Header("Spring Powerup Settings")]
-        [SerializeField, Tooltip("Min/Max horizontal throw force")] 
-        private Vector2 springHorizontalForceRange = new(4f, 7f);
-        [SerializeField, Tooltip("Min/Max vertical throw force")] 
-        private Vector2 springVerticalForceRange = new(6f, 9f);
-        [SerializeField, Tooltip("Min/Max spin speed")] 
-        private Vector2 springSpinSpeedRange = new(5f, 12f);
-        [SerializeField, Tooltip("1 for forward (positive Z), -1 for backward (negative Z)")] 
-        private float springThrowZDirection = 1f;
 
         [Header("Actions")]
         public static Action<Item> ItemPickup;
@@ -295,17 +280,17 @@ namespace MatchThemAll.Scripts
                 // Toss it like a real bomb!
                 // Throw it based on the Z direction setting, with a small random spread
                 float spreadAngle = UnityEngine.Random.Range(-45f, 45f);
-                Vector3 baseDirection = new Vector3(0, 0, Mathf.Sign(springThrowZDirection));
+                Vector3 baseDirection = new Vector3(0, 0, Mathf.Sign(gameSettings.springThrowZDirection));
                 Vector3 throwDirection = Quaternion.Euler(0, spreadAngle, 0) * baseDirection;
                 
-                float throwForceXZ = UnityEngine.Random.Range(springHorizontalForceRange.x, springHorizontalForceRange.y); 
-                float throwForceY = UnityEngine.Random.Range(springVerticalForceRange.x, springVerticalForceRange.y);  
+                float throwForceXZ = UnityEngine.Random.Range(gameSettings.springHorizontalForceRange.x, gameSettings.springHorizontalForceRange.y); 
+                float throwForceY = UnityEngine.Random.Range(gameSettings.springVerticalForceRange.x, gameSettings.springVerticalForceRange.y);  
                 
                 // Apply the physical velocity
                 rb.linearVelocity = new Vector3(throwDirection.x * throwForceXZ, throwForceY, throwDirection.z * throwForceXZ);
 
                 // Add natural physical spin (tumble)
-                float spinSpeed = UnityEngine.Random.Range(springSpinSpeedRange.x, springSpinSpeedRange.y);
+                float spinSpeed = UnityEngine.Random.Range(gameSettings.springSpinSpeedRange.x, gameSettings.springSpinSpeedRange.y);
                 rb.angularVelocity = UnityEngine.Random.onUnitSphere * spinSpeed;
 
                 // Release the lock almost immediately so the game feels snappy and responsive!
@@ -321,7 +306,7 @@ namespace MatchThemAll.Scripts
         private void FanPowerup()
         {
             foreach (var item in LevelManager.Instance.Items.AsValueEnumerable().Where(item => item && item.gameObject.activeInHierarchy))
-                item.ApplyRandomForce(fanMagnitude);
+                item.ApplyRandomForce(gameSettings.fanMagnitude);
         }
         
 
@@ -360,10 +345,10 @@ namespace MatchThemAll.Scripts
             var data = SaveManager.Load();
 
             // If count is 0 (first launch or wiped save), seed with the configured initial value
-            _vacuumPuCount = data.vacuumCount > 0 ? data.vacuumCount : initialVacuumCount;
-            _springPuCount = data.springCount > 0 ? data.springCount : initialSpringCount;
-            _fanPuCount    = data.fanCount    > 0 ? data.fanCount    : initialFanCount;
-            _freezePuCount = data.freezeCount > 0 ? data.freezeCount : initialFreezeCount;
+            _vacuumPuCount = data.vacuumCount > 0 ? data.vacuumCount : gameSettings.initialVacuumCount;
+            _springPuCount = data.springCount > 0 ? data.springCount : gameSettings.initialSpringCount;
+            _fanPuCount    = data.fanCount    > 0 ? data.fanCount    : gameSettings.initialFanCount;
+            _freezePuCount = data.freezeCount > 0 ? data.freezeCount : gameSettings.initialFreezeCount;
 
             UpdateAllPowerupVisuals();
         }
@@ -387,21 +372,21 @@ namespace MatchThemAll.Scripts
 
             // Draw a few sample trajectories to show the "cone" of throws
             Gizmos.color = Color.green;
-            DrawTrajectoryGizmo(startPos, springHorizontalForceRange.x, springVerticalForceRange.x, 0f); // Min forward
+            DrawTrajectoryGizmo(startPos, gameSettings.springHorizontalForceRange.x, gameSettings.springVerticalForceRange.x, 0f); // Min forward
             
             Gizmos.color = Color.red;
-            DrawTrajectoryGizmo(startPos, springHorizontalForceRange.y, springVerticalForceRange.y, 0f); // Max forward
+            DrawTrajectoryGizmo(startPos, gameSettings.springHorizontalForceRange.y, gameSettings.springVerticalForceRange.y, 0f); // Max forward
             
             Gizmos.color = Color.yellow;
-            float midXZ = (springHorizontalForceRange.x + springHorizontalForceRange.y) / 2f;
-            float midY = (springVerticalForceRange.x + springVerticalForceRange.y) / 2f;
+            float midXZ = (gameSettings.springHorizontalForceRange.x + gameSettings.springHorizontalForceRange.y) / 2f;
+            float midY = (gameSettings.springVerticalForceRange.x + gameSettings.springVerticalForceRange.y) / 2f;
             DrawTrajectoryGizmo(startPos, midXZ, midY, 45f); // Right spread
             DrawTrajectoryGizmo(startPos, midXZ, midY, -45f); // Left spread
         }
 
         private void DrawTrajectoryGizmo(Vector3 startPos, float forceXZ, float forceY, float spreadAngle)
         {
-            Vector3 baseDirection = new Vector3(0, 0, Mathf.Sign(springThrowZDirection));
+            Vector3 baseDirection = new Vector3(0, 0, Mathf.Sign(gameSettings.springThrowZDirection));
             Vector3 throwDirection = Quaternion.Euler(0, spreadAngle, 0) * baseDirection;
             
             Vector3 velocity = new Vector3(throwDirection.x * forceXZ, forceY, throwDirection.z * forceXZ);
