@@ -114,12 +114,25 @@ public class InputManager : MonoBehaviour
         var pointerScreenPos = _input.Gameplay.Pointer.ReadValue<Vector2>();
         var ray = _mainCamera.ScreenPointToRay(pointerScreenPos);
 
-        Physics.Raycast(ray, out var hit, 100f, powerupLayerMask);
+        int currentMask = powerupLayerMask;
+        if (IsTutorialActive)
+        {
+            int tutorialLayer = LayerMask.NameToLayer("Tutorial");
+            if (tutorialLayer != -1)
+            {
+                currentMask = 1 << tutorialLayer;
+            }
+        }
+
+        Physics.Raycast(ray, out var hit, 100f, currentMask);
         
         if(!hit.collider)
             return;
         
-        PowerupClicked?.Invoke(hit.collider.GetComponent<Powerup>());
+        if (hit.collider.TryGetComponent(out Powerup powerup))
+        {
+            PowerupClicked?.Invoke(powerup);
+        }
     }
     
     // Private method to handle mouse drag/hover for item selection

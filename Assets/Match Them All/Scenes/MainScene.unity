@@ -249,7 +249,7 @@ Transform:
   m_GameObject: {fileID: 42380107}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 2.5, y: 2.5, z: 0}
+  m_LocalPosition: {x: 2.8, y: 2.5, z: 0}
   m_LocalScale: {x: 1, y: 7, z: 8}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -274,8 +274,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1.4857072, z: 0.93615514}
-  m_Center: {x: 0, y: 0.24285306, z: 0.03192243}
+  m_Size: {x: 1, y: 2.1999936, z: 0.93615514}
+  m_Center: {x: 0, y: 0.5999958, z: 0.03192243}
 --- !u!33 &42380111
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -2033,7 +2033,7 @@ Camera:
     width: 1
     height: 1
   near clip plane: 0.3
-  far clip plane: 11
+  far clip plane: 17.79
   field of view: 50
   orthographic: 1
   orthographic size: 5
@@ -2061,7 +2061,7 @@ Transform:
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
   m_LocalRotation: {x: 0.0000020191073, y: -0.7071068, z: 0.7071068, w: 0.0000020191073}
-  m_LocalPosition: {x: 0, y: 10, z: 0}
+  m_LocalPosition: {x: 0, y: 14, z: 0.00000047686973}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -2143,7 +2143,7 @@ Transform:
   m_GameObject: {fileID: 333309119}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -2.5, y: 2.5, z: 0}
+  m_LocalPosition: {x: -2.8, y: 2.5, z: 0}
   m_LocalScale: {x: 1, y: 7, z: 8}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2168,8 +2168,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1.4857072, z: 0.93615514}
-  m_Center: {x: 0, y: 0.24285306, z: 0.03192243}
+  m_Size: {x: 1, y: 2.485708, z: 0.93615514}
+  m_Center: {x: 0, y: 0.38571018, z: 0.03192243}
 --- !u!33 &333309122
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -3357,7 +3357,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemSpotParent: {fileID: 2114317824}
   itemLocalPositionOnSpot: {x: 0.095, y: 0, z: 0.095}
-  itemLocalScaleOnSpot: {x: 0.2, y: 0.2, z: 0.2}
+  itemLocalScaleOnSpot: {x: 0.15, y: 0.15, z: 0.15}
   animationDuration: 0.1
   animationEase: 7
 --- !u!1 &539976286
@@ -7957,6 +7957,10 @@ MonoBehaviour:
   initialSpringCount: 3
   initialFanCount: 3
   initialFreezeCount: 3
+  springHorizontalForceRange: {x: 1.75, y: 2.35}
+  springVerticalForceRange: {x: 2.5, y: 2.75}
+  springSpinSpeedRange: {x: 0, y: 0}
+  springThrowZDirection: -1
 --- !u!1 &1218867516
 GameObject:
   m_ObjectHideFlags: 0
@@ -7984,7 +7988,7 @@ Transform:
   m_GameObject: {fileID: 1218867516}
   serializedVersion: 2
   m_LocalRotation: {x: 0.50000006, y: 0.5, z: 0.49999994, w: 0.5}
-  m_LocalPosition: {x: -0.25544178, y: 8.5, z: -1.7446096}
+  m_LocalPosition: {x: -0.2554413, y: 12.5, z: -1.7446096}
   m_LocalScale: {x: 1, y: 7, z: 8}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -8005,7 +8009,7 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3

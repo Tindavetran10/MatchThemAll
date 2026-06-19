@@ -33,6 +33,16 @@ namespace MatchThemAll.Scripts
         // Optimized: pre-allocated list container reused on every call to avoid runtime list creations and GC allocations
         private readonly List<Item> _itemsToCollect = new(3);
         
+        [Header("Spring Powerup Settings")]
+        [SerializeField, Tooltip("Min/Max horizontal throw force")] 
+        private Vector2 springHorizontalForceRange = new Vector2(4f, 7f);
+        [SerializeField, Tooltip("Min/Max vertical throw force")] 
+        private Vector2 springVerticalForceRange = new Vector2(6f, 9f);
+        [SerializeField, Tooltip("Min/Max spin speed")] 
+        private Vector2 springSpinSpeedRange = new Vector2(5f, 12f);
+        [SerializeField, Tooltip("1 for forward (positive Z), -1 for backward (negative Z)")] 
+        private float springThrowZDirection = 1f;
+
         [Header("Actions")]
         public static Action<Item> ItemPickup;
         public static Action<Item> ItemBackToGame;
@@ -264,16 +274,45 @@ namespace MatchThemAll.Scripts
             Item itemToRelease = spot.Item;
             
             spot.Clear();
-            
             itemToRelease.UnassignSpot();
-            itemToRelease.EnablePhysics();
             
             itemToRelease.transform.parent = LevelManager.Instance.ItemParent;
-            itemToRelease.transform.localPosition = Vector3.up * 3f;
             itemToRelease.transform.localScale = Vector3.one;
             
+            Vector3 startPos = itemToRelease.transform.position;
+
+            // We will use pure physics for the throw instead of animation!
+            // This guarantees a perfect parabolic arc that respects all collisions on the way down.
+            itemToRelease.EnablePhysics();
             ItemBackToGame?.Invoke(itemToRelease);
-            _isBusy = false;
+
+            Rigidbody rb = itemToRelease.GetComponent<Rigidbody>();
+            if (rb != null)
+            {
+                // Toss it like a real bomb!
+                // Throw it based on the Z direction setting, with a small random spread
+                float spreadAngle = UnityEngine.Random.Range(-45f, 45f);
+                Vector3 baseDirection = new Vector3(0, 0, Mathf.Sign(springThrowZDirection));
+                Vector3 throwDirection = Quaternion.Euler(0, spreadAngle, 0) * baseDirection;
+                
+                float throwForceXZ = UnityEngine.Random.Range(springHorizontalForceRange.x, springHorizontalForceRange.y); 
+                float throwForceY = UnityEngine.Random.Range(springVerticalForceRange.x, springVerticalForceRange.y);  
+                
+                // Apply the physical velocity
+                rb.linearVelocity = new Vector3(throwDirection.x * throwForceXZ, throwForceY, throwDirection.z * throwForceXZ);
+
+                // Add natural physical spin (tumble)
+                float spinSpeed = UnityEngine.Random.Range(springSpinSpeedRange.x, springSpinSpeedRange.y);
+                rb.angularVelocity = UnityEngine.Random.onUnitSphere * spinSpeed;
+
+                // Release the lock almost immediately so the game feels snappy and responsive!
+                // Players shouldn't be locked out of playing just because an item is falling.
+                Tween.Delay(0.2f, () => _isBusy = false);
+            }
+            else
+            {
+                _isBusy = false;
+            }
         }
         #endregion
 
@@ -340,5 +379,48 @@ namespace MatchThemAll.Scripts
             data.freezeCount = _freezePuCount;
             SaveManager.Save(data);
         }
+
+#if UNITY_EDITOR
+        private void OnDrawGizmosSelected()
+        {
+            // Draw a preview of the Spring Powerup trajectory
+            ItemSpot spot = FindAnyObjectByType<ItemSpot>();
+            Vector3 startPos = spot != null ? spot.transform.position : transform.position;
+
+            // Draw a few sample trajectories to show the "cone" of throws
+            Gizmos.color = Color.green;
+            DrawTrajectoryGizmo(startPos, springHorizontalForceRange.x, springVerticalForceRange.x, 0f); // Min forward
+            
+            Gizmos.color = Color.red;
+            DrawTrajectoryGizmo(startPos, springHorizontalForceRange.y, springVerticalForceRange.y, 0f); // Max forward
+            
+            Gizmos.color = Color.yellow;
+            float midXZ = (springHorizontalForceRange.x + springHorizontalForceRange.y) / 2f;
+            float midY = (springVerticalForceRange.x + springVerticalForceRange.y) / 2f;
+            DrawTrajectoryGizmo(startPos, midXZ, midY, 45f); // Right spread
+            DrawTrajectoryGizmo(startPos, midXZ, midY, -45f); // Left spread
+        }
+
+        private void DrawTrajectoryGizmo(Vector3 startPos, float forceXZ, float forceY, float spreadAngle)
+        {
+            Vector3 baseDirection = new Vector3(0, 0, Mathf.Sign(springThrowZDirection));
+            Vector3 throwDirection = Quaternion.Euler(0, spreadAngle, 0) * baseDirection;
+            
+            Vector3 velocity = new Vector3(throwDirection.x * forceXZ, forceY, throwDirection.z * forceXZ);
+            Vector3 gravity = Physics.gravity;
+
+            Vector3 previousPos = startPos;
+            float timeStep = 0.05f;
+            for (float t = 0; t < 2f; t += timeStep)
+            {
+                Vector3 currentPos = startPos + velocity * t + 0.5f * gravity * (t * t);
+                Gizmos.DrawLine(previousPos, currentPos);
+                previousPos = currentPos;
+                
+                // Stop drawing if it hits the ground (approx 0.5 Y)
+                if (currentPos.y < 0.5f && t > 0.1f) break;
+            }
+        }
+#endif
     }
 }
