@@ -161,9 +161,6 @@ namespace Match_Them_All.Scripts.Editor
             if (rend) 
                 so.FindProperty("_renderer").objectReferenceValue = rend;
                 
-            if (col) 
-                so.FindProperty("_collider").objectReferenceValue = col;
-                
             so.ApplyModifiedProperties();
 
             // 6. Save prefab

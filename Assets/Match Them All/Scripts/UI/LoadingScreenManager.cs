@@ -80,7 +80,7 @@ namespace MatchThemAll.Scripts
 
                     Tween.Custom(0f,
                             1f,
-                            0.25f,
+                            0.4f,
                             onValueChange: val =>
                             {
                                 img.color = new Color(0,
@@ -88,6 +88,7 @@ namespace MatchThemAll.Scripts
                                     0,
                                     val);
                             },
+                            ease: Ease.OutQuad,
                             useUnscaledTime: true)
                         .OnComplete(() =>
                         {
@@ -121,10 +122,10 @@ namespace MatchThemAll.Scripts
                 }
 
                 // Fade back in
-                await Tween.Custom(1f, 0f, 0.35f, onValueChange: val =>
+                await Tween.Custom(1f, 0f, 0.6f, onValueChange: val =>
                     {
                         if (img != null) img.color = new Color(0, 0, 0, val);
-                    }, startDelay: 0.1f, useUnscaledTime: true)
+                    }, startDelay: 0.15f, ease: Ease.OutQuad, useUnscaledTime: true)
                     .OnComplete(() => { Destroy(faderGo); });
             }
             catch (Exception e)

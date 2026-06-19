@@ -18,7 +18,6 @@ namespace MatchThemAll.Scripts
 
         [Header("Elements")]
         [SerializeField] private Renderer _renderer;
-        [SerializeField] private Collider _collider;
 
         // Cached in Awake — avoids GetComponent call at runtime inside DisablePhysics()
         private Rigidbody _rigidbody;
@@ -27,6 +26,7 @@ namespace MatchThemAll.Scripts
         // Pre-allocated material arrays — reused on every Select/Deselect call to avoid GC allocations
         private Material[] _selectedMaterials;
         private Material[] _deselectedMaterials;
+        private Collider[] _colliders;
 
         private void Awake()
         {
@@ -36,6 +36,8 @@ namespace MatchThemAll.Scripts
             _deselectedMaterials = new[] { _baseMaterial };
             _selectedMaterials = new Material[2];
             _selectedMaterials[0] = _baseMaterial;
+            
+            _colliders = GetComponentsInChildren<Collider>(true);
         }
 
         public void AssignSpot(ItemSpot spot) => Spot = spot;
@@ -52,16 +54,26 @@ namespace MatchThemAll.Scripts
         {
             if (_rigidbody) 
                 _rigidbody.isKinematic = false;
-            if (_collider) 
-                _collider.enabled = true;
+            if (_colliders != null)
+            {
+                for (int i = 0; i < _colliders.Length; i++)
+                {
+                    if (_colliders[i]) _colliders[i].enabled = true;
+                }
+            }
         }
         
         public void DisablePhysics()
         {
             if (_rigidbody) 
                 _rigidbody.isKinematic = true;
-            if (_collider) 
-                _collider.enabled = false;
+            if (_colliders != null)
+            {
+                for (int i = 0; i < _colliders.Length; i++)
+                {
+                    if (_colliders[i]) _colliders[i].enabled = false;
+                }
+            }
         }
 
         public void Select(Material outlineMaterial)
@@ -93,9 +105,12 @@ namespace MatchThemAll.Scripts
                 _rigidbody.angularVelocity = Vector3.zero;
             }
             
-            if (_collider)
+            if (_colliders != null)
             {
-                _collider.enabled = true;
+                for (int i = 0; i < _colliders.Length; i++)
+                {
+                    if (_colliders[i]) _colliders[i].enabled = true;
+                }
             }
         }
     }
