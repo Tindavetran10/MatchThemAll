@@ -89,7 +89,7 @@ namespace MatchThemAll.Scripts
             }
         }
 
-        private async void ActivateAndFadeIn(AsyncOperation op, Image img, GameObject faderGo)
+        private static async void ActivateAndFadeIn(AsyncOperation op, Image img, GameObject faderGo)
         {
             // Activate the scene
             op.allowSceneActivation = true;
@@ -100,14 +100,14 @@ namespace MatchThemAll.Scripts
                 await System.Threading.Tasks.Task.Delay(10);
             }
 
-            // Wait for LevelManager to finish loading Addressables data to prevent the 200ms integration spike from freezing the fade-in animation
+            // Wait for LevelManager to finish loading Addressable data to prevent the 200ms integration spike from freezing the fade-in animation
             if (LevelManager.Instance != null && LevelManager.Instance.LoadTask != null)
             {
                 await LevelManager.Instance.LoadTask;
             }
 
             // Fade back in
-            Tween.Custom(1f, 0f, 0.35f, onValueChange: val =>
+            await Tween.Custom(1f, 0f, 0.35f, onValueChange: val =>
                 {
                     if (img != null) img.color = new Color(0, 0, 0, val);
                 }, startDelay: 0.1f, useUnscaledTime: true)

@@ -88,7 +88,7 @@ public class InputManager : MonoBehaviour
     // Handles both drag selection and mouse release events
     private void Update()
     {
-        if(GameManager.Instance.IsGame())
+        if(GameManager.Instance.IsGame() && LevelManager.Instance && LevelManager.Instance.IsLevelReady)
             HandleControl();
     }
 

@@ -45,8 +45,12 @@ namespace MatchThemAll.Scripts
             _loadTask = LoadDataAsync();
         }
 
+        public bool IsLevelReady { get; private set; }
+
         private async void SpawnLevel()
         {
+            IsLevelReady = false;
+            
             if (_loadTask != null) await _loadTask;
 
             int requested = SceneLoader.RequestedLevelIndex;
@@ -69,6 +73,8 @@ namespace MatchThemAll.Scripts
 
             // 3. Notify listeners (TimerManager, GoalManager, etc.)
             LevelSpawned?.Invoke(_currentLevel);
+            
+            IsLevelReady = true;
         }
 
         private async Task LoadDataAsync()

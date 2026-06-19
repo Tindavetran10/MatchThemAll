@@ -29,6 +29,8 @@ namespace MatchThemAll.Scripts
 
         private void OnLevelSpawned(Level level)
         {
+            CancelInvoke(nameof(UnfreezeTimer));
+            IsFrozen = false;
             CurrentTime = level.Duration;
             UpdateTimerText();
             StartTimer();
@@ -86,6 +88,8 @@ namespace MatchThemAll.Scripts
             }
         }
 
+        public bool IsFrozen { get; private set; }
+
         private void StopTimer()
         {
             _isRunning = false;
@@ -94,8 +98,19 @@ namespace MatchThemAll.Scripts
 
         public void FreezeTimer()
         {
+            if (IsFrozen) return;
+            IsFrozen = true;
             StopTimer();
-            Invoke(nameof(StartTimer), 10f);
+            Invoke(nameof(UnfreezeTimer), 10f);
+        }
+
+        private void UnfreezeTimer()
+        {
+            IsFrozen = false;
+            if (GameManager.Instance.IsGame())
+            {
+                StartTimer();
+            }
         }
 
         public void AddTime(int seconds)

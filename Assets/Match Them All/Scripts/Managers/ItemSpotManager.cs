@@ -209,31 +209,36 @@ namespace MatchThemAll.Scripts
             MergeStarted?.Invoke(items);
         }
 
-        // Fixed: previously, the completeCallback delegate was mutated inside the loop,
-        // causing each item's animation to fire ALL previously accumulated handlers.
-        // Now each item gets its own isolated callback; only the last item triggers the outer callback.
         private void MoveAllItemsToTheLeft(Action completeCallback)
         {
             // Collect all pending moves before executing any, to avoid modifying the spots mid-loop
             var moves = new List<(Item item, ItemSpot target)>();
 
-            for (int i = 3; i < _activeSpotCount; i++)
+            for (int i = 1; i < _activeSpotCount; i++)
             {
                 ItemSpot spot = _spots[i];
                 if (!spot.gameObject.activeInHierarchy || spot.IsEmpty()) continue;
 
-                Item item = spot.Item;
-                ItemSpot targetSpot = _spots[i - 3];
-
-                if (!targetSpot.IsEmpty())
+                // Find the leftmost empty spot before this one
+                int targetIndex = -1;
+                for (int j = 0; j < i; j++)
                 {
-                    Debug.LogWarning($"{targetSpot.Item.ItemNameKey} is not empty! Index: {targetSpot.transform.GetSiblingIndex()}");
-                    IsBusy = false;
-                    return;
+                    if (_spots[j].IsEmpty())
+                    {
+                        targetIndex = j;
+                        break;
+                    }
                 }
 
-                spot.Clear();
-                moves.Add((item, targetSpot));
+                if (targetIndex != -1)
+                {
+                    Item item = spot.Item;
+                    ItemSpot targetSpot = _spots[targetIndex];
+                    
+                    spot.Clear();
+                    targetSpot.Populate(item); // Reserve it immediately so subsequent items don't pick it
+                    moves.Add((item, targetSpot));
+                }
             }
 
             if (moves.Count == 0)
@@ -264,26 +269,67 @@ namespace MatchThemAll.Scripts
         private void MoveAllItemsToTheRightFrom(ItemSpot idealSpot, Item itemToPlace)
         {
             int spotIndex = idealSpot.transform.GetSiblingIndex();
-
-            for (int i = _activeSpotCount - 2; i >= spotIndex; i--)
+            
+            // Find the nearest empty spot to the right
+            int emptySpotIndex = -1;
+            for (int i = spotIndex + 1; i < _activeSpotCount; i++)
             {
-                ItemSpot spot = _spots[i];
-
-                if (!spot.gameObject.activeInHierarchy || spot.IsEmpty()) continue;
-
-                Item item = spot.Item;
-                spot.Clear();
-
-                ItemSpot targetSpot = _spots[i + 1];
-
-                if (!targetSpot.IsEmpty())
+                if (_spots[i].IsEmpty())
                 {
-                    Debug.LogError("Target spot not empty — should not happen");
-                    IsBusy = false;
-                    return;
+                    emptySpotIndex = i;
+                    break;
                 }
+            }
+            
+            // If we didn't find an empty spot to the right, we're in big trouble
+            // This shouldn't happen because we checked IsFreeSpotAvailable() earlier
+            // But just in case, fall back to the first available spot anywhere
+            if (emptySpotIndex == -1)
+            {
+                for (int i = 0; i < _activeSpotCount; i++)
+                {
+                    if (_spots[i].IsEmpty())
+                    {
+                        emptySpotIndex = i;
+                        break;
+                    }
+                }
+            }
+            
+            if (emptySpotIndex == -1)
+            {
+                Debug.LogError("No empty spot found at all!");
+                IsBusy = false;
+                return;
+            }
 
-                MoveItemToSpot(item, targetSpot, () => HandleItemReachedSpot(item, false));
+            // If the nearest empty spot is to the LEFT, we actually need to shift left instead!
+            // But this method is explicitly "ToTheRightFrom". If it's to the left, we'll just
+            // use a direct MoveAllItemsToTheLeft logic, but that's handled gracefully because
+            // TryMoveItemToIdealSpot uses GetIdealSpotFor which finds the RIGHTMOST sibling.
+            // So emptySpotIndex will ALWAYS be > spotIndex, unless the board is completely full except for gaps on the left.
+            
+            if (emptySpotIndex > spotIndex)
+            {
+                // Shift everything from spotIndex up to emptySpotIndex-1 to the right by 1
+                for (int i = emptySpotIndex - 1; i >= spotIndex; i--)
+                {
+                    ItemSpot spot = _spots[i];
+                    if (!spot.gameObject.activeInHierarchy || spot.IsEmpty()) continue;
+
+                    Item item = spot.Item;
+                    spot.Clear();
+
+                    ItemSpot targetSpot = _spots[i + 1];
+                    MoveItemToSpot(item, targetSpot, () => HandleItemReachedSpot(item, false));
+                }
+            }
+            else
+            {
+                // If the only empty spot is to the LEFT of idealSpot, we just shift the left items.
+                // Or simply place the item in the empty spot and let it sort itself out later.
+                // For simplicity, we just place it in the empty spot so the game doesn't break.
+                idealSpot = _spots[emptySpotIndex];
             }
 
             MoveItemToSpot(itemToPlace, idealSpot, () => HandleItemReachedSpot(itemToPlace));
@@ -335,7 +381,10 @@ namespace MatchThemAll.Scripts
 
         public ItemSpot GetRandomOccupiedSpot()
         {
-            List<ItemSpot> occupiedSpots = _spots.AsValueEnumerable().Take(_activeSpotCount).Where(t => !t.IsEmpty()).ToList();
+            List<ItemSpot> occupiedSpots = _spots.AsValueEnumerable()
+                .Take(_activeSpotCount)
+                .Where(t => !t.IsEmpty() && !t.Item.IsMovingToSpot)
+                .ToList();
             return occupiedSpots.Count <= 0 ? null : occupiedSpots[UnityEngine.Random.Range(0, occupiedSpots.Count)];
         }
 

@@ -66,6 +66,15 @@ namespace MatchThemAll.Scripts
             if(_isBusy) 
                 return;
 
+            if (GameManager.Instance.State != EGameState.GAME)
+                return;
+
+            if (ItemSpotManager.Instance.IsBusy)
+                return;
+
+            if (!CanUsePowerup(powerup.Type))
+                return;
+
             // Try to use a charge, if not, try to buy one
             if (!TryUsePowerupCharge(powerup.Type))
             {
@@ -101,6 +110,23 @@ namespace MatchThemAll.Scripts
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        private bool CanUsePowerup(EPowerupType type)
+        {
+            switch (type)
+            {
+                case EPowerupType.Vacuum:
+                    return true;
+                case EPowerupType.Spring:
+                    return ItemSpotManager.Instance.GetRandomOccupiedSpot() != null;
+                case EPowerupType.Fan:
+                    return true;
+                case EPowerupType.FreezeGun:
+                    return !TimerManager.Instance.IsFrozen;
+                default:
+                    return false;
             }
         }
 
@@ -154,7 +180,10 @@ namespace MatchThemAll.Scripts
             
             int greatestGoalIndex = GetGreatestGoalIndex(goals);
             if (greatestGoalIndex == -1)
+            {
+                _isBusy = false;
                 return;
+            }
             
             ItemLevelData goal = goals[greatestGoalIndex];
             
@@ -164,7 +193,7 @@ namespace MatchThemAll.Scripts
 
             if (items != null)
             {
-                foreach (var item in items.AsValueEnumerable().Where(item => item).Where(item => item.ItemNameKey == goal.itemPrefab.ItemNameKey))
+                foreach (var item in items.AsValueEnumerable().Where(item => item && item.gameObject.activeInHierarchy).Where(item => item.ItemNameKey == goal.itemPrefab.ItemNameKey && item.Spot == null && !item.IsMovingToSpot))
                 {
                     _itemsToCollect.Add(item);
                     if (_itemsToCollect.Count >= 3)
@@ -176,7 +205,8 @@ namespace MatchThemAll.Scripts
 
             if (_vacuumItemToCollect == 0)
             {
-                _isBusy = false;
+                // Delay clearing busy state until the visual animation finishes (~2.5s)
+                Tween.Delay(2.5f).OnComplete(() => _isBusy = false);
                 return;
             }
 
@@ -203,13 +233,14 @@ namespace MatchThemAll.Scripts
                 if (!itemToCollect) continue;
                 ItemPickup?.Invoke(itemToCollect);
             }
+            
+            // Wait for the full vacuum animation to complete before allowing another powerup
+            Tween.Delay(2.5f).OnComplete(() => _isBusy = false);
         }
 
         private void ItemReachedVacuum(Item item)
         {
             _vacuumCounter++;
-            if (_vacuumCounter >= _vacuumItemToCollect)
-                _isBusy = false;
             ItemPoolManager.Instance.ReleaseItem(item);
         }
         private void UpdateAllPowerupVisuals()
@@ -260,7 +291,10 @@ namespace MatchThemAll.Scripts
         private void FanPowerup()
         {
             foreach (var item in LevelManager.Instance.Items) 
-                item.ApplyRandomForce(fanMagnitude);
+            {
+                if (item && item.gameObject.activeInHierarchy)
+                    item.ApplyRandomForce(fanMagnitude);
+            }
         }
         
 
