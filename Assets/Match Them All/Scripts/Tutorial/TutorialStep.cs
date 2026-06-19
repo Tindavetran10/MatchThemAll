@@ -61,7 +61,7 @@ namespace MatchThemAll.Scripts.Tutorial
         public EPowerupType powerupType;
 
         [Tooltip("(Manual) Drag in any GameObjects to highlight.")]
-        public List<GameObject> manualTargets = new List<GameObject>();
+        public List<GameObject> manualTargets = new();
 
         [Header("Completion")]
         [Tooltip("What event causes this step to end and advance to the next.")]

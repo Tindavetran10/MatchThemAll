@@ -41,7 +41,11 @@ namespace MatchThemAll.Scripts.UI
         {
             Tween.StopAll(gameObject.transform);
             transform.localScale = Vector3.one;
-            Tween.Scale(gameObject.transform, Vector3.one * 1.1f, 0.25f, cycles: 2, cycleMode: CycleMode.Yoyo);
+            Tween.Scale(gameObject.transform,
+                Vector3.one * 1.1f,
+                0.25f,
+                cycles: 2,
+                cycleMode: CycleMode.Yoyo);
         }
 
         public void Complete()

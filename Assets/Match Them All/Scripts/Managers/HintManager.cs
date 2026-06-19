@@ -93,7 +93,8 @@ namespace MatchThemAll.Scripts.Managers
             
             if (_activeHintItems is { Count: > 0 })
             {
-                foreach (var item in _activeHintItems.AsValueEnumerable().Where(item => item && item.gameObject.activeInHierarchy))
+                foreach (var item in _activeHintItems.AsValueEnumerable()
+                             .Where(item => item && item.gameObject.activeInHierarchy))
                 {
                     Tween.StopAll(item.transform);
                     // Reset scale to normal (assuming local scale is 1, or roughly the original)

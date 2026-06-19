@@ -441,7 +441,7 @@ namespace Match_Them_All.Scripts.Editor
                 _selectedLevel.seed = UnityEngine.Random.Range(0, 99999);
                 
                 var availablePrefabs = _itemPrefabs?.ToList() ?? new List<GameObject>();
-                // Pick between 2 to 6 item types, capped by how many prefabs actually exist
+                // Pick between 2 and 6 item types, capped by how many prefabs actually exist
                 var minTypes = Mathf.Min(2, availablePrefabs.Count);
                 var maxTypes = Mathf.Min(7, availablePrefabs.Count + 1);
                 var typeCount = availablePrefabs.Count > 0 ? UnityEngine.Random.Range(minTypes, maxTypes) : 3;
@@ -762,14 +762,14 @@ namespace Match_Them_All.Scripts.Editor
                 {
                     GUILayout.BeginHorizontal();
                     GUILayout.Label("Item Name", GUILayout.Width(labelW));
-                    step.itemName = (MatchThemAll.Scripts.EItemName)EditorGUILayout.EnumPopup(step.itemName);
+                    step.itemName = (EItemName)EditorGUILayout.EnumPopup(step.itemName);
                     GUILayout.EndHorizontal();
                 }
                 else if (step.highlightTarget == MatchThemAll.Scripts.Tutorial.EHighlightTarget.Powerup)
                 {
                     GUILayout.BeginHorizontal();
                     GUILayout.Label("Powerup Type", GUILayout.Width(labelW));
-                    step.powerupType = (Match_Them_All.Scripts.Power_Ups.EPowerupType)EditorGUILayout.EnumPopup(step.powerupType);
+                    step.powerupType = (Power_Ups.EPowerupType)EditorGUILayout.EnumPopup(step.powerupType);
                     GUILayout.EndHorizontal();
                 }
                 else if (step.highlightTarget == MatchThemAll.Scripts.Tutorial.EHighlightTarget.Manual)

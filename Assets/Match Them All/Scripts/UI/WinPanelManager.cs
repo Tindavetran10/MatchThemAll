@@ -85,16 +85,27 @@ namespace MatchThemAll.Scripts.UI
                 {
                     // Unearned stars stay small / greyed out — just show them at scale 0.6
                     float delay = starPopDelay * i + 0.2f;
-                    Tween.Scale(star.transform, Vector3.one * 0.6f, starPopDuration * 0.5f, Ease.OutBack, startDelay: delay);
+                    Tween.Scale(star.transform,
+                        Vector3.one * 0.6f,
+                        starPopDuration * 0.5f,
+                        Ease.OutBack,
+                        startDelay: delay);
                     continue;
                 }
 
                 // Earned star: pop in with overshoot bounce
                 var popDelay = starPopDelay * i + 0.2f;
-                Tween.Scale(star.transform, Vector3.one * starOvershoot, starPopDuration, Ease.OutBack, startDelay: popDelay)
+                Tween.Scale(star.transform,
+                        Vector3.one * starOvershoot,
+                        starPopDuration,
+                        Ease.OutBack,
+                        startDelay: popDelay)
                          .OnComplete(() =>
                          {
-                             Tween.Scale(star.transform, Vector3.one, starPopDuration * 0.4f, Ease.InOutSine);
+                             Tween.Scale(star.transform,
+                                 Vector3.one,
+                                 starPopDuration * 0.4f,
+                                 Ease.InOutSine);
                          });
             }
         }

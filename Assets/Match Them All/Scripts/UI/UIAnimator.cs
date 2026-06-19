@@ -49,7 +49,11 @@ namespace MatchThemAll.Scripts.UI
             {
                 // Pop up the card using its original scale
                 _targetToScale.localScale = _originalScale * 0.5f;
-                Tween.Scale(_targetToScale.gameObject.transform, _originalScale, animationDuration, easeType, useUnscaledTime: true);
+                Tween.Scale(_targetToScale.gameObject.transform,
+                    _originalScale,
+                    animationDuration,
+                    easeType,
+                    useUnscaledTime: true);
             }
 
             // Fade the background overlay
@@ -72,7 +76,11 @@ namespace MatchThemAll.Scripts.UI
             if (_canvasGroup)
             {
                 _canvasGroup.alpha = 0f;
-                Tween.Alpha(_canvasGroup, _originalCanvasAlpha, animationDuration, Ease.OutQuad, useUnscaledTime: true);
+                Tween.Alpha(_canvasGroup,
+                    _originalCanvasAlpha,
+                    animationDuration,
+                    Ease.OutQuad,
+                    useUnscaledTime: true);
             }
         }
 
@@ -86,7 +94,11 @@ namespace MatchThemAll.Scripts.UI
                 Tween.StopAll(_targetToScale.gameObject.transform);
                 
                 // Shrink the card
-                Tween.Scale(_targetToScale.gameObject.transform, _originalScale * 0.5f, animationDuration, Ease.InBack, useUnscaledTime: true)
+                Tween.Scale(_targetToScale.gameObject.transform,
+                        _originalScale * 0.5f,
+                        animationDuration,
+                        Ease.InBack,
+                        useUnscaledTime: true)
                          .OnComplete(() => gameObject.SetActive(false));
             }
 

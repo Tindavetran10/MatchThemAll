@@ -49,32 +49,39 @@ namespace MatchThemAll.Scripts
 
         private async void SpawnLevel()
         {
-            IsLevelReady = false;
-            
-            if (_loadTask != null) await _loadTask;
-
-            int requested = SceneLoader.RequestedLevelIndex;
-            CurrentLevelIndex = requested >= 0 && requested < levels.Length
-                ? requested
-                : _savedProgressIndex;
-
-            int index = CurrentLevelIndex % levels.Length;
-
-            // 1. Instantiate the generic Level prefab only if it doesn't exist yet
-            if (_currentLevel == null)
+            try
             {
-                transform.Clear();
-                _currentLevel = Instantiate(levelPrefab, transform);
-            }
-
-            // 2. Initialize with SO data (spawns items, sets duration)
-            //    This will automatically release old items back to the ItemPoolManager.
-            await _currentLevel.InitializeAsync(levels[index]);
-
-            // 3. Notify listeners (TimerManager, GoalManager, etc.)
-            LevelSpawned?.Invoke(_currentLevel);
+                IsLevelReady = false;
             
-            IsLevelReady = true;
+                if (_loadTask != null) await _loadTask;
+
+                int requested = SceneLoader.RequestedLevelIndex;
+                CurrentLevelIndex = requested >= 0 && requested < levels.Length
+                    ? requested
+                    : _savedProgressIndex;
+
+                int index = CurrentLevelIndex % levels.Length;
+
+                // 1. Instantiate the generic Level prefab only if it doesn't exist yet
+                if (_currentLevel == null)
+                {
+                    transform.Clear();
+                    _currentLevel = Instantiate(levelPrefab, transform);
+                }
+
+                // 2. Initialize with SO data (spawns items, sets duration)
+                //    This will automatically release old items back to the ItemPoolManager.
+                await _currentLevel.InitializeAsync(levels[index]);
+
+                // 3. Notify listeners (TimerManager, GoalManager, etc.)
+                LevelSpawned?.Invoke(_currentLevel);
+            
+                IsLevelReady = true;
+            }
+            catch (Exception e)
+            {
+                Debug.LogException(e);
+            }
         }
 
         private async Task LoadDataAsync()
@@ -84,10 +91,10 @@ namespace MatchThemAll.Scripts
             
             try
             {
-                var handle = Addressables.LoadAssetsAsync<LevelDataSO>("LevelData", null);
+                var handle = Addressables.LoadAssetsAsync<LevelDataSO>("LevelData");
                 var loadedLevels = await handle.Task;
 
-                if (loadedLevels != null && loadedLevels.Count > 0)
+                if (loadedLevels is { Count: > 0 })
                 {
                     var list = new List<LevelDataSO>(loadedLevels);
                     list.Sort((a, b) => string.Compare(a.name, b.name, StringComparison.Ordinal));
@@ -96,7 +103,7 @@ namespace MatchThemAll.Scripts
             }
             catch (Exception e)
             {
-                Debug.LogError($"Failed to load LevelData from Addressables: {e.Message}");
+                Debug.LogError($"Failed to load LevelData from Addressable: {e.Message}");
             }
         }
 
@@ -137,7 +144,7 @@ namespace MatchThemAll.Scripts
             switch (gameState)
             {
                 // Only spawn a fresh level when transitioning from a non-pause and non-continue state.
-                // Resuming from PAUSED or OUTOFTIME should never re-spawn the current level.
+                // Resuming from PAUSED or TIMEOUT should never re-spawn the current level.
                 case EGameState.GAME when GameManager.Instance.PreviousState != EGameState.PAUSED && GameManager.Instance.PreviousState != EGameState.OUTOFTIME:
                     SpawnLevel();
                     break;

@@ -8,12 +8,12 @@ namespace MatchThemAll.Scripts
     {
         public static ItemPoolManager Instance { get; private set; }
 
-        private Dictionary<EItemName, IObjectPool<Item>> _pools = new();
+        private readonly Dictionary<EItemName, IObjectPool<Item>> _pools = new();
         private Item _currentRequestedPrefab;
 
         private void Awake()
         {
-            if (Instance == null) Instance = this;
+            if (!Instance) Instance = this;
             else Destroy(gameObject);
         }
 
@@ -67,15 +67,12 @@ namespace MatchThemAll.Scripts
             item.gameObject.SetActive(true);
         }
 
-        private void OnReturnedToPool(Item item)
+        private static void OnReturnedToPool(Item item)
         {
             item.ResetState();
             item.gameObject.SetActive(false);
         }
 
-        private void OnDestroyPoolObject(Item item)
-        {
-            Destroy(item.gameObject);
-        }
+        private static void OnDestroyPoolObject(Item item) => Destroy(item.gameObject);
     }
 }

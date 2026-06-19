@@ -1,9 +1,11 @@
+using System;
 using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using PrimeTween;
+using Random = UnityEngine.Random;
 
 namespace MatchThemAll.Scripts
 {
@@ -59,8 +61,8 @@ namespace MatchThemAll.Scripts
                 float timeProgress = Mathf.Clamp01(elapsed / minimumLoadTime);
                 float displayProgress = Mathf.Min(loadProgress, timeProgress);
 
-                if (progressBar != null) progressBar.value = displayProgress;
-                if (progressText != null) progressText.text = $"{Mathf.RoundToInt(displayProgress * 100)}%";
+                if (progressBar) progressBar.value = displayProgress;
+                if (progressText) progressText.text = $"{Mathf.RoundToInt(displayProgress * 100)}%";
 
                 // Activate scene only when both loading and minimum time are done
                 if (op.progress >= 0.9f && elapsed >= minimumLoadTime && !op.allowSceneActivation)
@@ -76,7 +78,17 @@ namespace MatchThemAll.Scripts
                     var img = go.AddComponent<Image>();
                     img.color = new Color(0, 0, 0, 0);
 
-                    Tween.Custom(0f, 1f, 0.25f, onValueChange: val => { img.color = new Color(0, 0, 0, val); }, useUnscaledTime: true)
+                    Tween.Custom(0f,
+                            1f,
+                            0.25f,
+                            onValueChange: val =>
+                            {
+                                img.color = new Color(0,
+                                    0,
+                                    0,
+                                    val);
+                            },
+                            useUnscaledTime: true)
                         .OnComplete(() =>
                         {
                             ActivateAndFadeIn(op, img, go);
@@ -91,27 +103,34 @@ namespace MatchThemAll.Scripts
 
         private static async void ActivateAndFadeIn(AsyncOperation op, Image img, GameObject faderGo)
         {
-            // Activate the scene
-            op.allowSceneActivation = true;
-
-            // Wait for Unity to finish scene activation
-            while (!op.isDone)
+            try
             {
-                await System.Threading.Tasks.Task.Delay(10);
-            }
+                // Activate the scene
+                op.allowSceneActivation = true;
 
-            // Wait for LevelManager to finish loading Addressable data to prevent the 200ms integration spike from freezing the fade-in animation
-            if (LevelManager.Instance != null && LevelManager.Instance.LoadTask != null)
-            {
-                await LevelManager.Instance.LoadTask;
-            }
-
-            // Fade back in
-            await Tween.Custom(1f, 0f, 0.35f, onValueChange: val =>
+                // Wait for Unity to finish scene activation
+                while (!op.isDone)
                 {
-                    if (img != null) img.color = new Color(0, 0, 0, val);
-                }, startDelay: 0.1f, useUnscaledTime: true)
-                .OnComplete(() => { Destroy(faderGo); });
+                    await System.Threading.Tasks.Task.Delay(10);
+                }
+
+                // Wait for LevelManager to finish loading Addressable data to prevent the 200ms integration spike from freezing the fade-in animation
+                if (LevelManager.Instance != null && LevelManager.Instance.LoadTask != null)
+                {
+                    await LevelManager.Instance.LoadTask;
+                }
+
+                // Fade back in
+                await Tween.Custom(1f, 0f, 0.35f, onValueChange: val =>
+                    {
+                        if (img != null) img.color = new Color(0, 0, 0, val);
+                    }, startDelay: 0.1f, useUnscaledTime: true)
+                    .OnComplete(() => { Destroy(faderGo); });
+            }
+            catch (Exception e)
+            {
+                Debug.LogException(e);
+            }
         }
     }
 }

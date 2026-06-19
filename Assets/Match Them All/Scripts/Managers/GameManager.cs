@@ -7,8 +7,7 @@ namespace MatchThemAll.Scripts
     public class GameManager : MonoBehaviour
     {
         public static GameManager Instance;
-        private EGameState _gameState;
-        public EGameState State => _gameState;
+        public EGameState State { get; private set; }
 
         /// <summary>The state the game was in before the most recent SetGameState call.</summary>
         public EGameState PreviousState { get; private set; }
@@ -44,8 +43,8 @@ namespace MatchThemAll.Scripts
 
         public void SetGameState(EGameState gameState)
         {
-            PreviousState = _gameState;
-            _gameState = gameState;
+            PreviousState = State;
+            State = gameState;
 
             foreach (IGameStateListener listener in _cachedListeners)
                 listener.GameStateChangedCallback(gameState);
@@ -69,6 +68,6 @@ namespace MatchThemAll.Scripts
         public void NextButtonCallback()  => SceneLoader.LoadLevel(-1);
         public void RetryButtonCallback() => RetryLevelCallback();
 
-        public bool IsGame() => _gameState == EGameState.GAME;
+        public bool IsGame() => State == EGameState.GAME;
     }
 }

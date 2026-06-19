@@ -45,7 +45,10 @@ namespace MatchThemAll.Scripts.UI
                 .OnComplete(() => 
                 {
                     Tween.Scale(gameObject.transform, Vector3.one, stayDuration, Ease.InOutSine);
-                    Tween.Custom(1f, 0f, 0.3f, onValueChange: (float alpha) => { if (textMesh) textMesh.alpha = alpha; }, startDelay: stayDuration)
+                    Tween.Custom(1f, 0f, 0.3f, onValueChange: (float alpha) =>
+                        {
+                            if (textMesh) textMesh.alpha = alpha;
+                        }, startDelay: stayDuration)
                         .OnComplete(() => _onCompleteCallback?.Invoke(this));
                 });
         }
@@ -68,9 +71,14 @@ namespace MatchThemAll.Scripts.UI
             float startY = _rect.anchoredPosition.y;
             float targetY = startY + riseDistance;
 
-            Tween.Custom(startY, targetY, riseAndFadeDuration, onValueChange: (float v) => _rect.anchoredPosition = new Vector2(_rect.anchoredPosition.x, v), ease: Ease.OutSine);
+            Tween.Custom(startY, targetY, riseAndFadeDuration,
+                onValueChange: (float v) => _rect.anchoredPosition = new Vector2(_rect.anchoredPosition.x, v),
+                ease: Ease.OutSine);
 
-            Tween.Custom(1f, 0f, riseAndFadeDuration, onValueChange: (float alpha) => { if (textMesh) textMesh.alpha = alpha; }, ease: Ease.InQuad)
+            Tween.Custom(1f, 0f, riseAndFadeDuration, onValueChange: (float alpha) =>
+                {
+                    if (textMesh) textMesh.alpha = alpha;
+                }, ease: Ease.InQuad)
                 .OnComplete(() => _onCompleteCallback?.Invoke(this));
         }
     }

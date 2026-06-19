@@ -45,7 +45,7 @@ namespace MatchThemAll.Scripts.UI
         }
 
         /// <summary>
-        /// Spawns floating text at a UI element's position (pass transform.position of any UI element).
+        /// Spawns floating text at a UI element's position (pass transform. position of any UI element).
         /// </summary>
         public void Spawn(string text, Vector3 uiWorldPosition, Color color)
         {

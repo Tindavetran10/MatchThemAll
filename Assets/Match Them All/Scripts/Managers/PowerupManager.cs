@@ -29,7 +29,6 @@ namespace MatchThemAll.Scripts
         private bool _vacuumRequested;
 
         private int _vacuumItemToCollect;
-        private int _vacuumCounter;
 
         // Optimized: pre-allocated list container reused on every call to avoid runtime list creations and GC allocations
         private readonly List<Item> _itemsToCollect = new(3);
@@ -113,21 +112,16 @@ namespace MatchThemAll.Scripts
             }
         }
 
-        private bool CanUsePowerup(EPowerupType type)
+        private static bool CanUsePowerup(EPowerupType type)
         {
-            switch (type)
+            return type switch
             {
-                case EPowerupType.Vacuum:
-                    return true;
-                case EPowerupType.Spring:
-                    return ItemSpotManager.Instance.GetRandomOccupiedSpot() != null;
-                case EPowerupType.Fan:
-                    return true;
-                case EPowerupType.FreezeGun:
-                    return !TimerManager.Instance.IsFrozen;
-                default:
-                    return false;
-            }
+                EPowerupType.Vacuum => true,
+                EPowerupType.Spring => ItemSpotManager.Instance.GetRandomOccupiedSpot(),
+                EPowerupType.Fan => true,
+                EPowerupType.FreezeGun => !TimerManager.Instance.IsFrozen,
+                _ => false
+            };
         }
 
         private bool TryUsePowerupCharge(EPowerupType type)
@@ -188,7 +182,6 @@ namespace MatchThemAll.Scripts
             ItemLevelData goal = goals[greatestGoalIndex];
             
             //_isBusy = true;
-            _vacuumCounter = 0;
             _itemsToCollect.Clear();
 
             if (items != null)
@@ -238,11 +231,9 @@ namespace MatchThemAll.Scripts
             Tween.Delay(2.5f).OnComplete(() => _isBusy = false);
         }
 
-        private void ItemReachedVacuum(Item item)
-        {
-            _vacuumCounter++;
+        private static void ItemReachedVacuum(Item item) => 
             ItemPoolManager.Instance.ReleaseItem(item);
-        }
+
         private void UpdateAllPowerupVisuals()
         {
             foreach (var pu in _powerupUIElements)
@@ -290,10 +281,9 @@ namespace MatchThemAll.Scripts
         [Button]
         private void FanPowerup()
         {
-            foreach (var item in LevelManager.Instance.Items) 
+            foreach (var item in LevelManager.Instance.Items.AsValueEnumerable().Where(item => item && item.gameObject.activeInHierarchy))
             {
-                if (item && item.gameObject.activeInHierarchy)
-                    item.ApplyRandomForce(fanMagnitude);
+                item.ApplyRandomForce(fanMagnitude);
             }
         }
         

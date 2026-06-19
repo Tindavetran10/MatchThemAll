@@ -20,10 +20,10 @@ namespace MatchThemAll.Scripts.UI
 
         private void Awake()
         {
-            if (claimButton != null)
+            if (claimButton)
                 claimButton.onClick.AddListener(OnClaimClicked);
                 
-            if (closeButton != null)
+            if (closeButton)
                 closeButton.onClick.AddListener(ClosePanel);
         }
 
@@ -31,13 +31,13 @@ namespace MatchThemAll.Scripts.UI
         {
             _onClaimCallback = onClaimCallback;
             
-            if (dayText != null)
+            if (dayText)
                 dayText.text = $"Day {streakDay}";
 
             // Turn on the highlight for the current day (1-indexed to 0-indexed)
             for (int i = 0; i < dayHighlights.Length; i++)
             {
-                if (dayHighlights[i] != null)
+                if (dayHighlights[i])
                     dayHighlights[i].SetActive(i == (streakDay - 1));
             }
 
@@ -48,14 +48,14 @@ namespace MatchThemAll.Scripts.UI
                 Tween.Alpha(canvasGroup, 1f, 0.3f, Ease.OutQuad);
             }
             
-            Transform target = modalTransform != null ? modalTransform : transform;
+            Transform target = modalTransform ? modalTransform : transform;
             target.localScale = Vector3.one * 0.8f;
             Tween.Scale(target, Vector3.one, 0.3f, Ease.OutBack);
         }
 
         private void OnClaimClicked()
         {
-            if (claimButton != null)
+            if (claimButton)
                 claimButton.interactable = false;
 
             _onClaimCallback?.Invoke();
@@ -64,19 +64,16 @@ namespace MatchThemAll.Scripts.UI
 
         public void ClosePanel()
         {
-            Transform target = modalTransform != null ? modalTransform : transform;
+            Transform target = modalTransform ? modalTransform : transform;
             
             // Animate Panel OUT
             Tween.Scale(target, Vector3.one * 0.8f, 0.2f, Ease.InBack);
-            if (canvasGroup != null)
+            if (canvasGroup)
             {
                 Tween.Alpha(canvasGroup, 0f, 0.2f, Ease.InQuad)
                     .OnComplete(() => Destroy(gameObject));
             }
-            else
-            {
-                Destroy(gameObject);
-            }
+            else Destroy(gameObject);
         }
     }
 }

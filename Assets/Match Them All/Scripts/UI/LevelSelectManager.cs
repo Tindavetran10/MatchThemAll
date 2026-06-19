@@ -1,7 +1,7 @@
+using System;
 using MatchThemAll.Scripts.SaveSystem;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
-using System.Threading.Tasks;
 
 namespace MatchThemAll.Scripts.UI
 {
@@ -17,22 +17,29 @@ namespace MatchThemAll.Scripts.UI
 
         private async void Start()
         {
-            PlayerData data = SaveManager.Load();
+            try
+            {
+                PlayerData data = SaveManager.Load();
             
-            // Auto-detect total levels via Addressables
-            int totalLevelsCount = 0;
-            try 
-            {
-                var handle = Addressables.LoadAssetsAsync<LevelDataSO>("LevelData", null);
-                var loadedLevels = await handle.Task;
-                totalLevelsCount = loadedLevels?.Count ?? 0;
-            }
-            catch (System.Exception e)
-            {
-                Debug.LogError($"Failed to load LevelData from Addressables: {e.Message}");
-            }
+                // Auto-detect total levels via Addressable
+                int totalLevelsCount = 0;
+                try 
+                {
+                    var handle = Addressables.LoadAssetsAsync<LevelDataSO>("LevelData");
+                    var loadedLevels = await handle.Task;
+                    totalLevelsCount = loadedLevels?.Count ?? 0;
+                }
+                catch (Exception e)
+                {
+                    Debug.LogError($"Failed to load LevelData from Addressable: {e.Message}");
+                }
 
-            GenerateButtons(data, totalLevelsCount);
+                GenerateButtons(data, totalLevelsCount);
+            }
+            catch (Exception e)
+            {
+                Debug.LogException(e);
+            }
         }
 
         private void GenerateButtons(PlayerData data, int totalLevelsCount)
