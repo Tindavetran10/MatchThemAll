@@ -36,6 +36,14 @@ namespace MatchThemAll.Scripts.UI
             );
         }
 
+        private void Start()
+        {
+            // Pre-warm the pool to avoid Instantiate spikes during the first few combos
+            var prewarm = new System.Collections.Generic.List<FloatingText>(10);
+            for (int i = 0; i < 10; i++) prewarm.Add(_pool.Get());
+            foreach (var ft in prewarm) _pool.Release(ft);
+        }
+
         /// <summary>
         /// Spawns floating text at a UI element's position (pass transform.position of any UI element).
         /// </summary>

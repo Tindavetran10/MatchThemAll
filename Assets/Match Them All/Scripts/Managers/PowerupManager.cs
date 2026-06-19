@@ -43,8 +43,11 @@ namespace MatchThemAll.Scripts
         private int _fanPuCount;
         private int _freezePuCount;
 
+        private Powerup[] _powerupUIElements;
+
         private void Awake()
         {
+            _powerupUIElements = FindObjectsByType<Powerup>(FindObjectsInactive.Include, FindObjectsSortMode.None);
             LoadData();
             
             Vacuum.Started += OnVacuumStarted;
@@ -208,12 +211,11 @@ namespace MatchThemAll.Scripts
             _vacuumCounter++;
             if (_vacuumCounter >= _vacuumItemToCollect)
                 _isBusy = false;
-            Destroy(item.gameObject);
+            ItemPoolManager.Instance.ReleaseItem(item);
         }
         private void UpdateAllPowerupVisuals()
         {
-            var powerups = FindObjectsByType<Powerup>(FindObjectsInactive.Include, FindObjectsSortMode.None);
-            foreach (var pu in powerups)
+            foreach (var pu in _powerupUIElements)
             {
                 switch (pu.Type)
                 {
@@ -258,9 +260,7 @@ namespace MatchThemAll.Scripts
         [Button]
         private void FanPowerup()
         {
-            Item[] items = LevelManager.Instance.Items.ToArray();
-
-            foreach (var item in items) 
+            foreach (var item in LevelManager.Instance.Items) 
                 item.ApplyRandomForce(fanMagnitude);
         }
         

@@ -1,5 +1,7 @@
 using MatchThemAll.Scripts.SaveSystem;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
+using System.Threading.Tasks;
 
 namespace MatchThemAll.Scripts.UI
 {
@@ -13,13 +15,22 @@ namespace MatchThemAll.Scripts.UI
         [SerializeField] private LevelButtonUI levelButtonPrefab;
         [SerializeField] private Transform     buttonContainer;
 
-        private void Start()
+        private async void Start()
         {
             PlayerData data = SaveManager.Load();
             
-            // Auto-detect total levels from the Resources folder (same as LevelManager)
-            var loadedLevels = Resources.LoadAll<LevelDataSO>("Levels");
-            int totalLevelsCount = loadedLevels?.Length ?? 0;
+            // Auto-detect total levels via Addressables
+            int totalLevelsCount = 0;
+            try 
+            {
+                var handle = Addressables.LoadAssetsAsync<LevelDataSO>("LevelData", null);
+                var loadedLevels = await handle.Task;
+                totalLevelsCount = loadedLevels?.Count ?? 0;
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError($"Failed to load LevelData from Addressables: {e.Message}");
+            }
 
             GenerateButtons(data, totalLevelsCount);
         }

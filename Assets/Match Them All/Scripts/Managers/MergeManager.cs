@@ -39,6 +39,14 @@ namespace MatchThemAll.Scripts
             );
         }
 
+        private void Start()
+        {
+            // Pre-warm the pool to avoid Instantiate spikes during the first few merges
+            var prewarm = new List<ParticleSystem>(4);
+            for (int i = 0; i < 4; i++) prewarm.Add(_particlePool.Get());
+            foreach (var ps in prewarm) _particlePool.Release(ps);
+        }
+
         private void OnDestroy()
         {
             ItemSpotManager.MergeStarted -= OnMergeStarted;

@@ -76,7 +76,7 @@ MonoBehaviour:
   itemNameKey: 1
   icon: {fileID: 981902999, guid: 260ec3ba1a9a9e444b0abcaf24b3faf7, type: 3}
   _renderer: {fileID: 146297581253339410}
-  _collider: {fileID: 6657396827378453809}
+  _collider: {fileID: 6773966244631850823}
 --- !u!1 &3569131482340833208
 GameObject:
   m_ObjectHideFlags: 0
@@ -88,7 +88,7 @@ GameObject:
   - component: {fileID: 8936885537050674374}
   - component: {fileID: 3103961832388048250}
   - component: {fileID: 146297581253339410}
-  - component: {fileID: 6657396827378453809}
+  - component: {fileID: 6773966244631850823}
   m_Layer: 6
   m_Name: Renderer
   m_TagString: Untagged
@@ -164,7 +164,7 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!64 &6657396827378453809
+--- !u!64 &6773966244631850823
 MeshCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

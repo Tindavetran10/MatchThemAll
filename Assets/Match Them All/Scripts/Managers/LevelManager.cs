@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using MatchThemAll.Scripts.SaveSystem;
 using NaughtyAttributes;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
+using System.Threading.Tasks;
 
 namespace MatchThemAll.Scripts
 {
@@ -31,17 +33,21 @@ namespace MatchThemAll.Scripts
         [Header("Actions")]
         public static Action<Level> LevelSpawned;
         
+        private Task _loadTask;
+
         private void Awake()
         {
             if (Instance == null)
                 Instance = this;
             else Destroy(gameObject);
 
-            LoadData();
+            _loadTask = LoadDataAsync();
         }
 
-        private void SpawnLevel()
+        private async void SpawnLevel()
         {
+            if (_loadTask != null) await _loadTask;
+            
             transform.Clear();
 
             // Use the level requested by SceneLoader (replay) if set, otherwise use saved progress
@@ -63,18 +69,26 @@ namespace MatchThemAll.Scripts
             LevelSpawned?.Invoke(_currentLevel);
         }
 
-        private void LoadData()
+        private async Task LoadDataAsync()
         {
             _savedProgressIndex = SaveManager.Load().currentLevelIndex;
             CurrentLevelIndex = _savedProgressIndex;
             
-            // Automatically load all levels from the Resources/Levels folder
-            var loadedLevels = Resources.LoadAll<LevelDataSO>("Levels");
-            if (loadedLevels is { Length: > 0 })
+            try
             {
-                // Sort alphabetically to ensure LevelData01 comes before LevelData02, etc.
-                Array.Sort(loadedLevels, (a, b) => string.Compare(a.name, b.name, StringComparison.Ordinal));
-                levels = loadedLevels;
+                var handle = Addressables.LoadAssetsAsync<LevelDataSO>("LevelData", null);
+                var loadedLevels = await handle.Task;
+
+                if (loadedLevels != null && loadedLevels.Count > 0)
+                {
+                    var list = new List<LevelDataSO>(loadedLevels);
+                    list.Sort((a, b) => string.Compare(a.name, b.name, StringComparison.Ordinal));
+                    levels = list.ToArray();
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"Failed to load LevelData from Addressables: {e.Message}");
             }
         }
 
