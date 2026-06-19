@@ -37,6 +37,7 @@ namespace MatchThemAll.Scripts
                     SpawnItem(entry.itemPrefab);
                 }
             }
+            CompactItems();
         }
 
         public async Task InitializeAsync(LevelDataSO data)
@@ -62,6 +63,7 @@ namespace MatchThemAll.Scripts
                     }
                 }
             }
+            CompactItems();
         }
 
         private void ClearItems()
@@ -74,6 +76,19 @@ namespace MatchThemAll.Scripts
                 }
             }
             _activeItems.Clear();
+        }
+
+        /// <summary>
+        /// Removes null entries from the active items list.
+        /// Called after spawning completes — NOT on every read.
+        /// </summary>
+        private void CompactItems()
+        {
+            for (int i = _activeItems.Count - 1; i >= 0; i--)
+            {
+                if (_activeItems[i] == null)
+                    _activeItems.RemoveAt(i);
+            }
         }
 
         private void SpawnItem(Item prefab)
@@ -95,15 +110,7 @@ namespace MatchThemAll.Scripts
             return transform.TransformPoint(localPos);
         }
 
-        public System.Collections.Generic.List<Item> GetItems()
-        {
-            for (int i = _activeItems.Count - 1; i >= 0; i--)
-            {
-                if (_activeItems[i] == null)
-                    _activeItems.RemoveAt(i);
-            }
-            return _activeItems;
-        }
+        public System.Collections.Generic.List<Item> GetItems() => _activeItems;
 
 #if UNITY_EDITOR
         [Header("Editor Preview")]

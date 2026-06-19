@@ -34,6 +34,7 @@ namespace MatchThemAll.Scripts
         /// </summary>
         private void OnValidate()
         {
+            _cachedGoals = null; // Invalidate cache when edited in Inspector
             if (itemData == null) return;
             for (int i = 0; i < itemData.Count; i++)
             {
@@ -48,14 +49,19 @@ namespace MatchThemAll.Scripts
             }
         }
 
+        // Cached to avoid rebuilding the array on every call (Vacuum, level spawn, etc.)
+        private ItemLevelData[] _cachedGoals;
         
         public ItemLevelData[] GetGoals()
         {
+            if (_cachedGoals != null) return _cachedGoals;
+            
             var goals = new List<ItemLevelData>();
             for (int i = 0; i < itemData.Count; i++)
                 if (itemData[i].isGoal)
                     goals.Add(itemData[i]);
-            return goals.ToArray();
+            _cachedGoals = goals.ToArray();
+            return _cachedGoals;
         }
     }
 }

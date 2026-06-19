@@ -15,6 +15,10 @@ namespace MatchThemAll.Scripts
         private ItemSpot[] _spots;
         private int _activeSpotCount = 7;
 
+        // Pre-allocated buffer for compaction moves — avoids List allocation on every merge
+        private (Item item, ItemSpot target)[] _moveBuffer;
+        private int _moveCount;
+
         [Header("Settings")]
         [SerializeField] private Vector3 itemLocalPositionOnSpot;
         [SerializeField] private Vector3 itemLocalScaleOnSpot;
@@ -43,6 +47,8 @@ namespace MatchThemAll.Scripts
 
             PowerupManager.ItemBackToGame += OnItemBackToGame;
             StoreSpot();
+            
+            _moveBuffer = new (Item, ItemSpot)[_spots.Length];
         }
 
         private void OnDestroy()
@@ -212,7 +218,7 @@ namespace MatchThemAll.Scripts
         private void MoveAllItemsToTheLeft(Action completeCallback)
         {
             // Collect all pending moves before executing any, to avoid modifying the spots mid-loop
-            var moves = new List<(Item item, ItemSpot target)>();
+            _moveCount = 0;
 
             for (int i = 1; i < _activeSpotCount; i++)
             {
@@ -237,21 +243,21 @@ namespace MatchThemAll.Scripts
                     
                     spot.Clear();
                     targetSpot.Populate(item); // Reserve it immediately so subsequent items don't pick it
-                    moves.Add((item, targetSpot));
+                    _moveBuffer[_moveCount++] = (item, targetSpot);
                 }
             }
 
-            if (moves.Count == 0)
+            if (_moveCount == 0)
             {
                 completeCallback?.Invoke();
                 return;
             }
 
-            for (int i = 0; i < moves.Count; i++)
+            for (int i = 0; i < _moveCount; i++)
             {
                 // Capture loop variable for closure
-                var (movedItem, targetSpot) = moves[i];
-                bool isLast = i == moves.Count - 1;
+                var (movedItem, targetSpot) = _moveBuffer[i];
+                bool isLast = i == _moveCount - 1;
 
                 Action callback = isLast
                     ? () => { HandleItemReachedSpot(movedItem, false); completeCallback?.Invoke(); }
@@ -443,29 +449,13 @@ namespace MatchThemAll.Scripts
                 if (availableItems.Count <= count)
                     return availableItems;
 
-                // Find the cluster of 'count' items with the minimum total distance to their center
-                List<Item> bestCluster = null;
-                float minDistanceSum = float.MaxValue;
-
-                foreach (var seed in availableItems)
-                {
-                    // Order by distance to the seed item
-                    var cluster = availableItems.AsValueEnumerable()
-                        .OrderBy(i => Vector3.Distance(seed.transform.position, i.transform.position))
-                        .Take(count)
-                        .ToList();
-
-                    // Calculate total distance spread in this cluster
-                    float distanceSum = cluster.AsValueEnumerable().Sum(item => Vector3.Distance(seed.transform.position, item.transform.position));
-
-                    if (distanceSum < minDistanceSum)
-                    {
-                        minDistanceSum = distanceSum;
-                        bestCluster = cluster;
-                    }
-                }
-
-                return bestCluster ?? availableItems.AsValueEnumerable().Take(count).ToList();
+                // Pick a random seed, then grab the closest 'count' items to it — O(n log n)
+                var seed = availableItems[UnityEngine.Random.Range(0, availableItems.Count)];
+                Vector3 seedPos = seed.transform.position;
+                availableItems.Sort((a, b) =>
+                    Vector3.SqrMagnitude(a.transform.position - seedPos)
+                    .CompareTo(Vector3.SqrMagnitude(b.transform.position - seedPos)));
+                return availableItems.GetRange(0, count);
             }
 
             return new List<Item>();

@@ -15,6 +15,9 @@ namespace MatchThemAll.Scripts
         public int CurrentTime { get; private set; }
 
         private bool _isRunning;
+        
+        // Cached to avoid allocating a new WaitForSeconds every tick
+        private static readonly WaitForSeconds OneSecondWait = new(1f);
 
         private void Awake()
         {
@@ -47,7 +50,7 @@ namespace MatchThemAll.Scripts
         {
             while (CurrentTime > 0)
             {
-                yield return new WaitForSeconds(1f); // wait a full second before decrementing
+                yield return OneSecondWait;
                 if (!_isRunning) yield break;        // respect Stop/Pause
 
                 CurrentTime--;
@@ -59,10 +62,8 @@ namespace MatchThemAll.Scripts
 
         private void UpdateTimerText()
         {
-            // Direct integer math — no TimeSpan, no Substring, no extra allocations
-            int minutes = CurrentTime / 60;
-            int seconds = CurrentTime % 60;
-            timerText.text = $"{minutes:D2}:{seconds:D2}";
+            // TMP's SetText(string, float, float) writes directly into the text buffer — zero string allocation
+            timerText.SetText("{0:00}:{1:00}", CurrentTime / 60, CurrentTime % 60);
         }
 
         private void TimerFinished()

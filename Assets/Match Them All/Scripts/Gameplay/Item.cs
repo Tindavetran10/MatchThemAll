@@ -24,10 +24,18 @@ namespace MatchThemAll.Scripts
         private Rigidbody _rigidbody;
         private Material _baseMaterial;
 
+        // Pre-allocated material arrays — reused on every Select/Deselect call to avoid GC allocations
+        private Material[] _selectedMaterials;
+        private Material[] _deselectedMaterials;
+
         private void Awake()
         {
-            _baseMaterial = _renderer.material;
+            _baseMaterial = _renderer.sharedMaterial; // sharedMaterial avoids cloning — preserves GPU batching
             _rigidbody = GetComponent<Rigidbody>();
+            
+            _deselectedMaterials = new[] { _baseMaterial };
+            _selectedMaterials = new Material[2];
+            _selectedMaterials[0] = _baseMaterial;
         }
 
         public void AssignSpot(ItemSpot spot) => Spot = spot;
@@ -56,14 +64,17 @@ namespace MatchThemAll.Scripts
                 _collider.enabled = false;
         }
 
-        public void Select(Material outlineMaterial) =>
-            _renderer.materials = new[] { _baseMaterial, outlineMaterial };
+        public void Select(Material outlineMaterial)
+        {
+            _selectedMaterials[1] = outlineMaterial;
+            _renderer.materials = _selectedMaterials;
+        }
 
         public void Deselect() =>
-            _renderer.materials = new[] { _baseMaterial };
+            _renderer.materials = _deselectedMaterials;
 
         public void ApplyRandomForce(float magnitude) => 
-            GetComponent<Rigidbody>().AddForce(Random.insideUnitSphere * magnitude, ForceMode.VelocityChange);
+            _rigidbody.AddForce(Random.insideUnitSphere * magnitude, ForceMode.VelocityChange);
 
         public void ResetState()
         {
