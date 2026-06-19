@@ -2168,8 +2168,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 2.485708, z: 0.93615514}
-  m_Center: {x: 0, y: 0.38571018, z: 0.03192243}
+  m_Size: {x: 1, y: 2.0571368, z: 0.93615514}
+  m_Center: {x: 0, y: 0.599996, z: 0.03192243}
 --- !u!33 &333309122
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -7957,8 +7957,8 @@ MonoBehaviour:
   initialSpringCount: 3
   initialFanCount: 3
   initialFreezeCount: 3
-  springHorizontalForceRange: {x: 1.75, y: 2.35}
-  springVerticalForceRange: {x: 2.5, y: 2.75}
+  springHorizontalForceRange: {x: 3, y: 4}
+  springVerticalForceRange: {x: 3.85, y: 4}
   springSpinSpeedRange: {x: 0, y: 0}
   springThrowZDirection: -1
 --- !u!1 &1218867516
@@ -8080,8 +8080,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1.4857072, z: 0.93615514}
-  m_Center: {x: 0, y: 0.24285306, z: 0.03192243}
+  m_Size: {x: 1, y: 2.1999931, z: 0.93615514}
+  m_Center: {x: 7.6447265e-17, y: 0.5999958, z: 0.03192243}
 --- !u!33 &1254873543
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -10779,8 +10779,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1.4857072, z: 0.93615514}
-  m_Center: {x: 0, y: 0.24285306, z: 0.03192243}
+  m_Size: {x: 1.65, y: 2.1999931, z: 0.93615514}
+  m_Center: {x: -0.49999994, y: 0.5999958, z: 0.03192243}
 --- !u!33 &1739096010
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -12684,7 +12684,7 @@ Transform:
   m_GameObject: {fileID: 2114317823}
   serializedVersion: 2
   m_LocalRotation: {x: -0.18896611, y: 0.18896611, z: 0.68138963, w: 0.68138963}
-  m_LocalPosition: {x: -0, y: -3.25, z: 1.66}
+  m_LocalPosition: {x: -0, y: -3.25, z: 4}
   m_LocalScale: {x: 5, y: 5, z: 5}
   m_ConstrainProportionsScale: 1
   m_Children:

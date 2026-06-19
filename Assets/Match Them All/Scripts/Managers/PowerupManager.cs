@@ -35,11 +35,11 @@ namespace MatchThemAll.Scripts
         
         [Header("Spring Powerup Settings")]
         [SerializeField, Tooltip("Min/Max horizontal throw force")] 
-        private Vector2 springHorizontalForceRange = new Vector2(4f, 7f);
+        private Vector2 springHorizontalForceRange = new(4f, 7f);
         [SerializeField, Tooltip("Min/Max vertical throw force")] 
-        private Vector2 springVerticalForceRange = new Vector2(6f, 9f);
+        private Vector2 springVerticalForceRange = new(6f, 9f);
         [SerializeField, Tooltip("Min/Max spin speed")] 
-        private Vector2 springSpinSpeedRange = new Vector2(5f, 12f);
+        private Vector2 springSpinSpeedRange = new(5f, 12f);
         [SerializeField, Tooltip("1 for forward (positive Z), -1 for backward (negative Z)")] 
         private float springThrowZDirection = 1f;
 
@@ -279,7 +279,10 @@ namespace MatchThemAll.Scripts
             itemToRelease.transform.parent = LevelManager.Instance.ItemParent;
             itemToRelease.transform.localScale = Vector3.one;
             
-            Vector3 startPos = itemToRelease.transform.position;
+            // Instantly pop the item up slightly so it doesn't collide with other items
+            // while trying to escape the tightly packed ItemSpot area!
+            Vector3 startPos = itemToRelease.transform.position + Vector3.up * 1f;
+            itemToRelease.transform.position = startPos;
 
             // We will use pure physics for the throw instead of animation!
             // This guarantees a perfect parabolic arc that respects all collisions on the way down.
@@ -287,7 +290,7 @@ namespace MatchThemAll.Scripts
             ItemBackToGame?.Invoke(itemToRelease);
 
             Rigidbody rb = itemToRelease.GetComponent<Rigidbody>();
-            if (rb != null)
+            if (rb)
             {
                 // Toss it like a real bomb!
                 // Throw it based on the Z direction setting, with a small random spread
@@ -309,10 +312,7 @@ namespace MatchThemAll.Scripts
                 // Players shouldn't be locked out of playing just because an item is falling.
                 Tween.Delay(0.2f, () => _isBusy = false);
             }
-            else
-            {
-                _isBusy = false;
-            }
+            else _isBusy = false;
         }
         #endregion
 
@@ -321,9 +321,7 @@ namespace MatchThemAll.Scripts
         private void FanPowerup()
         {
             foreach (var item in LevelManager.Instance.Items.AsValueEnumerable().Where(item => item && item.gameObject.activeInHierarchy))
-            {
                 item.ApplyRandomForce(fanMagnitude);
-            }
         }
         
 
