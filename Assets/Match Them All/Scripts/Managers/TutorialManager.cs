@@ -8,6 +8,7 @@ using Match_Them_All.Scripts.Power_Ups;
 using MatchThemAll.Scripts.Tutorial;
 using MatchThemAll.Scripts.UI;
 using PrimeTween;
+using MatchThemAll.Scripts;
 
 namespace MatchThemAll.Scripts.Managers
 {
@@ -66,17 +67,17 @@ namespace MatchThemAll.Scripts.Managers
         private void OnEnable()
         {
             LevelManager.LevelSpawned += OnLevelSpawned;
-            InputManager.ItemClicked += OnItemClicked;
-            InputManager.PowerupClicked += OnPowerupClicked;
-            ItemSpotManager.MergeStarted += OnMergeStarted;
+            EventBus.Subscribe<ItemClickedEvent>(OnItemClickedEvent);
+            EventBus.Subscribe<PowerupClickedEvent>(OnPowerupClickedEvent);
+            EventBus.Subscribe<MergeStartedEvent>(OnMergeStarted);
         }
 
         private void OnDisable()
         {
             LevelManager.LevelSpawned -= OnLevelSpawned;
-            InputManager.ItemClicked -= OnItemClicked;
-            InputManager.PowerupClicked -= OnPowerupClicked;
-            ItemSpotManager.MergeStarted -= OnMergeStarted;
+            EventBus.Unsubscribe<ItemClickedEvent>(OnItemClickedEvent);
+            EventBus.Unsubscribe<PowerupClickedEvent>(OnPowerupClickedEvent);
+            EventBus.Unsubscribe<MergeStartedEvent>(OnMergeStarted);
         }
 
         // ─────────────────────────────────────────────────────────────────
@@ -285,18 +286,20 @@ namespace MatchThemAll.Scripts.Managers
         // ─────────────────────────────────────────────────────────────────
         // Event listeners
         // ─────────────────────────────────────────────────────────────────
-        private static void OnItemClicked(Item item) { /* merge detection handles completion */ }
+        private static void OnItemClickedEvent(ItemClickedEvent evt) { /* merge detection handles completion */ }
 
-        private void OnPowerupClicked(Powerup powerup)
+        private void OnPowerupClickedEvent(PowerupClickedEvent evt)
         {
+            var powerup = evt.ClickedPowerup;
             if (_currentStep == null) return;
             if (_currentStep.completionCondition != ECompletionCondition.OnPowerupUsed) return;
             if (powerup == _targetPowerup)
                 CompleteCurrentStep();
         }
 
-        private void OnMergeStarted(List<Item> items)
+        private void OnMergeStarted(MergeStartedEvent evt)
         {
+            var items = evt.MergedItems;
             if (_currentStep == null) return;
             if (_currentStep.completionCondition != ECompletionCondition.OnMerge) return;
 

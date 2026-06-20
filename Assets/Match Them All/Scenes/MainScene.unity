@@ -355,7 +355,6 @@ GameObject:
   - component: {fileID: 70185146}
   - component: {fileID: 70185152}
   - component: {fileID: 70185151}
-  - component: {fileID: 70185150}
   - component: {fileID: 70185149}
   - component: {fileID: 70185154}
   - component: {fileID: 70185153}
@@ -401,26 +400,6 @@ MonoBehaviour:
   animationDuration: 0.3
   easeType: 27
   targetToScale: {fileID: 0}
---- !u!114 &70185150
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 70185145}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 20157755e4e2ec44cbcb659e5681815a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  continuePanel: {fileID: 70185145}
-  watchAdButton: {fileID: 1467628971}
-  payCoinsButton: {fileID: 546544055}
-  giveUpButton: {fileID: 1930788674}
-  coinsCostText: {fileID: 0}
-  continueCost: 100
-  timeBonusSeconds: 30
-  closeDuration: 0.35
 --- !u!114 &70185151
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7952,15 +7931,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MatchThemAll.Scripts.PowerupManager
   vacuum: {fileID: 1947967955}
   vacuumSuckPosition: {fileID: 968201496}
-  fanMagnitude: 20
-  initialVacuumCount: 3
-  initialSpringCount: 3
-  initialFanCount: 3
-  initialFreezeCount: 3
-  springHorizontalForceRange: {x: 3, y: 4}
-  springVerticalForceRange: {x: 3.85, y: 4}
-  springSpinSpeedRange: {x: 0, y: 0}
-  springThrowZDirection: -1
+  gameSettings: {fileID: 0}
 --- !u!1 &1218867516
 GameObject:
   m_ObjectHideFlags: 0
@@ -12600,6 +12571,7 @@ GameObject:
   - component: {fileID: 2065803014}
   - component: {fileID: 2065803015}
   - component: {fileID: 2065803016}
+  - component: {fileID: 2065803017}
   m_Layer: 0
   m_Name: UIManager
   m_TagString: Untagged
@@ -12653,6 +12625,26 @@ MonoBehaviour:
   musicSlider: {fileID: 369328973}
   sfxSlider: {fileID: 1285455142}
   hapticsToggle: {fileID: 1018121973}
+--- !u!114 &2065803017
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2065803013}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 20157755e4e2ec44cbcb659e5681815a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  continuePanel: {fileID: 70185145}
+  watchAdButton: {fileID: 1467628971}
+  payCoinsButton: {fileID: 546544055}
+  giveUpButton: {fileID: 1930788674}
+  coinsCostText: {fileID: 0}
+  continueCost: 100
+  timeBonusSeconds: 30
+  closeDuration: 0.35
 --- !u!4 &2068970844 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7007064126747130289, guid: 57c4fe026af9f3f468b175343c71b8ba, type: 3}

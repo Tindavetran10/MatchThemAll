@@ -7,11 +7,14 @@ namespace Match_Them_All.Scripts.Pixelate
     /// Activates/deactivates the pixelate renderer feature based on game state.
     /// Attach this to any persistent GameObject (e.g., GameManager or a dedicated FX object).
     /// </summary>
-    public class PixelizeController : MonoBehaviour, IGameStateListener
+    public class PixelizeController : MonoBehaviour
     {
-        public void GameStateChangedCallback(EGameState newState)
+        private void Awake() => EventBus.Subscribe<GameStateChangedEvent>(OnGameStateChanged);
+        private void OnDestroy() => EventBus.Unsubscribe<GameStateChangedEvent>(OnGameStateChanged);
+
+        private void OnGameStateChanged(GameStateChangedEvent evt)
         {
-            PixelizeFeature.IsActive = newState == EGameState.PAUSED;
+            PixelizeFeature.IsActive = evt.NewState == EGameState.PAUSED;
         }
     }
 }

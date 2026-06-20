@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using ZLinq;
 using UnityEngine;
 using PrimeTween;
+using MatchThemAll.Scripts;
 
 namespace MatchThemAll.Scripts.Managers
 {
@@ -14,12 +15,13 @@ namespace MatchThemAll.Scripts.Managers
         private List<Item> _activeHintItems = new();
         private EItemName? _currentHintType;
         
-        private void Awake() => InputManager.ItemClicked += OnItemClicked;
+        private void Awake() => EventBus.Subscribe<ItemClickedEvent>(OnItemClickedEvent);
 
-        private void OnDestroy() => InputManager.ItemClicked -= OnItemClicked;
+        private void OnDestroy() => EventBus.Unsubscribe<ItemClickedEvent>(OnItemClickedEvent);
 
-        private void OnItemClicked(Item item)
+        private void OnItemClickedEvent(ItemClickedEvent evt)
         {
+            var item = evt.ClickedItem;
             if (_activeHintItems.Count > 0 && _currentHintType.HasValue)
             {
                 if (item.ItemNameKey != _currentHintType.Value)
@@ -32,7 +34,11 @@ namespace MatchThemAll.Scripts.Managers
                     // Player clicked the hinted item, just remove it from the list so we don't error out later
                     if (_activeHintItems.Contains(item))
                     {
-                        Tween.StopAll(item.transform);
+                        if (!item.IsMovingToSpot)
+                        {
+                            Tween.StopAll(item.transform);
+                            Tween.Scale(item.transform, Vector3.one, 0.1f);
+                        }
                         _activeHintItems.Remove(item);
                     }
                 }
@@ -51,9 +57,8 @@ namespace MatchThemAll.Scripts.Managers
             if (_activeHintItems.Count == 0)
             {
                 bool isActive = InputManager.Instance && InputManager.Instance.IsPointerActive;
-                bool isBusy = ItemSpotManager.Instance && ItemSpotManager.Instance.IsBusy;
 
-                if (isActive || isBusy)
+                if (isActive)
                 {
                     _idleTimer = 0f;
                 }
@@ -96,14 +101,17 @@ namespace MatchThemAll.Scripts.Managers
                 foreach (var item in _activeHintItems.AsValueEnumerable()
                              .Where(item => item && item.gameObject.activeInHierarchy))
                 {
-                    Tween.StopAll(item.transform);
-                    // Reset scale to normal (assuming local scale is 1, or roughly the original)
-                    // It's safer to let the Select/Deselect handle materials, but scale needs to be reset
-                    Tween.Scale(item.transform, Vector3.one, 0.1f);
-                        
-                    if (!item.Spot && !item.IsMovingToSpot)
+                    if (!item.IsMovingToSpot)
                     {
-                        item.Deselect();
+                        Tween.StopAll(item.transform);
+                        // Reset scale to normal (assuming local scale is 1, or roughly the original)
+                        // It's safer to let the Select/Deselect handle materials, but scale needs to be reset
+                        Tween.Scale(item.transform, Vector3.one, 0.1f);
+                            
+                        if (!item.Spot)
+                        {
+                            item.Deselect();
+                        }
                     }
                 }
 

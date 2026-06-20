@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace MatchThemAll.Scripts
 {
-    public class TimerManager : MonoBehaviour, IGameStateListener
+    public class TimerManager : MonoBehaviour
     {
         public static TimerManager Instance;
         
@@ -26,9 +26,14 @@ namespace MatchThemAll.Scripts
             else Destroy(gameObject);
             
             LevelManager.LevelSpawned += OnLevelSpawned;
+            EventBus.Subscribe<GameStateChangedEvent>(OnGameStateChanged);
         }
 
-        private void OnDestroy() => LevelManager.LevelSpawned -= OnLevelSpawned;
+        private void OnDestroy()
+        {
+            LevelManager.LevelSpawned -= OnLevelSpawned;
+            EventBus.Unsubscribe<GameStateChangedEvent>(OnGameStateChanged);
+        }
 
         private void OnLevelSpawned(Level level)
         {
@@ -72,9 +77,9 @@ namespace MatchThemAll.Scripts
             GameManager.Instance.SetGameState(EGameState.OUTOFTIME);
         }
 
-        public void GameStateChangedCallback(EGameState gameState)
+        private void OnGameStateChanged(GameStateChangedEvent evt)
         {
-            switch (gameState)
+            switch (evt.NewState)
             {
                 case EGameState.PAUSED:
                 case EGameState.OUTOFTIME:

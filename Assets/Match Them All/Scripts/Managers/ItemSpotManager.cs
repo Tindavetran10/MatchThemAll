@@ -15,25 +15,15 @@ namespace MatchThemAll.Scripts
         private ItemSpot[] _spots;
         private int _activeSpotCount = 7;
 
-        // Pre-allocated buffer for compaction moves — avoids List allocation on every merge
-        private (Item item, ItemSpot target)[] _moveBuffer;
-        private int _moveCount;
-
         [Header("Settings")]
         [SerializeField] private Vector3 itemLocalPositionOnSpot;
         [SerializeField] private Vector3 itemLocalScaleOnSpot;
-
-        public bool IsBusy { get; private set; }
-
-        [Header("Data")]
-        private readonly Dictionary<EItemName, ItemMergeData> _itemMergeDataDictionary = new();
 
         [Header("Animation Settings")]
         [SerializeField] private float animationDuration = 0.15f;
         [SerializeField] private Ease animationEase = Ease.InOutCubic;
 
         [Header("Actions")]
-        public static Action<List<Item>> MergeStarted;
         public static Action<Item> ItemPickedUp;
 
         private void Awake()
@@ -42,12 +32,16 @@ namespace MatchThemAll.Scripts
                 Instance = this;
             else Destroy(gameObject);
             
-            InputManager.ItemClicked += OnItemClicked;
+            if (!gameObject.GetComponent<MatchSystem>())
+            {
+                gameObject.AddComponent<MatchSystem>();
+            }
+            
+            EventBus.Subscribe<ItemClickedEvent>(OnItemClickedEvent);
+            EventBus.Subscribe<MergeStartedEvent>(OnMergeStarted);
             LevelManager.LevelSpawned += OnLevelSpawned;
 
             StoreSpot();
-            
-            _moveBuffer = new (Item, ItemSpot)[_spots.Length];
         }
 
         private void Start()
@@ -58,24 +52,16 @@ namespace MatchThemAll.Scripts
 
         private void OnDestroy()
         {
-            InputManager.ItemClicked -= OnItemClicked;
+            EventBus.Unsubscribe<ItemClickedEvent>(OnItemClickedEvent);
+            EventBus.Unsubscribe<MergeStartedEvent>(OnMergeStarted);
             LevelManager.LevelSpawned -= OnLevelSpawned;
             if (PowerupManager.Instance) PowerupManager.Instance.OnItemBackToGame -= OnItemBackToGame;
         }
 
         private void OnItemBackToGame(Item releasedItem)
         {
-            if(!_itemMergeDataDictionary.TryGetValue(releasedItem.ItemNameKey, out var item))
-                return;
-            
-            // remove the item from the Dictionary
-            item.Remove(releasedItem);
-            
-            // Check if we have more items with the same
-            // If not, remove the dictionary entry
-            if(_itemMergeDataDictionary[releasedItem.ItemNameKey].Items.Count <= 0)
-                _itemMergeDataDictionary.Remove(releasedItem.ItemNameKey);
-            
+            if (releasedItem.Spot != null)
+                releasedItem.Spot.Clear();
         }
 
         private void OnLevelSpawned(Level level)
@@ -89,7 +75,6 @@ namespace MatchThemAll.Scripts
                         _spots[i].gameObject.SetActive(i < _activeSpotCount);
                 }
                 
-                // Force the layout script to update after we've toggled active states
                 if (itemSpotParent.TryGetComponent<ItemSpotLayout>(out var layout))
                 {
                     layout.UpdateLayout();
@@ -100,8 +85,6 @@ namespace MatchThemAll.Scripts
 
         private void ResetSpotsAndState()
         {
-            _itemMergeDataDictionary.Clear();
-            IsBusy = false;
             if (_spots != null)
             {
                 foreach (var spot in _spots)
@@ -119,13 +102,9 @@ namespace MatchThemAll.Scripts
             }
         }
 
-        private void OnItemClicked(Item item)
+        private void OnItemClickedEvent(ItemClickedEvent evt)
         {
-            if (IsBusy)
-            {
-                Debug.Log("ItemSpotManager is busy");
-                return;
-            }
+            var item = evt.ClickedItem;
 
             if (!IsFreeSpotAvailable())
             {
@@ -133,35 +112,32 @@ namespace MatchThemAll.Scripts
                 return;
             }
 
-            IsBusy = true;
             ItemPickedUp?.Invoke(item);
             HandleItemClick(item);
         }
 
         private void HandleItemClick(Item item)
         {
-            if (_itemMergeDataDictionary.ContainsKey(item.ItemNameKey))
-                HandleItemMergeDataFound(item);
+            if (HasItemOnBoard(item.ItemNameKey))
+            {
+                var idealSpot = GetIdealSpotFor(item);
+                TryMoveItemToIdealSpot(item, idealSpot);
+            }
             else
+            {
                 MoveItemToFirstFreeSpot(item);
-        }
-
-        private void HandleItemMergeDataFound(Item item)
-        {
-            var idealSpot = GetIdealSpotFor(item);
-            _itemMergeDataDictionary[item.ItemNameKey].Add(item);
-            TryMoveItemToIdealSpot(item, idealSpot);
+            }
         }
 
         private ItemSpot GetIdealSpotFor(Item item)
         {
-            List<Item> items = _itemMergeDataDictionary[item.ItemNameKey].Items;
-
-            // Find the rightmost sibling index among all similar items — using ZLinq, zero allocation
-            int maxSiblingIndex = items.AsValueEnumerable().Select(t => t.Spot.transform.GetSiblingIndex()).DefaultIfEmpty(-1).Max();
-
-            // Clamp to prevent IndexOutOfRangeException when the last slot is occupied
-            int idealSpotIndex = Mathf.Clamp(maxSiblingIndex + 1, 0, _activeSpotCount - 1);
+            int maxIndex = -1;
+            for (int i = 0; i < _activeSpotCount; i++)
+            {
+                if (!_spots[i].IsEmpty() && _spots[i].Item.ItemNameKey == item.ItemNameKey)
+                    maxIndex = i;
+            }
+            int idealSpotIndex = Mathf.Clamp(maxIndex + 1, 0, _activeSpotCount - 1);
             return _spots[idealSpotIndex];
         }
 
@@ -169,7 +145,7 @@ namespace MatchThemAll.Scripts
         {
             if (!idealSpot.IsEmpty())
             {
-                HandleIdealSpotFull(item, idealSpot);
+                MoveAllItemsToTheRightFrom(idealSpot, item);
                 return;
             }
 
@@ -180,6 +156,9 @@ namespace MatchThemAll.Scripts
         {
             item.IsMovingToSpot = true;
             targetSpot.Populate(item);
+
+            // Stop any existing tweens (like hint pulsing animations) to prevent conflicts
+            Tween.StopAll(item.transform);
 
             Tween.LocalPosition(item.transform, itemLocalPositionOnSpot, animationDuration, animationEase);
             Tween.Scale(item.transform, itemLocalScaleOnSpot, animationDuration, animationEase);
@@ -197,40 +176,24 @@ namespace MatchThemAll.Scripts
 
             if (!checkForMerge) return;
 
-            if (_itemMergeDataDictionary[item.ItemNameKey].CanMergeItems())
-                MergeItems(_itemMergeDataDictionary[item.ItemNameKey]);
-            else
-                CheckForGameOver();
+            EventBus.Publish(new ItemReachedSpotEvent(item));
         }
 
-        private void MergeItems(ItemMergeData itemMergeData)
+        private void OnMergeStarted(MergeStartedEvent evt)
         {
-            List<Item> items = itemMergeData.Items;
-
-            _itemMergeDataDictionary.Remove(itemMergeData.ItemName);
-
-            foreach (var item in items)
+            foreach (var item in evt.MergedItems)
                 item.Spot.Clear();
 
-            if (_itemMergeDataDictionary.Count <= 0)
-                IsBusy = false;
-            else
-                MoveAllItemsToTheLeft(HandleAllItemsMovedToTheLeft);
-
-            MergeStarted?.Invoke(items);
+            MoveAllItemsToTheLeft();
         }
 
-        private void MoveAllItemsToTheLeft(Action completeCallback)
+        private void MoveAllItemsToTheLeft()
         {
-            // Collect all pending moves before executing any, to avoid modifying the spots mid-loop
-            _moveCount = 0;
-
             for (int i = 1; i < _activeSpotCount; i++)
             {
                 ItemSpot spot = _spots[i];
                 if (!spot.gameObject.activeInHierarchy || spot.IsEmpty()) continue;
 
-                // Find the leftmost empty spot before this one
                 int targetIndex = -1;
                 for (int j = 0; j < i; j++)
                 {
@@ -247,41 +210,15 @@ namespace MatchThemAll.Scripts
                     ItemSpot targetSpot = _spots[targetIndex];
                     
                     spot.Clear();
-                    targetSpot.Populate(item); // Reserve it immediately so subsequent items don't pick it
-                    _moveBuffer[_moveCount++] = (item, targetSpot);
+                    MoveItemToSpot(item, targetSpot, () => HandleItemReachedSpot(item, false));
                 }
             }
-
-            if (_moveCount == 0)
-            {
-                completeCallback?.Invoke();
-                return;
-            }
-
-            for (int i = 0; i < _moveCount; i++)
-            {
-                // Capture loop variable for closure
-                var (movedItem, targetSpot) = _moveBuffer[i];
-                bool isLast = i == _moveCount - 1;
-
-                Action callback = isLast
-                    ? () => { HandleItemReachedSpot(movedItem, false); completeCallback?.Invoke(); }
-                    : () => HandleItemReachedSpot(movedItem, false);
-
-                MoveItemToSpot(movedItem, targetSpot, callback);
-            }
         }
-
-        private void HandleAllItemsMovedToTheLeft() => IsBusy = false;
-
-        private void HandleIdealSpotFull(Item item, ItemSpot idealSpot) =>
-            MoveAllItemsToTheRightFrom(idealSpot, item);
 
         private void MoveAllItemsToTheRightFrom(ItemSpot idealSpot, Item itemToPlace)
         {
             int spotIndex = idealSpot.transform.GetSiblingIndex();
             
-            // Find the nearest empty spot to the right
             int emptySpotIndex = -1;
             for (int i = spotIndex + 1; i < _activeSpotCount; i++)
             {
@@ -292,9 +229,6 @@ namespace MatchThemAll.Scripts
                 }
             }
             
-            // If we didn't find an empty spot to the right, we're in big trouble
-            // This shouldn't happen because we checked IsFreeSpotAvailable() earlier
-            // But just in case, fall back to the first available spot anywhere
             if (emptySpotIndex == -1)
             {
                 for (int i = 0; i < _activeSpotCount; i++)
@@ -310,19 +244,11 @@ namespace MatchThemAll.Scripts
             if (emptySpotIndex == -1)
             {
                 Debug.LogError("No empty spot found at all!");
-                IsBusy = false;
                 return;
             }
 
-            // If the nearest empty spot is to the LEFT, we actually need to shift left instead!
-            // But this method is explicitly "ToTheRightFrom". If it's to the left, we'll just
-            // use a direct MoveAllItemsToTheLeft logic, but that's handled gracefully because
-            // TryMoveItemToIdealSpot uses GetIdealSpotFor which finds the RIGHTMOST sibling.
-            // So emptySpotIndex will ALWAYS be > spotIndex, unless the board is completely full except for gaps on the left.
-            
             if (emptySpotIndex > spotIndex)
             {
-                // Shift everything from spotIndex up to emptySpotIndex-1 to the right by 1
                 for (int i = emptySpotIndex - 1; i >= spotIndex; i--)
                 {
                     ItemSpot spot = _spots[i];
@@ -337,9 +263,6 @@ namespace MatchThemAll.Scripts
             }
             else
             {
-                // If the only empty spot is to the LEFT of idealSpot, we just shift the left items.
-                // Or simply place the item in the empty spot and let it sort itself out later.
-                // For simplicity, we just place it in the empty spot so the game doesn't break.
                 idealSpot = _spots[emptySpotIndex];
             }
 
@@ -356,29 +279,11 @@ namespace MatchThemAll.Scripts
                 return;
             }
 
-            CreateItemMergeData(item);
-            MoveItemToSpot(item, targetSpot, () => HandleFirstItemReachSpot(item));
+            MoveItemToSpot(item, targetSpot, () => HandleItemReachedSpot(item));
         }
 
-        private void HandleFirstItemReachSpot(Item item)
-        {
-            item.IsMovingToSpot = false;
-            item.Spot.BumpDown();
-            CheckForGameOver();
-        }
+        // Helpers
 
-        private void CheckForGameOver()
-        {
-            if (!GetFreeSpot())
-                GameManager.Instance.SetGameState(EGameState.GAMEOVER);
-            else
-                IsBusy = false;
-        }
-
-        private void CreateItemMergeData(Item item) =>
-            _itemMergeDataDictionary.Add(item.ItemNameKey, new ItemMergeData(item));
-
-        // Plain for-loop — avoids the delegate allocation that FirstOrDefault creates each call
         private ItemSpot GetFreeSpot() => _spots.AsValueEnumerable().Take(_activeSpotCount).FirstOrDefault(t => t.IsEmpty());
 
         private bool IsFreeSpotAvailable() => GetFreeSpot();
@@ -399,18 +304,63 @@ namespace MatchThemAll.Scripts
             return occupiedSpots.Count <= 0 ? null : occupiedSpots[UnityEngine.Random.Range(0, occupiedSpots.Count)];
         }
 
+        public bool HasItemOnBoard(EItemName itemName)
+        {
+            for (int i = 0; i < _activeSpotCount; i++)
+            {
+                if (!_spots[i].IsEmpty() && _spots[i].Item.ItemNameKey == itemName) return true;
+            }
+            return false;
+        }
+
+        public List<Item> GetItemsOnBoard(EItemName itemName)
+        {
+            List<Item> items = new List<Item>();
+            for (int i = 0; i < _activeSpotCount; i++)
+            {
+                if (!_spots[i].IsEmpty() && _spots[i].Item.ItemNameKey == itemName)
+                    items.Add(_spots[i].Item);
+            }
+            return items;
+        }
+
+        public IEnumerable<EItemName> GetOccupiedItemTypes()
+        {
+            HashSet<EItemName> types = new HashSet<EItemName>();
+            for (int i = 0; i < _activeSpotCount; i++)
+            {
+                if (!_spots[i].IsEmpty())
+                    types.Add(_spots[i].Item.ItemNameKey);
+            }
+            return types;
+        }
+
+        public bool IsBoardFullAndNoItemsMoving()
+        {
+            if (GetFreeSpot() != null) return false;
+            for (int i = 0; i < _activeSpotCount; i++)
+            {
+                if (_spots[i].Item != null && _spots[i].Item.IsMovingToSpot) return false;
+            }
+            return true;
+        }
+
         public List<Item> GetBestHintItems(int count = 3)
         {
             var allItems = LevelManager.Instance.Items;
             if (allItems == null) return new List<Item>();
 
             EItemName? targetType = null;
+            var occupiedTypes = GetOccupiedItemTypes();
 
             // Tier 1: Combo Nudge (Items already partially collected)
-            foreach (var kvp in _itemMergeDataDictionary.AsValueEnumerable().Where(kvp => kvp.Value.Items.Count > 0).Where(kvp => allItems.AsValueEnumerable().Any(i => i != null && i.ItemNameKey == kvp.Key && i.Spot == null && !i.IsMovingToSpot)))
+            foreach (var type in occupiedTypes)
             {
-                targetType = kvp.Key;
-                break;
+                if (allItems.AsValueEnumerable().Any(i => i != null && i.gameObject.activeInHierarchy && i.ItemNameKey == type && i.Spot == null && !i.IsMovingToSpot))
+                {
+                    targetType = type;
+                    break;
+                }
             }
 
             // Tier 2: Objective Nudge
@@ -424,7 +374,7 @@ namespace MatchThemAll.Scripts
                     {
                         if (goal.amount > maxGoalAmount && goal.amount > 0)
                         {
-                            if (allItems.AsValueEnumerable().Any(i => i != null && i.ItemNameKey == goal.itemPrefab.ItemNameKey && i.Spot == null && !i.IsMovingToSpot))
+                            if (allItems.AsValueEnumerable().Any(i => i != null && i.gameObject.activeInHierarchy && i.ItemNameKey == goal.itemPrefab.ItemNameKey && i.Spot == null && !i.IsMovingToSpot))
                             {
                                 maxGoalAmount = goal.amount;
                                 targetType = goal.itemPrefab.ItemNameKey;
@@ -437,7 +387,7 @@ namespace MatchThemAll.Scripts
             // Tier 3: Progress Nudge (Random fallback)
             if (targetType == null)
             {
-                var fallback = allItems.AsValueEnumerable().FirstOrDefault(i => i != null && i.Spot == null && !i.IsMovingToSpot);
+                var fallback = allItems.AsValueEnumerable().FirstOrDefault(i => i != null && i.gameObject.activeInHierarchy && i.Spot == null && !i.IsMovingToSpot);
                 if (fallback)
                 {
                     targetType = fallback.ItemNameKey;
@@ -448,13 +398,12 @@ namespace MatchThemAll.Scripts
             if (targetType.HasValue)
             {
                 var availableItems = allItems.AsValueEnumerable()
-                    .Where(i => i && i.ItemNameKey == targetType.Value && !i.Spot && !i.IsMovingToSpot)
+                    .Where(i => i && i.gameObject.activeInHierarchy && i.ItemNameKey == targetType.Value && !i.Spot && !i.IsMovingToSpot)
                     .ToList();
 
                 if (availableItems.Count <= count)
                     return availableItems;
 
-                // Pick a random seed, then grab the closest 'count' items to it — O(n log n)
                 var seed = availableItems[UnityEngine.Random.Range(0, availableItems.Count)];
                 Vector3 seedPos = seed.transform.position;
                 availableItems.Sort((a, b) =>

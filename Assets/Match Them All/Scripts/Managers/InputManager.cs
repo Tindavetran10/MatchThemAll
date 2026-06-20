@@ -7,12 +7,8 @@ using UnityEngine;
 // Handles item selection with visual feedback and drag-to-select functionality
 public class InputManager : MonoBehaviour
 {
-    // Static Action event that other scripts can subscribe to when an item is clicked
-    // This is the NOTIFICATION MECHANISM in the Observer Pattern.
-    // Multiple observers can subscribe to this event without the InputManager knowing about them.
-    // This creates loose coupling - InputManager doesn't depend on specific observer classes
-    public static Action<Item> ItemClicked;
-    public static Action<Powerup> PowerupClicked;
+    // EventBus handles notifications.
+    // Static fields are kept for Tutorial overrides only.
     
     public static bool IsTutorialActive;
     public static Item[] TutorialTargets;
@@ -131,7 +127,7 @@ public class InputManager : MonoBehaviour
         
         if (hit.collider.TryGetComponent(out Powerup powerup))
         {
-            PowerupClicked?.Invoke(powerup);
+            EventBus.Publish(new PowerupClickedEvent(powerup));
         }
     }
     
@@ -236,10 +232,8 @@ public class InputManager : MonoBehaviour
         // Remove visual selection feedback
         _currentItem.Deselect();
         
-        // OBSERVER PATTERN: Notify all observers that an item was clicked
-        // This is where the Subject notifies all Observers about the item selection
-        // The event is only fired on mouse release, ensuring a complete click gesture
-        ItemClicked?.Invoke(_currentItem);
+        // OBSERVER PATTERN: Notify all observers that an item was clicked via EventBus
+        EventBus.Publish(new ItemClickedEvent(_currentItem));
         
         // Clear the current item reference after processing
         _currentItem = null;

@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 namespace MatchThemAll.Scripts.UI
 {
-    public class ContinuePanelManager : MonoBehaviour, IGameStateListener
+    public class ContinuePanelManager : MonoBehaviour
     {
         [Header("UI Elements")]
         [SerializeField] private GameObject continuePanel;
@@ -27,6 +27,7 @@ namespace MatchThemAll.Scripts.UI
             watchAdButton.onClick.AddListener(OnWatchAdClicked);
             payCoinsButton.onClick.AddListener(OnPayCoinsClicked);
             giveUpButton.onClick.AddListener(OnGiveUpClicked);
+            EventBus.Subscribe<GameStateChangedEvent>(OnGameStateChanged);
         }
 
         private void OnDestroy()
@@ -34,11 +35,12 @@ namespace MatchThemAll.Scripts.UI
             watchAdButton.onClick.RemoveListener(OnWatchAdClicked);
             payCoinsButton.onClick.RemoveListener(OnPayCoinsClicked);
             giveUpButton.onClick.RemoveListener(OnGiveUpClicked);
+            EventBus.Unsubscribe<GameStateChangedEvent>(OnGameStateChanged);
         }
 
-        public void GameStateChangedCallback(EGameState gameState)
+        private void OnGameStateChanged(GameStateChangedEvent evt)
         {
-            if (gameState == EGameState.OUTOFTIME)
+            if (evt.NewState == EGameState.OUTOFTIME)
                 ShowPanel();
             else
                 HidePanel();

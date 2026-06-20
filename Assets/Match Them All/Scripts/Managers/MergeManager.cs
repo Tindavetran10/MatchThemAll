@@ -27,7 +27,7 @@ namespace MatchThemAll.Scripts
 
         private void Awake()
         {
-            ItemSpotManager.MergeStarted += OnMergeStarted;
+            EventBus.Subscribe<MergeStartedEvent>(OnMergeStarted);
 
             _particlePool = new ObjectPool<ParticleSystem>(
                 createFunc:      CreateParticle,
@@ -50,7 +50,7 @@ namespace MatchThemAll.Scripts
 
         private void OnDestroy()
         {
-            ItemSpotManager.MergeStarted -= OnMergeStarted;
+            EventBus.Unsubscribe<MergeStartedEvent>(OnMergeStarted);
 
             // Stop all pending return-to-pool coroutines so none can fire
             // against already-destroyed objects during scene teardown.
@@ -66,8 +66,9 @@ namespace MatchThemAll.Scripts
             return ps;
         }
 
-        private void OnMergeStarted(List<Item> items)
+        private void OnMergeStarted(MergeStartedEvent evt)
         {
+            var items = evt.MergedItems;
             for (int i = 0; i < items.Count; i++)
             {
                 Vector3 targetPos = items[i].transform.position + items[i].transform.right * goUpDistance;

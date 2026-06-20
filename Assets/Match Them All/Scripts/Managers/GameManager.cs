@@ -12,14 +12,13 @@ namespace MatchThemAll.Scripts
         /// <summary>The state the game was in before the most recent SetGameState call.</summary>
         public EGameState PreviousState { get; private set; }
 
-        // Cached once in Start() — avoids repeated FindObjectsByType allocations on every state change
-        private IGameStateListener[] _cachedListeners;
-
         private void Awake()
         {
             if (!Instance)
                 Instance = this;
             else { Destroy(gameObject); return; }
+
+            EventBus.Subscribe<SpotFilledEvent>(OnSpotFilled);
 
             // Disable PrimeTween warning for tweening to current value (e.g., when merging items already at target scale)
             PrimeTweenConfig.warnEndValueEqualsCurrent = false;
@@ -30,14 +29,18 @@ namespace MatchThemAll.Scripts
             QualitySettings.vSyncCount = 0;
         }
 
+        private void OnDestroy()
+        {
+            EventBus.Unsubscribe<SpotFilledEvent>(OnSpotFilled);
+        }
+
+        private void OnSpotFilled(SpotFilledEvent evt)
+        {
+            SetGameState(EGameState.GAMEOVER);
+        }
+
         private void Start()
         {
-            // Cache all listeners before the first state broadcast
-            _cachedListeners = FindObjectsByType<MonoBehaviour>(FindObjectsInactive.Include, FindObjectsSortMode.None)
-                .AsValueEnumerable()
-                .OfType<IGameStateListener>()
-                .ToArray();
-
             StartGame();
         }
 
@@ -46,8 +49,7 @@ namespace MatchThemAll.Scripts
             PreviousState = State;
             State = gameState;
 
-            foreach (IGameStateListener listener in _cachedListeners)
-                listener.GameStateChangedCallback(gameState);
+            EventBus.Publish(new GameStateChangedEvent(gameState));
         }
 
         public void StartGame()  => SetGameState(EGameState.GAME);

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace MatchThemAll.Scripts
 {
-    public class LevelManager : MonoBehaviour, IGameStateListener
+    public class LevelManager : MonoBehaviour
     {
         public static LevelManager Instance;
         
@@ -43,7 +43,10 @@ namespace MatchThemAll.Scripts
             else Destroy(gameObject);
 
             _loadTask = LoadDataAsync();
+            EventBus.Subscribe<GameStateChangedEvent>(OnGameStateChanged);
         }
+
+        private void OnDestroy() => EventBus.Unsubscribe<GameStateChangedEvent>(OnGameStateChanged);
 
         public bool IsLevelReady { get; private set; }
 
@@ -128,9 +131,9 @@ namespace MatchThemAll.Scripts
             Debug.Log("All save data wiped. Starting from Level 1.");
         }
 
-        public void GameStateChangedCallback(EGameState gameState)
+        private void OnGameStateChanged(GameStateChangedEvent evt)
         {
-            switch (gameState)
+            switch (evt.NewState)
             {
                 // Only spawn a fresh level when transitioning from a non-pause and non-continue state.
                 // Resuming from PAUSED or TIMEOUT should never re-spawn the current level.
@@ -148,7 +151,7 @@ namespace MatchThemAll.Scripts
                 case EGameState.OUTOFTIME:
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException(nameof(gameState), gameState, null);
+                    throw new ArgumentOutOfRangeException(nameof(evt.NewState), evt.NewState, null);
             }
         }
     }

@@ -4,6 +4,7 @@ using ZLinq;
 using Match_Them_All.Scripts.Power_Ups;
 using MatchThemAll.Scripts.SaveSystem;
 using MatchThemAll.Scripts.Settings;
+using MatchThemAll.Scripts;
 using NaughtyAttributes;
 using UnityEngine;
 using PrimeTween;
@@ -54,26 +55,24 @@ namespace MatchThemAll.Scripts
             UpdateAllPowerupVisuals();
             
             Vacuum.Started += OnVacuumStarted;
-            InputManager.PowerupClicked += OnPowerupClicked;
+            EventBus.Subscribe<PowerupClickedEvent>(OnPowerupClickedEvent);
             SaveManager.OnPowerupsChanged += UpdateAllPowerupVisuals;
         }
 
         private void OnDestroy()
         {
             Vacuum.Started -= OnVacuumStarted;
-            InputManager.PowerupClicked -= OnPowerupClicked;
+            EventBus.Unsubscribe<PowerupClickedEvent>(OnPowerupClickedEvent);
             SaveManager.OnPowerupsChanged -= UpdateAllPowerupVisuals;
         }
 
-        private void OnPowerupClicked(Powerup powerup)
+        private void OnPowerupClickedEvent(PowerupClickedEvent evt)
         {
+            var powerup = evt.ClickedPowerup;
             if(_isBusy) 
                 return;
 
             if (GameManager.Instance.State != EGameState.GAME)
-                return;
-
-            if (ItemSpotManager.Instance.IsBusy)
                 return;
 
             if (!CanUsePowerup(powerup.Type))

@@ -23,13 +23,13 @@ namespace MatchThemAll.Scripts
                 Instance = this;
             else Destroy(gameObject);
 
-            ItemSpotManager.MergeStarted += OnMergeStarted;
+            EventBus.Subscribe<MergeStartedEvent>(OnMergeStarted);
             LevelManager.LevelSpawned += OnLevelSpawned;
         }
 
         private void OnDestroy()
         {
-            ItemSpotManager.MergeStarted -= OnMergeStarted;
+            EventBus.Unsubscribe<MergeStartedEvent>(OnMergeStarted);
             LevelManager.LevelSpawned -= OnLevelSpawned;
         }
 
@@ -44,7 +44,7 @@ namespace MatchThemAll.Scripts
             }
         }
 
-        private void OnMergeStarted(List<Item> mergedItems)
+        private void OnMergeStarted(MergeStartedEvent evt)
         {
             if (!GameManager.Instance.IsGame()) return;
 

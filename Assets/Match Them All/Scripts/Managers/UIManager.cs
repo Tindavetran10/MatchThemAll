@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace MatchThemAll.Scripts
 {
-    public class UIManager : MonoBehaviour, IGameStateListener
+    public class UIManager : MonoBehaviour
     {
         [Header("Panels")]
         [SerializeField] private GameObject gamePanel;
@@ -10,8 +10,12 @@ namespace MatchThemAll.Scripts
         [SerializeField] private GameObject levelCompletePanel;
         [SerializeField] private GameObject gameOverPanel;
 
-        public void GameStateChangedCallback(EGameState gameState)
+        private void Awake() => EventBus.Subscribe<GameStateChangedEvent>(OnGameStateChanged);
+        private void OnDestroy() => EventBus.Unsubscribe<GameStateChangedEvent>(OnGameStateChanged);
+
+        private void OnGameStateChanged(GameStateChangedEvent evt)
         {
+            var gameState = evt.NewState;
             // Keep the game HUD (goals, timer) visible while paused or out of time.
             SetPanelActive(gamePanel, gameState is EGameState.GAME or EGameState.PAUSED or EGameState.OUTOFTIME);
 
