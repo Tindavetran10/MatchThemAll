@@ -45,10 +45,15 @@ namespace MatchThemAll.Scripts
             InputManager.ItemClicked += OnItemClicked;
             LevelManager.LevelSpawned += OnLevelSpawned;
 
-            PowerupManager.Instance.OnItemBackToGame += OnItemBackToGame;
             StoreSpot();
             
             _moveBuffer = new (Item, ItemSpot)[_spots.Length];
+        }
+
+        private void Start()
+        {
+            if (PowerupManager.Instance)
+                PowerupManager.Instance.OnItemBackToGame += OnItemBackToGame;
         }
 
         private void OnDestroy()

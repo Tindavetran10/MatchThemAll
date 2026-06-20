@@ -28,9 +28,15 @@ namespace MatchThemAll.Scripts
             
             LevelManager.LevelSpawned += OnLevelSpawned;
             ItemSpotManager.ItemPickedUp += OnItemPickedUp;
-            
-            PowerupManager.Instance.OnItemPickup += OnItemPickedUp;
-            PowerupManager.Instance.OnItemBackToGame += OnItemBackToGame;
+        }
+
+        private void Start()
+        {
+            if (PowerupManager.Instance)
+            {
+                PowerupManager.Instance.OnItemPickup += OnItemPickedUp;
+                PowerupManager.Instance.OnItemBackToGame += OnItemBackToGame;
+            }
         }
 
         private void OnDestroy()
