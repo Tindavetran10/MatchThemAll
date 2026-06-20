@@ -19,7 +19,7 @@ namespace MatchThemAll.Scripts.UI
         {
             try
             {
-                PlayerData data = SaveManager.Load();
+                int currentProgress = SaveManager.GetCurrentLevelIndex();
             
                 // Auto-detect total levels via Addressable
                 int totalLevelsCount = 0;
@@ -34,7 +34,7 @@ namespace MatchThemAll.Scripts.UI
                     Debug.LogError($"Failed to load LevelData from Addressable: {e.Message}");
                 }
 
-                GenerateButtons(data, totalLevelsCount);
+                GenerateButtons(currentProgress, totalLevelsCount);
             }
             catch (Exception e)
             {
@@ -42,15 +42,15 @@ namespace MatchThemAll.Scripts.UI
             }
         }
 
-        private void GenerateButtons(PlayerData data, int totalLevelsCount)
+        private void GenerateButtons(int currentProgress, int totalLevelsCount)
         {
             for (int i = 0; i < totalLevelsCount; i++)
             {
                 LevelButtonUI btn = Instantiate(levelButtonPrefab, buttonContainer);
                 btn.Configure(
                     levelIndex:       i,
-                    currentProgress:  data.currentLevelIndex,
-                    bestStars:        data.GetLevelStars(i)
+                    currentProgress:  currentProgress,
+                    bestStars:        SaveManager.GetLevelStars(i)
                 );
             }
         }

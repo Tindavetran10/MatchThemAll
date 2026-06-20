@@ -2,8 +2,6 @@ using System;
 using UnityEngine;
 using MatchThemAll.Scripts.SaveSystem;
 
-// For EPowerupType
-
 namespace MatchThemAll.Scripts.UI
 {
     public class DailyRewardManager : MonoBehaviour
@@ -16,17 +14,14 @@ namespace MatchThemAll.Scripts.UI
 
         private void CheckDailyReward()
         {
-            PlayerData data = SaveManager.Load();
-            string lastPlayedStr = data.lastPlayedDate;
+            var (lastPlayedStr, loginStreak) = SaveManager.GetDailyRewardData();
             DateTime currentDate = DateTime.Now.Date;
 
             if (string.IsNullOrEmpty(lastPlayedStr))
             {
                 // First time ever playing
-                data.loginStreak = 1;
-                data.lastPlayedDate = currentDate.ToString("O");
-                SaveManager.Save(data);
-                ShowRewardPopup(data.loginStreak);
+                SaveManager.SaveDailyRewardData(1, currentDate.ToString("O"));
+                ShowRewardPopup(1);
                 return;
             }
 
@@ -42,31 +37,29 @@ namespace MatchThemAll.Scripts.UI
                 else if (daysDifference == 1)
                 {
                     // Played exactly yesterday, increment streak
-                    data.loginStreak++;
+                    loginStreak++;
                 }
                 else if (daysDifference > 1)
                 {
                     // Missed a day or more, reset streak
-                    data.loginStreak = 1;
+                    loginStreak = 1;
                 }
                 
                 // Cap streak logic (loop back or cap at 7)
-                if (data.loginStreak > 7)
+                if (loginStreak > 7)
                 {
-                    data.loginStreak = 1; // Loop back to 1
+                    loginStreak = 1; // Loop back to 1
                 }
 
-                data.lastPlayedDate = currentDate.ToString("O");
-                SaveManager.Save(data);
-
-                ShowRewardPopup(data.loginStreak);
+                SaveManager.SaveDailyRewardData(loginStreak, currentDate.ToString("O"));
+                ShowRewardPopup(loginStreak);
             }
         }
 
         public void ShowRewardPanelManual()
         {
-            PlayerData data = SaveManager.Load();
-            ShowRewardPopup(Mathf.Clamp(data.loginStreak, 1, 7));
+            var (_, loginStreak) = SaveManager.GetDailyRewardData();
+            ShowRewardPopup(Mathf.Clamp(loginStreak, 1, 7));
         }
 
         private void ShowRewardPopup(int streakDay)
@@ -85,40 +78,38 @@ namespace MatchThemAll.Scripts.UI
 
         private static void GrantReward(int streakDay)
         {
-            PlayerData data = SaveManager.Load();
-            
             switch (streakDay)
             {
                 case 1:
-                    data.coins += 10;
+                    SaveManager.AddCoins(10);
                     break;
                 case 2:
-                    data.coins += 25;
+                    SaveManager.AddCoins(25);
                     break;
                 case 3:
-                    data.coins += 50;
-                    data.vacuumCount += 1; // Assuming Vacuum is Hint/First powerup
+                    SaveManager.AddCoins(50);
+                    SaveManager.AddPowerupCharge(EPowerupType.Vacuum, 1);
                     break;
                 case 4:
-                    data.coins += 75;
+                    SaveManager.AddCoins(75);
                     break;
                 case 5:
-                    data.coins += 100;
-                    data.springCount += 1; // Assuming Spring is Shuffle
+                    SaveManager.AddCoins(100);
+                    SaveManager.AddPowerupCharge(EPowerupType.Spring, 1);
                     break;
                 case 6:
-                    data.coins += 150;
+                    SaveManager.AddCoins(150);
                     break;
                 case 7:
-                    data.coins += 300;
-                    data.vacuumCount += 1;
-                    data.springCount += 1;
-                    data.fanCount += 1;
-                    data.freezeCount += 1;
+                    SaveManager.AddCoins(300);
+                    SaveManager.AddPowerupCharge(EPowerupType.Vacuum, 1);
+                    SaveManager.AddPowerupCharge(EPowerupType.Spring, 1);
+                    SaveManager.AddPowerupCharge(EPowerupType.Fan, 1);
+                    SaveManager.AddPowerupCharge(EPowerupType.FreezeGun, 1);
                     break;
             }
 
-            SaveManager.Save(data);
+            SaveManager.Flush(); // Daily reward = natural save point
             Debug.Log($"[DailyReward] Granted Day {streakDay} reward!");
         }
     }

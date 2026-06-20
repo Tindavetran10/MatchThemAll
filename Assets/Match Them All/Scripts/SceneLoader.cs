@@ -1,3 +1,4 @@
+using MatchThemAll.Scripts.SaveSystem;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using PrimeTween;
@@ -34,6 +35,7 @@ namespace MatchThemAll.Scripts
         /// <summary>Loads any scene by name, routing through the loading screen.</summary>
         public static void Load(string sceneName)
         {
+            SaveManager.Flush(); // Persist any dirty data before leaving
             TargetScene = sceneName;
             RequestedLevelIndex = -1;
             FadeAndLoad(Loading);
@@ -45,6 +47,7 @@ namespace MatchThemAll.Scripts
         /// </summary>
         public static void LoadLevel(int levelIndex = -1)
         {
+            SaveManager.Flush(); // Persist any dirty data before leaving
             TargetScene = Game;
             RequestedLevelIndex = levelIndex;
             FadeAndLoad(Loading);

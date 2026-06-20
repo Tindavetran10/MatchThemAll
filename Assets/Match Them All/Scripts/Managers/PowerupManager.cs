@@ -29,30 +29,41 @@ namespace MatchThemAll.Scripts
         private readonly List<Item> _itemsToCollect = new(3);
 
         [Header("Actions")]
-        public static Action<Item> ItemPickup;
-        public static Action<Item> ItemBackToGame;
-
-        [Header("Data")]
-        private int _vacuumPuCount;
-        private int _springPuCount;
-        private int _fanPuCount;
-        private int _freezePuCount;
+        public event Action<Item> OnItemPickup;
+        public event Action<Item> OnItemBackToGame;
 
         private Powerup[] _powerupUIElements;
 
+        public static PowerupManager Instance { get; private set; }
+
         private void Awake()
         {
+            if (Instance != null && Instance != this) { Destroy(gameObject); return; }
+            Instance = this;
+
             _powerupUIElements = FindObjectsByType<Powerup>(FindObjectsInactive.Include, FindObjectsSortMode.None);
-            LoadData();
+            
+            if (!gameSettings)
+            {
+                gameSettings = Resources.Load<GameSettingsSO>("GameSettings");
+            }
+            
+            // Seed first-launch powerup counts from GameSettings
+            SaveManager.InitializePowerups(gameSettings);
+
+            // Update visuals from saved data
+            UpdateAllPowerupVisuals();
             
             Vacuum.Started += OnVacuumStarted;
             InputManager.PowerupClicked += OnPowerupClicked;
+            SaveManager.OnPowerupsChanged += UpdateAllPowerupVisuals;
         }
 
         private void OnDestroy()
         {
             Vacuum.Started -= OnVacuumStarted;
             InputManager.PowerupClicked -= OnPowerupClicked;
+            SaveManager.OnPowerupsChanged -= UpdateAllPowerupVisuals;
         }
 
         private void OnPowerupClicked(Powerup powerup)
@@ -121,35 +132,9 @@ namespace MatchThemAll.Scripts
 
         private bool TryUsePowerupCharge(EPowerupType type)
         {
-            switch (type)
-            {
-                case EPowerupType.Vacuum:
-                    if (_vacuumPuCount <= 0) return false;
-                    _vacuumPuCount--;
-                    SaveData();
-                    UpdateAllPowerupVisuals();
-                    return true;
-                case EPowerupType.Spring:
-                    if (_springPuCount <= 0) return false;
-                    _springPuCount--;
-                    SaveData();
-                    UpdateAllPowerupVisuals();
-                    return true;
-                case EPowerupType.Fan:
-                    if (_fanPuCount <= 0) return false;
-                    _fanPuCount--;
-                    SaveData();
-                    UpdateAllPowerupVisuals();
-                    return true;
-                case EPowerupType.FreezeGun:
-                    if (_freezePuCount <= 0) return false;
-                    _freezePuCount--;
-                    SaveData();
-                    UpdateAllPowerupVisuals();
-                    return true;
-                default:
-                    return false;
-            }
+            if (!SaveManager.UsePowerupCharge(type)) return false;
+            // Visuals are updated automatically via SaveManager.OnPowerupsChanged
+            return true;
         }
 
         #region Vacuum Powerup
@@ -219,7 +204,7 @@ namespace MatchThemAll.Scripts
             {
                 Item itemToCollect = _itemsToCollect[i];
                 if (!itemToCollect) continue;
-                ItemPickup?.Invoke(itemToCollect);
+                OnItemPickup?.Invoke(itemToCollect);
             }
             
             // Wait for the full vacuum animation to complete before allowing another powerup
@@ -233,15 +218,8 @@ namespace MatchThemAll.Scripts
         {
             foreach (var pu in _powerupUIElements)
             {
-                switch (pu.Type)
-                {
-                    case EPowerupType.Vacuum: pu.UpdateVisuals(_vacuumPuCount); break;
-                    case EPowerupType.Spring: pu.UpdateVisuals(_springPuCount); break;
-                    case EPowerupType.Fan: pu.UpdateVisuals(_fanPuCount); break;
-                    case EPowerupType.FreezeGun: pu.UpdateVisuals(_freezePuCount); break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
+                int count = SaveManager.GetPowerupCount(pu.Type);
+                pu.UpdateVisuals(count);
             }
         }
         #endregion
@@ -272,7 +250,7 @@ namespace MatchThemAll.Scripts
             // We will use pure physics for the throw instead of animation!
             // This guarantees a perfect parabolic arc that respects all collisions on the way down.
             itemToRelease.EnablePhysics();
-            ItemBackToGame?.Invoke(itemToRelease);
+            OnItemBackToGame?.Invoke(itemToRelease);
 
             Rigidbody rb = itemToRelease.GetComponent<Rigidbody>();
             if (rb)
@@ -339,29 +317,8 @@ namespace MatchThemAll.Scripts
             
             return goalIndex;
         }
-        
-        private void LoadData()
-        {
-            var data = SaveManager.Load();
 
-            // If count is 0 (first launch or wiped save), seed with the configured initial value
-            _vacuumPuCount = data.vacuumCount > 0 ? data.vacuumCount : gameSettings.initialVacuumCount;
-            _springPuCount = data.springCount > 0 ? data.springCount : gameSettings.initialSpringCount;
-            _fanPuCount    = data.fanCount    > 0 ? data.fanCount    : gameSettings.initialFanCount;
-            _freezePuCount = data.freezeCount > 0 ? data.freezeCount : gameSettings.initialFreezeCount;
 
-            UpdateAllPowerupVisuals();
-        }
-
-        private void SaveData()
-        {
-            var data = SaveManager.Load();
-            data.vacuumCount = _vacuumPuCount;
-            data.springCount = _springPuCount;
-            data.fanCount    = _fanPuCount;
-            data.freezeCount = _freezePuCount;
-            SaveManager.Save(data);
-        }
 
 #if UNITY_EDITOR
         private void OnDrawGizmosSelected()

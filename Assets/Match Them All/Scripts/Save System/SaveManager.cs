@@ -1,32 +1,262 @@
+using System;
 using System.IO;
+using MatchThemAll.Scripts.Settings;
 using UnityEngine;
 
 namespace MatchThemAll.Scripts.SaveSystem
 {
     /// <summary>
-    /// Static helper for reading and writing PlayerData to a JSON file on disk.
+    /// Centralized data access layer for all persistent player data.
+    /// Holds an in-memory cache and flushes to disk only when needed
+    /// (scene transitions, level completion, app pause/quit).
     ///
     /// Usage:
-    ///   var data = SaveManager.Load();       // read (or get fresh defaults)
-    ///   data.currentLevelIndex = 5;
-    ///   SaveManager.Save(data);              // write to disk
-    ///   SaveManager.Wipe();                  // delete save file (full reset)
+    ///   SaveManager.Initialize();               // call once at game boot
+    ///   int coins = SaveManager.GetCoins();      // read from cache (free)
+    ///   SaveManager.AddCoins(10);                // mutate cache, mark dirty
+    ///   SaveManager.Flush();                     // write to disk if dirty
+    ///   SaveManager.Wipe();                      // delete save file (full reset)
     ///
     /// File location: Application.persistentDataPath/save.json
-    ///   Android → /data/user/0/<package>/files/save.json
-    ///   iOS     → <app>/Documents/save.json
-    ///   Editor  → shown in console on first save
     /// </summary>
     public static class SaveManager
     {
         private static readonly string SavePath =
             Path.Combine(Application.persistentDataPath, "save.json");
 
+        // ── In-Memory Cache ─────────────────────────────────────────────────
+        private static PlayerData _cache;
+        private static bool _isDirty;
+
+        // ── Events ──────────────────────────────────────────────────────────
+        public static event Action<int> OnCoinsChanged;
+        public static event Action OnPowerupsChanged;
+
+        // ── Initialization ──────────────────────────────────────────────────
+
         /// <summary>
-        /// Loads PlayerData from disk. Returns a fresh default object if no save
-        /// file exists yet (first launch) or if the file is corrupted.
+        /// Loads save data from disk into memory. Safe to call multiple times;
+        /// only the first call actually reads the file.
         /// </summary>
-        public static PlayerData Load()
+        public static void Initialize()
+        {
+            if (_cache != null) return;
+            _cache = LoadFromDisk();
+        }
+
+        /// <summary>
+        /// Ensures the cache is populated. All getters call this internally
+        /// so consumers never need to worry about init order.
+        /// </summary>
+        private static PlayerData Data
+        {
+            get
+            {
+                if (_cache == null) Initialize();
+                return _cache;
+            }
+        }
+
+        // ── Coins ───────────────────────────────────────────────────────────
+
+        public static int GetCoins() => Data.coins;
+
+        public static void AddCoins(int amount)
+        {
+            Data.coins += amount;
+            MarkDirty();
+            OnCoinsChanged?.Invoke(Data.coins);
+        }
+
+        public static bool SpendCoins(int amount)
+        {
+            if (Data.coins < amount) return false;
+            Data.coins -= amount;
+            MarkDirty();
+            OnCoinsChanged?.Invoke(Data.coins);
+            return true;
+        }
+
+        // ── Powerups ────────────────────────────────────────────────────────
+
+        public static int GetPowerupCount(EPowerupType type)
+        {
+            return type switch
+            {
+                EPowerupType.Vacuum   => Data.vacuumCount,
+                EPowerupType.Spring   => Data.springCount,
+                EPowerupType.Fan      => Data.fanCount,
+                EPowerupType.FreezeGun => Data.freezeCount,
+                _ => 0
+            };
+        }
+
+        /// <summary>
+        /// Consumes one charge of the given powerup type.
+        /// Returns false if the player has zero charges left.
+        /// </summary>
+        public static bool UsePowerupCharge(EPowerupType type)
+        {
+            switch (type)
+            {
+                case EPowerupType.Vacuum:
+                    if (Data.vacuumCount <= 0) return false;
+                    Data.vacuumCount--;
+                    break;
+                case EPowerupType.Spring:
+                    if (Data.springCount <= 0) return false;
+                    Data.springCount--;
+                    break;
+                case EPowerupType.Fan:
+                    if (Data.fanCount <= 0) return false;
+                    Data.fanCount--;
+                    break;
+                case EPowerupType.FreezeGun:
+                    if (Data.freezeCount <= 0) return false;
+                    Data.freezeCount--;
+                    break;
+                default:
+                    return false;
+            }
+
+            MarkDirty();
+            OnPowerupsChanged?.Invoke();
+            return true;
+        }
+
+        /// <summary>
+        /// Adds charges to a specific powerup type (e.g., from daily rewards).
+        /// </summary>
+        public static void AddPowerupCharge(EPowerupType type, int amount)
+        {
+            switch (type)
+            {
+                case EPowerupType.Vacuum:   Data.vacuumCount += amount; break;
+                case EPowerupType.Spring:   Data.springCount += amount; break;
+                case EPowerupType.Fan:      Data.fanCount    += amount; break;
+                case EPowerupType.FreezeGun: Data.freezeCount += amount; break;
+            }
+
+            MarkDirty();
+            OnPowerupsChanged?.Invoke();
+        }
+
+        /// <summary>
+        /// Seeds powerup counts from GameSettingsSO on first launch.
+        /// </summary>
+        public static void InitializePowerups(GameSettingsSO settings)
+        {
+            if (Data.hasInitializedPowerups) return;
+
+            Data.hasInitializedPowerups = true;
+            Data.vacuumCount = settings.initialVacuumCount;
+            Data.springCount = settings.initialSpringCount;
+            Data.fanCount    = settings.initialFanCount;
+            Data.freezeCount = settings.initialFreezeCount;
+            MarkDirty();
+            Flush(); // First launch — write immediately
+        }
+
+        // ── Level Progress ──────────────────────────────────────────────────
+
+        public static int GetCurrentLevelIndex() => Data.currentLevelIndex;
+
+        public static int GetLevelStars(int levelIndex) => Data.GetLevelStars(levelIndex);
+
+        /// <summary>
+        /// Saves progress and stars on level completion.
+        /// Only advances currentLevelIndex if this was a new (non-replay) level.
+        /// Flushes to disk immediately since this is a natural save point.
+        /// </summary>
+        public static void SaveLevelComplete(int levelIndex, int savedProgressIndex, int starsEarned, out int newProgressIndex)
+        {
+            bool isNewLevel = levelIndex == savedProgressIndex;
+            newProgressIndex = savedProgressIndex;
+            if (isNewLevel)
+            {
+                newProgressIndex++;
+                Data.currentLevelIndex = newProgressIndex;
+            }
+
+            Data.SetLevelStars(levelIndex, starsEarned);
+            MarkDirty();
+            Flush(); // Level complete = natural save point
+        }
+
+        // ── Daily Rewards ───────────────────────────────────────────────────
+
+        public static (string lastPlayedDate, int loginStreak) GetDailyRewardData()
+            => (Data.lastPlayedDate, Data.loginStreak);
+
+        public static void SaveDailyRewardData(int loginStreak, string lastPlayedDate)
+        {
+            Data.loginStreak = loginStreak;
+            Data.lastPlayedDate = lastPlayedDate;
+            MarkDirty();
+            Flush(); // Daily reward = natural save point
+        }
+
+        // ── Settings ────────────────────────────────────────────────────────
+
+        public static (float musicVolume, float sfxVolume, bool hapticsEnabled) GetSettings()
+            => (Data.musicVolume, Data.sfxVolume, Data.hapticsEnabled);
+
+        public static void SaveMusicVolume(float value)
+        {
+            Data.musicVolume = value;
+            MarkDirty();
+        }
+
+        public static void SaveSfxVolume(float value)
+        {
+            Data.sfxVolume = value;
+            MarkDirty();
+        }
+
+        public static void SaveHaptics(bool enabled)
+        {
+            Data.hapticsEnabled = enabled;
+            MarkDirty();
+        }
+
+        // ── Lifecycle ───────────────────────────────────────────────────────
+
+        /// <summary>
+        /// Writes the in-memory cache to disk if anything has changed.
+        /// Call this on scene transitions, app pause, or app quit.
+        /// </summary>
+        public static void Flush()
+        {
+            if (!_isDirty || _cache == null) return;
+
+            string json = JsonUtility.ToJson(_cache, prettyPrint: true);
+            File.WriteAllText(SavePath, json);
+            _isDirty = false;
+
+#if UNITY_EDITOR
+            Debug.Log($"[SaveManager] Flushed to: {SavePath}");
+#endif
+        }
+
+        /// <summary>
+        /// Deletes the save file and resets the in-memory cache.
+        /// The next access will return fresh defaults.
+        /// </summary>
+        public static void Wipe()
+        {
+            if (File.Exists(SavePath))
+                File.Delete(SavePath);
+
+            _cache = new PlayerData();
+            _isDirty = false;
+            Debug.Log("[SaveManager] Save file wiped.");
+        }
+
+        // ── Internal ────────────────────────────────────────────────────────
+
+        private static void MarkDirty() => _isDirty = true;
+
+        private static PlayerData LoadFromDisk()
         {
             if (!File.Exists(SavePath))
                 return new PlayerData();
@@ -43,50 +273,18 @@ namespace MatchThemAll.Scripts.SaveSystem
             }
         }
 
-        /// <summary>
-        /// Serializes PlayerData to JSON and writes it to disk.
-        /// </summary>
-        public static void Save(PlayerData data)
-        {
-            string json = JsonUtility.ToJson(data, prettyPrint: true);
-            File.WriteAllText(SavePath, json);
-#if UNITY_EDITOR
-            Debug.Log($"[SaveManager] Saved to: {SavePath}");
-#endif
-        }
+        // ── Auto-Flush Hook ─────────────────────────────────────────────────
+        // This is registered by a tiny MonoBehaviour bootstrapper (SaveManagerBootstrapper)
+        // that calls Flush() on OnApplicationPause and OnApplicationQuit.
 
         /// <summary>
-        /// Deletes the save file entirely. The next Load() call will return fresh defaults.
+        /// Force-reloads the cache from disk. Only needed after an external
+        /// tool (like the Template Editor) modifies the save file.
         /// </summary>
-        public static void Wipe()
+        public static void ForceReload()
         {
-            if (File.Exists(SavePath))
-                File.Delete(SavePath);
-
-            Debug.Log("[SaveManager] Save file wiped.");
-        }
-
-        public static event System.Action<int> OnCoinsChanged;
-
-        public static void AddCoins(int amount)
-        {
-            var data = Load();
-            data.coins += amount;
-            Save(data);
-            OnCoinsChanged?.Invoke(data.coins);
-        }
-
-        public static bool SpendCoins(int amount)
-        {
-            var data = Load();
-            if (data.coins >= amount)
-            {
-                data.coins -= amount;
-                Save(data);
-                OnCoinsChanged?.Invoke(data.coins);
-                return true;
-            }
-            return false;
+            _cache = LoadFromDisk();
+            _isDirty = false;
         }
     }
 }

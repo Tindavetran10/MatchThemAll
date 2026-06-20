@@ -86,7 +86,7 @@ namespace MatchThemAll.Scripts
 
         private async Task LoadDataAsync()
         {
-            _savedProgressIndex = SaveManager.Load().currentLevelIndex;
+            _savedProgressIndex = SaveManager.GetCurrentLevelIndex();
             CurrentLevelIndex = _savedProgressIndex;
             
             try
@@ -114,19 +114,8 @@ namespace MatchThemAll.Scripts
         /// </summary>
         public void SaveLevelComplete(int starsEarned)
         {
-            PlayerData data = SaveManager.Load();
-
-            // Only advance progress if this was a new level (not a replay)
-            bool isNewLevel = CurrentLevelIndex == _savedProgressIndex;
-            if (isNewLevel)
-            {
-                _savedProgressIndex++;
-                data.currentLevelIndex = _savedProgressIndex;
-            }
-
-            // Always save best star score for this level
-            data.SetLevelStars(CurrentLevelIndex, starsEarned);
-            SaveManager.Save(data);
+            SaveManager.SaveLevelComplete(CurrentLevelIndex, _savedProgressIndex, starsEarned, out int newProgressIndex);
+            _savedProgressIndex = newProgressIndex;
         }
 
         /// <summary>Wipes all save data and resets to Level 1.</summary>

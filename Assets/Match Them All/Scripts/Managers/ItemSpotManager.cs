@@ -45,7 +45,7 @@ namespace MatchThemAll.Scripts
             InputManager.ItemClicked += OnItemClicked;
             LevelManager.LevelSpawned += OnLevelSpawned;
 
-            PowerupManager.ItemBackToGame += OnItemBackToGame;
+            PowerupManager.Instance.OnItemBackToGame += OnItemBackToGame;
             StoreSpot();
             
             _moveBuffer = new (Item, ItemSpot)[_spots.Length];
@@ -55,7 +55,7 @@ namespace MatchThemAll.Scripts
         {
             InputManager.ItemClicked -= OnItemClicked;
             LevelManager.LevelSpawned -= OnLevelSpawned;
-            PowerupManager.ItemBackToGame -= OnItemBackToGame;
+            if (PowerupManager.Instance) PowerupManager.Instance.OnItemBackToGame -= OnItemBackToGame;
         }
 
         private void OnItemBackToGame(Item releasedItem)

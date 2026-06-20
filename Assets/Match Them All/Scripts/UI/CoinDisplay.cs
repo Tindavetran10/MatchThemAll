@@ -17,8 +17,7 @@ namespace MatchThemAll.Scripts.UI
             SaveManager.OnCoinsChanged += UpdateDisplay;
             
             // Set initial value
-            var data = SaveManager.Load();
-            UpdateDisplay(data.coins);
+            UpdateDisplay(SaveManager.GetCoins());
         }
 
         private void OnDisable() => 

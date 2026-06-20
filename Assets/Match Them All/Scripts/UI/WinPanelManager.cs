@@ -1,3 +1,4 @@
+using MatchThemAll.Scripts.SaveSystem;
 using UnityEngine;
 using PrimeTween;
 
@@ -35,7 +36,7 @@ namespace MatchThemAll.Scripts.UI
 
             // Reward coins: 10 per star
             int coinsEarned = stars * 10;
-            SaveSystem.SaveManager.AddCoins(coinsEarned);
+            SaveManager.AddCoins(coinsEarned);
 
             // Save progress (advances level index if this was a new level)
             LevelManager.Instance?.SaveLevelComplete(stars);

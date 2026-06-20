@@ -52,8 +52,7 @@ namespace MatchThemAll.Scripts.UI
             if (coinsCostText)
                 coinsCostText.text = continueCost.ToString();
 
-            var playerData = SaveManager.Load();
-            payCoinsButton.interactable = playerData.coins >= continueCost;
+            payCoinsButton.interactable = SaveManager.GetCoins() >= continueCost;
             giveUpButton.interactable = true;
             watchAdButton.interactable = true;
         }
@@ -77,7 +76,7 @@ namespace MatchThemAll.Scripts.UI
         {
             if (SaveManager.SpendCoins(continueCost))
             {
-                Debug.Log($"[ContinuePanel] Spent {continueCost} coins. Remaining: {SaveManager.Load().coins}");
+                Debug.Log($"[ContinuePanel] Spent {continueCost} coins. Remaining: {SaveManager.GetCoins()}");
                 
                 if (FloatingTextSpawner.Instance) 
                     FloatingTextSpawner.Instance.Spawn($"-{continueCost}", payCoinsButton.transform.position, Color.red);

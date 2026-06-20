@@ -23,6 +23,7 @@ namespace MatchThemAll.Scripts.SaveSystem
         public int[] levelStars = System.Array.Empty<int>();
 
         // ── Powerup Charges ────────────────────────────────────────────────
+        public bool hasInitializedPowerups = false;
         public int vacuumCount;
         public int springCount;
         public int fanCount;

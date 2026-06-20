@@ -30,10 +30,10 @@ namespace MatchThemAll.Scripts.UI
         private void OnEnable()
         {
             // Populate controls with saved values when the panel opens
-            PlayerData data = SaveManager.Load();
-            if (musicSlider) musicSlider.value  = data.musicVolume;
-            if (sfxSlider) sfxSlider.value    = data.sfxVolume;
-            if (hapticsToggle) hapticsToggle.isOn = data.hapticsEnabled;
+            var (musicVolume, sfxVolume, hapticsEnabled) = SaveManager.GetSettings();
+            if (musicSlider) musicSlider.value  = musicVolume;
+            if (sfxSlider) sfxSlider.value    = sfxVolume;
+            if (hapticsToggle) hapticsToggle.isOn = hapticsEnabled;
         }
 
         // ── Callbacks (assign in Inspector via UnityEvent) ──────────────────
@@ -41,19 +41,19 @@ namespace MatchThemAll.Scripts.UI
         public void OnMusicVolumeChanged(float value)
         {
             SoundManager.Instance?.SetMusicVolume(value);
-            SaveSetting(data => data.musicVolume = value);
+            SaveManager.SaveMusicVolume(value);
         }
 
         private static void OnSfxVolumeChanged(float value)
         {
             SoundManager.Instance?.SetSFXVolume(value);
-            SaveSetting(data => data.sfxVolume = value);
+            SaveManager.SaveSfxVolume(value);
         }
 
         public void OnHapticsChanged(bool enabled)
         {
             // Stub: wire to your haptics library when you add one
-            SaveSetting(data => data.hapticsEnabled = enabled);
+            SaveManager.SaveHaptics(enabled);
         }
 
         // ── Static helper ────────────────────────────────────────────────────
@@ -64,16 +64,9 @@ namespace MatchThemAll.Scripts.UI
         /// </summary>
         public static void ApplyFromSave()
         {
-            PlayerData data = SaveManager.Load();
-            SoundManager.Instance?.SetMusicVolume(data.musicVolume);
-            SoundManager.Instance?.SetSFXVolume(data.sfxVolume);
-        }
-
-        private static void SaveSetting(System.Action<PlayerData> mutate)
-        {
-            PlayerData data = SaveManager.Load();
-            mutate(data);
-            SaveManager.Save(data);
+            var (musicVolume, sfxVolume, _) = SaveManager.GetSettings();
+            SoundManager.Instance?.SetMusicVolume(musicVolume);
+            SoundManager.Instance?.SetSFXVolume(sfxVolume);
         }
     }
 }

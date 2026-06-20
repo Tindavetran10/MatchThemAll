@@ -29,8 +29,8 @@ namespace MatchThemAll.Scripts
             LevelManager.LevelSpawned += OnLevelSpawned;
             ItemSpotManager.ItemPickedUp += OnItemPickedUp;
             
-            PowerupManager.ItemPickup += OnItemPickedUp;
-            PowerupManager.ItemBackToGame += OnItemBackToGame;
+            PowerupManager.Instance.OnItemPickup += OnItemPickedUp;
+            PowerupManager.Instance.OnItemBackToGame += OnItemBackToGame;
         }
 
         private void OnDestroy()
@@ -38,8 +38,11 @@ namespace MatchThemAll.Scripts
             LevelManager.LevelSpawned -= OnLevelSpawned;
             ItemSpotManager.ItemPickedUp -= OnItemPickedUp;
             
-            PowerupManager.ItemPickup -= OnItemPickedUp;
-            PowerupManager.ItemBackToGame -= OnItemBackToGame;
+            if (PowerupManager.Instance)
+            {
+                PowerupManager.Instance.OnItemPickup -= OnItemPickedUp;
+                PowerupManager.Instance.OnItemBackToGame -= OnItemBackToGame;
+            }
         }
 
         private void OnItemBackToGame(Item releasedItem)
