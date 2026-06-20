@@ -28,7 +28,6 @@ namespace MatchThemAll.Scripts
         // Optimized: pre-allocated list container reused on every call to avoid runtime list creations and GC allocations
         private readonly List<Item> _itemsToCollect = new(3);
 
-        [Header("Actions")]
         public event Action<Item> OnItemPickup;
         public event Action<Item> OnItemBackToGame;
 
