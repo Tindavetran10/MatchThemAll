@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -16,7 +15,7 @@ namespace MatchThemAll.Scripts
             EventBus.Unsubscribe<ItemReachedSpotEvent>(OnItemReachedSpot);
         }
 
-        private void OnItemReachedSpot(ItemReachedSpotEvent evt)
+        private static void OnItemReachedSpot(ItemReachedSpotEvent evt)
         {
             var item = evt.Item;
             
@@ -33,10 +32,8 @@ namespace MatchThemAll.Scripts
             else
             {
                 // Check for Game Over condition
-                if (ItemSpotManager.Instance.IsBoardFullAndNoItemsMoving())
-                {
+                if (ItemSpotManager.Instance.IsBoardFullAndNoItemsMoving()) 
                     EventBus.Publish(new SpotFilledEvent());
-                }
             }
         }
     }

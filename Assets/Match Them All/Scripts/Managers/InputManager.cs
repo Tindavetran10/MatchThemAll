@@ -1,4 +1,3 @@
-using System;
 using Match_Them_All.Scripts.Power_Ups;
 using MatchThemAll.Scripts;
 using UnityEngine;
@@ -73,8 +72,8 @@ public class InputManager : MonoBehaviour
         dummy.transform.localPosition = new Vector3(0, 0, _mainCamera.nearClipPlane + 0.1f);
         dummy.transform.localScale = Vector3.one * 10f;
         
-        var renderer = dummy.GetComponent<MeshRenderer>();
-        renderer.material = outlineMaterial;
+        var meshRenderer = dummy.GetComponent<MeshRenderer>();
+        meshRenderer.material = outlineMaterial;
         
         // Destroy it after 1 second
         Destroy(dummy, 1f);

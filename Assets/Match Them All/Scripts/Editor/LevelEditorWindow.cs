@@ -15,7 +15,7 @@ namespace Match_Them_All.Scripts.Editor
     public class LevelEditorWindow : EditorWindow
     {
         // ── Tabs ─────────────────────────────────────────────────────────────
-        private int _currentTab = 0;
+        private int _currentTab;
         private readonly string[] _tabNames = { "Levels", "Items", "Settings" };
         // ── State ────────────────────────────────────────────────────────────
         private readonly List<LevelDataSO> _levels = new();
@@ -100,21 +100,17 @@ namespace Match_Them_All.Scripts.Editor
                 _itemPrefabs.Add(AssetDatabase.LoadAssetAtPath<GameObject>(AssetDatabase.GUIDToAssetPath(g)));
 
             // Restore selection
-            if (_selectedLevel != null)
+            if (_selectedLevel)
             {
                 _selectedLevelIndex = _levels.IndexOf(_selectedLevel);
                 if (_selectedLevelIndex < 0) SelectLevel(-1);
             }
             
             // Settings
-            if (_gameSettings == null)
-            {
+            if (!_gameSettings) 
                 _gameSettings = Resources.Load<MatchThemAll.Scripts.Settings.GameSettingsSO>("GameSettings");
-            }
-            if (_gameSettings != null)
-            {
+            if (_gameSettings) 
                 _gameSettingsEditor = UnityEditor.Editor.CreateEditor(_gameSettings);
-            }
         }
 
         private void SelectLevel(int idx)
@@ -418,7 +414,7 @@ namespace Match_Them_All.Scripts.Editor
         // ── Level Detail (right column) ──────────────────────────────────────
         private void DrawLevelDetail(float panelWidth = 0)
         {
-            if (_selectedLevel == null)
+            if (!_selectedLevel)
             {
                 DrawEmptyState();
                 return;
@@ -623,7 +619,7 @@ namespace Match_Them_All.Scripts.Editor
                 GUILayout.Space(6);
                 var preview = entry.itemPrefab != null
                     ? AssetPreview.GetAssetPreview(entry.itemPrefab.gameObject) : null;
-                if (preview != null)
+                if (preview)
                     GUILayout.Label(preview, GUILayout.Width(iconW - 6), GUILayout.Height(30));
                 else
                     GUILayout.Label("◉", GUILayout.Width(iconW - 6), GUILayout.Height(30));
@@ -1074,7 +1070,7 @@ namespace Match_Them_All.Scripts.Editor
             GUILayout.Space(15);
 
             GUI.color = AccentGreen;
-            bool canGenerate = _newItemIcon != null && _newItemModelPrefab != null;
+            bool canGenerate = _newItemIcon && _newItemModelPrefab;
             EditorGUI.BeginDisabledGroup(!canGenerate);
             if (GUILayout.Button("🚀 Generate Item Prefab", GUILayout.Height(30)))
             {
@@ -1097,24 +1093,21 @@ namespace Match_Them_All.Scripts.Editor
 
         private void GenerateItemPrefab()
         {
-            if (_newItemIcon == null || _newItemModelPrefab == null) return;
+            if (!_newItemIcon || !_newItemModelPrefab) return;
 
-            string formattedName = "Item_" + _newItemName.ToString();
-            string folderPath = ItemPrefabFolder;
+            string formattedName = "Item_" + _newItemName;
 
-            if (!Directory.Exists(folderPath))
+            if (!Directory.Exists(ItemPrefabFolder))
             {
-                Directory.CreateDirectory(folderPath);
+                Directory.CreateDirectory(ItemPrefabFolder);
             }
 
-            string path = $"{folderPath}/{formattedName}.prefab";
+            string path = $"{ItemPrefabFolder}/{formattedName}.prefab";
 
             if (File.Exists(path))
             {
                 if (!EditorUtility.DisplayDialog("Overwrite?", $"A prefab named {formattedName} already exists. Overwrite?", "Yes", "Cancel"))
-                {
                     return;
-                }
             }
 
             // 1. Create root
@@ -1155,7 +1148,7 @@ namespace Match_Them_All.Scripts.Editor
             }
 
             Renderer rend = visualInstance.GetComponentInChildren<Renderer>();
-            if (rend == null)
+            if (!rend)
             {
                 Debug.LogWarning("No Renderer found in the assigned 3D model.");
             }
@@ -1240,7 +1233,7 @@ namespace Match_Them_All.Scripts.Editor
             }
             newEnumBody += $"\n        {newName} = {nextVal}\n    ";
 
-            string newFileContent = fileContent.Substring(0, firstBrace + 1) + newEnumBody + fileContent.Substring(closeBrace);
+            string newFileContent = fileContent[..(firstBrace + 1)] + newEnumBody + fileContent[closeBrace..];
             
             File.WriteAllText(enumPath, newFileContent);
             
@@ -1269,12 +1262,12 @@ namespace Match_Them_All.Scripts.Editor
             GUILayout.Label("GLOBAL GAME SETTINGS", _headerStyle);
             GUILayout.Space(10);
 
-            if (_gameSettings == null)
+            if (!_gameSettings)
             {
                 EditorGUILayout.HelpBox("GameSettings.asset could not be loaded from Resources. Please ensure it exists.", MessageType.Error);
                 if (GUILayout.Button("Create GameSettings Asset"))
                 {
-                    _gameSettings = ScriptableObject.CreateInstance<MatchThemAll.Scripts.Settings.GameSettingsSO>();
+                    _gameSettings = CreateInstance<MatchThemAll.Scripts.Settings.GameSettingsSO>();
                     if (!Directory.Exists("Assets/Match Them All/Resources"))
                     {
                         Directory.CreateDirectory("Assets/Match Them All/Resources");
@@ -1286,10 +1279,8 @@ namespace Match_Them_All.Scripts.Editor
             }
             else
             {
-                if (_gameSettingsEditor == null)
-                {
+                if (!_gameSettingsEditor) 
                     _gameSettingsEditor = UnityEditor.Editor.CreateEditor(_gameSettings);
-                }
 
                 _detailScroll = GUILayout.BeginScrollView(_detailScroll);
                 BeginCard();

@@ -1,4 +1,3 @@
-using ZLinq;
 using UnityEngine;
 using PrimeTween;
 
@@ -29,20 +28,11 @@ namespace MatchThemAll.Scripts
             QualitySettings.vSyncCount = 0;
         }
 
-        private void OnDestroy()
-        {
-            EventBus.Unsubscribe<SpotFilledEvent>(OnSpotFilled);
-        }
+        private void OnDestroy() => EventBus.Unsubscribe<SpotFilledEvent>(OnSpotFilled);
 
-        private void OnSpotFilled(SpotFilledEvent evt)
-        {
-            SetGameState(EGameState.GAMEOVER);
-        }
+        private void OnSpotFilled(SpotFilledEvent evt) => SetGameState(EGameState.GAMEOVER);
 
-        private void Start()
-        {
-            StartGame();
-        }
+        private void Start() => StartGame();
 
         public void SetGameState(EGameState gameState)
         {

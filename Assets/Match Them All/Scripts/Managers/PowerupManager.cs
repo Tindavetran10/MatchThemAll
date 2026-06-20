@@ -4,7 +4,6 @@ using ZLinq;
 using Match_Them_All.Scripts.Power_Ups;
 using MatchThemAll.Scripts.SaveSystem;
 using MatchThemAll.Scripts.Settings;
-using MatchThemAll.Scripts;
 using NaughtyAttributes;
 using UnityEngine;
 using PrimeTween;
@@ -128,12 +127,9 @@ namespace MatchThemAll.Scripts
             };
         }
 
-        private bool TryUsePowerupCharge(EPowerupType type)
-        {
-            if (!SaveManager.UsePowerupCharge(type)) return false;
+        private static bool TryUsePowerupCharge(EPowerupType type) =>
             // Visuals are updated automatically via SaveManager.OnPowerupsChanged
-            return true;
-        }
+            SaveManager.UsePowerupCharge(type);
 
         #region Vacuum Powerup
 
@@ -164,7 +160,12 @@ namespace MatchThemAll.Scripts
 
             if (items != null)
             {
-                foreach (var item in items.AsValueEnumerable().Where(item => item && item.gameObject.activeInHierarchy).Where(item => item.ItemNameKey == goal.itemPrefab.ItemNameKey && item.Spot == null && !item.IsMovingToSpot))
+                foreach (var item in items.AsValueEnumerable()
+                             .Where(item => item && item.gameObject.activeInHierarchy)
+                             .Where(item =>
+                                 item.ItemNameKey == goal.itemPrefab.ItemNameKey &&
+                                 !item.Spot &&
+                                 !item.IsMovingToSpot))
                 {
                     _itemsToCollect.Add(item);
                     if (_itemsToCollect.Count >= 3)

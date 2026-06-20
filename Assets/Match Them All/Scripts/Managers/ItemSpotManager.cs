@@ -157,7 +157,7 @@ namespace MatchThemAll.Scripts
             item.IsMovingToSpot = true;
             targetSpot.Populate(item);
 
-            // Stop any existing tweens (like hint pulsing animations) to prevent conflicts
+            // Stop any existing tween (like hint pulsing animations) to prevent conflicts
             Tween.StopAll(item.transform);
 
             Tween.LocalPosition(item.transform, itemLocalPositionOnSpot, animationDuration, animationEase);
@@ -169,7 +169,7 @@ namespace MatchThemAll.Scripts
             item.DisablePhysics();
         }
 
-        private void HandleItemReachedSpot(Item item, bool checkForMerge = true)
+        private static void HandleItemReachedSpot(Item item, bool checkForMerge = true)
         {
             item.IsMovingToSpot = false;
             item.Spot.BumpDown();
@@ -356,7 +356,12 @@ namespace MatchThemAll.Scripts
             // Tier 1: Combo Nudge (Items already partially collected)
             foreach (var type in occupiedTypes)
             {
-                if (allItems.AsValueEnumerable().Any(i => i != null && i.gameObject.activeInHierarchy && i.ItemNameKey == type && i.Spot == null && !i.IsMovingToSpot))
+                if (allItems.AsValueEnumerable()
+                    .Any(i => i &&
+                              i.gameObject.activeInHierarchy &&
+                              i.ItemNameKey == type &&
+                              !i.Spot &&
+                              !i.IsMovingToSpot))
                 {
                     targetType = type;
                     break;
@@ -374,7 +379,12 @@ namespace MatchThemAll.Scripts
                     {
                         if (goal.amount > maxGoalAmount && goal.amount > 0)
                         {
-                            if (allItems.AsValueEnumerable().Any(i => i != null && i.gameObject.activeInHierarchy && i.ItemNameKey == goal.itemPrefab.ItemNameKey && i.Spot == null && !i.IsMovingToSpot))
+                            if (allItems.AsValueEnumerable()
+                                .Any(i => i &&
+                                          i.gameObject.activeInHierarchy &&
+                                          i.ItemNameKey == goal.itemPrefab.ItemNameKey &&
+                                          !i.Spot &&
+                                          !i.IsMovingToSpot))
                             {
                                 maxGoalAmount = goal.amount;
                                 targetType = goal.itemPrefab.ItemNameKey;
@@ -387,7 +397,9 @@ namespace MatchThemAll.Scripts
             // Tier 3: Progress Nudge (Random fallback)
             if (targetType == null)
             {
-                var fallback = allItems.AsValueEnumerable().FirstOrDefault(i => i != null && i.gameObject.activeInHierarchy && i.Spot == null && !i.IsMovingToSpot);
+                var fallback = allItems.AsValueEnumerable()
+                    .FirstOrDefault(i =>
+                        i && i.gameObject.activeInHierarchy && !i.Spot && !i.IsMovingToSpot);
                 if (fallback)
                 {
                     targetType = fallback.ItemNameKey;
@@ -398,7 +410,11 @@ namespace MatchThemAll.Scripts
             if (targetType.HasValue)
             {
                 var availableItems = allItems.AsValueEnumerable()
-                    .Where(i => i && i.gameObject.activeInHierarchy && i.ItemNameKey == targetType.Value && !i.Spot && !i.IsMovingToSpot)
+                    .Where(i => i &&
+                                i.gameObject.activeInHierarchy &&
+                                i.ItemNameKey == targetType.Value &&
+                                !i.Spot &&
+                                !i.IsMovingToSpot)
                     .ToList();
 
                 if (availableItems.Count <= count)

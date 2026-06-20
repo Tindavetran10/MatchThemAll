@@ -32,9 +32,8 @@ namespace MatchThemAll.Scripts
 
         [Header("Actions")]
         public static Action<Level> LevelSpawned;
-        
-        private Task _loadTask;
-        public Task LoadTask => _loadTask;
+
+        public Task LoadTask { get; private set; }
 
         private void Awake()
         {
@@ -42,7 +41,7 @@ namespace MatchThemAll.Scripts
                 Instance = this;
             else Destroy(gameObject);
 
-            _loadTask = LoadDataAsync();
+            LoadTask = LoadDataAsync();
             EventBus.Subscribe<GameStateChangedEvent>(OnGameStateChanged);
         }
 
@@ -56,7 +55,7 @@ namespace MatchThemAll.Scripts
             {
                 IsLevelReady = false;
             
-                if (_loadTask != null) await _loadTask;
+                if (LoadTask != null) await LoadTask;
 
                 int requested = SceneLoader.RequestedLevelIndex;
                 CurrentLevelIndex = requested >= 0 && requested < levels.Length

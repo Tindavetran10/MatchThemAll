@@ -8,7 +8,6 @@ using Match_Them_All.Scripts.Power_Ups;
 using MatchThemAll.Scripts.Tutorial;
 using MatchThemAll.Scripts.UI;
 using PrimeTween;
-using MatchThemAll.Scripts;
 
 namespace MatchThemAll.Scripts.Managers
 {

@@ -56,9 +56,9 @@ namespace MatchThemAll.Scripts
                 _rigidbody.isKinematic = false;
             if (_colliders != null)
             {
-                for (int i = 0; i < _colliders.Length; i++)
+                foreach (var itemCollider in _colliders)
                 {
-                    if (_colliders[i]) _colliders[i].enabled = true;
+                    if (itemCollider) itemCollider.enabled = true;
                 }
             }
         }
@@ -69,9 +69,9 @@ namespace MatchThemAll.Scripts
                 _rigidbody.isKinematic = true;
             if (_colliders != null)
             {
-                for (int i = 0; i < _colliders.Length; i++)
+                foreach (var itemCollider in _colliders)
                 {
-                    if (_colliders[i]) _colliders[i].enabled = false;
+                    if (itemCollider) itemCollider.enabled = false;
                 }
             }
         }
@@ -107,9 +107,9 @@ namespace MatchThemAll.Scripts
             
             if (_colliders != null)
             {
-                for (int i = 0; i < _colliders.Length; i++)
+                foreach (var itemCollider in _colliders)
                 {
-                    if (_colliders[i]) _colliders[i].enabled = true;
+                    if (itemCollider) itemCollider.enabled = true;
                 }
             }
         }

@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using ZLinq;
 using UnityEngine;
 using PrimeTween;
-using MatchThemAll.Scripts;
 
 namespace MatchThemAll.Scripts.Managers
 {

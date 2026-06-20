@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Threading.Tasks;
 using NaughtyAttributes;
 using UnityEngine;
@@ -68,13 +69,11 @@ namespace MatchThemAll.Scripts
 
         private void ClearItems()
         {
-            foreach (var item in _activeItems)
+            foreach (var item in _activeItems.Where(item => item))
             {
-                if (item != null)
-                {
-                    ItemPoolManager.Instance.ReleaseItem(item);
-                }
+                ItemPoolManager.Instance.ReleaseItem(item);
             }
+
             _activeItems.Clear();
         }
 

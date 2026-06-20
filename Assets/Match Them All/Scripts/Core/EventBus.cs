@@ -5,7 +5,7 @@ namespace MatchThemAll.Scripts
 {
     /// <summary>
     /// A lightweight, strongly-typed Event Bus for decoupled communication between systems.
-    /// Replaces scattered static actions and singletons with a unified publish/subscribe model.
+    /// Replaces scattered static actions and singletons with a unified publishing/subscribe model.
     /// </summary>
     public static class EventBus
     {
@@ -16,15 +16,11 @@ namespace MatchThemAll.Scripts
         {
             Type eventType = typeof(T);
 
-            if (!_subscribers.ContainsKey(eventType))
-            {
+            if (!_subscribers.ContainsKey(eventType)) 
                 _subscribers[eventType] = new List<Delegate>();
-            }
 
-            if (!_subscribers[eventType].Contains(listener))
-            {
+            if (!_subscribers[eventType].Contains(listener)) 
                 _subscribers[eventType].Add(listener);
-            }
         }
 
         /// <summary>Unsubscribes a listener from an event of type T.</summary>
@@ -32,10 +28,8 @@ namespace MatchThemAll.Scripts
         {
             Type eventType = typeof(T);
 
-            if (_subscribers.ContainsKey(eventType))
-            {
-                _subscribers[eventType].Remove(listener);
-            }
+            if (_subscribers.TryGetValue(eventType, out var subscriber)) 
+                subscriber.Remove(listener);
         }
 
         /// <summary>Publishes an event of type T to all registered listeners.</summary>
@@ -48,18 +42,13 @@ namespace MatchThemAll.Scripts
                 // Iterate backwards to allow listeners to unsubscribe during an event without breaking the loop
                 for (int i = delegates.Count - 1; i >= 0; i--)
                 {
-                    if (delegates[i] is Action<T> action)
-                    {
+                    if (delegates[i] is Action<T> action) 
                         action.Invoke(eventData);
-                    }
                 }
             }
         }
 
         /// <summary>Clears all event subscriptions. Call this when shutting down or completely resetting the application.</summary>
-        public static void ClearAll()
-        {
-            _subscribers.Clear();
-        }
+        public static void ClearAll() => _subscribers.Clear();
     }
 }
