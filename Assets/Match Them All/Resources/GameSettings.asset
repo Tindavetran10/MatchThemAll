@@ -19,5 +19,5 @@ MonoBehaviour:
   springHorizontalForceRange: {x: 4, y: 7}
   springVerticalForceRange: {x: 6, y: 9}
   springSpinSpeedRange: {x: 5, y: 12}
-  springThrowZDirection: 1
+  springThrowZDirection: -1
   fanMagnitude: 30
