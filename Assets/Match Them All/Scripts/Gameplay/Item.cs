@@ -79,11 +79,11 @@ namespace MatchThemAll.Scripts
         public void Select(Material outlineMaterial)
         {
             _selectedMaterials[1] = outlineMaterial;
-            _renderer.materials = _selectedMaterials;
+            _renderer.sharedMaterials = _selectedMaterials;
         }
 
         public void Deselect() =>
-            _renderer.materials = _deselectedMaterials;
+            _renderer.sharedMaterials = _deselectedMaterials;
 
         public void ApplyRandomForce(float magnitude) => 
             _rigidbody.AddForce(Random.insideUnitSphere * magnitude, ForceMode.VelocityChange);

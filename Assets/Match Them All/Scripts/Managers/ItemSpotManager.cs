@@ -189,28 +189,26 @@ namespace MatchThemAll.Scripts
 
         private void MoveAllItemsToTheLeft()
         {
-            for (int i = 1; i < _activeSpotCount; i++)
+            int firstEmptyIndex = -1;
+
+            for (int i = 0; i < _activeSpotCount; i++)
             {
                 ItemSpot spot = _spots[i];
-                if (!spot.gameObject.activeInHierarchy || spot.IsEmpty()) continue;
+                if (!spot.gameObject.activeInHierarchy) continue;
 
-                int targetIndex = -1;
-                for (int j = 0; j < i; j++)
+                if (spot.IsEmpty())
                 {
-                    if (_spots[j].IsEmpty())
-                    {
-                        targetIndex = j;
-                        break;
-                    }
+                    if (firstEmptyIndex == -1) firstEmptyIndex = i;
                 }
-
-                if (targetIndex != -1)
+                else if (firstEmptyIndex != -1)
                 {
                     Item item = spot.Item;
-                    ItemSpot targetSpot = _spots[targetIndex];
+                    ItemSpot targetSpot = _spots[firstEmptyIndex];
                     
                     spot.Clear();
                     MoveItemToSpot(item, targetSpot, () => HandleItemReachedSpot(item, false));
+
+                    firstEmptyIndex++;
                 }
             }
         }

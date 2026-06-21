@@ -95,22 +95,8 @@ namespace MatchThemAll.Scripts.UI
             watchAdButton.interactable = false;
             payCoinsButton.interactable = false;
 
-            // Play the PrimeTween close animation, then switch state after it finishes
-            var anim = continuePanel ? continuePanel.GetComponent<UIAnimator>() : null;
-            if (anim)
-            {
-                anim.ClosePanel();
-                // Wait for the animation to finish before showing Game Over
-                PrimeTween.Tween.Delay(closeDuration, () =>
-                {
-                    GameManager.Instance.SetGameState(EGameState.GAMEOVER);
-                }, useUnscaledTime: true);
-            }
-            else
-            {
-                // Fallback: no animator, switch immediately
-                GameManager.Instance.SetGameState(EGameState.GAMEOVER);
-            }
+            // Trigger GAMEOVER immediately. OnGameStateChanged will handle HidePanel().
+            GameManager.Instance.SetGameState(EGameState.GAMEOVER);
         }
 
         private void ContinueGame()

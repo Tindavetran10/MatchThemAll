@@ -36,6 +36,8 @@ public class InputManager : MonoBehaviour
     {
         if (!Instance) Instance = this;
         else Destroy(gameObject);
+        
+        EventBus.Subscribe<GameStateChangedEvent>(OnGameStateChanged);
     }
 
     // Start method is called once when the GameObject is first created
@@ -98,9 +100,18 @@ public class InputManager : MonoBehaviour
 
     private void OnDestroy()
     {
+        EventBus.Unsubscribe<GameStateChangedEvent>(OnGameStateChanged);
         if (_input == null) return;
         _input.Gameplay.Disable(); // must be called before Dispose() to satisfy the finalizer assertion
         _input.Dispose();
+    }
+
+    private void OnGameStateChanged(GameStateChangedEvent evt)
+    {
+        if (evt.NewState != EGameState.GAME)
+        {
+            DeselectCurrentItem();
+        }
     }
 
     private void HandleMouseDown()

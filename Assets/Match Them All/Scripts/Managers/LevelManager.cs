@@ -49,8 +49,13 @@ namespace MatchThemAll.Scripts
 
         public bool IsLevelReady { get; private set; }
 
+        private bool _isSpawning;
+
         private async void SpawnLevel()
         {
+            if (_isSpawning) return;
+            _isSpawning = true;
+
             try
             {
                 IsLevelReady = false;
@@ -83,6 +88,10 @@ namespace MatchThemAll.Scripts
             catch (Exception e)
             {
                 Debug.LogException(e);
+            }
+            finally
+            {
+                _isSpawning = false;
             }
         }
 

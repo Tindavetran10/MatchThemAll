@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 namespace MatchThemAll.Scripts
 {
@@ -27,7 +27,14 @@ namespace MatchThemAll.Scripts
         // SPOT CLEANER: Removes the item reference from this spot
         // Like erasing the name from a parking space when someone leaves
         // Note: This doesn't destroy the item, just marks the spot as available
-        public void Clear() => Item = null;
+        public void Clear()
+        {
+            if (Item != null)
+            {
+                Item.UnassignSpot();
+            }
+            Item = null;
+        }
         
         public void BumpDown() => _animator.Play("Bump", 0, 0);
 

@@ -14,9 +14,25 @@ namespace MatchThemAll.Scripts.Managers
         private List<Item> _activeHintItems = new();
         private EItemName? _currentHintType;
         
-        private void Awake() => EventBus.Subscribe<ItemClickedEvent>(OnItemClickedEvent);
+        private void Awake()
+        {
+            EventBus.Subscribe<ItemClickedEvent>(OnItemClickedEvent);
+            EventBus.Subscribe<GameStateChangedEvent>(OnGameStateChanged);
+        }
 
-        private void OnDestroy() => EventBus.Unsubscribe<ItemClickedEvent>(OnItemClickedEvent);
+        private void OnDestroy()
+        {
+            EventBus.Unsubscribe<ItemClickedEvent>(OnItemClickedEvent);
+            EventBus.Unsubscribe<GameStateChangedEvent>(OnGameStateChanged);
+        }
+
+        private void OnGameStateChanged(GameStateChangedEvent evt)
+        {
+            if (evt.NewState != EGameState.GAME)
+            {
+                ResetHint();
+            }
+        }
 
         private void OnItemClickedEvent(ItemClickedEvent evt)
         {
@@ -85,8 +101,8 @@ namespace MatchThemAll.Scripts.Managers
                 if (InputManager.Instance && InputManager.Instance.OutlineMaterial)
                     item.Select(InputManager.Instance.OutlineMaterial);
                     
-                // Apply a persistent pulsing animation
-                Tween.Scale(item.transform, item.transform.localScale * 1.3f, 0.4f, Ease.InOutSine, cycles: -1, cycleMode: CycleMode.Yoyo);
+                // Apply a persistent pulsing animation using a fixed absolute scale to prevent compounding
+                Tween.Scale(item.transform, Vector3.one * 1.3f, 0.4f, Ease.InOutSine, cycles: -1, cycleMode: CycleMode.Yoyo);
             }
         }
 
