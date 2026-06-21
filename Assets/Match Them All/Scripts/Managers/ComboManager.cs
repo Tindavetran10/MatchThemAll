@@ -37,10 +37,8 @@ namespace MatchThemAll.Scripts
         private void Update()
         {
             if (CurrentCombo <= 0 || !GameManager.Instance.IsGame()) return;
-            if (Time.time - _lastMergeTime > comboTimeout)
-            {
+            if (Time.time - _lastMergeTime > comboTimeout) 
                 ResetCombo();
-            }
         }
 
         private void OnMergeStarted(MergeStartedEvent evt)
@@ -49,19 +47,15 @@ namespace MatchThemAll.Scripts
 
             // If this is the first merge, start tracking combo
             if (CurrentCombo == 0)
-            {
                 CurrentCombo = 1;
-            }
             else
             {
                 // Increment combo
                 CurrentCombo++;
                 
                 // Grant bonus time
-                if (TimerManager.Instance)
-                {
+                if (TimerManager.Instance) 
                     TimerManager.Instance.AddTime(bonusTimePerCombo);
-                }
                 
                 // Fire event for UI
                 OnComboUpdated?.Invoke(CurrentCombo);

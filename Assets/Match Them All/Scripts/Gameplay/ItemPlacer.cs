@@ -69,6 +69,13 @@ namespace MatchThemAll.Scripts
 
         private void ClearItems()
         {
+#if UNITY_EDITOR
+            if (!Application.isPlaying)
+            {
+                _activeItems.Clear();
+                return;
+            }
+#endif
             foreach (var item in _activeItems.Where(item => item))
             {
                 ItemPoolManager.Instance.ReleaseItem(item);
@@ -92,11 +99,23 @@ namespace MatchThemAll.Scripts
 
         private void SpawnItem(Item prefab)
         {
-            Item item = ItemPoolManager.Instance.GetItem(prefab);
-            item.transform.SetParent(transform);
-            item.transform.position = GetSpawnPosition();
-            item.transform.rotation = Quaternion.Euler(Random.onUnitSphere * 360f);
-            _activeItems.Add(item);
+#if UNITY_EDITOR
+            if (!Application.isPlaying)
+            {
+                GameObject go = (GameObject)UnityEditor.PrefabUtility.InstantiatePrefab(prefab.gameObject);
+                Item item = go.GetComponent<Item>();
+                item.transform.SetParent(transform);
+                item.transform.position = GetSpawnPosition();
+                item.transform.rotation = Quaternion.Euler(Random.onUnitSphere * 360f);
+                _activeItems.Add(item);
+                return;
+            }
+#endif
+            Item runtimeItem = ItemPoolManager.Instance.GetItem(prefab);
+            runtimeItem.transform.SetParent(transform);
+            runtimeItem.transform.position = GetSpawnPosition();
+            runtimeItem.transform.rotation = Quaternion.Euler(Random.onUnitSphere * 360f);
+            _activeItems.Add(runtimeItem);
         }
 
         private Vector3 GetSpawnPosition()
@@ -139,6 +158,12 @@ namespace MatchThemAll.Scripts
         private void OnValidate()
         {
             // Validation now handled inside LevelDataSO / ItemLevelData
+        }
+
+        public void PreviewSpawnFromEditor(LevelDataSO data)
+        {
+            previewData = data;
+            PreviewSpawn();
         }
 #endif
     }

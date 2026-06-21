@@ -7931,7 +7931,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MatchThemAll.Scripts.PowerupManager
   vacuum: {fileID: 1947967955}
   vacuumSuckPosition: {fileID: 968201496}
-  gameSettings: {fileID: 0}
+  gameSettings: {fileID: 11400000, guid: 8ead217f245550649be423e8e56e2bd3, type: 2}
 --- !u!1 &1218867516
 GameObject:
   m_ObjectHideFlags: 0
@@ -7980,7 +7980,7 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3

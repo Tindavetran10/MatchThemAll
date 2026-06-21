@@ -431,6 +431,53 @@ namespace Match_Them_All.Scripts.Editor
             GUILayout.Label(_selectedLevel.name, _headerStyle);
             GUILayout.FlexibleSpace();
 
+            GUI.color = AccentBlue;
+            if (GUILayout.Button("👁 Preview Layout", GUILayout.Width(130), GUILayout.Height(26)))
+            {
+                var placer = FindAnyObjectByType<ItemPlacer>();
+                if (!placer)
+                {
+                    var prefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Match Them All/Prefabs/Levels/LevelTemplate.prefab");
+                    if (prefab)
+                    {
+                        var go = (GameObject)PrefabUtility.InstantiatePrefab(prefab);
+                        placer = go.GetComponentInChildren<ItemPlacer>();
+                        Undo.RegisterCreatedObjectUndo(go, "Spawn Level Template");
+                        Debug.Log("Template Editor: Automatically spawned LevelTemplate into the scene.");
+                    }
+                }
+                
+                if (placer) 
+                {
+                    Selection.activeGameObject = placer.gameObject;
+                    placer.PreviewSpawnFromEditor(_selectedLevel);
+                }
+                else 
+                {
+                    Debug.LogWarning("Template Editor: Could not find or spawn ItemPlacer.");
+                }
+                GUIUtility.ExitGUI();
+            }
+            
+            GUILayout.Space(4);
+            GUI.color = AccentGreen;
+            if (GUILayout.Button("▶ Play Level", GUILayout.Width(110), GUILayout.Height(26)))
+            {
+                // Clean up any preview instances before playing so there are no duplicates
+                var placer = FindAnyObjectByType<ItemPlacer>();
+                if (placer && !EditorApplication.isPlaying)
+                {
+                    DestroyImmediate(placer.transform.root.gameObject);
+                }
+
+                var path = AssetDatabase.GetAssetPath(_selectedLevel);
+                EditorPrefs.SetString("EditorTestLevelPath", path);
+                if (!EditorApplication.isPlaying) EditorApplication.isPlaying = true;
+
+                GUIUtility.ExitGUI();
+            }
+
+            GUILayout.Space(4);
             // Open in Project button
             GUI.color = new Color(0.65f, 0.65f, 0.7f);
             if (GUILayout.Button("Ping Asset", GUILayout.Width(90), GUILayout.Height(26)))

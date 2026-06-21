@@ -28,10 +28,8 @@ namespace MatchThemAll.Scripts.Managers
 
         private void OnGameStateChanged(GameStateChangedEvent evt)
         {
-            if (evt.NewState != EGameState.GAME)
-            {
+            if (evt.NewState != EGameState.GAME) 
                 ResetHint();
-            }
         }
 
         private void OnItemClickedEvent(ItemClickedEvent evt)
@@ -68,6 +66,9 @@ namespace MatchThemAll.Scripts.Managers
             if (!GameManager.Instance.IsGame()) 
                 return;
 
+            if (TutorialManager.Instance && TutorialManager.Instance.IsTutorialRunning)
+                return;
+
             // Only track idle timer if we aren't currently hinting something
             if (_activeHintItems.Count == 0)
             {
@@ -80,10 +81,8 @@ namespace MatchThemAll.Scripts.Managers
                 else
                 {
                     _idleTimer += Time.deltaTime;
-                    if (_idleTimer >= idleThreshold)
-                    {
+                    if (_idleTimer >= idleThreshold) 
                         TriggerHint();
-                    }
                 }
             }
         }
@@ -123,10 +122,7 @@ namespace MatchThemAll.Scripts.Managers
                         // It's safer to let the Select/Deselect handle materials, but scale needs to be reset
                         Tween.Scale(item.transform, Vector3.one, 0.1f);
                             
-                        if (!item.Spot)
-                        {
-                            item.Deselect();
-                        }
+                        if (!item.Spot) item.Deselect();
                     }
                 }
 

@@ -32,10 +32,8 @@ namespace MatchThemAll.Scripts
                 Instance = this;
             else Destroy(gameObject);
             
-            if (!gameObject.GetComponent<MatchSystem>())
-            {
+            if (!gameObject.GetComponent<MatchSystem>()) 
                 gameObject.AddComponent<MatchSystem>();
-            }
             
             EventBus.Subscribe<ItemClickedEvent>(OnItemClickedEvent);
             EventBus.Subscribe<MergeStartedEvent>(OnMergeStarted);
@@ -61,7 +59,10 @@ namespace MatchThemAll.Scripts
         private void OnItemBackToGame(Item releasedItem)
         {
             if (releasedItem.Spot != null)
+            {
                 releasedItem.Spot.Clear();
+            }
+            MoveAllItemsToTheLeft();
         }
 
         private void OnLevelSpawned(Level level)
@@ -75,10 +76,8 @@ namespace MatchThemAll.Scripts
                         _spots[i].gameObject.SetActive(i < _activeSpotCount);
                 }
                 
-                if (itemSpotParent.TryGetComponent<ItemSpotLayout>(out var layout))
-                {
+                if (itemSpotParent.TryGetComponent<ItemSpotLayout>(out var layout)) 
                     layout.UpdateLayout();
-                }
             }
             ResetSpotsAndState();
         }
@@ -123,10 +122,7 @@ namespace MatchThemAll.Scripts
                 var idealSpot = GetIdealSpotFor(item);
                 TryMoveItemToIdealSpot(item, idealSpot);
             }
-            else
-            {
-                MoveItemToFirstFreeSpot(item);
-            }
+            else MoveItemToFirstFreeSpot(item);
         }
 
         private ItemSpot GetIdealSpotFor(Item item)
@@ -306,7 +302,8 @@ namespace MatchThemAll.Scripts
         {
             for (int i = 0; i < _activeSpotCount; i++)
             {
-                if (!_spots[i].IsEmpty() && _spots[i].Item.ItemNameKey == itemName) return true;
+                if (!_spots[i].IsEmpty() && _spots[i].Item.ItemNameKey == itemName) 
+                    return true;
             }
             return false;
         }

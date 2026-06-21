@@ -19,17 +19,17 @@ MonoBehaviour:
   - itemPrefab: {fileID: 3831665066184828695, guid: 668a3a40b165ef94aaaedfb0fa82a5c1, type: 3}
     isGoal: 0
     multiplier: 5
-    amount: 27
+    amount: 9
   - itemPrefab: {fileID: 7950600088722064912, guid: b2cc6bb42b096c340b3d2cfe00010ef9, type: 3}
     isGoal: 1
     multiplier: 4
-    amount: 21
+    amount: 6
   - itemPrefab: {fileID: 2244121086638147798, guid: 5573a13de194e0e4b93ed33cb4f19d0c, type: 3}
     isGoal: 1
     multiplier: 4
-    amount: 18
+    amount: 6
   - itemPrefab: {fileID: 7559479663845612207, guid: 93584426185aff349b2e5fb2e65c9314, type: 3}
     isGoal: 1
     multiplier: 1
-    amount: 18
+    amount: 6
   tutorialSteps: []

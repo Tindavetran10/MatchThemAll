@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6555fd2a693358d43a48520c3eaaa4b4, type: 3}
   m_Name: LevelData04
   m_EditorClassIdentifier: 
+  spotCount: 7
   duration: 60
   seed: 74861
   itemData:
@@ -22,9 +23,9 @@ MonoBehaviour:
   - itemPrefab: {fileID: 7950600088722064912, guid: b2cc6bb42b096c340b3d2cfe00010ef9, type: 3}
     isGoal: 1
     multiplier: 5
-    amount: 12
+    amount: 3
   - itemPrefab: {fileID: 7559479663845612207, guid: 93584426185aff349b2e5fb2e65c9314, type: 3}
     isGoal: 0
     multiplier: 2
-    amount: 9
+    amount: 3
   tutorialSteps: []

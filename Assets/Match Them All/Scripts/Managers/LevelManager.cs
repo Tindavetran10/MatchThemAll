@@ -78,7 +78,29 @@ namespace MatchThemAll.Scripts
 
                 // 2. Initialize with SO data (spawns items, sets duration)
                 //    This will automatically release old items back to the ItemPoolManager.
+#if UNITY_EDITOR
+                LevelDataSO overrideLevel = null;
+                if (UnityEditor.EditorPrefs.HasKey("EditorTestLevelPath"))
+                {
+                    string path = UnityEditor.EditorPrefs.GetString("EditorTestLevelPath");
+                    UnityEditor.EditorPrefs.DeleteKey("EditorTestLevelPath"); // Consume it
+                    if (!string.IsNullOrEmpty(path))
+                    {
+                        overrideLevel = UnityEditor.AssetDatabase.LoadAssetAtPath<LevelDataSO>(path);
+                    }
+                }
+
+                if (overrideLevel != null)
+                {
+                    await _currentLevel.InitializeAsync(overrideLevel);
+                }
+                else
+                {
+                    await _currentLevel.InitializeAsync(levels[index]);
+                }
+#else
                 await _currentLevel.InitializeAsync(levels[index]);
+#endif
 
                 // 3. Notify listeners (TimerManager, GoalManager, etc.)
                 LevelSpawned?.Invoke(_currentLevel);

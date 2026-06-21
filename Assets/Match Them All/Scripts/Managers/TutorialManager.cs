@@ -30,6 +30,8 @@ namespace MatchThemAll.Scripts.Managers
         private TutorialStep _currentStep;
         private List<TutorialStep> _currentSteps;
 
+        public bool IsTutorialRunning => _currentSteps != null && _currentStepIndex < _currentSteps.Count;
+
         // Objects currently on the Tutorial layer
         private readonly List<GameObject> _highlightedObjects = new();
         private int _originalLayer;
