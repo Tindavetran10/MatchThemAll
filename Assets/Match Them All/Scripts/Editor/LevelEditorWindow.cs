@@ -35,6 +35,8 @@ namespace Match_Them_All.Scripts.Editor
         private string _newLevelName = "";
         private bool _showNewLevelField;
         
+        private string _itemSearchQuery = "";
+        
         // Item Creation State
         private EItemName _newItemName;
         private Sprite _newItemIcon;
@@ -628,6 +630,12 @@ namespace Match_Them_All.Scripts.Editor
             DrawItemsSection(panelWidth);
             EndCard();
 
+            // ─ Item Library Card ─
+            GUILayout.Space(8);
+            BeginCard();
+            DrawItemLibrarySection(panelWidth);
+            EndCard();
+
             // ─ Summary footer ─
             GUILayout.Space(8);
             DrawLevelSummary(panelWidth);
@@ -648,7 +656,7 @@ namespace Match_Them_All.Scripts.Editor
             // Fixed columns: icon=36, total=52, goal=56, remove=30, padding=24
             // Remaining space split ~40% name popup, ~60% amount slider
             const float iconW      = 36f;
-            const float totalW     = 52f;
+            const float totalW     = 64f;
             const float goalW      = 56f;
             const float removeW    = 30f;
             const float fixedW     = iconW + totalW + goalW + removeW + 24f;
@@ -663,14 +671,8 @@ namespace Match_Them_All.Scripts.Editor
             var scrollH  = 200f;
 
             GUILayout.BeginHorizontal();
-            GUILayout.Label("Items", _subHeaderStyle);
+            GUILayout.Label("Configured Items", _subHeaderStyle);
             GUILayout.FlexibleSpace();
-
-            GUI.color = AccentGreen;
-            if (GUILayout.Button("+ Add Item", GUILayout.Width(90), GUILayout.Height(22)))
-                ShowAddItemMenu();
-            GUI.color = Color.white;
-
             GUILayout.EndHorizontal();
             GUILayout.Space(8);
 
@@ -686,16 +688,23 @@ namespace Match_Them_All.Scripts.Editor
 
             // Header row
             EditorGUI.DrawRect(GUILayoutUtility.GetRect(0, 1), new Color(0.15f, 0.15f, 0.18f));
+            GUILayout.BeginHorizontal(GUILayout.Height(24));
+            
+            GUILayout.BeginVertical(GUILayout.Height(24)); 
+            GUILayout.Space(4); // Fixed padding for optical text centering
             GUILayout.BeginHorizontal();
             GUI.color = TextMuted;
-            GUILayout.Label("",       GUILayout.Width(iconW));
-            GUILayout.Label("Item",   GUILayout.Width(nameW));
-            GUILayout.Label("Amount", GUILayout.Width(sliderW));
-            GUILayout.Label("Multiplier", GUILayout.Width(totalW));
             var centeredLabel = new GUIStyle(EditorStyles.label) { alignment = TextAnchor.MiddleCenter };
-            GUILayout.Label("Goal?",  centeredLabel, GUILayout.Width(goalW));
-            GUILayout.Label("",       GUILayout.Width(removeW));
+            GUILayout.Label("",           centeredLabel, GUILayout.Width(iconW));
+            GUILayout.Label("Item",       centeredLabel, GUILayout.Width(nameW));
+            GUILayout.Label("Amount",     centeredLabel, GUILayout.Width(sliderW));
+            GUILayout.Label("Multiplier", centeredLabel, GUILayout.Width(totalW));
+            GUILayout.Label("Goal?",      centeredLabel, GUILayout.Width(goalW));
+            GUILayout.Label("",           centeredLabel, GUILayout.Width(removeW));
             GUI.color = Color.white;
+            GUILayout.EndHorizontal();
+            GUILayout.EndVertical();
+            
             GUILayout.EndHorizontal();
             EditorGUI.DrawRect(GUILayoutUtility.GetRect(0, 1), new Color(0.15f, 0.15f, 0.18f));
             GUILayout.Space(4);
@@ -715,14 +724,22 @@ namespace Match_Them_All.Scripts.Editor
                 // Begin the row group with the pre-baked background style
                 GUILayout.BeginHorizontal(rowStyle, GUILayout.Height(38));
 
-                // Icon
+                // Icon - vertically centered
                 GUILayout.Space(6);
+                GUILayout.BeginVertical(GUILayout.Height(38)); 
+                GUILayout.Space(4); // (38-30)/2 = 4px padding
                 var preview = entry.itemPrefab != null
                     ? AssetPreview.GetAssetPreview(entry.itemPrefab.gameObject) : null;
                 if (preview)
                     GUILayout.Label(preview, GUILayout.Width(iconW - 6), GUILayout.Height(30));
                 else
                     GUILayout.Label("◉", GUILayout.Width(iconW - 6), GUILayout.Height(30));
+                GUILayout.EndVertical();
+
+                // Group the remaining controls and center them vertically
+                GUILayout.BeginVertical(GUILayout.Height(38)); 
+                GUILayout.Space(11); // Push down by 11px for optical Midline centering of 18px controls
+                GUILayout.BeginHorizontal();
 
                 // Item popup — read only, queue change
                 var currentIdx   = _itemPrefabs.FindIndex(p => p == entry.itemPrefab?.gameObject);
@@ -778,11 +795,17 @@ namespace Match_Them_All.Scripts.Editor
                     else pendingEntry.isGoal = newGoal;
                 }
 
-                // Remove
+                GUILayout.EndHorizontal();
+                GUILayout.EndVertical();
+
+                // Remove - vertically centered for 24px height (38-24)/2 = 7px
+                GUILayout.BeginVertical(GUILayout.Height(38));
+                GUILayout.Space(7);
                 GUI.color = AccentRed;
                 if (GUILayout.Button("✕", GUILayout.Width(removeW), GUILayout.Height(24)))
                     removeIndex = i;
                 GUI.color = Color.white;
+                GUILayout.EndVertical();
 
                 GUILayout.EndHorizontal();
             }
@@ -1022,19 +1045,76 @@ namespace Match_Them_All.Scripts.Editor
             GUILayout.FlexibleSpace();
         }
 
-        // ── Menus ─────────────────────────────────────────────────────────────
-        private void ShowAddItemMenu()
+        #region Item Library Section
+        private Vector2 _libraryScroll;
+
+        private void DrawItemLibrarySection(float panelWidth)
         {
-            var menu = new GenericMenu();
-            foreach (var prefab in _itemPrefabs)
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Prefab Library", _subHeaderStyle);
+            GUILayout.FlexibleSpace();
+            
+            // Search bar
+            GUILayout.Label("Search:", GUILayout.Width(50));
+            _itemSearchQuery = EditorGUILayout.TextField(_itemSearchQuery, GUILayout.Width(150));
+            if (GUILayout.Button("✕", GUILayout.Width(22)))
             {
-                var captured = prefab;
-                menu.AddItem(new GUIContent(prefab.name), false, () => AddItem(captured));
+                _itemSearchQuery = "";
+                GUI.FocusControl(null);
             }
-            if (_itemPrefabs.Count == 0)
-                menu.AddDisabledItem(new GUIContent("No item prefabs found"));
-            menu.ShowAsContext();
+            GUILayout.EndHorizontal();
+            
+            GUILayout.Space(8);
+
+            var filteredItems = _itemPrefabs.Where(p => string.IsNullOrEmpty(_itemSearchQuery) || p.name.IndexOf(_itemSearchQuery, StringComparison.OrdinalIgnoreCase) >= 0).ToList();
+
+            if (filteredItems.Count == 0)
+            {
+                GUI.color = TextMuted;
+                GUILayout.Label("No prefabs found matching search.", EditorStyles.centeredGreyMiniLabel);
+                GUI.color = Color.white;
+                return;
+            }
+
+            // Fixed height for the library
+            _libraryScroll = GUILayout.BeginScrollView(_libraryScroll, GUILayout.Height(240));
+
+            // Subtract card padding/margin overhead
+            float drawableW = Mathf.Max(100f, panelWidth - 40f);
+            int columns = Mathf.Max(1, Mathf.FloorToInt(drawableW / 75f));
+
+            int i = 0;
+            GUILayout.BeginHorizontal();
+            foreach (var prefab in filteredItems)
+            {
+                if (i > 0 && i % columns == 0)
+                {
+                    GUILayout.EndHorizontal();
+                    GUILayout.Space(8);
+                    GUILayout.BeginHorizontal();
+                }
+
+                GUILayout.BeginVertical(GUILayout.Width(70), GUILayout.Height(90));
+                
+                var preview = AssetPreview.GetAssetPreview(prefab);
+                Texture2D tex = preview != null ? preview : Texture2D.blackTexture;
+                
+                if (GUILayout.Button(tex, GUILayout.Width(64), GUILayout.Height(64)))
+                {
+                    AddItem(prefab);
+                }
+                
+                var labelStyle = new GUIStyle(EditorStyles.miniLabel) { alignment = TextAnchor.UpperCenter };
+                GUILayout.Label(prefab.name, labelStyle, GUILayout.Width(64));
+                
+                GUILayout.EndVertical();
+                i++;
+            }
+            GUILayout.EndHorizontal();
+            
+            GUILayout.EndScrollView();
         }
+        #endregion
 
         private void AddItem(GameObject prefab)
         {

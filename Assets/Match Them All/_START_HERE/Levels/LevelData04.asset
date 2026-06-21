@@ -16,7 +16,7 @@ MonoBehaviour:
   duration: 60
   seed: 74861
   itemData:
-  - itemPrefab: {fileID: 7559479663845612207, guid: 93584426185aff349b2e5fb2e65c9314, type: 3}
+  - itemPrefab: {fileID: 3831665066184828695, guid: 668a3a40b165ef94aaaedfb0fa82a5c1, type: 3}
     isGoal: 1
     multiplier: 3
     amount: 6
