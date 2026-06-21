@@ -5,6 +5,7 @@ namespace MatchThemAll.Scripts
         HeartGem = 0,
         BluePotion = 1,
         Bomb = 2,
-        Skull = 3
+        Skull = 3,
+        Diamond = 4
     }
 }

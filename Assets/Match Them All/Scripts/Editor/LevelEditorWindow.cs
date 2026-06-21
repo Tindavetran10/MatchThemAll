@@ -43,6 +43,7 @@ namespace Match_Them_All.Scripts.Editor
         private GameObject _newItemModelPrefab;
         private bool _isAddingNewItemType;
         private string _newItemTypeName = "";
+        private bool _autoGenerateIcon = true;
 
         // Settings State
         private MatchThemAll.Scripts.Settings.GameSettingsSO _gameSettings;
@@ -1243,7 +1244,13 @@ namespace Match_Them_All.Scripts.Editor
             }
 
             GUILayout.Space(5);
-            _newItemIcon = (Sprite)EditorGUILayout.ObjectField("UI Icon (Sprite)", _newItemIcon, typeof(Sprite), false);
+            _autoGenerateIcon = EditorGUILayout.Toggle("Auto-Generate Icon", _autoGenerateIcon);
+
+            if (!_autoGenerateIcon)
+            {
+                GUILayout.Space(5);
+                _newItemIcon = (Sprite)EditorGUILayout.ObjectField("UI Icon (Sprite)", _newItemIcon, typeof(Sprite), false);
+            }
             
             GUILayout.Space(5);
             _newItemModelPrefab = (GameObject)EditorGUILayout.ObjectField("3D Model Prefab", _newItemModelPrefab, typeof(GameObject), false);
@@ -1256,7 +1263,7 @@ namespace Match_Them_All.Scripts.Editor
             GUILayout.Space(15);
 
             GUI.color = AccentGreen;
-            bool canGenerate = _newItemIcon && _newItemModelPrefab;
+            bool canGenerate = _newItemModelPrefab && (_autoGenerateIcon || _newItemIcon);
             EditorGUI.BeginDisabledGroup(!canGenerate);
             if (GUILayout.Button("🚀 Generate Item Prefab", GUILayout.Height(30)))
             {
@@ -1267,7 +1274,7 @@ namespace Match_Them_All.Scripts.Editor
             
             if (!canGenerate)
             {
-                EditorGUILayout.HelpBox("Please assign both an Icon and a 3D Model Prefab to generate.", MessageType.Warning);
+                EditorGUILayout.HelpBox("Please assign a 3D Model Prefab (and an Icon if auto-generation is disabled).", MessageType.Warning);
             }
 
             EndCard();
@@ -1279,7 +1286,7 @@ namespace Match_Them_All.Scripts.Editor
 
         private void GenerateItemPrefab()
         {
-            if (!_newItemIcon || !_newItemModelPrefab) return;
+            if (!_newItemModelPrefab || (!_autoGenerateIcon && !_newItemIcon)) return;
 
             string formattedName = "Item_" + _newItemName;
 
@@ -1294,6 +1301,13 @@ namespace Match_Them_All.Scripts.Editor
             {
                 if (!EditorUtility.DisplayDialog("Overwrite?", $"A prefab named {formattedName} already exists. Overwrite?", "Yes", "Cancel"))
                     return;
+            }
+
+            // 0. Auto-generate icon if requested
+            Sprite finalIcon = _newItemIcon;
+            if (_autoGenerateIcon)
+            {
+                finalIcon = CaptureItemIcon(_newItemModelPrefab, formattedName);
             }
 
             // 1. Create root
@@ -1357,7 +1371,7 @@ namespace Match_Them_All.Scripts.Editor
             // 5. Wire up serialized fields on Item.cs
             var so = new SerializedObject(item);
             so.FindProperty("itemNameKey").intValue = (int)_newItemName;
-            so.FindProperty("icon").objectReferenceValue = _newItemIcon;
+            so.FindProperty("icon").objectReferenceValue = finalIcon;
             
             if (rend) 
                 so.FindProperty("_renderer").objectReferenceValue = rend;
@@ -1373,6 +1387,68 @@ namespace Match_Them_All.Scripts.Editor
             
             // Reload prefabs list
             LoadAll();
+        }
+
+        private Sprite CaptureItemIcon(GameObject modelPrefab, string formattedName)
+        {
+            var iconFolder = "Assets/Match Them All/Sprites/Icons";
+            if (!Directory.Exists(iconFolder)) Directory.CreateDirectory(iconFolder);
+
+            string path = $"{iconFolder}/icon_{formattedName.ToLowerInvariant()}.png";
+
+            var previewUtility = new PreviewRenderUtility();
+            
+            previewUtility.camera.orthographic = true;
+            previewUtility.camera.orthographicSize = 5f;
+            previewUtility.camera.clearFlags = CameraClearFlags.SolidColor;
+            previewUtility.camera.backgroundColor = new Color(0, 0, 0, 0);
+            previewUtility.camera.transform.position = Vector3.zero;
+            previewUtility.camera.transform.rotation = Quaternion.identity;
+
+            // Match the IconScene lighting
+            previewUtility.lights[0].intensity = 2f;
+            previewUtility.lights[0].color = new Color(1f, 0.374f, 0.374f);
+            previewUtility.lights[0].transform.eulerAngles = new Vector3(53.516f, 349.741f, 49.274f);
+            previewUtility.lights[1].intensity = 0f; 
+
+            previewUtility.BeginPreview(new Rect(0, 0, 512, 512), GUIStyle.none);
+
+            var model = previewUtility.InstantiatePrefabInScene(modelPrefab);
+            
+            // Adjust position because the renderer is internally offset by (0, 0, -0.75) 
+            // from the root in the final prefab, so to match IconScene which puts root at (0, 0, 2),
+            // the renderer must be at (0, 0, 1.25).
+            model.transform.position = new Vector3(0.00f, 0.00f, 1.25f);
+            model.transform.rotation = Quaternion.Euler(0f, 0f, 270f);
+            model.transform.localScale = new Vector3(0.35f, 0.35f, 0.35f);
+
+            previewUtility.camera.Render();
+            
+            Texture rt = previewUtility.EndPreview();
+            
+            RenderTexture.active = (RenderTexture)rt;
+            var tex2d = new Texture2D(512, 512, TextureFormat.RGBA32, false);
+            tex2d.ReadPixels(new Rect(0, 0, 512, 512), 0, 0);
+            tex2d.Apply();
+            RenderTexture.active = null;
+
+            byte[] bytes = tex2d.EncodeToPNG();
+            File.WriteAllBytes(path, bytes);
+
+            DestroyImmediate(tex2d);
+            previewUtility.Cleanup();
+
+            AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceUpdate);
+            var importer = (TextureImporter)AssetImporter.GetAtPath(path);
+            if (importer != null)
+            {
+                importer.textureType = TextureImporterType.Sprite;
+                importer.spriteImportMode = SpriteImportMode.Single;
+                importer.alphaIsTransparency = true;
+                importer.SaveAndReimport();
+            }
+
+            return AssetDatabase.LoadAssetAtPath<Sprite>(path);
         }
 
         private void AddNewItemType(string newName)
