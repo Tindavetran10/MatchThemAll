@@ -72,6 +72,11 @@ namespace MatchThemAll.Scripts
 #if UNITY_EDITOR
             if (!Application.isPlaying)
             {
+                // Destroy tracked preview items so they don't leak in the scene
+                foreach (var item in _activeItems)
+                {
+                    if (item) DestroyImmediate(item.gameObject);
+                }
                 _activeItems.Clear();
                 return;
             }
@@ -102,7 +107,7 @@ namespace MatchThemAll.Scripts
 #if UNITY_EDITOR
             if (!Application.isPlaying)
             {
-                GameObject go = (GameObject)UnityEditor.PrefabUtility.InstantiatePrefab(prefab.gameObject);
+                GameObject go = (GameObject)PrefabUtility.InstantiatePrefab(prefab.gameObject);
                 Item item = go.GetComponent<Item>();
                 item.transform.SetParent(transform);
                 item.transform.position = GetSpawnPosition();
@@ -138,32 +143,33 @@ namespace MatchThemAll.Scripts
         [Button("Preview Spawn")]
         private void PreviewSpawn()
         {
-            // Clear any previously spawned items
-            while (transform.childCount > 0)
-            {
-                Transform child = transform.GetChild(0);
-                child.parent = null;
-                DestroyImmediate(child.gameObject);
-            }
-
             if (previewData == null)
             {
                 Debug.LogWarning("ItemPlacer: Assign a LevelDataSO to Preview Data first.");
                 return;
             }
 
-            Initialize(previewData);
+            PreviewSpawnWithData(previewData);
+        }
+
+        /// <summary>
+        /// Called by LevelEditorWindow. Passes data directly so the serialized
+        /// previewData field is never written to, keeping the prefab asset clean.
+        /// </summary>
+        public void PreviewSpawnFromEditor(LevelDataSO data)
+        {
+            PreviewSpawnWithData(data);
+        }
+
+        private void PreviewSpawnWithData(LevelDataSO data)
+        {
+            // ClearItems handles destroying previously spawned edit-mode objects
+            Initialize(data);
         }
 
         private void OnValidate()
         {
             // Validation now handled inside LevelDataSO / ItemLevelData
-        }
-
-        public void PreviewSpawnFromEditor(LevelDataSO data)
-        {
-            previewData = data;
-            PreviewSpawn();
         }
 #endif
     }

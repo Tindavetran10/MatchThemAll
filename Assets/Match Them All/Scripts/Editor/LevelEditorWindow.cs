@@ -14,6 +14,7 @@ namespace Match_Them_All.Scripts.Editor
     /// </summary>
     public class LevelEditorWindow : EditorWindow
     {
+        #region State & Fields
         // ── Tabs ─────────────────────────────────────────────────────────────
         private int _currentTab;
         private readonly string[] _tabNames = { "Levels", "Items", "Settings" };
@@ -45,8 +46,14 @@ namespace Match_Them_All.Scripts.Editor
         private MatchThemAll.Scripts.Settings.GameSettingsSO _gameSettings;
         private UnityEditor.Editor _gameSettingsEditor;
 
-        private const string ItemPrefabFolder = "Assets/Match Them All/Prefabs/Items";
-        private const string LevelDataFolder  = "Assets/Match Them All/Resources/Levels";
+        private const string ItemPrefabFolder       = "Assets/Match Them All/_START_HERE/Items";
+        private const string LevelDataFolder         = "Assets/Match Them All/_START_HERE/Levels";
+        private const string LevelTemplatePrefabPath = "Assets/Match Them All/Level System/Prefabs/LevelTemplate.prefab";
+
+        // ── Preview State ────────────────────────────────────────────────────
+        // Tracks which level is currently previewed in the scene so we can warn
+        // the user if they've switched selection without re-running the preview.
+        private LevelDataSO _previewedLevel;
 
         // ── Styles (lazy init) ────────────────────────────────────────────────
         private GUIStyle _cardStyle;
@@ -68,8 +75,9 @@ namespace Match_Them_All.Scripts.Editor
         private static readonly Color AccentOrange   = new(1.00f, 0.65f, 0.20f);
         private static readonly Color GoalBadgeColor = new(0.26f, 0.83f, 0.53f);
         private static readonly Color TextMuted      = new(0.60f, 0.60f, 0.65f);
+        #endregion
 
-        // ── Entry Point ──────────────────────────────────────────────────────
+        #region Entry Point
         [MenuItem("Match Them All/Template Editor")]
         public static void ShowWindow()
         {
@@ -80,8 +88,9 @@ namespace Match_Them_All.Scripts.Editor
 
         private void OnEnable()  => LoadAll();
         private void OnDisable() => _stylesInitialized = false; // force style rebuild after domain reload
+        #endregion
 
-        // ── Data Loading ─────────────────────────────────────────────────────
+        #region Data Loading
         private void LoadAll()
         {
             // Levels
@@ -119,8 +128,9 @@ namespace Match_Them_All.Scripts.Editor
             _selectedLevel = idx >= 0 && idx < _levels.Count ? _levels[idx] : null;
             _isDirty = false;
         }
+        #endregion
 
-        // ── Styles Init ──────────────────────────────────────────────────────
+        #region Styles
         private void EnsureStyles()
         {
             if (_stylesInitialized) return;
@@ -200,8 +210,9 @@ namespace Match_Them_All.Scripts.Editor
                 }
             };
         }
+        #endregion
 
-        // ── Main OnGUI ───────────────────────────────────────────────────────
+        #region Main Layout
         private void OnGUI()
         {
             EnsureStyles();
@@ -251,8 +262,9 @@ namespace Match_Them_All.Scripts.Editor
 
             GUILayout.EndHorizontal();
         }
+        #endregion
 
-        // ── Toolbar ──────────────────────────────────────────────────────────
+        #region Toolbar
         private void DrawToolbar()
         {
             EditorGUI.DrawRect(new Rect(0, 0, position.width, 38), new Color(0.14f, 0.14f, 0.16f));
@@ -309,8 +321,9 @@ namespace Match_Them_All.Scripts.Editor
             GUILayout.Space(12);
             GUILayout.EndHorizontal();
         }
+        #endregion
 
-        // ── Level List (left column) ─────────────────────────────────────────
+        #region Level List
         private void DrawLevelList(float width)
         {
             GUILayout.Space(10);
@@ -410,8 +423,9 @@ namespace Match_Them_All.Scripts.Editor
             GUILayout.Label($"  {_levels.Count} level(s) total", EditorStyles.miniLabel, GUILayout.Height(22));
             GUI.color = Color.white;
         }
+        #endregion
 
-        // ── Level Detail (right column) ──────────────────────────────────────
+        #region Level Detail
         private void DrawLevelDetail(float panelWidth = 0)
         {
             if (!_selectedLevel)
@@ -428,8 +442,18 @@ namespace Match_Them_All.Scripts.Editor
             GUILayout.Space(10);
             GUILayout.BeginHorizontal();
             GUILayout.Space(12);
+            GUI.color = Color.white; // Defensive reset before the header row
             GUILayout.Label(_selectedLevel.name, _headerStyle);
             GUILayout.FlexibleSpace();
+
+            // Warn if the scene preview is showing a different level than the current selection
+            if (_previewedLevel != null && _previewedLevel != _selectedLevel)
+            {
+                GUI.color = AccentOrange;
+                GUILayout.Label($"⚠ Scene shows '{_previewedLevel.name}'", EditorStyles.miniLabel, GUILayout.Height(26));
+                GUI.color = Color.white;
+                GUILayout.Space(4);
+            }
 
             GUI.color = AccentBlue;
             if (GUILayout.Button("👁 Preview Layout", GUILayout.Width(130), GUILayout.Height(26)))
@@ -437,7 +461,7 @@ namespace Match_Them_All.Scripts.Editor
                 var placer = FindAnyObjectByType<ItemPlacer>();
                 if (!placer)
                 {
-                    var prefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Match Them All/Prefabs/Levels/LevelTemplate.prefab");
+                    var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(LevelTemplatePrefabPath);
                     if (prefab)
                     {
                         var go = (GameObject)PrefabUtility.InstantiatePrefab(prefab);
@@ -445,12 +469,17 @@ namespace Match_Them_All.Scripts.Editor
                         Undo.RegisterCreatedObjectUndo(go, "Spawn Level Template");
                         Debug.Log("Template Editor: Automatically spawned LevelTemplate into the scene.");
                     }
+                    else
+                    {
+                        Debug.LogWarning($"Template Editor: LevelTemplate prefab not found at '{LevelTemplatePrefabPath}'. Please update the path in LevelEditorWindow.");
+                    }
                 }
                 
                 if (placer) 
                 {
                     Selection.activeGameObject = placer.gameObject;
                     placer.PreviewSpawnFromEditor(_selectedLevel);
+                    _previewedLevel = _selectedLevel;
                 }
                 else 
                 {
@@ -463,11 +492,34 @@ namespace Match_Them_All.Scripts.Editor
             GUI.color = AccentGreen;
             if (GUILayout.Button("▶ Play Level", GUILayout.Width(110), GUILayout.Height(26)))
             {
+                // Guard: the Game scene must be in the build settings
+                bool gameSceneInBuild = false;
+                foreach (var buildScene in EditorBuildSettings.scenes)
+                {
+                    if (buildScene.enabled && buildScene.path.Contains("MainScene"))
+                    {
+                        gameSceneInBuild = true;
+                        break;
+                    }
+                }
+
+                if (!gameSceneInBuild)
+                {
+                    EditorUtility.DisplayDialog(
+                        "Scene Not in Build Settings",
+                        "The Game scene ('MainScene') was not found in Build Settings. " +
+                        "Please add it via File → Build Settings before using Play Level.",
+                        "OK");
+                    GUIUtility.ExitGUI();
+                    return;
+                }
+
                 // Clean up any preview instances before playing so there are no duplicates
                 var placer = FindAnyObjectByType<ItemPlacer>();
                 if (placer && !EditorApplication.isPlaying)
                 {
                     DestroyImmediate(placer.transform.root.gameObject);
+                    _previewedLevel = null;
                 }
 
                 var path = AssetDatabase.GetAssetPath(_selectedLevel);
@@ -588,8 +640,9 @@ namespace Match_Them_All.Scripts.Editor
 
             GUILayout.EndScrollView();
         }
+        #endregion
 
-        // ── Items Section ────────────────────────────────────────────────────
+        #region Items Section
         private void DrawItemsSection(float panelWidth = 0)
         {
             // Fixed columns: icon=36, total=52, goal=56, remove=30, padding=24
@@ -751,8 +804,9 @@ namespace Match_Them_All.Scripts.Editor
                 GUIUtility.ExitGUI();
             }
         }
+        #endregion
 
-        // ── Level Summary ────────────────────────────────────────────────────
+        #region Level Summary
         private void DrawLevelSummary(float panelWidth = 0)
         {
             if (_selectedLevel?.itemData == null) return; // safe: no BeginCard open here
@@ -791,8 +845,9 @@ namespace Match_Them_All.Scripts.Editor
             GUILayout.EndHorizontal(); // ← must close Horizontal BEFORE EndCard (EndVertical)
             EndCard();
         }
+        #endregion
 
-        // ── Tutorial Section ──────────────────────────────────────────────────
+        #region Tutorial Section
         private void DrawTutorialSection(float panelWidth)
         {
             GUILayout.BeginHorizontal();
@@ -935,7 +990,9 @@ namespace Match_Them_All.Scripts.Editor
                 MarkDirty();
             }
         }
+        #endregion
 
+        #region Utilities
         private static void DrawStat(string label, string value, Color color, float width = 100f)
         {
             GUILayout.BeginVertical(GUILayout.Width(width));
@@ -1064,8 +1121,10 @@ namespace Match_Them_All.Scripts.Editor
             t.Apply();
             return t;
         }
+        #endregion
 
         // ── Items Tab ────────────────────────────────────────────────────────
+        #region Items Tab
         private void DrawItemsTab()
         {
             GUILayout.Space(10);
@@ -1298,7 +1357,10 @@ namespace Match_Them_All.Scripts.Editor
             }
         }
 
+        #endregion
+
         // ── Settings Tab ─────────────────────────────────────────────────────
+        #region Settings Tab
         private void DrawSettingsTab()
         {
             GUILayout.Space(10);
@@ -1340,5 +1402,6 @@ namespace Match_Them_All.Scripts.Editor
             GUILayout.Space(20);
             GUILayout.EndHorizontal();
         }
+        #endregion
     }
 }
