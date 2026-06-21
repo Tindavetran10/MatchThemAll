@@ -29,10 +29,8 @@ namespace MatchThemAll.Scripts
         // Note: This doesn't destroy the item, just marks the spot as available
         public void Clear()
         {
-            if (Item != null)
-            {
+            if (Item) 
                 Item.UnassignSpot();
-            }
             Item = null;
         }
         

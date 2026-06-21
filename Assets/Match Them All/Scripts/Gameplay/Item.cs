@@ -104,13 +104,11 @@ namespace MatchThemAll.Scripts
                 _rigidbody.linearVelocity = Vector3.zero;
                 _rigidbody.angularVelocity = Vector3.zero;
             }
-            
-            if (_colliders != null)
+
+            if (_colliders == null) return;
+            foreach (var itemCollider in _colliders)
             {
-                foreach (var itemCollider in _colliders)
-                {
-                    if (itemCollider) itemCollider.enabled = true;
-                }
+                if (itemCollider) itemCollider.enabled = true;
             }
         }
     }

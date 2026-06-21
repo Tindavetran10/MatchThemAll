@@ -75,9 +75,7 @@ namespace MatchThemAll.Scripts.Managers
                 bool isActive = InputManager.Instance && InputManager.Instance.IsPointerActive;
 
                 if (isActive)
-                {
                     _idleTimer = 0f;
-                }
                 else
                 {
                     _idleTimer += Time.deltaTime;
@@ -90,18 +88,25 @@ namespace MatchThemAll.Scripts.Managers
         private void TriggerHint()
         {
             _activeHintItems = ItemSpotManager.Instance.GetBestHintItems(3);
-            if (_activeHintItems == null || _activeHintItems.Count == 0) return;
+            if (_activeHintItems == null || _activeHintItems.Count == 0) 
+                return;
             
             _currentHintType = _activeHintItems[0].ItemNameKey;
 
-            foreach (var item in _activeHintItems.AsValueEnumerable().Where(item => item && item.gameObject.activeInHierarchy))
+            foreach (var item in _activeHintItems.AsValueEnumerable()
+                         .Where(item => item && item.gameObject.activeInHierarchy))
             {
                 // Apply visual highlight
                 if (InputManager.Instance && InputManager.Instance.OutlineMaterial)
                     item.Select(InputManager.Instance.OutlineMaterial);
                     
                 // Apply a persistent pulsing animation using a fixed absolute scale to prevent compounding
-                Tween.Scale(item.transform, Vector3.one * 1.3f, 0.4f, Ease.InOutSine, cycles: -1, cycleMode: CycleMode.Yoyo);
+                Tween.Scale(item.transform,
+                    Vector3.one * 1.3f,
+                    0.4f,
+                    Ease.InOutSine,
+                    cycles: -1,
+                    cycleMode: CycleMode.Yoyo);
             }
         }
 

@@ -90,10 +90,8 @@ namespace MatchThemAll.Scripts
 
         private void GenerateGoalCards()
         {
-            foreach (var card in _goalCards.AsValueEnumerable().Where(card => card))
-            {
+            foreach (var card in _goalCards.AsValueEnumerable().Where(card => card)) 
                 Destroy(card.gameObject);
-            }
             _goalCards.Clear();
 
             foreach (var goal in Goals)
@@ -135,10 +133,8 @@ namespace MatchThemAll.Scripts
                 TimerManager.Instance.AddTime(5);
 
             // Spawn floating text
-            if (FloatingTextSpawner.Instance && _goalCards[goalIndex])
-            {
+            if (FloatingTextSpawner.Instance && _goalCards[goalIndex]) 
                 FloatingTextSpawner.Instance.Spawn("+5s", _goalCards[goalIndex].transform.position, Color.yellow);
-            }
 
             _goalCards[goalIndex].Complete();
             CheckForLevelComplete();

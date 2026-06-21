@@ -1,32 +1,26 @@
-using System.Linq;
 using UnityEngine;
+using ZLinq;
 
 namespace MatchThemAll.Scripts
 {
     public class MatchSystem : MonoBehaviour
     {
-        private void Awake()
-        {
-            EventBus.Subscribe<ItemReachedSpotEvent>(OnItemReachedSpot);
-        }
+        private void Awake() => EventBus.Subscribe<ItemReachedSpotEvent>(OnItemReachedSpot);
 
-        private void OnDestroy()
-        {
-            EventBus.Unsubscribe<ItemReachedSpotEvent>(OnItemReachedSpot);
-        }
+        private void OnDestroy() => EventBus.Unsubscribe<ItemReachedSpotEvent>(OnItemReachedSpot);
 
         private static void OnItemReachedSpot(ItemReachedSpotEvent evt)
         {
             var item = evt.Item;
             
-            // Get all items of the same type on the board that have finished moving
-            var mergeableItems = ItemSpotManager.Instance.GetItemsOnBoard(item.ItemNameKey)
-                .Where(i => !i.IsMovingToSpot).ToList();
+            // Get up to 3 items of the same type on the board that have finished moving
+            var itemsToMerge = ItemSpotManager.Instance.GetItemsOnBoard(item.ItemNameKey).AsValueEnumerable()
+                .Where(i => !i.IsMovingToSpot)
+                .Take(3)
+                .ToList();
 
-            if (mergeableItems.Count >= 3)
+            if (itemsToMerge.Count == 3)
             {
-                // We have a match! We only merge the first 3 to prevent index out of bounds in animations.
-                var itemsToMerge = mergeableItems.Take(3).ToList();
                 EventBus.Publish(new MergeStartedEvent { MergedItems = itemsToMerge });
             }
             else

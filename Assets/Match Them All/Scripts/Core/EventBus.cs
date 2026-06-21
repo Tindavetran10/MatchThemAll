@@ -9,18 +9,18 @@ namespace MatchThemAll.Scripts
     /// </summary>
     public static class EventBus
     {
-        private static readonly Dictionary<Type, List<Delegate>> _subscribers = new Dictionary<Type, List<Delegate>>();
+        private static readonly Dictionary<Type, List<Delegate>> Subscribers = new();
 
         /// <summary>Subscribes a listener to an event of type T.</summary>
         public static void Subscribe<T>(Action<T> listener) where T : struct
         {
             Type eventType = typeof(T);
 
-            if (!_subscribers.ContainsKey(eventType)) 
-                _subscribers[eventType] = new List<Delegate>();
+            if (!Subscribers.ContainsKey(eventType)) 
+                Subscribers[eventType] = new List<Delegate>();
 
-            if (!_subscribers[eventType].Contains(listener)) 
-                _subscribers[eventType].Add(listener);
+            if (!Subscribers[eventType].Contains(listener)) 
+                Subscribers[eventType].Add(listener);
         }
 
         /// <summary>Unsubscribes a listener from an event of type T.</summary>
@@ -28,7 +28,7 @@ namespace MatchThemAll.Scripts
         {
             Type eventType = typeof(T);
 
-            if (_subscribers.TryGetValue(eventType, out var subscriber)) 
+            if (Subscribers.TryGetValue(eventType, out var subscriber)) 
                 subscriber.Remove(listener);
         }
 
@@ -37,7 +37,7 @@ namespace MatchThemAll.Scripts
         {
             Type eventType = typeof(T);
 
-            if (_subscribers.TryGetValue(eventType, out var delegates))
+            if (Subscribers.TryGetValue(eventType, out var delegates))
             {
                 // Iterate backwards to allow listeners to unsubscribe during an event without breaking the loop
                 for (int i = delegates.Count - 1; i >= 0; i--)
@@ -49,6 +49,6 @@ namespace MatchThemAll.Scripts
         }
 
         /// <summary>Clears all event subscriptions. Call this when shutting down or completely resetting the application.</summary>
-        public static void ClearAll() => _subscribers.Clear();
+        public static void ClearAll() => Subscribers.Clear();
     }
 }

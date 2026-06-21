@@ -93,7 +93,12 @@ namespace MatchThemAll.Scripts
 
             Tween.PositionX(items[2].transform, targetX, smashDuration, smashEasing);
 
-            Tween.PositionY(items[1].transform, items[1].transform.position.y + 0.1f, smashDuration * 0.5f, Ease.OutQuad, cycles: 2, cycleMode: CycleMode.Yoyo);
+            Tween.PositionY(items[1].transform,
+                items[1].transform.position.y + 0.1f,
+                smashDuration * 0.5f,
+                Ease.OutQuad,
+                cycles: 2,
+                cycleMode: CycleMode.Yoyo);
         }
 
         private void FinalizeMerge(List<Item> items)

@@ -108,10 +108,8 @@ public class InputManager : MonoBehaviour
 
     private void OnGameStateChanged(GameStateChangedEvent evt)
     {
-        if (evt.NewState != EGameState.GAME)
-        {
+        if (evt.NewState != EGameState.GAME) 
             DeselectCurrentItem();
-        }
     }
 
     private void HandleMouseDown()
@@ -124,10 +122,8 @@ public class InputManager : MonoBehaviour
         if (IsTutorialActive)
         {
             int tutorialLayer = LayerMask.NameToLayer("Tutorial");
-            if (tutorialLayer != -1)
-            {
+            if (tutorialLayer != -1) 
                 currentMask = 1 << tutorialLayer;
-            }
         }
 
         Physics.Raycast(ray, out var hit, 100f, currentMask);
@@ -135,10 +131,8 @@ public class InputManager : MonoBehaviour
         if(!hit.collider)
             return;
         
-        if (hit.collider.TryGetComponent(out Powerup powerup))
-        {
+        if (hit.collider.TryGetComponent(out Powerup powerup)) 
             EventBus.Publish(new PowerupClickedEvent(powerup));
-        }
     }
     
     // Private method to handle mouse drag/hover for item selection
@@ -159,10 +153,8 @@ public class InputManager : MonoBehaviour
         if (IsTutorialActive)
         {
             int tutorialLayer = LayerMask.NameToLayer("Tutorial");
-            if (tutorialLayer != -1)
-            {
+            if (tutorialLayer != -1) 
                 currentMask = 1 << tutorialLayer;
-            }
         }
 
         // Only raycast against items (skip UI, floor, etc.)
@@ -199,7 +191,8 @@ public class InputManager : MonoBehaviour
             {
                 foreach (var target in TutorialTargets)
                 {
-                    if (target == item) isTarget = true;
+                    if (target == item) 
+                        isTarget = true;
                 }
             }
             

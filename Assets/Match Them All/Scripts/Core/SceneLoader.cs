@@ -56,11 +56,11 @@ namespace MatchThemAll.Scripts
         private static void FadeAndLoad(string nextScene)
         {
             // Create a persistent canvas for the fade
-            var go = new UnityEngine.GameObject("SceneTransitionFader");
-            UnityEngine.Object.DontDestroyOnLoad(go);
+            var go = new GameObject("SceneTransitionFader");
+            Object.DontDestroyOnLoad(go);
 
-            var canvas = go.AddComponent<UnityEngine.Canvas>();
-            canvas.renderMode = UnityEngine.RenderMode.ScreenSpaceOverlay;
+            var canvas = go.AddComponent<Canvas>();
+            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
             canvas.sortingOrder = 999; // Render on top of everything
 
             var img = go.AddComponent<UnityEngine.UI.Image>();

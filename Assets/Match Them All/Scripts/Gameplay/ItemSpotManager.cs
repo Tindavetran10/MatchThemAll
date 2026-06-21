@@ -58,10 +58,8 @@ namespace MatchThemAll.Scripts
 
         private void OnItemBackToGame(Item releasedItem)
         {
-            if (releasedItem.Spot != null)
-            {
+            if (releasedItem.Spot != null) 
                 releasedItem.Spot.Clear();
-            }
             MoveAllItemsToTheLeft();
         }
 
@@ -332,7 +330,7 @@ namespace MatchThemAll.Scripts
 
         public bool IsBoardFullAndNoItemsMoving()
         {
-            if (GetFreeSpot() != null) return false;
+            if (GetFreeSpot()) return false;
             for (int i = 0; i < _activeSpotCount; i++)
             {
                 if (_spots[i].Item != null && _spots[i].Item.IsMovingToSpot) return false;
@@ -395,10 +393,8 @@ namespace MatchThemAll.Scripts
                 var fallback = allItems.AsValueEnumerable()
                     .FirstOrDefault(i =>
                         i && i.gameObject.activeInHierarchy && !i.Spot && !i.IsMovingToSpot);
-                if (fallback)
-                {
+                if (fallback) 
                     targetType = fallback.ItemNameKey;
-                }
             }
 
             // Collect up to 'count' items of the chosen type, grouped by proximity

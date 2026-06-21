@@ -1,7 +1,7 @@
-using System.Linq;
 using System.Threading.Tasks;
 using NaughtyAttributes;
 using UnityEngine;
+using ZLinq;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -73,18 +73,14 @@ namespace MatchThemAll.Scripts
             if (!Application.isPlaying)
             {
                 // Destroy tracked preview items so they don't leak in the scene
-                foreach (var item in _activeItems)
-                {
-                    if (item) DestroyImmediate(item.gameObject);
-                }
+                foreach (var item in _activeItems.AsValueEnumerable().Where(item => item)) 
+                    DestroyImmediate(item.gameObject);
                 _activeItems.Clear();
                 return;
             }
 #endif
-            foreach (var item in _activeItems.Where(item => item))
-            {
+            foreach (var item in _activeItems.AsValueEnumerable().Where(item => item)) 
                 ItemPoolManager.Instance.ReleaseItem(item);
-            }
 
             _activeItems.Clear();
         }
@@ -156,16 +152,11 @@ namespace MatchThemAll.Scripts
         /// Called by LevelEditorWindow. Passes data directly so the serialized
         /// previewData field is never written to, keeping the prefab asset clean.
         /// </summary>
-        public void PreviewSpawnFromEditor(LevelDataSO data)
-        {
-            PreviewSpawnWithData(data);
-        }
+        public void PreviewSpawnFromEditor(LevelDataSO data) => PreviewSpawnWithData(data);
 
-        private void PreviewSpawnWithData(LevelDataSO data)
-        {
+        private void PreviewSpawnWithData(LevelDataSO data) =>
             // ClearItems handles destroying previously spawned edit-mode objects
             Initialize(data);
-        }
 
         private void OnValidate()
         {
