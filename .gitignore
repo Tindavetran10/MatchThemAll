@@ -74,3 +74,6 @@ crashlytics-build.properties
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*
 Assets/Pixelate.meta
+/Assets/Match Them All/graphify-out
+Assets/Match Them All/graphify-out.meta
+/.agents
