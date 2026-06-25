@@ -11,26 +11,17 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6555fd2a693358d43a48520c3eaaa4b4, type: 3}
   m_Name: LevelData01
-  m_EditorClassIdentifier: Assembly-CSharp::MatchThemAll.Scripts.LevelDataSO
+  m_EditorClassIdentifier: 
   spotCount: 7
   duration: 60
-  seed: 64223
+  seed: 45846
   itemData:
-  - itemPrefab: {fileID: 2244121086638147798, guid: 5573a13de194e0e4b93ed33cb4f19d0c, type: 3}
-    isGoal: 1
-    multiplier: 3
-    amount: 6
-  - itemPrefab: {fileID: 4409037012235114495, guid: cfc9d9ceac43a364b88e76f36ac3ab4a, type: 3}
+  - itemPrefab: {fileID: 7950600088722064912, guid: b2cc6bb42b096c340b3d2cfe00010ef9, type: 3}
     isGoal: 0
     multiplier: 1
-    amount: 6
-  tutorialSteps:
-  - message: Tap these 3 identical items!
-    highlightTarget: 0
-    itemName: 0
-    powerupType: 0
-    manualTargets: []
-    completionCondition: 0
-    autoCompleteDelay: 3
-    startDelay: 1
-    pauseTimer: 1
+    amount: 30
+  - itemPrefab: {fileID: 3831665066184828695, guid: 668a3a40b165ef94aaaedfb0fa82a5c1, type: 3}
+    isGoal: 1
+    multiplier: 2
+    amount: 12
+  tutorialSteps: []

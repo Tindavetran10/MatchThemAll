@@ -74,7 +74,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   itemNameKey: 0
-  icon: {fileID: 21300000, guid: 3824e5a1842df76438ed1b345022ee01, type: 3}
+  icon: {fileID: 21300000, guid: 2904046e15663fa42b553c8088f665ab, type: 3}
   _renderer: {fileID: 3939579459751256566}
 --- !u!1001 &5740888606559202711
 PrefabInstance:

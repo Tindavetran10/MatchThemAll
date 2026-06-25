@@ -74,7 +74,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   itemNameKey: 1
-  icon: {fileID: 981902999, guid: 260ec3ba1a9a9e444b0abcaf24b3faf7, type: 3}
+  icon: {fileID: 21300000, guid: 7e0bfd944f364144c9b6611960b6cbe3, type: 3}
   _renderer: {fileID: 146297581253339410}
 --- !u!1 &3569131482340833208
 GameObject:

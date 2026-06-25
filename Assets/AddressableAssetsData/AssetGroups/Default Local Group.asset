@@ -14,37 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_GroupName: Default Local Group
   m_GUID: 5c72d642e4ef4a0429ae91bbd2d9e95f
-  m_SerializeEntries:
-  - m_GUID: 5c0bd0c54cdf06c44a27afdc1aa3ca7d
-    m_Address: LevelData03
-    m_ReadOnly: 0
-    m_SerializedLabels:
-    - LevelData
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 7748a448fbed24b47887b94cab0c1905
-    m_Address: LevelData04
-    m_ReadOnly: 0
-    m_SerializedLabels:
-    - LevelData
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: cae541a1c8f10584a9dfca781f597e6d
-    m_Address: LevelData01
-    m_ReadOnly: 0
-    m_SerializedLabels:
-    - LevelData
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: e7353acbad0ac20438020b1ba7c6521a
-    m_Address: LevelData05
-    m_ReadOnly: 0
-    m_SerializedLabels:
-    - LevelData
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: f802432a7468087469488a7343883398
-    m_Address: LevelData02
-    m_ReadOnly: 0
-    m_SerializedLabels:
-    - LevelData
-    FlaggedDuringContentUpdateRestriction: 0
+  m_SerializeEntries: []
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 027d88de54e2c3941bb6165805d90418, type: 2}
   m_SchemaSet:

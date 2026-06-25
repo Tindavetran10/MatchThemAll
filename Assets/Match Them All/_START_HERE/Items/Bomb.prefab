@@ -182,5 +182,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   itemNameKey: 2
-  icon: {fileID: 1778104517, guid: 5bdfb888a2745d94cb40e2bfafc3a98c, type: 3}
+  icon: {fileID: 21300000, guid: 5bdfb888a2745d94cb40e2bfafc3a98c, type: 3}
   _renderer: {fileID: 7031606126136459614}

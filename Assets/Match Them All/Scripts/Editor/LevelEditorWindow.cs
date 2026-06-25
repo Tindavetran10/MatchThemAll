@@ -24,6 +24,7 @@ namespace Match_Them_All.Scripts.Editor
         private LevelDataSO _selectedLevel;
 
         private readonly List<GameObject> _itemPrefabs = new();
+        private readonly List<GameObject> _trashPrefabs = new();
 
         private Vector2 _levelListScroll;
         private Vector2 _itemListScroll;
@@ -44,6 +45,44 @@ namespace Match_Them_All.Scripts.Editor
         private bool _isAddingNewItemType;
         private string _newItemTypeName = "";
         private bool _autoGenerateIcon = true;
+        
+        // Icon Settings State
+        private Vector3 _iconRotation = new Vector3(0f, 0f, 90f);
+        private float _iconPadding = 1.4f;
+        private Vector3 _iconOffset = Vector3.zero;
+        private Texture2D _previewIconTexture;
+        private bool _previewDirty;
+        private double _previewDirtyTime;
+        private const double PreviewRenderThrottle = 0.08; // ponytail: coalesce rapid slider drags into fewer full renders
+
+        // Undo State — a list of records persisted to SessionState so undo survives a second
+        // delete and a domain reload / window reopen. Only primitive fields are stored; the Item
+        // prefab reference is re-resolved from the restored prefab on restore (it is a struct copy
+        // and the asset GUID is stable across MoveAsset, so we never trust a stale captured ref).
+        [Serializable]
+        private class RemovedLevelEntry
+        {
+            public string levelGuid;
+            public bool isGoal;
+            public int multiplier;
+            public int amount;
+        }
+
+        [Serializable]
+        private class DeletedItemRecord
+        {
+            public string originalPrefabPath;
+            public string trashPrefabPath;
+            public string originalIconPath;
+            public string trashIconPath;
+            public List<RemovedLevelEntry> removedFromLevels = new();
+        }
+
+        [Serializable]
+        private class DeletedItemRecordList { public List<DeletedItemRecord> records = new(); }
+
+        private readonly List<DeletedItemRecord> _deletedRecords = new();
+        private const string TrashUndoSessionKey = "MTA_TemplateEditor_TrashUndo";
 
         // Settings State
         private MatchThemAll.Scripts.Settings.GameSettingsSO _gameSettings;
@@ -67,6 +106,8 @@ namespace Match_Them_All.Scripts.Editor
         private GUIStyle _goalBadgeStyle;
         private GUIStyle _rowStyleEven;
         private GUIStyle _rowStyleOdd;
+        private GUIStyle _iconCardSmallButtonStyle; // shared ✕/⟲ button on item & trash cards
+        private GUIStyle _iconCardLabelStyle;       // shared name label under item & trash cards
         private bool _stylesInitialized;
 
         // ── Colors ───────────────────────────────────────────────────────────
@@ -89,7 +130,11 @@ namespace Match_Them_All.Scripts.Editor
             window.LoadAll();
         }
 
-        private void OnEnable()  => LoadAll();
+        private void OnEnable()
+        {
+            LoadAll();
+            LoadTrashUndo();
+        }
         private void OnDisable() => _stylesInitialized = false; // force style rebuild after domain reload
         #endregion
 
@@ -109,7 +154,23 @@ namespace Match_Them_All.Scripts.Editor
             _itemPrefabs.Clear();
             var pGuids = AssetDatabase.FindAssets("t:Prefab", new[] { ItemPrefabFolder });
             foreach (var g in pGuids)
-                _itemPrefabs.Add(AssetDatabase.LoadAssetAtPath<GameObject>(AssetDatabase.GUIDToAssetPath(g)));
+            {
+                string path = AssetDatabase.GUIDToAssetPath(g);
+                if (!path.Contains("/Trash/"))
+                {
+                    _itemPrefabs.Add(AssetDatabase.LoadAssetAtPath<GameObject>(path));
+                }
+            }
+
+            // Trash prefabs
+            _trashPrefabs.Clear();
+            string trashFolder = "Assets/Match Them All/_START_HERE/Items/Trash";
+            if (AssetDatabase.IsValidFolder(trashFolder))
+            {
+                var trashGuids = AssetDatabase.FindAssets("t:Prefab", new[] { trashFolder });
+                foreach (var g in trashGuids)
+                    _trashPrefabs.Add(AssetDatabase.LoadAssetAtPath<GameObject>(AssetDatabase.GUIDToAssetPath(g)));
+            }
 
             // Restore selection
             if (_selectedLevel)
@@ -211,6 +272,17 @@ namespace Match_Them_All.Scripts.Editor
                 {
                     background = MakeTex(2, 2, new Color(0.23f, 0.23f, 0.26f))
                 }
+            };
+
+            _iconCardSmallButtonStyle = new GUIStyle(GUI.skin.button)
+            {
+                padding = new RectOffset(0, 0, 0, 0),
+                fontSize = 10
+            };
+
+            _iconCardLabelStyle = new GUIStyle(EditorStyles.miniLabel)
+            {
+                alignment = TextAnchor.UpperCenter
             };
         }
         #endregion
@@ -1085,8 +1157,100 @@ namespace Match_Them_All.Scripts.Editor
             int columns = Mathf.Max(1, Mathf.FloorToInt(drawableW / 75f));
 
             int i = 0;
+            var pendingDeleteIndex = -1;
+
             GUILayout.BeginHorizontal();
             foreach (var prefab in filteredItems)
+            {
+                if (i > 0 && i % columns == 0)
+                {
+                    GUILayout.EndHorizontal();
+                    GUILayout.Space(8);
+                    GUILayout.BeginHorizontal();
+                }
+
+                GUILayout.BeginVertical(GUILayout.Width(70), GUILayout.Height(90));
+                
+                Texture tex = Texture2D.blackTexture;
+                var itemComp = prefab.GetComponent<Item>();
+                if (itemComp != null && itemComp.Icon != null)
+                {
+                    tex = itemComp.Icon.texture;
+                }
+                else
+                {
+                    var preview = AssetPreview.GetAssetPreview(prefab);
+                    if (preview != null) tex = preview;
+                }
+                var rect = GUILayoutUtility.GetRect(64, 64);
+                var deleteRect = new Rect(rect.xMax - 18, rect.yMin + 2, 16, 16);
+                
+                // Disable the main button if we are hovering the delete button so the click passes through
+                var e = Event.current;
+                bool isHoveringDelete = deleteRect.Contains(e.mousePosition);
+                
+                EditorGUI.BeginDisabledGroup(isHoveringDelete);
+                if (GUI.Button(rect, tex))
+                {
+                    AddItem(prefab);
+                }
+                EditorGUI.EndDisabledGroup();
+                
+                GUI.color = AccentRed;
+                if (GUI.Button(deleteRect, "✕", _iconCardSmallButtonStyle))
+                {
+                    pendingDeleteIndex = _itemPrefabs.IndexOf(prefab);
+                }
+                GUI.color = Color.white;
+                
+                GUILayout.Label(prefab.name, _iconCardLabelStyle, GUILayout.Width(64));
+                
+                GUILayout.EndVertical();
+                i++;
+            }
+            GUILayout.EndHorizontal();
+            
+            GUILayout.EndScrollView();
+
+            if (pendingDeleteIndex >= 0)
+            {
+                SoftDeleteItem(_itemPrefabs[pendingDeleteIndex]);
+                GUIUtility.ExitGUI();
+            }
+            
+            GUILayout.Space(12);
+            DrawTrashLibrarySection(panelWidth);
+        }
+        
+        private Vector2 _trashScroll;
+
+        private void DrawTrashLibrarySection(float panelWidth)
+        {
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Trash Bin", _subHeaderStyle);
+            GUILayout.FlexibleSpace();
+            GUILayout.EndHorizontal();
+            
+            GUILayout.Space(8);
+
+            if (_trashPrefabs == null || _trashPrefabs.Count == 0)
+            {
+                GUI.color = TextMuted;
+                GUILayout.Label("Trash is empty.", EditorStyles.centeredGreyMiniLabel);
+                GUI.color = Color.white;
+                return;
+            }
+
+            _trashScroll = GUILayout.BeginScrollView(_trashScroll, GUILayout.Height(140));
+
+            float drawableW = Mathf.Max(100f, panelWidth - 40f);
+            int columns = Mathf.Max(1, Mathf.FloorToInt(drawableW / 75f));
+
+            int i = 0;
+            var pendingRestoreIndex = -1;
+
+            GUILayout.BeginHorizontal();
+            foreach (var prefab in _trashPrefabs)
             {
                 if (i > 0 && i % columns == 0)
                 {
@@ -1100,13 +1264,22 @@ namespace Match_Them_All.Scripts.Editor
                 var preview = AssetPreview.GetAssetPreview(prefab);
                 Texture2D tex = preview != null ? preview : Texture2D.blackTexture;
                 
-                if (GUILayout.Button(tex, GUILayout.Width(64), GUILayout.Height(64)))
-                {
-                    AddItem(prefab);
-                }
+                var rect = GUILayoutUtility.GetRect(64, 64);
+                var restoreRect = new Rect(rect.xMax - 18, rect.yMin + 2, 16, 16);
                 
-                var labelStyle = new GUIStyle(EditorStyles.miniLabel) { alignment = TextAnchor.UpperCenter };
-                GUILayout.Label(prefab.name, labelStyle, GUILayout.Width(64));
+                // Dim item to show it's in trash
+                GUI.color = new Color(0.6f, 0.6f, 0.6f, 0.8f);
+                GUI.DrawTexture(rect, tex, ScaleMode.ScaleToFit);
+                GUI.color = Color.white;
+                
+                GUI.color = AccentGreen;
+                if (GUI.Button(restoreRect, "⟲", _iconCardSmallButtonStyle))
+                {
+                    pendingRestoreIndex = _trashPrefabs.IndexOf(prefab);
+                }
+                GUI.color = Color.white;
+                
+                GUILayout.Label(prefab.name, _iconCardLabelStyle, GUILayout.Width(64));
                 
                 GUILayout.EndVertical();
                 i++;
@@ -1114,8 +1287,172 @@ namespace Match_Them_All.Scripts.Editor
             GUILayout.EndHorizontal();
             
             GUILayout.EndScrollView();
+
+            if (pendingRestoreIndex >= 0)
+            {
+                RestoreFromTrash(_trashPrefabs[pendingRestoreIndex]);
+                GUIUtility.ExitGUI();
+            }
         }
         #endregion
+
+        private void SoftDeleteItem(GameObject prefab)
+        {
+            var itemComp = prefab.GetComponent<Item>();
+            int usedCount = 0;
+            var affectedLevels = new List<LevelDataSO>();
+
+            foreach (var level in _levels)
+            {
+                if (level.itemData != null && level.itemData.Any(i => i.itemPrefab == itemComp))
+                {
+                    usedCount++;
+                    affectedLevels.Add(level);
+                }
+            }
+
+            string warning = $"Are you sure you want to delete '{prefab.name}'? It will be moved to the Trash folder.";
+            if (usedCount > 0)
+            {
+                warning += $"\n\n⚠ It is currently used in {usedCount} level(s). Deleting it will remove it from those levels. You can undo this action later.";
+            }
+
+            if (!EditorUtility.DisplayDialog("Delete Item", warning, "Delete", "Cancel"))
+                return;
+
+            string trashParent = "Assets/Match Them All/_START_HERE/Items";
+            string trashFolder = trashParent + "/Trash";
+            if (!AssetDatabase.IsValidFolder(trashFolder))
+            {
+                AssetDatabase.CreateFolder(trashParent, "Trash");
+            }
+
+            var record = new DeletedItemRecord
+            {
+                originalPrefabPath = AssetDatabase.GetAssetPath(prefab),
+                trashPrefabPath = AssetDatabase.GenerateUniqueAssetPath($"{trashFolder}/{prefab.name}.prefab"),
+            };
+
+            // Remove from levels, capturing each entry's primitive state (not the Item ref) for restore
+            foreach (var level in affectedLevels)
+            {
+                Undo.RecordObject(level, "Remove Deleted Item");
+                var entry = level.itemData.First(i => i.itemPrefab == itemComp);
+                record.removedFromLevels.Add(new RemovedLevelEntry
+                {
+                    levelGuid = AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(level)),
+                    isGoal = entry.isGoal,
+                    multiplier = entry.multiplier,
+                    amount = entry.amount,
+                });
+                level.itemData.Remove(entry);
+                EditorUtility.SetDirty(level);
+            }
+
+            // Move Prefab
+            string error = AssetDatabase.MoveAsset(record.originalPrefabPath, record.trashPrefabPath);
+            if (!string.IsNullOrEmpty(error)) Debug.LogError($"[Template Editor] Failed to move prefab to trash: {error}");
+
+            // Move Icon if exists
+            string originalIconPath = $"Assets/Match Them All/Sprites/Icons/icon_{prefab.name.ToLowerInvariant()}.png";
+            if (File.Exists(originalIconPath))
+            {
+                string iconTrashParent = "Assets/Match Them All/Sprites/Icons";
+                string iconTrashFolder = iconTrashParent + "/Trash";
+                if (!AssetDatabase.IsValidFolder(iconTrashFolder))
+                {
+                    AssetDatabase.CreateFolder(iconTrashParent, "Trash");
+                }
+
+                record.originalIconPath = originalIconPath;
+                record.trashIconPath = AssetDatabase.GenerateUniqueAssetPath($"{iconTrashFolder}/icon_{prefab.name.ToLowerInvariant()}.png");
+
+                string iconError = AssetDatabase.MoveAsset(originalIconPath, record.trashIconPath);
+                if (!string.IsNullOrEmpty(iconError)) Debug.LogError($"[Template Editor] Failed to move icon to trash: {iconError}");
+            }
+
+            _deletedRecords.Add(record);
+            SaveTrashUndo();
+
+            AssetDatabase.SaveAssets();
+            LoadAll();
+            Repaint();
+        }
+
+        private void RestoreFromTrash(GameObject trashPrefab)
+        {
+            string trashPrefabPath = AssetDatabase.GetAssetPath(trashPrefab);
+            string originalPrefabPath = $"Assets/Match Them All/_START_HERE/Items/{trashPrefab.name}.prefab";
+
+            string originalIconPath = $"Assets/Match Them All/Sprites/Icons/icon_{trashPrefab.name.ToLowerInvariant()}.png";
+            string trashIconPath = $"Assets/Match Them All/Sprites/Icons/Trash/icon_{trashPrefab.name.ToLowerInvariant()}.png";
+
+            // Move Icon back (secondary: warn but continue on failure)
+            if (AssetDatabase.LoadMainAssetAtPath(trashIconPath) != null)
+            {
+                string iconError = AssetDatabase.MoveAsset(trashIconPath, originalIconPath);
+                if (!string.IsNullOrEmpty(iconError)) Debug.LogWarning($"[Template Editor] Could not restore icon: {iconError}");
+            }
+
+            // Move Prefab back — abort if missing or the move fails; there is nothing valid to re-attach.
+            if (AssetDatabase.LoadMainAssetAtPath(trashPrefabPath) == null)
+            {
+                Debug.LogError($"[Template Editor] Restore aborted: trashed prefab not found at {trashPrefabPath}");
+                return;
+            }
+            string prefabError = AssetDatabase.MoveAsset(trashPrefabPath, originalPrefabPath);
+            if (!string.IsNullOrEmpty(prefabError))
+            {
+                Debug.LogError($"[Template Editor] Restore aborted, prefab move failed: {prefabError}");
+                return;
+            }
+
+            // Re-add to levels from the stored undo record (if any). The Item prefab reference is
+            // re-resolved from the restored prefab, never trusted from the captured record.
+            var record = _deletedRecords.FirstOrDefault(r => r.trashPrefabPath == trashPrefabPath);
+            if (record != null)
+            {
+                var restoredPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(originalPrefabPath);
+                var itemComp = restoredPrefab != null ? restoredPrefab.GetComponent<Item>() : null;
+                if (itemComp == null)
+                    Debug.LogWarning($"[Template Editor] Restored '{trashPrefab.name}' has no Item component; skipped level re-attach.");
+
+                foreach (var e in record.removedFromLevels)
+                {
+                    var level = AssetDatabase.LoadAssetAtPath<LevelDataSO>(AssetDatabase.GUIDToAssetPath(e.levelGuid));
+                    if (level == null || itemComp == null) continue;
+                    Undo.RecordObject(level, "Restore Deleted Item");
+                    level.itemData ??= new List<ItemLevelData>();
+                    level.itemData.Add(new ItemLevelData { itemPrefab = itemComp, isGoal = e.isGoal, multiplier = e.multiplier, amount = e.amount });
+                    EditorUtility.SetDirty(level);
+                }
+                _deletedRecords.Remove(record);
+                SaveTrashUndo();
+            }
+            else
+            {
+                Debug.LogWarning($"[Template Editor] Restored '{trashPrefab.name}' but no undo record exists (deleted before this session or record lost). Re-add it to levels manually if needed.");
+            }
+
+            AssetDatabase.SaveAssets();
+            LoadAll();
+            Repaint();
+        }
+
+        private void SaveTrashUndo()
+        {
+            if (_deletedRecords.Count == 0) { SessionState.EraseString(TrashUndoSessionKey); return; }
+            SessionState.SetString(TrashUndoSessionKey, JsonUtility.ToJson(new DeletedItemRecordList { records = _deletedRecords }));
+        }
+
+        private void LoadTrashUndo()
+        {
+            _deletedRecords.Clear();
+            var json = SessionState.GetString(TrashUndoSessionKey, "");
+            if (string.IsNullOrEmpty(json)) return;
+            var wrapper = JsonUtility.FromJson<DeletedItemRecordList>(json);
+            if (wrapper?.records != null) _deletedRecords.AddRange(wrapper.records);
+        }
 
         private void AddItem(GameObject prefab)
         {
@@ -1246,14 +1583,69 @@ namespace Match_Them_All.Scripts.Editor
             GUILayout.Space(5);
             _autoGenerateIcon = EditorGUILayout.Toggle("Auto-Generate Icon", _autoGenerateIcon);
 
-            if (!_autoGenerateIcon)
+            if (_autoGenerateIcon)
+            {
+                GUILayout.Space(10);
+                GUILayout.Label("Icon Camera Settings", EditorStyles.boldLabel);
+                
+                EditorGUI.BeginChangeCheck();
+                EditorGUI.indentLevel++;
+                _iconRotation = EditorGUILayout.Vector3Field("Model Rotation", _iconRotation);
+                _iconPadding = EditorGUILayout.Slider("Zoom Padding", _iconPadding, 1f, 3f);
+                _iconOffset = EditorGUILayout.Vector3Field("Camera Offset", _iconOffset);
+                EditorGUI.indentLevel--;
+                bool settingsChanged = EditorGUI.EndChangeCheck();
+                
+                GUILayout.Space(10);
+                EditorGUILayout.BeginHorizontal();
+                
+                // Left side: Preview Button and help text
+                EditorGUILayout.BeginVertical(GUILayout.Width(200));
+                GUI.color = AccentBlue;
+                if (GUILayout.Button("Manual Refresh", GUILayout.Height(30)))
+                {
+                    settingsChanged = true;
+                }
+                GUI.color = Color.white;
+                
+                if (_newItemModelPrefab == null)
+                {
+                    EditorGUILayout.HelpBox("Assign a 3D Model Prefab to preview.", MessageType.Info);
+                }
+                EditorGUILayout.EndVertical();
+
+                // Right side: Preview Box
+                GUILayout.Space(10);
+                TryConsumeIconPreview();
+                if (_previewIconTexture != null)
+                {
+                    Rect outerRect = GUILayoutUtility.GetRect(84, 84, GUILayout.ExpandWidth(false));
+                    Rect texRect = new Rect(outerRect.x + 2, outerRect.y + 2, 80, 80);
+                    
+                    // Draw a subtle border
+                    EditorGUI.DrawRect(outerRect, new Color(0.3f, 0.3f, 0.3f));
+                    // Draw a darker background behind the icon
+                    EditorGUI.DrawRect(texRect, new Color(0.15f, 0.15f, 0.15f));
+                    
+                    GUI.DrawTexture(texRect, _previewIconTexture, ScaleMode.ScaleToFit);
+                }
+                
+                EditorGUILayout.EndHorizontal();
+
+                if (settingsChanged && _newItemModelPrefab != null)
+                    ScheduleIconPreview();
+            }
+            else
             {
                 GUILayout.Space(5);
                 _newItemIcon = (Sprite)EditorGUILayout.ObjectField("UI Icon (Sprite)", _newItemIcon, typeof(Sprite), false);
             }
             
             GUILayout.Space(5);
+            EditorGUI.BeginChangeCheck();
             _newItemModelPrefab = (GameObject)EditorGUILayout.ObjectField("3D Model Prefab", _newItemModelPrefab, typeof(GameObject), false);
+            if (EditorGUI.EndChangeCheck() && _newItemModelPrefab != null && _autoGenerateIcon)
+                ScheduleIconPreview();
 
             if (EditorGUI.EndChangeCheck())
             {
@@ -1389,25 +1781,42 @@ namespace Match_Them_All.Scripts.Editor
             LoadAll();
         }
 
-        private Sprite CaptureItemIcon(GameObject modelPrefab, string formattedName)
+        private void ScheduleIconPreview()
         {
-            var iconFolder = "Assets/Match Them All/Sprites/Icons";
-            if (!Directory.Exists(iconFolder)) Directory.CreateDirectory(iconFolder);
+            _previewDirty = true;
+            _previewDirtyTime = EditorApplication.timeSinceStartup;
+            Repaint();
+        }
 
-            string path = $"{iconFolder}/icon_{formattedName.ToLowerInvariant()}.png";
+        // ponytail: throttle — render at most once per PreviewRenderThrottle seconds. While a slider is
+        // being dragged each notch only refreshes the dirty time; the final value renders once the drag
+        // pauses. The first-ever render (no texture yet) is immediate so assigning a model feels instant.
+        private void TryConsumeIconPreview()
+        {
+            if (!_previewDirty || _newItemModelPrefab == null) return;
+            if (_previewIconTexture == null || EditorApplication.timeSinceStartup - _previewDirtyTime >= PreviewRenderThrottle)
+            {
+                if (_previewIconTexture != null) DestroyImmediate(_previewIconTexture);
+                _previewIconTexture = GetIconTexture2D(_newItemModelPrefab);
+                _previewDirty = false;
+            }
+            else
+            {
+                Repaint(); // keep polling until the drag pauses past the throttle window
+            }
+        }
 
+        private Texture2D GetIconTexture2D(GameObject modelPrefab)
+        {
             var previewUtility = new PreviewRenderUtility();
             
             previewUtility.camera.orthographic = true;
-            previewUtility.camera.orthographicSize = 5f;
             previewUtility.camera.clearFlags = CameraClearFlags.SolidColor;
             previewUtility.camera.backgroundColor = new Color(0, 0, 0, 0);
-            previewUtility.camera.transform.position = Vector3.zero;
-            previewUtility.camera.transform.rotation = Quaternion.identity;
 
             // Match the IconScene lighting
             previewUtility.lights[0].intensity = 2f;
-            previewUtility.lights[0].color = new Color(1f, 0.374f, 0.374f);
+            previewUtility.lights[0].color = Color.white;
             previewUtility.lights[0].transform.eulerAngles = new Vector3(53.516f, 349.741f, 49.274f);
             previewUtility.lights[1].intensity = 0f; 
 
@@ -1415,28 +1824,72 @@ namespace Match_Them_All.Scripts.Editor
 
             var model = previewUtility.InstantiatePrefabInScene(modelPrefab);
             
-            // Adjust position because the renderer is internally offset by (0, 0, -0.75) 
-            // from the root in the final prefab, so to match IconScene which puts root at (0, 0, 2),
-            // the renderer must be at (0, 0, 1.25).
-            model.transform.position = new Vector3(0.00f, 0.00f, 1.25f);
-            model.transform.rotation = Quaternion.Euler(0f, 0f, 270f);
-            model.transform.localScale = new Vector3(0.35f, 0.35f, 0.35f);
+            // Show the item and apply user-configured rotation
+            model.transform.rotation = Quaternion.Euler(_iconRotation);
+            model.transform.localScale = Vector3.one;
+            model.transform.position = Vector3.zero;
+
+            // Auto-framing: calculate the exact bounds of the model's renderers
+            Bounds bounds = new Bounds(model.transform.position, Vector3.zero);
+            bool hasBounds = false;
+            foreach (var renderer in model.GetComponentsInChildren<Renderer>())
+            {
+                if (!hasBounds)
+                {
+                    bounds = renderer.bounds;
+                    hasBounds = true;
+                }
+                else
+                {
+                    bounds.Encapsulate(renderer.bounds);
+                }
+            }
+
+            if (hasBounds)
+            {
+                // Center the camera on the object and pull it back. Apply user offset.
+                previewUtility.camera.transform.position = bounds.center - Vector3.forward * 5f + _iconOffset;
+                previewUtility.camera.transform.rotation = Quaternion.identity;
+                
+                // Set orthographic size to precisely fit the model (with configured padding)
+                float maxExtent = Mathf.Max(bounds.extents.y, bounds.extents.x);
+                // Ensure size isn't 0
+                previewUtility.camera.orthographicSize = Mathf.Max(maxExtent * _iconPadding, 0.1f);
+            }
+            else
+            {
+                // Fallback
+                previewUtility.camera.transform.position = new Vector3(0, 0, -5f) + _iconOffset;
+                previewUtility.camera.transform.rotation = Quaternion.identity;
+                previewUtility.camera.orthographicSize = 5f;
+            }
 
             previewUtility.camera.Render();
             
             Texture rt = previewUtility.EndPreview();
             
             RenderTexture.active = (RenderTexture)rt;
-            var tex2d = new Texture2D(512, 512, TextureFormat.RGBA32, false);
-            tex2d.ReadPixels(new Rect(0, 0, 512, 512), 0, 0);
+            var tex2d = new Texture2D(rt.width, rt.height, TextureFormat.RGBA32, false);
+            tex2d.ReadPixels(new Rect(0, 0, rt.width, rt.height), 0, 0);
             tex2d.Apply();
             RenderTexture.active = null;
 
+            previewUtility.Cleanup();
+            return tex2d;
+        }
+
+        private Sprite CaptureItemIcon(GameObject modelPrefab, string formattedName)
+        {
+            var iconFolder = "Assets/Match Them All/Sprites/Icons";
+            if (!Directory.Exists(iconFolder)) Directory.CreateDirectory(iconFolder);
+
+            string path = $"{iconFolder}/icon_{formattedName.ToLowerInvariant()}.png";
+
+            var tex2d = GetIconTexture2D(modelPrefab);
             byte[] bytes = tex2d.EncodeToPNG();
             File.WriteAllBytes(path, bytes);
 
             DestroyImmediate(tex2d);
-            previewUtility.Cleanup();
 
             AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceUpdate);
             var importer = (TextureImporter)AssetImporter.GetAtPath(path);
@@ -1446,6 +1899,12 @@ namespace Match_Them_All.Scripts.Editor
                 importer.spriteImportMode = SpriteImportMode.Single;
                 importer.alphaIsTransparency = true;
                 importer.SaveAndReimport();
+            }
+
+            UnityEngine.Object[] assets = AssetDatabase.LoadAllAssetsAtPath(path);
+            foreach (var asset in assets)
+            {
+                if (asset is Sprite s) return s;
             }
 
             return AssetDatabase.LoadAssetAtPath<Sprite>(path);

@@ -6,6 +6,8 @@ namespace MatchThemAll.Scripts
         BluePotion = 1,
         Bomb = 2,
         Skull = 3,
-        Diamond = 4
+        Diamond = 4,
+        Clock = 5,
+        Coin = 6
     }
 }
