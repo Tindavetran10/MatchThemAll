@@ -63,6 +63,7 @@ namespace Match_Them_All.Scripts.Editor
         private class RemovedLevelEntry
         {
             public string levelGuid;
+            public int index; // original position in level.itemData; restore re-inserts here to keep spawn order
             public bool isGoal;
             public int multiplier;
             public int amount;
@@ -1157,7 +1158,7 @@ namespace Match_Them_All.Scripts.Editor
             int columns = Mathf.Max(1, Mathf.FloorToInt(drawableW / 75f));
 
             int i = 0;
-            var pendingDeleteIndex = -1;
+            var pendingDeletePrefab = (GameObject)null;
 
             GUILayout.BeginHorizontal();
             foreach (var prefab in filteredItems)
@@ -1199,7 +1200,7 @@ namespace Match_Them_All.Scripts.Editor
                 GUI.color = AccentRed;
                 if (GUI.Button(deleteRect, "✕", _iconCardSmallButtonStyle))
                 {
-                    pendingDeleteIndex = _itemPrefabs.IndexOf(prefab);
+                    pendingDeletePrefab = prefab;
                 }
                 GUI.color = Color.white;
                 
@@ -1212,9 +1213,9 @@ namespace Match_Them_All.Scripts.Editor
             
             GUILayout.EndScrollView();
 
-            if (pendingDeleteIndex >= 0)
+            if (pendingDeletePrefab != null)
             {
-                SoftDeleteItem(_itemPrefabs[pendingDeleteIndex]);
+                SoftDeleteItem(pendingDeletePrefab);
                 GUIUtility.ExitGUI();
             }
             
@@ -1247,7 +1248,7 @@ namespace Match_Them_All.Scripts.Editor
             int columns = Mathf.Max(1, Mathf.FloorToInt(drawableW / 75f));
 
             int i = 0;
-            var pendingRestoreIndex = -1;
+            var pendingRestorePrefab = (GameObject)null;
 
             GUILayout.BeginHorizontal();
             foreach (var prefab in _trashPrefabs)
@@ -1275,7 +1276,7 @@ namespace Match_Them_All.Scripts.Editor
                 GUI.color = AccentGreen;
                 if (GUI.Button(restoreRect, "⟲", _iconCardSmallButtonStyle))
                 {
-                    pendingRestoreIndex = _trashPrefabs.IndexOf(prefab);
+                    pendingRestorePrefab = prefab;
                 }
                 GUI.color = Color.white;
                 
@@ -1288,9 +1289,9 @@ namespace Match_Them_All.Scripts.Editor
             
             GUILayout.EndScrollView();
 
-            if (pendingRestoreIndex >= 0)
+            if (pendingRestorePrefab != null)
             {
-                RestoreFromTrash(_trashPrefabs[pendingRestoreIndex]);
+                RestoreFromTrash(pendingRestorePrefab);
                 GUIUtility.ExitGUI();
             }
         }
@@ -1341,6 +1342,7 @@ namespace Match_Them_All.Scripts.Editor
                 record.removedFromLevels.Add(new RemovedLevelEntry
                 {
                     levelGuid = AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(level)),
+                    index = level.itemData.IndexOf(entry),
                     isGoal = entry.isGoal,
                     multiplier = entry.multiplier,
                     amount = entry.amount,
@@ -1423,7 +1425,7 @@ namespace Match_Them_All.Scripts.Editor
                     if (level == null || itemComp == null) continue;
                     Undo.RecordObject(level, "Restore Deleted Item");
                     level.itemData ??= new List<ItemLevelData>();
-                    level.itemData.Add(new ItemLevelData { itemPrefab = itemComp, isGoal = e.isGoal, multiplier = e.multiplier, amount = e.amount });
+                    level.itemData.Insert(Mathf.Clamp(e.index, 0, level.itemData.Count), new ItemLevelData { itemPrefab = itemComp, isGoal = e.isGoal, multiplier = e.multiplier, amount = e.amount });
                     EditorUtility.SetDirty(level);
                 }
                 _deletedRecords.Remove(record);
@@ -1809,73 +1811,79 @@ namespace Match_Them_All.Scripts.Editor
         private Texture2D GetIconTexture2D(GameObject modelPrefab)
         {
             var previewUtility = new PreviewRenderUtility();
-            
-            previewUtility.camera.orthographic = true;
-            previewUtility.camera.clearFlags = CameraClearFlags.SolidColor;
-            previewUtility.camera.backgroundColor = new Color(0, 0, 0, 0);
-
-            // Match the IconScene lighting
-            previewUtility.lights[0].intensity = 2f;
-            previewUtility.lights[0].color = Color.white;
-            previewUtility.lights[0].transform.eulerAngles = new Vector3(53.516f, 349.741f, 49.274f);
-            previewUtility.lights[1].intensity = 0f; 
-
-            previewUtility.BeginPreview(new Rect(0, 0, 512, 512), GUIStyle.none);
-
-            var model = previewUtility.InstantiatePrefabInScene(modelPrefab);
-            
-            // Show the item and apply user-configured rotation
-            model.transform.rotation = Quaternion.Euler(_iconRotation);
-            model.transform.localScale = Vector3.one;
-            model.transform.position = Vector3.zero;
-
-            // Auto-framing: calculate the exact bounds of the model's renderers
-            Bounds bounds = new Bounds(model.transform.position, Vector3.zero);
-            bool hasBounds = false;
-            foreach (var renderer in model.GetComponentsInChildren<Renderer>())
+            try
             {
-                if (!hasBounds)
+                previewUtility.camera.orthographic = true;
+                previewUtility.camera.clearFlags = CameraClearFlags.SolidColor;
+                previewUtility.camera.backgroundColor = new Color(0, 0, 0, 0);
+
+                // Match the IconScene lighting
+                previewUtility.lights[0].intensity = 2f;
+                previewUtility.lights[0].color = Color.white;
+                previewUtility.lights[0].transform.eulerAngles = new Vector3(53.516f, 349.741f, 49.274f);
+                previewUtility.lights[1].intensity = 0f;
+
+                previewUtility.BeginPreview(new Rect(0, 0, 512, 512), GUIStyle.none);
+
+                var model = previewUtility.InstantiatePrefabInScene(modelPrefab);
+
+                // Show the item and apply user-configured rotation
+                model.transform.rotation = Quaternion.Euler(_iconRotation);
+                model.transform.localScale = Vector3.one;
+                model.transform.position = Vector3.zero;
+
+                // Auto-framing: calculate the exact bounds of the model's renderers
+                Bounds bounds = new Bounds(model.transform.position, Vector3.zero);
+                bool hasBounds = false;
+                foreach (var renderer in model.GetComponentsInChildren<Renderer>())
                 {
-                    bounds = renderer.bounds;
-                    hasBounds = true;
+                    if (!hasBounds)
+                    {
+                        bounds = renderer.bounds;
+                        hasBounds = true;
+                    }
+                    else
+                    {
+                        bounds.Encapsulate(renderer.bounds);
+                    }
+                }
+
+                if (hasBounds)
+                {
+                    // Center the camera on the object and pull it back. Apply user offset.
+                    previewUtility.camera.transform.position = bounds.center - Vector3.forward * 5f + _iconOffset;
+                    previewUtility.camera.transform.rotation = Quaternion.identity;
+
+                    // Set orthographic size to precisely fit the model (with configured padding)
+                    float maxExtent = Mathf.Max(bounds.extents.y, bounds.extents.x);
+                    // Ensure size isn't 0
+                    previewUtility.camera.orthographicSize = Mathf.Max(maxExtent * _iconPadding, 0.1f);
                 }
                 else
                 {
-                    bounds.Encapsulate(renderer.bounds);
+                    // Fallback
+                    previewUtility.camera.transform.position = new Vector3(0, 0, -5f) + _iconOffset;
+                    previewUtility.camera.transform.rotation = Quaternion.identity;
+                    previewUtility.camera.orthographicSize = 5f;
                 }
-            }
 
-            if (hasBounds)
+                previewUtility.camera.Render();
+
+                Texture rt = previewUtility.EndPreview();
+
+                RenderTexture.active = (RenderTexture)rt;
+                var tex2d = new Texture2D(rt.width, rt.height, TextureFormat.RGBA32, false);
+                tex2d.ReadPixels(new Rect(0, 0, rt.width, rt.height), 0, 0);
+                tex2d.Apply();
+                return tex2d;
+            }
+            finally
             {
-                // Center the camera on the object and pull it back. Apply user offset.
-                previewUtility.camera.transform.position = bounds.center - Vector3.forward * 5f + _iconOffset;
-                previewUtility.camera.transform.rotation = Quaternion.identity;
-                
-                // Set orthographic size to precisely fit the model (with configured padding)
-                float maxExtent = Mathf.Max(bounds.extents.y, bounds.extents.x);
-                // Ensure size isn't 0
-                previewUtility.camera.orthographicSize = Mathf.Max(maxExtent * _iconPadding, 0.1f);
+                // Always release the hidden preview scene/RT and clear the active target, even if the
+                // render/read above throws — otherwise the PreviewRenderUtility and RenderTexture leak.
+                RenderTexture.active = null;
+                previewUtility.Cleanup();
             }
-            else
-            {
-                // Fallback
-                previewUtility.camera.transform.position = new Vector3(0, 0, -5f) + _iconOffset;
-                previewUtility.camera.transform.rotation = Quaternion.identity;
-                previewUtility.camera.orthographicSize = 5f;
-            }
-
-            previewUtility.camera.Render();
-            
-            Texture rt = previewUtility.EndPreview();
-            
-            RenderTexture.active = (RenderTexture)rt;
-            var tex2d = new Texture2D(rt.width, rt.height, TextureFormat.RGBA32, false);
-            tex2d.ReadPixels(new Rect(0, 0, rt.width, rt.height), 0, 0);
-            tex2d.Apply();
-            RenderTexture.active = null;
-
-            previewUtility.Cleanup();
-            return tex2d;
         }
 
         private Sprite CaptureItemIcon(GameObject modelPrefab, string formattedName)
