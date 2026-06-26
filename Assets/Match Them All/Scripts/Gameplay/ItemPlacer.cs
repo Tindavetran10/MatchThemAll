@@ -27,6 +27,7 @@ namespace MatchThemAll.Scripts
         /// </summary>
         public void Initialize(LevelDataSO data)
         {
+            if (data == null) { Debug.LogError("ItemPlacer: null LevelDataSO received."); return; }
             ClearItems();
             Random.InitState(data.seed);
 
@@ -43,6 +44,7 @@ namespace MatchThemAll.Scripts
 
         public async Task InitializeAsync(LevelDataSO data)
         {
+            if (data == null) { Debug.LogError("ItemPlacer: null LevelDataSO received."); return; }
             ClearItems();
             Random.InitState(data.seed);
 

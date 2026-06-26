@@ -14,7 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_GroupName: Default Local Group
   m_GUID: 5c72d642e4ef4a0429ae91bbd2d9e95f
-  m_SerializeEntries: []
+  m_SerializeEntries:
+  - m_GUID: cae541a1c8f10584a9dfca781f597e6d
+    m_Address: Assets/Match Them All/_START_HERE/Levels/LevelData01.asset
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - LevelData
+    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 027d88de54e2c3941bb6165805d90418, type: 2}
   m_SchemaSet:

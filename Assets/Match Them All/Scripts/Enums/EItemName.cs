@@ -8,6 +8,7 @@ namespace MatchThemAll.Scripts
         Skull = 3,
         Diamond = 4,
         Clock = 5,
-        Coin = 6
+        Coin = 6,
+        Battery = 7
     }
 }

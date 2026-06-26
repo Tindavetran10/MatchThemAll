@@ -14,14 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   spotCount: 7
   duration: 60
-  seed: 45846
+  seed: 43663
   itemData:
-  - itemPrefab: {fileID: 7950600088722064912, guid: b2cc6bb42b096c340b3d2cfe00010ef9, type: 3}
-    isGoal: 0
-    multiplier: 1
-    amount: 30
-  - itemPrefab: {fileID: 3831665066184828695, guid: 668a3a40b165ef94aaaedfb0fa82a5c1, type: 3}
+  - itemPrefab: {fileID: 8007656322365431951, guid: 1f154021cb988a94ba661692b3d8ed63, type: 3}
     isGoal: 1
-    multiplier: 2
+    multiplier: 1
     amount: 12
   tutorialSteps: []
