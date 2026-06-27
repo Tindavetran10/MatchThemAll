@@ -45,6 +45,9 @@ namespace Match_Them_All.Scripts.Editor
         private bool _isAddingNewItemType;
         private string _newItemTypeName = "";
         private bool _autoGenerateIcon = true;
+
+        // Broken item-reference validator state (Items tab)
+        private List<(LevelDataSO level, int index, string levelName)> _brokenRefs;
         
         // Icon Settings State
         private Vector3 _iconRotation = new Vector3(0f, 0f, 90f);
@@ -63,6 +66,7 @@ namespace Match_Them_All.Scripts.Editor
         private class RemovedLevelEntry
         {
             public string levelGuid;
+            public int index; // original position in level.itemData; restore re-inserts here to keep spawn order
             public bool isGoal;
             public int multiplier;
             public int amount;
@@ -801,10 +805,8 @@ namespace Match_Them_All.Scripts.Editor
                 GUILayout.Space(6);
                 GUILayout.BeginVertical(GUILayout.Height(38)); 
                 GUILayout.Space(4); // (38-30)/2 = 4px padding
-                var preview = entry.itemPrefab != null
-                    ? AssetPreview.GetAssetPreview(entry.itemPrefab.gameObject) : null;
-                if (preview)
-                    GUILayout.Label(preview, GUILayout.Width(iconW - 6), GUILayout.Height(30));
+                if (entry.itemPrefab != null)
+                    GUILayout.Label(GetItemIcon(entry.itemPrefab.gameObject), GUILayout.Width(iconW - 6), GUILayout.Height(30));
                 else
                     GUILayout.Label("◉", GUILayout.Width(iconW - 6), GUILayout.Height(30));
                 GUILayout.EndVertical();
@@ -1157,7 +1159,7 @@ namespace Match_Them_All.Scripts.Editor
             int columns = Mathf.Max(1, Mathf.FloorToInt(drawableW / 75f));
 
             int i = 0;
-            var pendingDeleteIndex = -1;
+            var pendingDeletePrefab = (GameObject)null;
 
             GUILayout.BeginHorizontal();
             foreach (var prefab in filteredItems)
@@ -1171,17 +1173,8 @@ namespace Match_Them_All.Scripts.Editor
 
                 GUILayout.BeginVertical(GUILayout.Width(70), GUILayout.Height(90));
                 
-                Texture tex = Texture2D.blackTexture;
                 var itemComp = prefab.GetComponent<Item>();
-                if (itemComp != null && itemComp.Icon != null)
-                {
-                    tex = itemComp.Icon.texture;
-                }
-                else
-                {
-                    var preview = AssetPreview.GetAssetPreview(prefab);
-                    if (preview != null) tex = preview;
-                }
+                Texture tex = GetItemIcon(prefab);
                 var rect = GUILayoutUtility.GetRect(64, 64);
                 var deleteRect = new Rect(rect.xMax - 18, rect.yMin + 2, 16, 16);
                 
@@ -1199,10 +1192,20 @@ namespace Match_Them_All.Scripts.Editor
                 GUI.color = AccentRed;
                 if (GUI.Button(deleteRect, "✕", _iconCardSmallButtonStyle))
                 {
-                    pendingDeleteIndex = _itemPrefabs.IndexOf(prefab);
+                    pendingDeletePrefab = prefab;
                 }
                 GUI.color = Color.white;
-                
+
+                if (e.type == EventType.ContextClick && rect.Contains(e.mousePosition))
+                {
+                    var menu = new GenericMenu();
+                    var capturedItem = itemComp; // Item on this prefab, for the permanent-delete closure
+                    menu.AddItem(new GUIContent("Move to Trash"), false, () => SoftDeleteItem(prefab));
+                    menu.AddItem(new GUIContent("Delete Permanently…"), false, () => HardDeleteItem(capturedItem));
+                    menu.ShowAsContext();
+                    e.Use();
+                }
+
                 GUILayout.Label(prefab.name, _iconCardLabelStyle, GUILayout.Width(64));
                 
                 GUILayout.EndVertical();
@@ -1212,16 +1215,17 @@ namespace Match_Them_All.Scripts.Editor
             
             GUILayout.EndScrollView();
 
-            if (pendingDeleteIndex >= 0)
+            if (pendingDeletePrefab != null)
             {
-                SoftDeleteItem(_itemPrefabs[pendingDeleteIndex]);
+                SoftDeleteItem(pendingDeletePrefab);
                 GUIUtility.ExitGUI();
             }
             
             GUILayout.Space(12);
             DrawTrashLibrarySection(panelWidth);
+            DrawItemReferenceValidator();
         }
-        
+
         private Vector2 _trashScroll;
 
         private void DrawTrashLibrarySection(float panelWidth)
@@ -1247,7 +1251,8 @@ namespace Match_Them_All.Scripts.Editor
             int columns = Mathf.Max(1, Mathf.FloorToInt(drawableW / 75f));
 
             int i = 0;
-            var pendingRestoreIndex = -1;
+            var pendingRestorePrefab = (GameObject)null;
+            var pendingPermanentDelete = (GameObject)null;
 
             GUILayout.BeginHorizontal();
             foreach (var prefab in _trashPrefabs)
@@ -1261,8 +1266,7 @@ namespace Match_Them_All.Scripts.Editor
 
                 GUILayout.BeginVertical(GUILayout.Width(70), GUILayout.Height(90));
                 
-                var preview = AssetPreview.GetAssetPreview(prefab);
-                Texture2D tex = preview != null ? preview : Texture2D.blackTexture;
+                Texture tex = GetItemIcon(prefab);
                 
                 var rect = GUILayoutUtility.GetRect(64, 64);
                 var restoreRect = new Rect(rect.xMax - 18, rect.yMin + 2, 16, 16);
@@ -1275,10 +1279,18 @@ namespace Match_Them_All.Scripts.Editor
                 GUI.color = AccentGreen;
                 if (GUI.Button(restoreRect, "⟲", _iconCardSmallButtonStyle))
                 {
-                    pendingRestoreIndex = _trashPrefabs.IndexOf(prefab);
+                    pendingRestorePrefab = prefab;
                 }
                 GUI.color = Color.white;
-                
+
+                var permRect = new Rect(rect.xMin + 2, rect.yMin + 2, 16, 16);
+                GUI.color = AccentRed;
+                if (GUI.Button(permRect, "⌫", _iconCardSmallButtonStyle))
+                {
+                    pendingPermanentDelete = prefab;
+                }
+                GUI.color = Color.white;
+
                 GUILayout.Label(prefab.name, _iconCardLabelStyle, GUILayout.Width(64));
                 
                 GUILayout.EndVertical();
@@ -1288,28 +1300,69 @@ namespace Match_Them_All.Scripts.Editor
             
             GUILayout.EndScrollView();
 
-            if (pendingRestoreIndex >= 0)
+            if (pendingRestorePrefab != null)
             {
-                RestoreFromTrash(_trashPrefabs[pendingRestoreIndex]);
+                RestoreFromTrash(pendingRestorePrefab);
                 GUIUtility.ExitGUI();
+            }
+
+            if (pendingPermanentDelete != null)
+            {
+                HardDeleteItem(pendingPermanentDelete.GetComponent<Item>());
+                GUIUtility.ExitGUI();
+            }
+        }
+
+        private void DrawItemReferenceValidator()
+        {
+            GUILayout.Space(12);
+            GUILayout.Label("Item Reference Health", _subHeaderStyle);
+            GUILayout.Space(4);
+
+            if (GUILayout.Button("Check item references", GUILayout.Width(180)))
+                _brokenRefs = ItemReferenceOps.FindBrokenReferences();
+
+            if (_brokenRefs == null) return;
+
+            if (_brokenRefs.Count == 0)
+            {
+                GUI.color = AccentGreen;
+                GUILayout.Label("✓ No broken item references.", EditorStyles.wordWrappedLabel);
+                GUI.color = Color.white;
+                return;
+            }
+
+            GUI.color = AccentOrange;
+            GUILayout.Label($"⚠ {_brokenRefs.Count} broken item reference(s) found:", EditorStyles.wordWrappedLabel);
+            GUI.color = Color.white;
+            foreach (var (level, index, levelName) in _brokenRefs)
+                GUILayout.Label($"  • {levelName} → slot #{index}: missing item", EditorStyles.miniLabel);
+
+            GUILayout.Space(4);
+            if (GUILayout.Button("Remove all broken entries", GUILayout.Width(200)))
+            {
+                int n = ItemReferenceOps.RemoveBrokenReferences(registerUndo: true);
+                AssetDatabase.SaveAssets();
+                LoadAll();
+                _brokenRefs = ItemReferenceOps.FindBrokenReferences();
+                Debug.Log($"[Template Editor] Removed {n} broken item reference(s).");
             }
         }
         #endregion
 
+        /// <summary>Resolved icon texture for an item: its generated icon, else the prefab preview, else black.</summary>
+        private Texture GetItemIcon(GameObject prefab)
+        {
+            var itemComp = prefab != null ? prefab.GetComponent<Item>() : null;
+            if (itemComp != null && itemComp.Icon != null) return itemComp.Icon.texture;
+            var preview = AssetPreview.GetAssetPreview(prefab);
+            return preview != null ? preview : Texture2D.blackTexture;
+        }
+
         private void SoftDeleteItem(GameObject prefab)
         {
             var itemComp = prefab.GetComponent<Item>();
-            int usedCount = 0;
-            var affectedLevels = new List<LevelDataSO>();
-
-            foreach (var level in _levels)
-            {
-                if (level.itemData != null && level.itemData.Any(i => i.itemPrefab == itemComp))
-                {
-                    usedCount++;
-                    affectedLevels.Add(level);
-                }
-            }
+            int usedCount = ItemReferenceOps.FindReferencingLevels(itemComp).Count;
 
             string warning = $"Are you sure you want to delete '{prefab.name}'? It will be moved to the Trash folder.";
             if (usedCount > 0)
@@ -1333,20 +1386,19 @@ namespace Match_Them_All.Scripts.Editor
                 trashPrefabPath = AssetDatabase.GenerateUniqueAssetPath($"{trashFolder}/{prefab.name}.prefab"),
             };
 
-            // Remove from levels, capturing each entry's primitive state (not the Item ref) for restore
-            foreach (var level in affectedLevels)
+            // Remove from levels via the shared helper, capturing each removed entry for restore
+            var capture = new List<(LevelDataSO level, int index, ItemLevelData entry)>();
+            ItemReferenceOps.RemoveFromLevels(itemComp, registerUndo: true, capture: capture);
+            foreach (var (level, index, entry) in capture)
             {
-                Undo.RecordObject(level, "Remove Deleted Item");
-                var entry = level.itemData.First(i => i.itemPrefab == itemComp);
                 record.removedFromLevels.Add(new RemovedLevelEntry
                 {
                     levelGuid = AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(level)),
+                    index = index,
                     isGoal = entry.isGoal,
                     multiplier = entry.multiplier,
                     amount = entry.amount,
                 });
-                level.itemData.Remove(entry);
-                EditorUtility.SetDirty(level);
             }
 
             // Move Prefab
@@ -1379,15 +1431,77 @@ namespace Match_Them_All.Scripts.Editor
             Repaint();
         }
 
+        /// <summary>
+        /// Permanently delete an item: removes it from all levels, deletes its icon (only if it is the
+        /// item's own generated icon and unused elsewhere), deletes the prefab, and drops any trash-undo
+        /// record so it cannot be restored. Irreversible — gated by a confirm dialog. No Undo by design;
+        /// use Move to Trash (SoftDeleteItem) for a reversible delete.
+        /// </summary>
+        private void HardDeleteItem(Item item)
+        {
+            if (item == null) { Debug.LogWarning("[Template Editor] HardDeleteItem: null item."); return; }
+
+            string prefabPath = AssetDatabase.GetAssetPath(item.gameObject);
+            if (string.IsNullOrEmpty(prefabPath))
+            {
+                Debug.LogError($"[Template Editor] HardDeleteItem: could not resolve prefab path for '{item.name}'.");
+                return;
+            }
+
+            var refs = ItemReferenceOps.FindReferencingLevels(item);
+            bool iconSafe = ItemReferenceOps.IsIconSafeToDelete(item);
+            string iconNote = iconSafe ? ", its icon" : "";
+            string msg = $"Permanently delete '{item.name}'?\n\n" +
+                         $"This removes the prefab{iconNote} and {refs.Count} level reference(s).\n" +
+                         "This CANNOT be undone. (Use Move to Trash if you want it reversible.)";
+            if (!EditorUtility.DisplayDialog("Delete Permanently", msg, "Delete permanently", "Cancel"))
+                return;
+
+            try
+            {
+                // 1. Scrub level references (no Undo — the whole operation is irreversible by design).
+                ItemReferenceOps.RemoveFromLevels(item, registerUndo: false);
+
+                // 2. Delete the icon only if it's this item's own generated icon and unused elsewhere.
+                if (iconSafe && item.Icon != null)
+                {
+                    string iconPath = AssetDatabase.GetAssetPath(item.Icon);
+                    if (!string.IsNullOrEmpty(iconPath))
+                        AssetDatabase.DeleteAsset(iconPath);
+                }
+
+                // 3. Delete the prefab (works whether it is live or already in a Trash folder).
+                AssetDatabase.DeleteAsset(prefabPath);
+
+                // 4. Drop any trash-undo record so the item cannot be restored.
+                _deletedRecords.RemoveAll(r => r.originalPrefabPath == prefabPath || r.trashPrefabPath == prefabPath);
+                SaveTrashUndo();
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"[Template Editor] HardDeleteItem failed for '{item.name}': {e}");
+            }
+
+            AssetDatabase.SaveAssets();
+            LoadAll();
+            Repaint();
+        }
+
         private void RestoreFromTrash(GameObject trashPrefab)
         {
             string trashPrefabPath = AssetDatabase.GetAssetPath(trashPrefab);
             string originalPrefabPath = $"Assets/Match Them All/_START_HERE/Items/{trashPrefab.name}.prefab";
 
-            string originalIconPath = $"Assets/Match Them All/Sprites/Icons/icon_{trashPrefab.name.ToLowerInvariant()}.png";
-            string trashIconPath = $"Assets/Match Them All/Sprites/Icons/Trash/icon_{trashPrefab.name.ToLowerInvariant()}.png";
+            var record = _deletedRecords.FirstOrDefault(r => r.trashPrefabPath == trashPrefabPath);
 
-            // Move Icon back (secondary: warn but continue on failure)
+            // Use the record's captured icon paths (robust); fall back to the name convention if no record.
+            string trashIconPath = record != null && !string.IsNullOrEmpty(record.trashIconPath)
+                ? record.trashIconPath
+                : $"Assets/Match Them All/Sprites/Icons/Trash/icon_{trashPrefab.name.ToLowerInvariant()}.png";
+            string originalIconPath = record != null && !string.IsNullOrEmpty(record.originalIconPath)
+                ? record.originalIconPath
+                : $"Assets/Match Them All/Sprites/Icons/icon_{trashPrefab.name.ToLowerInvariant()}.png";
+
             if (AssetDatabase.LoadMainAssetAtPath(trashIconPath) != null)
             {
                 string iconError = AssetDatabase.MoveAsset(trashIconPath, originalIconPath);
@@ -1409,7 +1523,6 @@ namespace Match_Them_All.Scripts.Editor
 
             // Re-add to levels from the stored undo record (if any). The Item prefab reference is
             // re-resolved from the restored prefab, never trusted from the captured record.
-            var record = _deletedRecords.FirstOrDefault(r => r.trashPrefabPath == trashPrefabPath);
             if (record != null)
             {
                 var restoredPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(originalPrefabPath);
@@ -1423,7 +1536,7 @@ namespace Match_Them_All.Scripts.Editor
                     if (level == null || itemComp == null) continue;
                     Undo.RecordObject(level, "Restore Deleted Item");
                     level.itemData ??= new List<ItemLevelData>();
-                    level.itemData.Add(new ItemLevelData { itemPrefab = itemComp, isGoal = e.isGoal, multiplier = e.multiplier, amount = e.amount });
+                    level.itemData.Insert(Mathf.Clamp(e.index, 0, level.itemData.Count), new ItemLevelData { itemPrefab = itemComp, isGoal = e.isGoal, multiplier = e.multiplier, amount = e.amount });
                     EditorUtility.SetDirty(level);
                 }
                 _deletedRecords.Remove(record);
@@ -1809,73 +1922,79 @@ namespace Match_Them_All.Scripts.Editor
         private Texture2D GetIconTexture2D(GameObject modelPrefab)
         {
             var previewUtility = new PreviewRenderUtility();
-            
-            previewUtility.camera.orthographic = true;
-            previewUtility.camera.clearFlags = CameraClearFlags.SolidColor;
-            previewUtility.camera.backgroundColor = new Color(0, 0, 0, 0);
-
-            // Match the IconScene lighting
-            previewUtility.lights[0].intensity = 2f;
-            previewUtility.lights[0].color = Color.white;
-            previewUtility.lights[0].transform.eulerAngles = new Vector3(53.516f, 349.741f, 49.274f);
-            previewUtility.lights[1].intensity = 0f; 
-
-            previewUtility.BeginPreview(new Rect(0, 0, 512, 512), GUIStyle.none);
-
-            var model = previewUtility.InstantiatePrefabInScene(modelPrefab);
-            
-            // Show the item and apply user-configured rotation
-            model.transform.rotation = Quaternion.Euler(_iconRotation);
-            model.transform.localScale = Vector3.one;
-            model.transform.position = Vector3.zero;
-
-            // Auto-framing: calculate the exact bounds of the model's renderers
-            Bounds bounds = new Bounds(model.transform.position, Vector3.zero);
-            bool hasBounds = false;
-            foreach (var renderer in model.GetComponentsInChildren<Renderer>())
+            try
             {
-                if (!hasBounds)
+                previewUtility.camera.orthographic = true;
+                previewUtility.camera.clearFlags = CameraClearFlags.SolidColor;
+                previewUtility.camera.backgroundColor = new Color(0, 0, 0, 0);
+
+                // Match the IconScene lighting
+                previewUtility.lights[0].intensity = 2f;
+                previewUtility.lights[0].color = Color.white;
+                previewUtility.lights[0].transform.eulerAngles = new Vector3(53.516f, 349.741f, 49.274f);
+                previewUtility.lights[1].intensity = 0f;
+
+                previewUtility.BeginPreview(new Rect(0, 0, 512, 512), GUIStyle.none);
+
+                var model = previewUtility.InstantiatePrefabInScene(modelPrefab);
+
+                // Show the item and apply user-configured rotation
+                model.transform.rotation = Quaternion.Euler(_iconRotation);
+                model.transform.localScale = Vector3.one;
+                model.transform.position = Vector3.zero;
+
+                // Auto-framing: calculate the exact bounds of the model's renderers
+                Bounds bounds = new Bounds(model.transform.position, Vector3.zero);
+                bool hasBounds = false;
+                foreach (var renderer in model.GetComponentsInChildren<Renderer>())
                 {
-                    bounds = renderer.bounds;
-                    hasBounds = true;
+                    if (!hasBounds)
+                    {
+                        bounds = renderer.bounds;
+                        hasBounds = true;
+                    }
+                    else
+                    {
+                        bounds.Encapsulate(renderer.bounds);
+                    }
+                }
+
+                if (hasBounds)
+                {
+                    // Center the camera on the object and pull it back. Apply user offset.
+                    previewUtility.camera.transform.position = bounds.center - Vector3.forward * 5f + _iconOffset;
+                    previewUtility.camera.transform.rotation = Quaternion.identity;
+
+                    // Set orthographic size to precisely fit the model (with configured padding)
+                    float maxExtent = Mathf.Max(bounds.extents.y, bounds.extents.x);
+                    // Ensure size isn't 0
+                    previewUtility.camera.orthographicSize = Mathf.Max(maxExtent * _iconPadding, 0.1f);
                 }
                 else
                 {
-                    bounds.Encapsulate(renderer.bounds);
+                    // Fallback
+                    previewUtility.camera.transform.position = new Vector3(0, 0, -5f) + _iconOffset;
+                    previewUtility.camera.transform.rotation = Quaternion.identity;
+                    previewUtility.camera.orthographicSize = 5f;
                 }
-            }
 
-            if (hasBounds)
+                previewUtility.camera.Render();
+
+                Texture rt = previewUtility.EndPreview();
+
+                RenderTexture.active = (RenderTexture)rt;
+                var tex2d = new Texture2D(rt.width, rt.height, TextureFormat.RGBA32, false);
+                tex2d.ReadPixels(new Rect(0, 0, rt.width, rt.height), 0, 0);
+                tex2d.Apply();
+                return tex2d;
+            }
+            finally
             {
-                // Center the camera on the object and pull it back. Apply user offset.
-                previewUtility.camera.transform.position = bounds.center - Vector3.forward * 5f + _iconOffset;
-                previewUtility.camera.transform.rotation = Quaternion.identity;
-                
-                // Set orthographic size to precisely fit the model (with configured padding)
-                float maxExtent = Mathf.Max(bounds.extents.y, bounds.extents.x);
-                // Ensure size isn't 0
-                previewUtility.camera.orthographicSize = Mathf.Max(maxExtent * _iconPadding, 0.1f);
+                // Always release the hidden preview scene/RT and clear the active target, even if the
+                // render/read above throws — otherwise the PreviewRenderUtility and RenderTexture leak.
+                RenderTexture.active = null;
+                previewUtility.Cleanup();
             }
-            else
-            {
-                // Fallback
-                previewUtility.camera.transform.position = new Vector3(0, 0, -5f) + _iconOffset;
-                previewUtility.camera.transform.rotation = Quaternion.identity;
-                previewUtility.camera.orthographicSize = 5f;
-            }
-
-            previewUtility.camera.Render();
-            
-            Texture rt = previewUtility.EndPreview();
-            
-            RenderTexture.active = (RenderTexture)rt;
-            var tex2d = new Texture2D(rt.width, rt.height, TextureFormat.RGBA32, false);
-            tex2d.ReadPixels(new Rect(0, 0, rt.width, rt.height), 0, 0);
-            tex2d.Apply();
-            RenderTexture.active = null;
-
-            previewUtility.Cleanup();
-            return tex2d;
         }
 
         private Sprite CaptureItemIcon(GameObject modelPrefab, string formattedName)

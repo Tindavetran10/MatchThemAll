@@ -138,6 +138,9 @@ namespace MatchThemAll.Scripts
             {
                 Debug.LogError($"Failed to load LevelData from Addressable: {e.Message}");
             }
+
+            if (levels == null || levels.Length == 0)
+                Debug.LogError("LevelManager: No LevelDataSO assets loaded. Mark the LevelData .asset files Addressable in the Default Local Group and tag them with the 'LevelData' label.");
         }
 
         /// <summary>
