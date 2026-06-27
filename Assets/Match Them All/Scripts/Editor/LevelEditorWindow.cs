@@ -2,11 +2,17 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
+using Match_Them_All.Scripts.Power_Ups;
 using MatchThemAll.Scripts;
+using MatchThemAll.Scripts.Settings;
+using MatchThemAll.Scripts.Tutorial;
 using UnityEditor;
 using UnityEditor.AddressableAssets;
 using UnityEditor.AddressableAssets.Settings;
 using UnityEngine;
+using Object = UnityEngine.Object;
+using Random = UnityEngine.Random;
 
 namespace Match_Them_All.Scripts.Editor
 {
@@ -39,6 +45,17 @@ namespace Match_Them_All.Scripts.Editor
         private bool _showNewLevelField;
         
         private string _itemSearchQuery = "";
+        private string _lastItemSearchQuery;
+        private string[] _itemPrefabNames = Array.Empty<string>();
+        private List<GameObject> _filteredLibraryItems = new();
+        
+        // Cached Summary Stats
+        private int _cachedTotalItems;
+        private int _cachedGoalItems;
+        private int _cachedGoalTypes;
+        private bool _cachedValid;
+        private LevelDataSO _lastSummaryLevel;
+        private bool _summaryDirty = true;
         
         // Item Creation State
         private EItemName _newItemName;
@@ -52,7 +69,7 @@ namespace Match_Them_All.Scripts.Editor
         private List<(LevelDataSO level, int index, string levelName)> _brokenRefs;
         
         // Icon Settings State
-        private Vector3 _iconRotation = new Vector3(0f, 0f, 90f);
+        private Vector3 _iconRotation = new(0f, 0f, 90f);
         private float _iconPadding = 1.4f;
         private Vector3 _iconOffset = Vector3.zero;
         private Texture2D _previewIconTexture;
@@ -91,8 +108,9 @@ namespace Match_Them_All.Scripts.Editor
         private const string TrashUndoSessionKey = "MTA_TemplateEditor_TrashUndo";
 
         // Settings State
-        private MatchThemAll.Scripts.Settings.GameSettingsSO _gameSettings;
+        private GameSettingsSO _gameSettings;
         private UnityEditor.Editor _gameSettingsEditor;
+        private readonly List<Texture2D> _ownedTextures = new();
 
         private const string ItemPrefabFolder       = "Assets/Match Them All/_START_HERE/Items";
         private const string LevelDataFolder         = "Assets/Match Them All/_START_HERE/Levels";
@@ -141,7 +159,20 @@ namespace Match_Them_All.Scripts.Editor
             LoadAll();
             LoadTrashUndo();
         }
-        private void OnDisable() => _stylesInitialized = false; // force style rebuild after domain reload
+        private void OnDisable()
+        {
+            _stylesInitialized = false; // force style rebuild after domain reload
+            if (_gameSettingsEditor != null)
+            {
+                DestroyImmediate(_gameSettingsEditor);
+                _gameSettingsEditor = null;
+            }
+            foreach (var t in _ownedTextures)
+            {
+                if (t != null) DestroyImmediate(t);
+            }
+            _ownedTextures.Clear();
+        }
         #endregion
 
         #region Data Loading
@@ -167,6 +198,8 @@ namespace Match_Them_All.Scripts.Editor
                     _itemPrefabs.Add(AssetDatabase.LoadAssetAtPath<GameObject>(path));
                 }
             }
+            _itemPrefabNames = _itemPrefabs.Select(p => p.name).ToArray();
+            _lastItemSearchQuery = null; // force library refresh
 
             // Trash prefabs
             _trashPrefabs.Clear();
@@ -187,7 +220,7 @@ namespace Match_Them_All.Scripts.Editor
             
             // Settings
             if (!_gameSettings) 
-                _gameSettings = Resources.Load<MatchThemAll.Scripts.Settings.GameSettingsSO>("GameSettings");
+                _gameSettings = Resources.Load<GameSettingsSO>("GameSettings");
             if (_gameSettings) 
                 _gameSettingsEditor = UnityEditor.Editor.CreateEditor(_gameSettings);
         }
@@ -197,6 +230,7 @@ namespace Match_Them_All.Scripts.Editor
             _selectedLevelIndex = idx;
             _selectedLevel = idx >= 0 && idx < _levels.Count ? _levels[idx] : null;
             _isDirty = false;
+            _summaryDirty = true;
         }
         #endregion
 
@@ -665,29 +699,29 @@ namespace Match_Them_All.Scripts.Editor
             {
                 GUI.FocusControl(null); // Clear IMGUI focus so integer fields update properly
                 Undo.RecordObject(_selectedLevel, "Randomize Level");
-                _selectedLevel.seed = UnityEngine.Random.Range(0, 99999);
+                _selectedLevel.seed = Random.Range(0, 99999);
                 
                 var availablePrefabs = _itemPrefabs?.ToList() ?? new List<GameObject>();
                 // Pick between 2 and 6 item types, capped by how many prefabs actually exist
                 var minTypes = Mathf.Min(2, availablePrefabs.Count);
                 var maxTypes = Mathf.Min(7, availablePrefabs.Count + 1);
-                var typeCount = availablePrefabs.Count > 0 ? UnityEngine.Random.Range(minTypes, maxTypes) : 3;
+                var typeCount = availablePrefabs.Count > 0 ? Random.Range(minTypes, maxTypes) : 3;
 
                 _selectedLevel.itemData = new List<ItemLevelData>();
-                var goalCount = UnityEngine.Random.Range(1, Mathf.Min(4, typeCount + 1));
-                var shuffled = Enumerable.Range(0, typeCount).OrderBy(x => UnityEngine.Random.value).ToList();
+                var goalCount = Random.Range(1, Mathf.Min(4, typeCount + 1));
+                var shuffled = Enumerable.Range(0, typeCount).OrderBy(x => Random.value).ToList();
                 
                 for (var i = 0; i < typeCount; i++)
                 {
                     var entry = new ItemLevelData();
                     if (availablePrefabs.Count > 0)
                     {
-                        var r = UnityEngine.Random.Range(0, availablePrefabs.Count);
+                        var r = Random.Range(0, availablePrefabs.Count);
                         entry.itemPrefab = availablePrefabs[r].GetComponent<Item>();
                         availablePrefabs.RemoveAt(r); // Ensure no duplicate items
                     }
-                    entry.amount = UnityEngine.Random.Range(1, 11) * 3;
-                    entry.multiplier = UnityEngine.Random.Range(1, 6);
+                    entry.amount = Random.Range(1, 11) * 3;
+                    entry.multiplier = Random.Range(1, 6);
                     entry.isGoal = shuffled.IndexOf(i) < goalCount;
                     _selectedLevel.itemData.Add(entry);
                 }
@@ -820,8 +854,7 @@ namespace Match_Them_All.Scripts.Editor
 
                 // Item popup — read only, queue change
                 var currentIdx   = _itemPrefabs.FindIndex(p => p == entry.itemPrefab?.gameObject);
-                var prefabNames = _itemPrefabs.Select(p => p.name).ToArray();
-                var newIdx = EditorGUILayout.Popup(currentIdx, prefabNames, GUILayout.Width(nameW));
+                var newIdx = EditorGUILayout.Popup(currentIdx, _itemPrefabNames, GUILayout.Width(nameW));
                 if (newIdx != currentIdx && newIdx >= 0)
                 {
                     var itemComp = _itemPrefabs[newIdx].GetComponent<Item>();
@@ -911,10 +944,16 @@ namespace Match_Them_All.Scripts.Editor
         {
             if (_selectedLevel?.itemData == null) return; // safe: no BeginCard open here
 
-            var totalItems = _selectedLevel.itemData.Sum(i => i.amount);
-            var goalItems  = _selectedLevel.itemData.Where(i => i.isGoal).Sum(i => i.amount);
-            var goalTypes  = _selectedLevel.itemData.Count(i => i.isGoal);
-            var valid     = _selectedLevel.itemData.Count > 0 && goalTypes > 0;
+            if (_summaryDirty || _lastSummaryLevel != _selectedLevel)
+            {
+                _cachedTotalItems = _selectedLevel.itemData.Sum(i => i.amount);
+                _cachedGoalItems  = _selectedLevel.itemData.Where(i => i.isGoal).Sum(i => i.amount);
+                _cachedGoalTypes  = _selectedLevel.itemData.Count(i => i.isGoal);
+                _cachedValid      = _selectedLevel.itemData.Count > 0 && _cachedGoalTypes > 0;
+                
+                _lastSummaryLevel = _selectedLevel;
+                _summaryDirty = false;
+            }
 
             // Stat block width scales: 4 stats share 55% of panel, rest goes to validation label
             var statW = Mathf.Max(70f, panelWidth * 0.55f / 4f);
@@ -922,14 +961,14 @@ namespace Match_Them_All.Scripts.Editor
             BeginCard();
             GUILayout.BeginHorizontal();
 
-            DrawStat("Total Items", totalItems.ToString(), AccentBlue,    statW);
-            DrawStat("Goal Items",  goalItems.ToString(),  AccentGreen,   statW);
-            DrawStat("Goal Types",  goalTypes.ToString(),  AccentOrange,  statW);
+            DrawStat("Total Items", _cachedTotalItems.ToString(), AccentBlue,    statW);
+            DrawStat("Goal Items",  _cachedGoalItems.ToString(),  AccentGreen,   statW);
+            DrawStat("Goal Types",  _cachedGoalTypes.ToString(),  AccentOrange,  statW);
             DrawStat("Duration",    $"{_selectedLevel.duration}s", new Color(0.7f, 0.5f, 1f), statW);
 
             GUILayout.FlexibleSpace();
 
-            if (valid)
+            if (_cachedValid)
             {
                 GUI.color = AccentGreen;
                 GUILayout.Label("✔ Valid level", EditorStyles.boldLabel, GUILayout.Height(40));
@@ -958,8 +997,8 @@ namespace Match_Them_All.Scripts.Editor
             if (GUILayout.Button("+ Add Step", GUILayout.Width(90), GUILayout.Height(22)))
             {
                 Undo.RecordObject(_selectedLevel, "Add Tutorial Step");
-                _selectedLevel.tutorialSteps ??= new List<MatchThemAll.Scripts.Tutorial.TutorialStep>();
-                _selectedLevel.tutorialSteps.Add(new MatchThemAll.Scripts.Tutorial.TutorialStep());
+                _selectedLevel.tutorialSteps ??= new List<TutorialStep>();
+                _selectedLevel.tutorialSteps.Add(new TutorialStep());
                 MarkDirty();
             }
             GUI.color = Color.white;
@@ -1003,25 +1042,25 @@ namespace Match_Them_All.Scripts.Editor
 
                 GUILayout.BeginHorizontal();
                 GUILayout.Label("Highlight Target", GUILayout.Width(labelW));
-                step.highlightTarget = (MatchThemAll.Scripts.Tutorial.EHighlightTarget)EditorGUILayout.EnumPopup(step.highlightTarget);
+                step.highlightTarget = (EHighlightTarget)EditorGUILayout.EnumPopup(step.highlightTarget);
                 GUILayout.EndHorizontal();
 
-                if (step.highlightTarget == MatchThemAll.Scripts.Tutorial.EHighlightTarget.SpecificItem || 
-                    step.highlightTarget == MatchThemAll.Scripts.Tutorial.EHighlightTarget.GoalCard)
+                if (step.highlightTarget == EHighlightTarget.SpecificItem || 
+                    step.highlightTarget == EHighlightTarget.GoalCard)
                 {
                     GUILayout.BeginHorizontal();
                     GUILayout.Label("Item Name", GUILayout.Width(labelW));
                     step.itemName = (EItemName)EditorGUILayout.EnumPopup(step.itemName);
                     GUILayout.EndHorizontal();
                 }
-                else if (step.highlightTarget == MatchThemAll.Scripts.Tutorial.EHighlightTarget.Powerup)
+                else if (step.highlightTarget == EHighlightTarget.Powerup)
                 {
                     GUILayout.BeginHorizontal();
                     GUILayout.Label("Powerup Type", GUILayout.Width(labelW));
-                    step.powerupType = (Power_Ups.EPowerupType)EditorGUILayout.EnumPopup(step.powerupType);
+                    step.powerupType = (EPowerupType)EditorGUILayout.EnumPopup(step.powerupType);
                     GUILayout.EndHorizontal();
                 }
-                else if (step.highlightTarget == MatchThemAll.Scripts.Tutorial.EHighlightTarget.Manual)
+                else if (step.highlightTarget == EHighlightTarget.Manual)
                 {
                     GUILayout.BeginHorizontal();
                     GUILayout.Label("Manual Targets", GUILayout.Width(labelW));
@@ -1049,10 +1088,10 @@ namespace Match_Them_All.Scripts.Editor
 
                 GUILayout.BeginHorizontal();
                 GUILayout.Label("Completion Condition", GUILayout.Width(labelW));
-                step.completionCondition = (MatchThemAll.Scripts.Tutorial.ECompletionCondition)EditorGUILayout.EnumPopup(step.completionCondition);
+                step.completionCondition = (ECompletionCondition)EditorGUILayout.EnumPopup(step.completionCondition);
                 GUILayout.EndHorizontal();
 
-                if (step.completionCondition == MatchThemAll.Scripts.Tutorial.ECompletionCondition.OnTimer)
+                if (step.completionCondition == ECompletionCondition.OnTimer)
                 {
                     GUILayout.BeginHorizontal();
                     GUILayout.Label("Auto Complete Delay", GUILayout.Width(labelW));
@@ -1133,19 +1172,27 @@ namespace Match_Them_All.Scripts.Editor
             
             // Search bar
             GUILayout.Label("Search:", GUILayout.Width(50));
+            EditorGUI.BeginChangeCheck();
             _itemSearchQuery = EditorGUILayout.TextField(_itemSearchQuery, GUILayout.Width(150));
             if (GUILayout.Button("✕", GUILayout.Width(22)))
             {
                 _itemSearchQuery = "";
                 GUI.FocusControl(null);
             }
+            bool searchChanged = EditorGUI.EndChangeCheck();
             GUILayout.EndHorizontal();
             
             GUILayout.Space(8);
 
-            var filteredItems = _itemPrefabs.Where(p => string.IsNullOrEmpty(_itemSearchQuery) || p.name.IndexOf(_itemSearchQuery, StringComparison.OrdinalIgnoreCase) >= 0).ToList();
+            if (searchChanged || _lastItemSearchQuery != _itemSearchQuery)
+            {
+                _lastItemSearchQuery = _itemSearchQuery;
+                _filteredLibraryItems = _itemPrefabs.Where(p =>
+                    string.IsNullOrEmpty(_itemSearchQuery) ||
+                    p.name.IndexOf(_itemSearchQuery, StringComparison.OrdinalIgnoreCase) >= 0).ToList();
+            }
 
-            if (filteredItems.Count == 0)
+            if (_filteredLibraryItems.Count == 0)
             {
                 GUI.color = TextMuted;
                 GUILayout.Label("No prefabs found matching search.", EditorStyles.centeredGreyMiniLabel);
@@ -1157,14 +1204,14 @@ namespace Match_Them_All.Scripts.Editor
             _libraryScroll = GUILayout.BeginScrollView(_libraryScroll, GUILayout.Height(240));
 
             // Subtract card padding/margin overhead
-            float drawableW = Mathf.Max(100f, panelWidth - 40f);
+            var drawableW = Mathf.Max(100f, panelWidth - 40f);
             int columns = Mathf.Max(1, Mathf.FloorToInt(drawableW / 75f));
 
             int i = 0;
-            var pendingDeletePrefab = (GameObject)null;
+            GameObject pendingDeletePrefab = null;
 
             GUILayout.BeginHorizontal();
-            foreach (var prefab in filteredItems)
+            foreach (var prefab in _filteredLibraryItems)
             {
                 if (i > 0 && i % columns == 0)
                 {
@@ -1217,7 +1264,7 @@ namespace Match_Them_All.Scripts.Editor
             
             GUILayout.EndScrollView();
 
-            if (pendingDeletePrefab != null)
+            if (pendingDeletePrefab)
             {
                 SoftDeleteItem(pendingDeletePrefab);
                 GUIUtility.ExitGUI();
@@ -1302,13 +1349,13 @@ namespace Match_Them_All.Scripts.Editor
             
             GUILayout.EndScrollView();
 
-            if (pendingRestorePrefab != null)
+            if (pendingRestorePrefab)
             {
                 RestoreFromTrash(pendingRestorePrefab);
                 GUIUtility.ExitGUI();
             }
 
-            if (pendingPermanentDelete != null)
+            if (pendingPermanentDelete)
             {
                 HardDeleteItem(pendingPermanentDelete.GetComponent<Item>());
                 GUIUtility.ExitGUI();
@@ -1529,13 +1576,13 @@ namespace Match_Them_All.Scripts.Editor
             {
                 var restoredPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(originalPrefabPath);
                 var itemComp = restoredPrefab != null ? restoredPrefab.GetComponent<Item>() : null;
-                if (itemComp == null)
+                if (!itemComp)
                     Debug.LogWarning($"[Template Editor] Restored '{trashPrefab.name}' has no Item component; skipped level re-attach.");
 
                 foreach (var e in record.removedFromLevels)
                 {
                     var level = AssetDatabase.LoadAssetAtPath<LevelDataSO>(AssetDatabase.GUIDToAssetPath(e.levelGuid));
-                    if (level == null || itemComp == null) continue;
+                    if (!level || !itemComp) continue;
                     Undo.RecordObject(level, "Restore Deleted Item");
                     level.itemData ??= new List<ItemLevelData>();
                     level.itemData.Insert(Mathf.Clamp(e.index, 0, level.itemData.Count), new ItemLevelData { itemPrefab = itemComp, isGoal = e.isGoal, multiplier = e.multiplier, amount = e.amount });
@@ -1598,7 +1645,7 @@ namespace Match_Them_All.Scripts.Editor
 
             var newLevel = CreateInstance<LevelDataSO>();
             newLevel.duration = 60;
-            newLevel.seed = UnityEngine.Random.Range(0, 99999);
+            newLevel.seed = Random.Range(0, 99999);
             newLevel.itemData = new List<ItemLevelData>();
 
             AssetDatabase.CreateAsset(newLevel, path);
@@ -1639,6 +1686,14 @@ namespace Match_Them_All.Scripts.Editor
         {
             var lv = _levels[idx];
             var path = AssetDatabase.GetAssetPath(lv);
+
+            var settings = AddressableAssetSettingsDefaultObject.Settings;
+            if (settings != null)
+            {
+                var guid = AssetDatabase.AssetPathToGUID(path);
+                settings.RemoveAssetEntry(guid);
+            }
+
             AssetDatabase.DeleteAsset(path);
 
             LoadAll();
@@ -1658,6 +1713,7 @@ namespace Match_Them_All.Scripts.Editor
         private void MarkDirty()
         {
             _isDirty = true;
+            _summaryDirty = true;
             EditorUtility.SetDirty(_selectedLevel);
             Repaint();
         }
@@ -1666,13 +1722,14 @@ namespace Match_Them_All.Scripts.Editor
         private void BeginCard()  => GUILayout.BeginVertical(_cardStyle);
         private static void EndCard()    => GUILayout.EndVertical();
 
-        private static Texture2D MakeTex(int w, int h, Color col)
+        private Texture2D MakeTex(int w, int h, Color col)
         {
             var pix = new Color[w * h];
             for (var i = 0; i < pix.Length; i++) pix[i] = col;
             var t = new Texture2D(w, h);
             t.SetPixels(pix);
             t.Apply();
+            _ownedTextures.Add(t);
             return t;
         }
         #endregion
@@ -1827,7 +1884,10 @@ namespace Match_Them_All.Scripts.Editor
 
             if (File.Exists(path))
             {
-                if (!EditorUtility.DisplayDialog("Overwrite?", $"A prefab named {formattedName} already exists. Overwrite?", "Yes", "Cancel"))
+                if (!EditorUtility.DisplayDialog("Overwrite?",
+                        $"A prefab named {formattedName} already exists. Overwrite?",
+                        "Yes",
+                        "Cancel"))
                     return;
             }
 
@@ -2006,10 +2066,10 @@ namespace Match_Them_All.Scripts.Editor
                 Texture rt = previewUtility.EndPreview();
 
                 RenderTexture.active = (RenderTexture)rt;
-                var tex2d = new Texture2D(rt.width, rt.height, TextureFormat.RGBA32, false);
-                tex2d.ReadPixels(new Rect(0, 0, rt.width, rt.height), 0, 0);
-                tex2d.Apply();
-                return tex2d;
+                var tex2D = new Texture2D(rt.width, rt.height, TextureFormat.RGBA32, false);
+                tex2D.ReadPixels(new Rect(0, 0, rt.width, rt.height), 0, 0);
+                tex2D.Apply();
+                return tex2D;
             }
             finally
             {
@@ -2027,11 +2087,11 @@ namespace Match_Them_All.Scripts.Editor
 
             string path = $"{iconFolder}/icon_{formattedName.ToLowerInvariant()}.png";
 
-            var tex2d = GetIconTexture2D(modelPrefab);
-            byte[] bytes = tex2d.EncodeToPNG();
+            var tex2D = GetIconTexture2D(modelPrefab);
+            byte[] bytes = tex2D.EncodeToPNG();
             File.WriteAllBytes(path, bytes);
 
-            DestroyImmediate(tex2d);
+            DestroyImmediate(tex2D);
 
             AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceUpdate);
             var importer = (TextureImporter)AssetImporter.GetAtPath(path);
@@ -2043,7 +2103,7 @@ namespace Match_Them_All.Scripts.Editor
                 importer.SaveAndReimport();
             }
 
-            UnityEngine.Object[] assets = AssetDatabase.LoadAllAssetsAtPath(path);
+            Object[] assets = AssetDatabase.LoadAllAssetsAtPath(path);
             foreach (var asset in assets)
             {
                 if (asset is Sprite s) return s;
@@ -2057,7 +2117,7 @@ namespace Match_Them_All.Scripts.Editor
             if (string.IsNullOrWhiteSpace(newName)) return;
             newName = newName.Replace(" ", ""); // Remove spaces
             
-            if (!System.Text.RegularExpressions.Regex.IsMatch(newName, @"^[a-zA-Z_][a-zA-Z0-9_]*$"))
+            if (!Regex.IsMatch(newName, @"^[a-zA-Z_][a-zA-Z0-9_]*$"))
             {
                 EditorUtility.DisplayDialog("Invalid Name", "The type name must be a valid C# identifier (no spaces, special characters).", "OK");
                 return;
@@ -2133,7 +2193,7 @@ namespace Match_Them_All.Scripts.Editor
                 EditorGUILayout.HelpBox("GameSettings.asset could not be loaded from Resources. Please ensure it exists.", MessageType.Error);
                 if (GUILayout.Button("Create GameSettings Asset"))
                 {
-                    _gameSettings = CreateInstance<MatchThemAll.Scripts.Settings.GameSettingsSO>();
+                    _gameSettings = CreateInstance<GameSettingsSO>();
                     if (!Directory.Exists("Assets/Match Them All/Resources"))
                     {
                         Directory.CreateDirectory("Assets/Match Them All/Resources");
