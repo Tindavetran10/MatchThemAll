@@ -1,0 +1,177 @@
+{
+  "Core/DailyRewardManager.cs": {
+    "mtime": 1781978426.8436615,
+    "ast_hash": "5777e101a547695dea02535e0703f35e",
+    "semantic_hash": "5777e101a547695dea02535e0703f35e"
+  },
+  "Core/EventBus.cs": {
+    "mtime": 1782056309.4610837,
+    "ast_hash": "38e40c3ee9d96a15f2ad1469763438d7",
+    "semantic_hash": "38e40c3ee9d96a15f2ad1469763438d7"
+  },
+  "Core/GameEvents.cs": {
+    "mtime": 1781981134.627565,
+    "ast_hash": "376ccb2233d2fe6d678dc92f39904cd7",
+    "semantic_hash": "376ccb2233d2fe6d678dc92f39904cd7"
+  },
+  "Core/GameManager.cs": {
+    "mtime": 1781985156.8060138,
+    "ast_hash": "2efac342bffe646b3afbf46c297895d9",
+    "semantic_hash": "2efac342bffe646b3afbf46c297895d9"
+  },
+  "Core/InputManager.cs": {
+    "mtime": 1782055940.1866336,
+    "ast_hash": "4a1f3567df15fe068527ecce34557702",
+    "semantic_hash": "4a1f3567df15fe068527ecce34557702"
+  },
+  "Core/SceneLoader.cs": {
+    "mtime": 1782055959.6250615,
+    "ast_hash": "7742b46d0ed016373dc2196b777d5c94",
+    "semantic_hash": "7742b46d0ed016373dc2196b777d5c94"
+  },
+  "Core/SoundDataSO.cs": {
+    "mtime": 1779124057.934,
+    "ast_hash": "c4232a8749efc6c56c4a23cfb3c2f108",
+    "semantic_hash": "c4232a8749efc6c56c4a23cfb3c2f108"
+  },
+  "Core/SoundManager.cs": {
+    "mtime": 1781363990.6305015,
+    "ast_hash": "f435e58481a28a5d60ddce0bd0402863",
+    "semantic_hash": "f435e58481a28a5d60ddce0bd0402863"
+  },
+  "Editor/HierarchySectionHeader.cs": {
+    "mtime": 1779989360.1943655,
+    "ast_hash": "9719a8854e2c6b2916c0341bbac56331",
+    "semantic_hash": "9719a8854e2c6b2916c0341bbac56331"
+  },
+  "Editor/ItemReferenceOps.cs": {
+    "mtime": 1782574001.7969494,
+    "ast_hash": "ffe6bee8661456770080293b9a621577",
+    "semantic_hash": "ffe6bee8661456770080293b9a621577"
+  },
+  "Editor/LevelEditorWindow.cs": {
+    "mtime": 1782577198.8263686,
+    "ast_hash": "cf5fe1307f4855759bc330ec35c6c102",
+    "semantic_hash": "cf5fe1307f4855759bc330ec35c6c102"
+  },
+  "Enums/EGameState.cs": {
+    "mtime": 1781363337.8534095,
+    "ast_hash": "c571b30ab4a043fe570a51110b48783a",
+    "semantic_hash": "c571b30ab4a043fe570a51110b48783a"
+  },
+  "Enums/EItemName.cs": {
+    "mtime": 1782485382.0202332,
+    "ast_hash": "42247a044d53a8b6a803d8c4e9299c95",
+    "semantic_hash": "42247a044d53a8b6a803d8c4e9299c95"
+  },
+  "Extensions/TransformExtensions.cs": {
+    "mtime": 1780246604.3178976,
+    "ast_hash": "5f5bbbeae541255aad27fb0ed7019523",
+    "semantic_hash": "5f5bbbeae541255aad27fb0ed7019523"
+  },
+  "Gameplay/ComboManager.cs": {
+    "mtime": 1782051060.481814,
+    "ast_hash": "cfdbbdad2e2683a571ffff89476ad71c",
+    "semantic_hash": "cfdbbdad2e2683a571ffff89476ad71c"
+  },
+  "Gameplay/GoalManager.cs": {
+    "mtime": 1782056072.9286158,
+    "ast_hash": "cf89a1e861455af504aa518c99f06d1a",
+    "semantic_hash": "cf89a1e861455af504aa518c99f06d1a"
+  },
+  "Gameplay/HintManager.cs": {
+    "mtime": 1782056351.5902946,
+    "ast_hash": "29063d1dc55e6889bad8f0ba49fcaa99",
+    "semantic_hash": "29063d1dc55e6889bad8f0ba49fcaa99"
+  },
+  "Gameplay/Item.cs": {
+    "mtime": 1782056389.0358973,
+    "ast_hash": "1e80ae6f4127e0cb2d5647bbe0a060c8",
+    "semantic_hash": "1e80ae6f4127e0cb2d5647bbe0a060c8"
+  },
+  "Gameplay/ItemPlacer.cs": {
+    "mtime": 1782488478.755042,
+    "ast_hash": "8573556182c3dba23c2bcbddc49df7d2",
+    "semantic_hash": "8573556182c3dba23c2bcbddc49df7d2"
+  },
+  "Gameplay/ItemSpot.cs": {
+    "mtime": 1782056620.4874074,
+    "ast_hash": "41747c933815f9ee3a29bc858bff87e4",
+    "semantic_hash": "41747c933815f9ee3a29bc858bff87e4"
+  },
+  "Gameplay/ItemSpotLayout.cs": {
+    "mtime": 1781455857.6838367,
+    "ast_hash": "536e1d34bbebbeeac838fbefeca05be1",
+    "semantic_hash": "536e1d34bbebbeeac838fbefeca05be1"
+  },
+  "Gameplay/ItemSpotManager.cs": {
+    "mtime": 1782056531.306134,
+    "ast_hash": "cd782876332e910cc3bd6311b7cffd86",
+    "semantic_hash": "cd782876332e910cc3bd6311b7cffd86"
+  },
+  "Gameplay/MatchSystem.cs": {
+    "mtime": 1782057025.8338783,
+    "ast_hash": "08b1648a105dae74d292eeb8012b4101",
+    "semantic_hash": "08b1648a105dae74d292eeb8012b4101"
+  },
+  "Gameplay/MergeManager.cs": {
+    "mtime": 1782056620.4999208,
+    "ast_hash": "458dd9aacc32180adb0bca333a2c7fba",
+    "semantic_hash": "458dd9aacc32180adb0bca333a2c7fba"
+  },
+  "Gameplay/TimerManager.cs": {
+    "mtime": 1781980807.453285,
+    "ast_hash": "d7aad265f5f9c5beb615afedd41eb4af",
+    "semantic_hash": "d7aad265f5f9c5beb615afedd41eb4af"
+  },
+  "Pixelate/PixelizeController.cs": {
+    "mtime": 1781980776.2329817,
+    "ast_hash": "7a5a08acdd10739d429b4b256ce9fa81",
+    "semantic_hash": "7a5a08acdd10739d429b4b256ce9fa81"
+  },
+  "Pixelate/PixelizeFeature.cs": {
+    "mtime": 1779558304.8726628,
+    "ast_hash": "3777ac34bbdca64d988d122ff940aa81",
+    "semantic_hash": "3777ac34bbdca64d988d122ff940aa81"
+  },
+  "Pixelate/PixelizePass.cs": {
+    "mtime": 1780738386.1755853,
+    "ast_hash": "2dfefaba2c2276959de3f47aeb1fbd6c",
+    "semantic_hash": "2dfefaba2c2276959de3f47aeb1fbd6c"
+  },
+  "Save System/PlayerData.cs": {
+    "mtime": 1781976834.2655482,
+    "ast_hash": "17272ea3a59842a8436b7afc8d0868b5",
+    "semantic_hash": "17272ea3a59842a8436b7afc8d0868b5"
+  },
+  "Save System/SaveManager.cs": {
+    "mtime": 1781978330.8977222,
+    "ast_hash": "ed565eda922c6ec92494f3a6e4e0f0d8",
+    "semantic_hash": "ed565eda922c6ec92494f3a6e4e0f0d8"
+  },
+  "Save System/SaveManagerBootstrapper.cs": {
+    "mtime": 1781977923.4072976,
+    "ast_hash": "70439bbf6d8d6957c3bb9dfe1c3351b4",
+    "semantic_hash": "70439bbf6d8d6957c3bb9dfe1c3351b4"
+  },
+  "Settings/GameSettingsSO.cs": {
+    "mtime": 1781903164.3452144,
+    "ast_hash": "467bcb7e0fff59bed9f82dce6ba7cf82",
+    "semantic_hash": "467bcb7e0fff59bed9f82dce6ba7cf82"
+  },
+  "Tutorial/TutorialManager.cs": {
+    "mtime": 1782051236.881194,
+    "ast_hash": "eab3066b96c931eef766f11fb5eb2814",
+    "semantic_hash": "eab3066b96c931eef766f11fb5eb2814"
+  },
+  "Tutorial/TutorialStep.cs": {
+    "mtime": 1781885756.384192,
+    "ast_hash": "ffd795dfaf4679d417bad206fe8869ce",
+    "semantic_hash": "ffd795dfaf4679d417bad206fe8869ce"
+  },
+  "Utilities/StaticEventCleaner.cs": {
+    "mtime": 1781982706.1306667,
+    "ast_hash": "41f678e61990c5ad351ea6e932aefe12",
+    "semantic_hash": "41f678e61990c5ad351ea6e932aefe12"
+  }
+}

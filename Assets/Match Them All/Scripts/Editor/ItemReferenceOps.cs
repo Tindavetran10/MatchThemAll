@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using MatchThemAll.Scripts;
 using UnityEditor;
 using UnityEngine;
+using ZLinq;
 
 namespace Match_Them_All.Scripts.Editor
 {
@@ -16,25 +17,18 @@ namespace Match_Them_All.Scripts.Editor
         private const string ItemPrefabFolder = "Assets/Match Them All/_START_HERE/Items";
 
         /// <summary>Load every LevelDataSO asset in the project.</summary>
-        internal static List<LevelDataSO> FindAllLevels()
-        {
-            var levels = new List<LevelDataSO>();
-            foreach (var g in AssetDatabase.FindAssets("t:LevelDataSO"))
-            {
-                var so = AssetDatabase.LoadAssetAtPath<LevelDataSO>(AssetDatabase.GUIDToAssetPath(g));
-                if (so != null) levels.Add(so);
-            }
-            return levels;
-        }
+        internal static List<LevelDataSO> FindAllLevels() => AssetDatabase.FindAssets("t:LevelDataSO")
+            .AsValueEnumerable()
+            .Select(g => AssetDatabase.LoadAssetAtPath<LevelDataSO>(AssetDatabase.GUIDToAssetPath(g)))
+            .Where(so => so != null).ToList();
 
         /// <summary>Every (level, index) where itemData[index].itemPrefab == item.</summary>
         internal static List<(LevelDataSO level, int index)> FindReferencingLevels(Item item)
         {
             var result = new List<(LevelDataSO, int)>();
-            if (item == null) return result;
-            foreach (var level in FindAllLevels())
+            if (!item) return result;
+            foreach (var level in FindAllLevels().AsValueEnumerable().Where(level => level.itemData != null))
             {
-                if (level.itemData == null) continue;
                 for (int i = 0; i < level.itemData.Count; i++)
                     if (level.itemData[i].itemPrefab == item)
                         result.Add((level, i));
@@ -52,10 +46,9 @@ namespace Match_Them_All.Scripts.Editor
             List<(LevelDataSO level, int index, ItemLevelData entry)> capture = null)
         {
             int removed = 0;
-            if (item == null) return removed;
-            foreach (var level in FindAllLevels())
+            if (!item) return removed;
+            foreach (var level in FindAllLevels().AsValueEnumerable().Where(level => level.itemData != null))
             {
-                if (level.itemData == null) continue;
                 // high -> low so removals don't shift the indices we still need to read
                 for (int i = level.itemData.Count - 1; i >= 0; i--)
                 {
@@ -74,9 +67,8 @@ namespace Match_Them_All.Scripts.Editor
         internal static List<(LevelDataSO level, int index, string levelName)> FindBrokenReferences()
         {
             var result = new List<(LevelDataSO, int, string)>();
-            foreach (var level in FindAllLevels())
+            foreach (var level in FindAllLevels().AsValueEnumerable().Where(level => level.itemData != null))
             {
-                if (level.itemData == null) continue;
                 for (int i = 0; i < level.itemData.Count; i++)
                     if (level.itemData[i].itemPrefab == null)
                         result.Add((level, i, level.name));
@@ -88,9 +80,8 @@ namespace Match_Them_All.Scripts.Editor
         internal static int RemoveBrokenReferences(bool registerUndo)
         {
             int removed = 0;
-            foreach (var level in FindAllLevels())
+            foreach (var level in FindAllLevels().AsValueEnumerable().Where(level => level.itemData != null))
             {
-                if (level.itemData == null) continue;
                 for (int i = level.itemData.Count - 1; i >= 0; i--)
                 {
                     if (level.itemData[i].itemPrefab != null) continue;
@@ -109,17 +100,15 @@ namespace Match_Them_All.Scripts.Editor
         /// </summary>
         internal static bool IsIconSafeToDelete(Item item)
         {
-            if (item == null || item.Icon == null) return false;
+            if (!item || !item.Icon) return false;
             string iconPath = AssetDatabase.GetAssetPath(item.Icon);
             if (string.IsNullOrEmpty(iconPath) || !iconPath.StartsWith(IconsFolder)) return false;
 
-            int users = 0;
-            foreach (var g in AssetDatabase.FindAssets("t:Prefab", new[] { ItemPrefabFolder }))
-            {
-                var go = AssetDatabase.LoadAssetAtPath<GameObject>(AssetDatabase.GUIDToAssetPath(g));
-                var it = go != null ? go.GetComponent<Item>() : null;
-                if (it != null && it.Icon == item.Icon) users++;
-            }
+            int users = AssetDatabase.FindAssets("t:Prefab", new[] { ItemPrefabFolder })
+                .AsValueEnumerable()
+                .Select(g => AssetDatabase.LoadAssetAtPath<GameObject>(AssetDatabase.GUIDToAssetPath(g)))
+                .Select(go => go != null ? go.GetComponent<Item>() : null)
+                .Count(it => it != null && it.Icon == item.Icon);
             return users <= 1;
         }
     }
