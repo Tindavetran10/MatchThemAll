@@ -1119,7 +1119,6 @@ namespace Match_Them_All.Scripts.Editor
             GUILayout.EndHorizontal();
             GUILayout.FlexibleSpace();
         }
-        #endregion
 
         #region Item Library Section
         private Vector2 _libraryScroll;
