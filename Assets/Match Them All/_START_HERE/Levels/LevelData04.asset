@@ -10,22 +10,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6555fd2a693358d43a48520c3eaaa4b4, type: 3}
-  m_Name: LevelData01
+  m_Name: LevelData04
   m_EditorClassIdentifier: 
   spotCount: 7
   duration: 60
-  seed: 32260
+  seed: 93409
   itemData:
-  - itemPrefab: {fileID: 1645834593596905807, guid: a9c6039bef1abd749b9ece49b808d98d, type: 3}
+  - itemPrefab: {fileID: 6712440319158832157, guid: 700e992717e541549a1dd9f5ff3b009e, type: 3}
     isGoal: 0
-    multiplier: 5
+    multiplier: 4
     amount: 18
-  - itemPrefab: {fileID: 4953572946506578716, guid: 242e6fe3d88a5c8468a35e54475af66f, type: 3}
+  - itemPrefab: {fileID: 8007656322365431951, guid: 1f154021cb988a94ba661692b3d8ed63, type: 3}
     isGoal: 1
     multiplier: 5
-    amount: 30
-  - itemPrefab: {fileID: 8590173119831743083, guid: e77b5af6be61da04dae423f6cb36d5bb, type: 3}
-    isGoal: 0
-    multiplier: 5
-    amount: 18
+    amount: 24
   tutorialSteps: []
