@@ -4,6 +4,8 @@ using System.IO;
 using System.Linq;
 using MatchThemAll.Scripts;
 using UnityEditor;
+using UnityEditor.AddressableAssets;
+using UnityEditor.AddressableAssets.Settings;
 using UnityEngine;
 
 namespace Match_Them_All.Scripts.Editor
@@ -1601,6 +1603,27 @@ namespace Match_Them_All.Scripts.Editor
 
             AssetDatabase.CreateAsset(newLevel, path);
             AssetDatabase.SaveAssets();
+
+            // Automate Addressable configuration
+            var settings = AddressableAssetSettingsDefaultObject.Settings;
+            if (settings != null)
+            {
+                var guid = AssetDatabase.AssetPathToGUID(path);
+                var entry = settings.CreateOrMoveEntry(guid, settings.DefaultGroup);
+                entry.address = safeName;
+                
+                // Add the LevelData label so LevelSelectManager can discover it
+                settings.AddLabel("LevelData");
+                entry.SetLabel("LevelData", true, true);
+                
+                settings.SetDirty(AddressableAssetSettings.ModificationEvent.EntryMoved, entry, true);
+                AssetDatabase.SaveAssets();
+                Debug.Log($"[Template Editor] Automatically added {safeName} to Addressable group '{settings.DefaultGroup.Name}' with label 'LevelData'.");
+            }
+            else
+            {
+                Debug.LogWarning("[Template Editor] AddressableAssetSettings not found. Could not automatically mark level as Addressable.");
+            }
 
             _newLevelName = "";
             _showNewLevelField = false;
