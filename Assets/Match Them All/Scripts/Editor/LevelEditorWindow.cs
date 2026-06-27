@@ -45,6 +45,9 @@ namespace Match_Them_All.Scripts.Editor
         private bool _isAddingNewItemType;
         private string _newItemTypeName = "";
         private bool _autoGenerateIcon = true;
+
+        // Broken item-reference validator state (Items tab)
+        private List<(LevelDataSO level, int index, string levelName)> _brokenRefs;
         
         // Icon Settings State
         private Vector3 _iconRotation = new Vector3(0f, 0f, 90f);
@@ -1220,8 +1223,9 @@ namespace Match_Them_All.Scripts.Editor
             
             GUILayout.Space(12);
             DrawTrashLibrarySection(panelWidth);
+            DrawItemReferenceValidator();
         }
-        
+
         private Vector2 _trashScroll;
 
         private void DrawTrashLibrarySection(float panelWidth)
@@ -1306,6 +1310,42 @@ namespace Match_Them_All.Scripts.Editor
             {
                 HardDeleteItem(pendingPermanentDelete.GetComponent<Item>());
                 GUIUtility.ExitGUI();
+            }
+        }
+
+        private void DrawItemReferenceValidator()
+        {
+            GUILayout.Space(12);
+            GUILayout.Label("Item Reference Health", _subHeaderStyle);
+            GUILayout.Space(4);
+
+            if (GUILayout.Button("Check item references", GUILayout.Width(180)))
+                _brokenRefs = ItemReferenceOps.FindBrokenReferences();
+
+            if (_brokenRefs == null) return;
+
+            if (_brokenRefs.Count == 0)
+            {
+                GUI.color = AccentGreen;
+                GUILayout.Label("✓ No broken item references.", EditorStyles.wordWrappedLabel);
+                GUI.color = Color.white;
+                return;
+            }
+
+            GUI.color = AccentOrange;
+            GUILayout.Label($"⚠ {_brokenRefs.Count} broken item reference(s) found:", EditorStyles.wordWrappedLabel);
+            GUI.color = Color.white;
+            foreach (var (level, index, levelName) in _brokenRefs)
+                GUILayout.Label($"  • {levelName} → slot #{index}: missing item", EditorStyles.miniLabel);
+
+            GUILayout.Space(4);
+            if (GUILayout.Button("Remove all broken entries", GUILayout.Width(200)))
+            {
+                int n = ItemReferenceOps.RemoveBrokenReferences(registerUndo: true);
+                AssetDatabase.SaveAssets();
+                LoadAll();
+                _brokenRefs = ItemReferenceOps.FindBrokenReferences();
+                Debug.Log($"[Template Editor] Removed {n} broken item reference(s).");
             }
         }
         #endregion
