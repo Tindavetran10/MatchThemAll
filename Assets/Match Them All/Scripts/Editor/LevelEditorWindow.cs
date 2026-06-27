@@ -802,10 +802,8 @@ namespace Match_Them_All.Scripts.Editor
                 GUILayout.Space(6);
                 GUILayout.BeginVertical(GUILayout.Height(38)); 
                 GUILayout.Space(4); // (38-30)/2 = 4px padding
-                var preview = entry.itemPrefab != null
-                    ? AssetPreview.GetAssetPreview(entry.itemPrefab.gameObject) : null;
-                if (preview)
-                    GUILayout.Label(preview, GUILayout.Width(iconW - 6), GUILayout.Height(30));
+                if (entry.itemPrefab != null)
+                    GUILayout.Label(GetItemIcon(entry.itemPrefab.gameObject), GUILayout.Width(iconW - 6), GUILayout.Height(30));
                 else
                     GUILayout.Label("◉", GUILayout.Width(iconW - 6), GUILayout.Height(30));
                 GUILayout.EndVertical();
@@ -1172,17 +1170,8 @@ namespace Match_Them_All.Scripts.Editor
 
                 GUILayout.BeginVertical(GUILayout.Width(70), GUILayout.Height(90));
                 
-                Texture tex = Texture2D.blackTexture;
                 var itemComp = prefab.GetComponent<Item>();
-                if (itemComp != null && itemComp.Icon != null)
-                {
-                    tex = itemComp.Icon.texture;
-                }
-                else
-                {
-                    var preview = AssetPreview.GetAssetPreview(prefab);
-                    if (preview != null) tex = preview;
-                }
+                Texture tex = GetItemIcon(prefab);
                 var rect = GUILayoutUtility.GetRect(64, 64);
                 var deleteRect = new Rect(rect.xMax - 18, rect.yMin + 2, 16, 16);
                 
@@ -1262,8 +1251,7 @@ namespace Match_Them_All.Scripts.Editor
 
                 GUILayout.BeginVertical(GUILayout.Width(70), GUILayout.Height(90));
                 
-                var preview = AssetPreview.GetAssetPreview(prefab);
-                Texture2D tex = preview != null ? preview : Texture2D.blackTexture;
+                Texture tex = GetItemIcon(prefab);
                 
                 var rect = GUILayoutUtility.GetRect(64, 64);
                 var restoreRect = new Rect(rect.xMax - 18, rect.yMin + 2, 16, 16);
@@ -1296,6 +1284,15 @@ namespace Match_Them_All.Scripts.Editor
             }
         }
         #endregion
+
+        /// <summary>Resolved icon texture for an item: its generated icon, else the prefab preview, else black.</summary>
+        private Texture GetItemIcon(GameObject prefab)
+        {
+            var itemComp = prefab != null ? prefab.GetComponent<Item>() : null;
+            if (itemComp != null && itemComp.Icon != null) return itemComp.Icon.texture;
+            var preview = AssetPreview.GetAssetPreview(prefab);
+            return preview != null ? preview : Texture2D.blackTexture;
+        }
 
         private void SoftDeleteItem(GameObject prefab)
         {
