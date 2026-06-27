@@ -1192,7 +1192,17 @@ namespace Match_Them_All.Scripts.Editor
                     pendingDeletePrefab = prefab;
                 }
                 GUI.color = Color.white;
-                
+
+                if (e.type == EventType.ContextClick && rect.Contains(e.mousePosition))
+                {
+                    var menu = new GenericMenu();
+                    var capturedItem = itemComp; // Item on this prefab, for the permanent-delete closure
+                    menu.AddItem(new GUIContent("Move to Trash"), false, () => SoftDeleteItem(prefab));
+                    menu.AddItem(new GUIContent("Delete Permanently…"), false, () => HardDeleteItem(capturedItem));
+                    menu.ShowAsContext();
+                    e.Use();
+                }
+
                 GUILayout.Label(prefab.name, _iconCardLabelStyle, GUILayout.Width(64));
                 
                 GUILayout.EndVertical();
@@ -1238,6 +1248,7 @@ namespace Match_Them_All.Scripts.Editor
 
             int i = 0;
             var pendingRestorePrefab = (GameObject)null;
+            var pendingPermanentDelete = (GameObject)null;
 
             GUILayout.BeginHorizontal();
             foreach (var prefab in _trashPrefabs)
@@ -1267,7 +1278,15 @@ namespace Match_Them_All.Scripts.Editor
                     pendingRestorePrefab = prefab;
                 }
                 GUI.color = Color.white;
-                
+
+                var permRect = new Rect(rect.xMin + 2, rect.yMin + 2, 16, 16);
+                GUI.color = AccentRed;
+                if (GUI.Button(permRect, "⌫", _iconCardSmallButtonStyle))
+                {
+                    pendingPermanentDelete = prefab;
+                }
+                GUI.color = Color.white;
+
                 GUILayout.Label(prefab.name, _iconCardLabelStyle, GUILayout.Width(64));
                 
                 GUILayout.EndVertical();
@@ -1280,6 +1299,12 @@ namespace Match_Them_All.Scripts.Editor
             if (pendingRestorePrefab != null)
             {
                 RestoreFromTrash(pendingRestorePrefab);
+                GUIUtility.ExitGUI();
+            }
+
+            if (pendingPermanentDelete != null)
+            {
+                HardDeleteItem(pendingPermanentDelete.GetComponent<Item>());
                 GUIUtility.ExitGUI();
             }
         }
