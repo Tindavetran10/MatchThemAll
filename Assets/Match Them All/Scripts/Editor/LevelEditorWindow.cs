@@ -1366,6 +1366,62 @@ namespace Match_Them_All.Scripts.Editor
             Repaint();
         }
 
+        /// <summary>
+        /// Permanently delete an item: removes it from all levels, deletes its icon (only if it is the
+        /// item's own generated icon and unused elsewhere), deletes the prefab, and drops any trash-undo
+        /// record so it cannot be restored. Irreversible — gated by a confirm dialog. No Undo by design;
+        /// use Move to Trash (SoftDeleteItem) for a reversible delete.
+        /// </summary>
+        private void HardDeleteItem(Item item)
+        {
+            if (item == null) { Debug.LogWarning("[Template Editor] HardDeleteItem: null item."); return; }
+
+            string prefabPath = AssetDatabase.GetAssetPath(item.gameObject);
+            if (string.IsNullOrEmpty(prefabPath))
+            {
+                Debug.LogError($"[Template Editor] HardDeleteItem: could not resolve prefab path for '{item.name}'.");
+                return;
+            }
+
+            var refs = ItemReferenceOps.FindReferencingLevels(item);
+            bool iconSafe = ItemReferenceOps.IsIconSafeToDelete(item);
+            string iconNote = iconSafe ? ", its icon" : "";
+            string msg = $"Permanently delete '{item.name}'?\n\n" +
+                         $"This removes the prefab{iconNote} and {refs.Count} level reference(s).\n" +
+                         "This CANNOT be undone. (Use Move to Trash if you want it reversible.)";
+            if (!EditorUtility.DisplayDialog("Delete Permanently", msg, "Delete permanently", "Cancel"))
+                return;
+
+            try
+            {
+                // 1. Scrub level references (no Undo — the whole operation is irreversible by design).
+                ItemReferenceOps.RemoveFromLevels(item, registerUndo: false);
+
+                // 2. Delete the icon only if it's this item's own generated icon and unused elsewhere.
+                if (iconSafe && item.Icon != null)
+                {
+                    string iconPath = AssetDatabase.GetAssetPath(item.Icon);
+                    if (!string.IsNullOrEmpty(iconPath))
+                        AssetDatabase.DeleteAsset(iconPath);
+                }
+
+                // 3. Delete the prefab (works whether it is live or already in a Trash folder).
+                AssetDatabase.DeleteAsset(prefabPath);
+
+                // 4. Drop any trash-undo record so the item cannot be restored.
+                _deletedRecords.RemoveAll(r => r.originalPrefabPath == prefabPath || r.trashPrefabPath == prefabPath);
+                SaveTrashUndo();
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"[Template Editor] HardDeleteItem failed for '{item.name}': {e}");
+            }
+
+            AssetDatabase.SaveAssets();
+            LoadAll();
+            Repaint();
+        }
+
         private void RestoreFromTrash(GameObject trashPrefab)
         {
             string trashPrefabPath = AssetDatabase.GetAssetPath(trashPrefab);
