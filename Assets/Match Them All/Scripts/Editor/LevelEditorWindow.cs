@@ -1297,17 +1297,7 @@ namespace Match_Them_All.Scripts.Editor
         private void SoftDeleteItem(GameObject prefab)
         {
             var itemComp = prefab.GetComponent<Item>();
-            int usedCount = 0;
-            var affectedLevels = new List<LevelDataSO>();
-
-            foreach (var level in _levels)
-            {
-                if (level.itemData != null && level.itemData.Any(i => i.itemPrefab == itemComp))
-                {
-                    usedCount++;
-                    affectedLevels.Add(level);
-                }
-            }
+            int usedCount = ItemReferenceOps.FindReferencingLevels(itemComp).Count;
 
             string warning = $"Are you sure you want to delete '{prefab.name}'? It will be moved to the Trash folder.";
             if (usedCount > 0)
@@ -1331,21 +1321,19 @@ namespace Match_Them_All.Scripts.Editor
                 trashPrefabPath = AssetDatabase.GenerateUniqueAssetPath($"{trashFolder}/{prefab.name}.prefab"),
             };
 
-            // Remove from levels, capturing each entry's primitive state (not the Item ref) for restore
-            foreach (var level in affectedLevels)
+            // Remove from levels via the shared helper, capturing each removed entry for restore
+            var capture = new List<(LevelDataSO level, int index, ItemLevelData entry)>();
+            ItemReferenceOps.RemoveFromLevels(itemComp, registerUndo: true, capture: capture);
+            foreach (var (level, index, entry) in capture)
             {
-                Undo.RecordObject(level, "Remove Deleted Item");
-                var entry = level.itemData.First(i => i.itemPrefab == itemComp);
                 record.removedFromLevels.Add(new RemovedLevelEntry
                 {
                     levelGuid = AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(level)),
-                    index = level.itemData.IndexOf(entry),
+                    index = index,
                     isGoal = entry.isGoal,
                     multiplier = entry.multiplier,
                     amount = entry.amount,
                 });
-                level.itemData.Remove(entry);
-                EditorUtility.SetDirty(level);
             }
 
             // Move Prefab
@@ -1383,10 +1371,16 @@ namespace Match_Them_All.Scripts.Editor
             string trashPrefabPath = AssetDatabase.GetAssetPath(trashPrefab);
             string originalPrefabPath = $"Assets/Match Them All/_START_HERE/Items/{trashPrefab.name}.prefab";
 
-            string originalIconPath = $"Assets/Match Them All/Sprites/Icons/icon_{trashPrefab.name.ToLowerInvariant()}.png";
-            string trashIconPath = $"Assets/Match Them All/Sprites/Icons/Trash/icon_{trashPrefab.name.ToLowerInvariant()}.png";
+            var record = _deletedRecords.FirstOrDefault(r => r.trashPrefabPath == trashPrefabPath);
 
-            // Move Icon back (secondary: warn but continue on failure)
+            // Use the record's captured icon paths (robust); fall back to the name convention if no record.
+            string trashIconPath = record != null && !string.IsNullOrEmpty(record.trashIconPath)
+                ? record.trashIconPath
+                : $"Assets/Match Them All/Sprites/Icons/Trash/icon_{trashPrefab.name.ToLowerInvariant()}.png";
+            string originalIconPath = record != null && !string.IsNullOrEmpty(record.originalIconPath)
+                ? record.originalIconPath
+                : $"Assets/Match Them All/Sprites/Icons/icon_{trashPrefab.name.ToLowerInvariant()}.png";
+
             if (AssetDatabase.LoadMainAssetAtPath(trashIconPath) != null)
             {
                 string iconError = AssetDatabase.MoveAsset(trashIconPath, originalIconPath);
@@ -1408,7 +1402,6 @@ namespace Match_Them_All.Scripts.Editor
 
             // Re-add to levels from the stored undo record (if any). The Item prefab reference is
             // re-resolved from the restored prefab, never trusted from the captured record.
-            var record = _deletedRecords.FirstOrDefault(r => r.trashPrefabPath == trashPrefabPath);
             if (record != null)
             {
                 var restoredPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(originalPrefabPath);
