@@ -1,4 +1,6 @@
 using MatchThemAll.Scripts.SaveSystem;
+using MatchThemAll.Scripts.Settings;
+using MatchThemAll.Scripts.Utilities;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -13,10 +15,7 @@ namespace MatchThemAll.Scripts.UI
         [SerializeField] private Button payCoinsButton;
         [SerializeField] private Button giveUpButton;
         [SerializeField] private TextMeshProUGUI coinsCostText;
-        
-        [Header("Settings")]
-        [SerializeField] private int continueCost = 100;
-        [SerializeField] private int timeBonusSeconds = 30;
+        [SerializeField] private GameSettingsSO gameSettings;
 
         [Header("Transition")]
         [Tooltip("Should match the animationDuration on the UIAnimator component.")]
@@ -51,10 +50,20 @@ namespace MatchThemAll.Scripts.UI
             if (!continuePanel) return;
             continuePanel.SetActive(true); // UIAnimator.OnEnable() handles the pop-in
 
-            if (coinsCostText)
-                coinsCostText.text = continueCost.ToString();
+            int cost = gameSettings != null ? gameSettings.continueCoinCost : 900;
 
-            payCoinsButton.interactable = SaveManager.GetCoins() >= continueCost;
+            if (coinsCostText)
+                coinsCostText.text = cost.ToString();
+
+            bool hasCoins = SaveManager.GetCoins() >= cost;
+
+            // Prioritize Coins. If they don't have enough, show Ads (if allowed by settings).
+            bool allowAds = gameSettings == null || gameSettings.allowAdContinue;
+            
+            payCoinsButton.gameObject.SetActive(hasCoins);
+            watchAdButton.gameObject.SetActive(!hasCoins && allowAds);
+
+            payCoinsButton.interactable = true;
             giveUpButton.interactable = true;
             watchAdButton.interactable = true;
         }
@@ -69,19 +78,32 @@ namespace MatchThemAll.Scripts.UI
 
         private void OnWatchAdClicked()
         {
-            // TODO: Integrate actual Ads SDK (Unity Ads, AppLovin, etc.)
-            Debug.Log("[ContinuePanel] Simulating successful ad watch!");
-            ContinueGame();
+            // Using our AdManagerMock. Template users will replace the mock logic with their real SDK.
+            if (AdManagerMock.Instance != null)
+            {
+                AdManagerMock.Instance.ShowRewardedAd(
+                    onRewardEarned: () => ContinueGame(),
+                    onFailed: () => Debug.LogWarning("[ContinuePanel] Ad failed or skipped.")
+                );
+            }
+            else
+            {
+                Debug.LogWarning("[ContinuePanel] AdManagerMock not found in scene! " +
+                    "Place it (or your real Ad SDK) in the bootstrap scene.");
+                // Do NOT grant a free continue — no SDK found means no ad, means no reward.
+            }
         }
 
         private void OnPayCoinsClicked()
         {
-            if (SaveManager.SpendCoins(continueCost))
+            int cost = gameSettings != null ? gameSettings.continueCoinCost : 900;
+
+            if (SaveManager.SpendCoins(cost))
             {
-                Debug.Log($"[ContinuePanel] Spent {continueCost} coins. Remaining: {SaveManager.GetCoins()}");
+                Debug.Log($"[ContinuePanel] Spent {cost} coins. Remaining: {SaveManager.GetCoins()}");
                 
                 if (FloatingTextSpawner.Instance) 
-                    FloatingTextSpawner.Instance.Spawn($"-{continueCost}", payCoinsButton.transform.position, Color.red);
+                    FloatingTextSpawner.Instance.Spawn($"-{cost}", payCoinsButton.transform.position, Color.red);
 
                 ContinueGame();
             }
@@ -101,7 +123,9 @@ namespace MatchThemAll.Scripts.UI
 
         private void ContinueGame()
         {
-            TimerManager.Instance.AddTime(timeBonusSeconds);
+            int timeBonus = gameSettings != null ? gameSettings.continueTimeBonus : 30;
+
+            TimerManager.Instance.AddTime(timeBonus);
             GameManager.Instance.SetGameState(EGameState.GAME);
         }
     }

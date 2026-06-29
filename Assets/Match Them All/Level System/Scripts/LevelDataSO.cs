@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using NaughtyAttributes;
 using UnityEngine;
 
 namespace MatchThemAll.Scripts
@@ -27,7 +28,26 @@ namespace MatchThemAll.Scripts
         [Header("Tutorial")]
         [SerializeField] public List<Tutorial.TutorialStep> tutorialSteps = new();
 
-        /// <summary>Returns only the entries marked as goals.</summary>
+        public enum RewardCalculationMode { FixedValue, BasePlusPerStar }
+
+        [Header("Rewards & Monetization")]
+        [Tooltip("How coins are rewarded. FixedValue ignores stars, BasePlusPerStar adds coins for each star earned.")]
+        public RewardCalculationMode rewardMode = RewardCalculationMode.BasePlusPerStar;
+
+        [Tooltip("Base amount of coins awarded for completing this level (or the fixed amount if using FixedValue).")]
+        public int baseCoinReward = 50;
+
+        [ShowIf(nameof(rewardMode), RewardCalculationMode.BasePlusPerStar)]
+        [Tooltip("Amount of bonus coins awarded per star earned (only used in BasePlusPerStar mode).")]
+        public int coinsPerStar = 10;
+
+        [Header("Star System Thresholds")]
+        [Tooltip("Time remaining (in seconds) required to earn 3 stars. Template users can customize how this is evaluated in WinPanelManager.cs")]
+        public int timeFor3Stars = 40;
+        
+        [Tooltip("Time remaining (in seconds) required to earn 2 stars.")]
+        public int timeFor2Stars = 20;
+
         /// <summary>
         /// Snaps every item's amount to the nearest multiple of 3.
         /// Unity calls this automatically whenever a value changes in the Inspector.

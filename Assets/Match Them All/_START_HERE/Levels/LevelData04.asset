@@ -19,9 +19,14 @@ MonoBehaviour:
   - itemPrefab: {fileID: 6712440319158832157, guid: 700e992717e541549a1dd9f5ff3b009e, type: 3}
     isGoal: 0
     multiplier: 4
-    amount: 18
+    amount: 6
   - itemPrefab: {fileID: 8007656322365431951, guid: 1f154021cb988a94ba661692b3d8ed63, type: 3}
     isGoal: 1
     multiplier: 5
-    amount: 24
+    amount: 6
   tutorialSteps: []
+  rewardMode: 1
+  baseCoinReward: 50
+  coinsPerStar: 10
+  timeFor3Stars: 40
+  timeFor2Stars: 20

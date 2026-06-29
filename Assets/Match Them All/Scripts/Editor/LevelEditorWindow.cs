@@ -738,6 +738,79 @@ namespace Match_Them_All.Scripts.Editor
 
             GUILayout.Space(8);
 
+            // ─ Rewards Card ─
+            BeginCard();
+            GUILayout.Label("Rewards & Monetization", _subHeaderStyle);
+            GUILayout.Space(6);
+            EditorGUI.BeginChangeCheck();
+
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Reward Mode", GUILayout.Width(labelW));
+            var newRewardMode = (LevelDataSO.RewardCalculationMode)EditorGUILayout.EnumPopup(_selectedLevel.rewardMode);
+            if (newRewardMode != _selectedLevel.rewardMode)
+            {
+                Undo.RecordObject(_selectedLevel, "Set Reward Mode");
+                _selectedLevel.rewardMode = newRewardMode;
+                MarkDirty();
+            }
+            GUILayout.EndHorizontal();
+
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Base Coin Reward", GUILayout.Width(labelW));
+            var newBaseReward = EditorGUILayout.IntField(_selectedLevel.baseCoinReward);
+            if (newBaseReward != _selectedLevel.baseCoinReward)
+            {
+                Undo.RecordObject(_selectedLevel, "Set Base Coin Reward");
+                _selectedLevel.baseCoinReward = newBaseReward;
+                MarkDirty();
+            }
+            GUILayout.EndHorizontal();
+
+            if (_selectedLevel.rewardMode == LevelDataSO.RewardCalculationMode.BasePlusPerStar)
+            {
+                GUILayout.BeginHorizontal();
+                GUILayout.Label("Coins Per Star", GUILayout.Width(labelW));
+                var newCoinsPerStar = EditorGUILayout.IntField(_selectedLevel.coinsPerStar);
+                if (newCoinsPerStar != _selectedLevel.coinsPerStar)
+                {
+                    Undo.RecordObject(_selectedLevel, "Set Coins Per Star");
+                    _selectedLevel.coinsPerStar = newCoinsPerStar;
+                    MarkDirty();
+                }
+                GUILayout.EndHorizontal();
+            }
+
+            GUILayout.Space(8);
+            GUILayout.Label("Star System Thresholds", _subHeaderStyle);
+            GUILayout.Space(6);
+
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Time For 3 Stars", GUILayout.Width(labelW));
+            var newTime3 = EditorGUILayout.IntField(_selectedLevel.timeFor3Stars);
+            if (newTime3 != _selectedLevel.timeFor3Stars)
+            {
+                Undo.RecordObject(_selectedLevel, "Set Time For 3 Stars");
+                _selectedLevel.timeFor3Stars = newTime3;
+                MarkDirty();
+            }
+            GUILayout.EndHorizontal();
+
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Time For 2 Stars", GUILayout.Width(labelW));
+            var newTime2 = EditorGUILayout.IntField(_selectedLevel.timeFor2Stars);
+            if (newTime2 != _selectedLevel.timeFor2Stars)
+            {
+                Undo.RecordObject(_selectedLevel, "Set Time For 2 Stars");
+                _selectedLevel.timeFor2Stars = newTime2;
+                MarkDirty();
+            }
+            GUILayout.EndHorizontal();
+
+            EditorGUI.EndChangeCheck();
+            EndCard();
+
+            GUILayout.Space(8);
+
             // ─ Item List Card ─
             BeginCard();
             DrawItemsSection(panelWidth);
