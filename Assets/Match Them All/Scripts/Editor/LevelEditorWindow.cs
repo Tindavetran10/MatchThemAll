@@ -112,7 +112,8 @@ namespace Match_Them_All.Scripts.Editor
         private UnityEditor.Editor _gameSettingsEditor;
         private readonly List<Texture2D> _ownedTextures = new();
 
-        private const string ItemPrefabFolder       = "Assets/Match Them All/_START_HERE/Items";
+        // Delegates to ItemReferenceOps so the item/icon folder paths have one source of truth.
+        private const string ItemPrefabFolder       = ItemReferenceOps.ItemPrefabFolder;
         private const string LevelDataFolder         = "Assets/Match Them All/_START_HERE/Levels";
         private const string LevelTemplatePrefabPath = "Assets/Match Them All/Level System/Prefabs/LevelTemplate.prefab";
 
@@ -195,7 +196,8 @@ namespace Match_Them_All.Scripts.Editor
                 string path = AssetDatabase.GUIDToAssetPath(g);
                 if (!path.Contains("/Trash/"))
                 {
-                    _itemPrefabs.Add(AssetDatabase.LoadAssetAtPath<GameObject>(path));
+                    var loaded = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+                    if (loaded != null) _itemPrefabs.Add(loaded); // guard: a broken/missing prefab must not abort LoadAll
                 }
             }
             _itemPrefabNames = _itemPrefabs.Select(p => p.name).ToArray();
@@ -203,12 +205,15 @@ namespace Match_Them_All.Scripts.Editor
 
             // Trash prefabs
             _trashPrefabs.Clear();
-            string trashFolder = "Assets/Match Them All/_START_HERE/Items/Trash";
+            string trashFolder = ItemReferenceOps.ItemTrashFolder;
             if (AssetDatabase.IsValidFolder(trashFolder))
             {
                 var trashGuids = AssetDatabase.FindAssets("t:Prefab", new[] { trashFolder });
                 foreach (var g in trashGuids)
-                    _trashPrefabs.Add(AssetDatabase.LoadAssetAtPath<GameObject>(AssetDatabase.GUIDToAssetPath(g)));
+                {
+                    var loaded = AssetDatabase.LoadAssetAtPath<GameObject>(AssetDatabase.GUIDToAssetPath(g));
+                    if (loaded != null) _trashPrefabs.Add(loaded);
+                }
             }
 
             // Restore selection
@@ -734,6 +739,79 @@ namespace Match_Them_All.Scripts.Editor
 
             EditorGUI.EndChangeCheck();
 
+            EndCard();
+
+            GUILayout.Space(8);
+
+            // ─ Rewards Card ─
+            BeginCard();
+            GUILayout.Label("Rewards & Monetization", _subHeaderStyle);
+            GUILayout.Space(6);
+            EditorGUI.BeginChangeCheck();
+
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Reward Mode", GUILayout.Width(labelW));
+            var newRewardMode = (LevelDataSO.RewardCalculationMode)EditorGUILayout.EnumPopup(_selectedLevel.rewardMode);
+            if (newRewardMode != _selectedLevel.rewardMode)
+            {
+                Undo.RecordObject(_selectedLevel, "Set Reward Mode");
+                _selectedLevel.rewardMode = newRewardMode;
+                MarkDirty();
+            }
+            GUILayout.EndHorizontal();
+
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Base Coin Reward", GUILayout.Width(labelW));
+            var newBaseReward = EditorGUILayout.IntField(_selectedLevel.baseCoinReward);
+            if (newBaseReward != _selectedLevel.baseCoinReward)
+            {
+                Undo.RecordObject(_selectedLevel, "Set Base Coin Reward");
+                _selectedLevel.baseCoinReward = newBaseReward;
+                MarkDirty();
+            }
+            GUILayout.EndHorizontal();
+
+            if (_selectedLevel.rewardMode == LevelDataSO.RewardCalculationMode.BasePlusPerStar)
+            {
+                GUILayout.BeginHorizontal();
+                GUILayout.Label("Coins Per Star", GUILayout.Width(labelW));
+                var newCoinsPerStar = EditorGUILayout.IntField(_selectedLevel.coinsPerStar);
+                if (newCoinsPerStar != _selectedLevel.coinsPerStar)
+                {
+                    Undo.RecordObject(_selectedLevel, "Set Coins Per Star");
+                    _selectedLevel.coinsPerStar = newCoinsPerStar;
+                    MarkDirty();
+                }
+                GUILayout.EndHorizontal();
+            }
+
+            GUILayout.Space(8);
+            GUILayout.Label("Star System Thresholds", _subHeaderStyle);
+            GUILayout.Space(6);
+
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Time For 3 Stars", GUILayout.Width(labelW));
+            var newTime3 = EditorGUILayout.IntField(_selectedLevel.timeFor3Stars);
+            if (newTime3 != _selectedLevel.timeFor3Stars)
+            {
+                Undo.RecordObject(_selectedLevel, "Set Time For 3 Stars");
+                _selectedLevel.timeFor3Stars = newTime3;
+                MarkDirty();
+            }
+            GUILayout.EndHorizontal();
+
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Time For 2 Stars", GUILayout.Width(labelW));
+            var newTime2 = EditorGUILayout.IntField(_selectedLevel.timeFor2Stars);
+            if (newTime2 != _selectedLevel.timeFor2Stars)
+            {
+                Undo.RecordObject(_selectedLevel, "Set Time For 2 Stars");
+                _selectedLevel.timeFor2Stars = newTime2;
+                MarkDirty();
+            }
+            GUILayout.EndHorizontal();
+
+            EditorGUI.EndChangeCheck();
             EndCard();
 
             GUILayout.Space(8);
@@ -1411,33 +1489,48 @@ namespace Match_Them_All.Scripts.Editor
         private void SoftDeleteItem(GameObject prefab)
         {
             var itemComp = prefab.GetComponent<Item>();
-            int usedCount = ItemReferenceOps.FindReferencingLevels(itemComp).Count;
+            // One scan of all levels, reused for both the count and the removal (no double scan).
+            var allLevels = ItemReferenceOps.FindAllLevels();
+            var refs = ItemReferenceOps.FindReferencingLevels(allLevels, itemComp);
+            // Count DISTINCT levels (an item may appear more than once in one level).
+            int usedLevels = refs.Select(r => r.level).Distinct().Count();
 
             string warning = $"Are you sure you want to delete '{prefab.name}'? It will be moved to the Trash folder.";
-            if (usedCount > 0)
+            if (usedLevels > 0)
             {
-                warning += $"\n\n⚠ It is currently used in {usedCount} level(s). Deleting it will remove it from those levels. You can undo this action later.";
+                warning += $"\n\n⚠ It is currently used in {usedLevels} level(s). Deleting it will remove it from those levels. You can undo this action later.";
             }
 
             if (!EditorUtility.DisplayDialog("Delete Item", warning, "Delete", "Cancel"))
                 return;
 
-            string trashParent = "Assets/Match Them All/_START_HERE/Items";
-            string trashFolder = trashParent + "/Trash";
-            if (!AssetDatabase.IsValidFolder(trashFolder))
-            {
-                AssetDatabase.CreateFolder(trashParent, "Trash");
-            }
+            if (!AssetDatabase.IsValidFolder(ItemReferenceOps.ItemTrashFolder))
+                AssetDatabase.CreateFolder(ItemReferenceOps.ItemPrefabFolder, "Trash");
 
             var record = new DeletedItemRecord
             {
                 originalPrefabPath = AssetDatabase.GetAssetPath(prefab),
-                trashPrefabPath = AssetDatabase.GenerateUniqueAssetPath($"{trashFolder}/{prefab.name}.prefab"),
+                trashPrefabPath = AssetDatabase.GenerateUniqueAssetPath($"{ItemReferenceOps.ItemTrashFolder}/{prefab.name}.prefab"),
             };
 
-            // Remove from levels via the shared helper, capturing each removed entry for restore
+            // Move the prefab FIRST. If it fails (file locked, VCS checkout, invalid target) we must NOT
+            // scrub level references or record an undo entry — otherwise the item is stranded: removed
+            // from levels, never trashed, and un-restorable.
+            string moveError = AssetDatabase.MoveAsset(record.originalPrefabPath, record.trashPrefabPath);
+            if (!string.IsNullOrEmpty(moveError))
+            {
+                Debug.LogError($"[Template Editor] Failed to move prefab to trash: {moveError}");
+                EditorUtility.DisplayDialog("Delete Item",
+                    $"Could not move '{prefab.name}' to Trash:\n{moveError}\n\nNo changes were made.", "OK");
+                // Nothing was modified yet (no level removal, no record) — just refresh and abort.
+                LoadAll();
+                Repaint();
+                return;
+            }
+
+            // Prefab moved successfully — now safe to scrub level references and record undo.
             var capture = new List<(LevelDataSO level, int index, ItemLevelData entry)>();
-            ItemReferenceOps.RemoveFromLevels(itemComp, registerUndo: true, capture: capture);
+            ItemReferenceOps.RemoveFromLevels(allLevels, itemComp, registerUndo: true, capture: capture);
             foreach (var (level, index, entry) in capture)
             {
                 record.removedFromLevels.Add(new RemovedLevelEntry
@@ -1450,23 +1543,15 @@ namespace Match_Them_All.Scripts.Editor
                 });
             }
 
-            // Move Prefab
-            string error = AssetDatabase.MoveAsset(record.originalPrefabPath, record.trashPrefabPath);
-            if (!string.IsNullOrEmpty(error)) Debug.LogError($"[Template Editor] Failed to move prefab to trash: {error}");
-
-            // Move Icon if exists
-            string originalIconPath = $"Assets/Match Them All/Sprites/Icons/icon_{prefab.name.ToLowerInvariant()}.png";
+            // Move Icon if exists (warn-only; a missing icon is recoverable, unlike a stranded prefab).
+            string originalIconPath = $"{ItemReferenceOps.IconsFolder}/icon_{prefab.name.ToLowerInvariant()}.png";
             if (File.Exists(originalIconPath))
             {
-                string iconTrashParent = "Assets/Match Them All/Sprites/Icons";
-                string iconTrashFolder = iconTrashParent + "/Trash";
-                if (!AssetDatabase.IsValidFolder(iconTrashFolder))
-                {
-                    AssetDatabase.CreateFolder(iconTrashParent, "Trash");
-                }
+                if (!AssetDatabase.IsValidFolder(ItemReferenceOps.IconsTrashFolder))
+                    AssetDatabase.CreateFolder(ItemReferenceOps.IconsFolder, "Trash");
 
                 record.originalIconPath = originalIconPath;
-                record.trashIconPath = AssetDatabase.GenerateUniqueAssetPath($"{iconTrashFolder}/icon_{prefab.name.ToLowerInvariant()}.png");
+                record.trashIconPath = AssetDatabase.GenerateUniqueAssetPath($"{ItemReferenceOps.IconsTrashFolder}/icon_{prefab.name.ToLowerInvariant()}.png");
 
                 string iconError = AssetDatabase.MoveAsset(originalIconPath, record.trashIconPath);
                 if (!string.IsNullOrEmpty(iconError)) Debug.LogError($"[Template Editor] Failed to move icon to trash: {iconError}");
@@ -1488,20 +1573,30 @@ namespace Match_Them_All.Scripts.Editor
         /// </summary>
         private void HardDeleteItem(Item item)
         {
-            if (item == null) { Debug.LogWarning("[Template Editor] HardDeleteItem: null item."); return; }
+            if (item == null)
+            {
+                // A prefab missing its Item component should explain itself, not silently no-op.
+                EditorUtility.DisplayDialog("Delete Permanently",
+                    "This item prefab has no Item component, so it cannot be deleted from here.", "OK");
+                return;
+            }
 
             string prefabPath = AssetDatabase.GetAssetPath(item.gameObject);
             if (string.IsNullOrEmpty(prefabPath))
             {
-                Debug.LogError($"[Template Editor] HardDeleteItem: could not resolve prefab path for '{item.name}'.");
+                EditorUtility.DisplayDialog("Delete Permanently",
+                    $"Could not resolve the asset path for '{item.name}'.\nIs it a saved prefab asset?", "OK");
                 return;
             }
 
-            var refs = ItemReferenceOps.FindReferencingLevels(item);
+            // One scan, reused for both the reference count and the removal.
+            var allLevels = ItemReferenceOps.FindAllLevels();
+            var refs = ItemReferenceOps.FindReferencingLevels(allLevels, item);
+            int usedLevels = refs.Select(r => r.level).Distinct().Count();
             bool iconSafe = ItemReferenceOps.IsIconSafeToDelete(item);
             string iconNote = iconSafe ? ", its icon" : "";
             string msg = $"Permanently delete '{item.name}'?\n\n" +
-                         $"This removes the prefab{iconNote} and {refs.Count} level reference(s).\n" +
+                         $"This removes the prefab{iconNote} and its reference(s) in {usedLevels} level(s).\n" +
                          "This CANNOT be undone. (Use Move to Trash if you want it reversible.)";
             if (!EditorUtility.DisplayDialog("Delete Permanently", msg, "Delete permanently", "Cancel"))
                 return;
@@ -1509,7 +1604,7 @@ namespace Match_Them_All.Scripts.Editor
             try
             {
                 // 1. Scrub level references (no Undo — the whole operation is irreversible by design).
-                ItemReferenceOps.RemoveFromLevels(item, registerUndo: false);
+                ItemReferenceOps.RemoveFromLevels(allLevels, item, registerUndo: false);
 
                 // 2. Delete the icon only if it's this item's own generated icon and unused elsewhere.
                 if (iconSafe && item.Icon != null)
@@ -1539,17 +1634,17 @@ namespace Match_Them_All.Scripts.Editor
         private void RestoreFromTrash(GameObject trashPrefab)
         {
             string trashPrefabPath = AssetDatabase.GetAssetPath(trashPrefab);
-            string originalPrefabPath = $"Assets/Match Them All/_START_HERE/Items/{trashPrefab.name}.prefab";
+            string originalPrefabPath = $"{ItemReferenceOps.ItemPrefabFolder}/{trashPrefab.name}.prefab";
 
             var record = _deletedRecords.FirstOrDefault(r => r.trashPrefabPath == trashPrefabPath);
 
             // Use the record's captured icon paths (robust); fall back to the name convention if no record.
             string trashIconPath = record != null && !string.IsNullOrEmpty(record.trashIconPath)
                 ? record.trashIconPath
-                : $"Assets/Match Them All/Sprites/Icons/Trash/icon_{trashPrefab.name.ToLowerInvariant()}.png";
+                : $"{ItemReferenceOps.IconsTrashFolder}/icon_{trashPrefab.name.ToLowerInvariant()}.png";
             string originalIconPath = record != null && !string.IsNullOrEmpty(record.originalIconPath)
                 ? record.originalIconPath
-                : $"Assets/Match Them All/Sprites/Icons/icon_{trashPrefab.name.ToLowerInvariant()}.png";
+                : $"{ItemReferenceOps.IconsFolder}/icon_{trashPrefab.name.ToLowerInvariant()}.png";
 
             if (AssetDatabase.LoadMainAssetAtPath(trashIconPath) != null)
             {
@@ -2082,7 +2177,7 @@ namespace Match_Them_All.Scripts.Editor
 
         private Sprite CaptureItemIcon(GameObject modelPrefab, string formattedName)
         {
-            var iconFolder = "Assets/Match Them All/Sprites/Icons";
+            var iconFolder = ItemReferenceOps.IconsFolder;
             if (!Directory.Exists(iconFolder)) Directory.CreateDirectory(iconFolder);
 
             string path = $"{iconFolder}/icon_{formattedName.ToLowerInvariant()}.png";

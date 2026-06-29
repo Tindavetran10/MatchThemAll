@@ -26,6 +26,7 @@ namespace MatchThemAll.Scripts
         public List<Item> Items        => _currentLevel.GetItems();
         public Transform ItemParent    => _currentLevel.ItemParent;
         public int CurrentLevelIndex { get; private set; }
+        public LevelDataSO CurrentLevelData => levels != null && levels.Length > 0 ? levels[CurrentLevelIndex % levels.Length] : null;
 
         public int TotalLevelDuration  => _currentLevel != null ? _currentLevel.Duration : 1;
         public int TotalLevelCount     => levels.Length;

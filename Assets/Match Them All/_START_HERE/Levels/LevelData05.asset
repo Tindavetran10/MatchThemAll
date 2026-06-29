@@ -19,19 +19,19 @@ MonoBehaviour:
   - itemPrefab: {fileID: 6712440319158832157, guid: 700e992717e541549a1dd9f5ff3b009e, type: 3}
     isGoal: 0
     multiplier: 3
-    amount: 30
+    amount: 3
   - itemPrefab: {fileID: 1645834593596905807, guid: a9c6039bef1abd749b9ece49b808d98d, type: 3}
     isGoal: 0
-    multiplier: 5
-    amount: 15
+    multiplier: 1
+    amount: 6
   - itemPrefab: {fileID: 4953572946506578716, guid: 242e6fe3d88a5c8468a35e54475af66f, type: 3}
     isGoal: 0
     multiplier: 2
-    amount: 12
+    amount: 3
   - itemPrefab: {fileID: 8590173119831743083, guid: e77b5af6be61da04dae423f6cb36d5bb, type: 3}
     isGoal: 0
     multiplier: 2
-    amount: 24
+    amount: 6
   - itemPrefab: {fileID: 6469244774931994542, guid: a60c4fa3d71c98747aebff0cb3f94755, type: 3}
     isGoal: 1
     multiplier: 3
@@ -39,5 +39,10 @@ MonoBehaviour:
   - itemPrefab: {fileID: 5344777744879384591, guid: e17a29bbc586e254fa7cce4ae7d2081e, type: 3}
     isGoal: 0
     multiplier: 2
-    amount: 24
+    amount: 3
   tutorialSteps: []
+  rewardMode: 1
+  baseCoinReward: 50
+  coinsPerStar: 10
+  timeFor3Stars: 40
+  timeFor2Stars: 20

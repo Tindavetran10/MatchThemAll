@@ -6,14 +6,12 @@ namespace MatchThemAll.Scripts.UI
 {
     /// <summary>
     /// Controls the Win/Level Complete panel.
-    /// Calculates star rating based on time remaining, triggers the sequential
-    /// PrimeTween star pop-in animation, saves progress via LevelManager, and
-    /// provides navigation callbacks.
+    /// Calculates star rating based on time remaining (configurable per-level via LevelDataSO),
+    /// triggers the sequential PrimeTween star pop-in animation, saves progress via LevelManager,
+    /// and provides navigation callbacks.
     ///
-    /// Star thresholds (based on % of level time remaining when completing):
-    ///   3 stars — > 60% remaining
-    ///   2 stars — > 30% remaining
-    ///   1 star  — any completion
+    /// Star thresholds are read from LevelDataSO (timeFor3Stars / timeFor2Stars).
+    /// Template users can modify CalculateStars() to evaluate by Score, Moves, etc.
     /// </summary>
     public class WinPanelManager : MonoBehaviour
     {
@@ -34,8 +32,27 @@ namespace MatchThemAll.Scripts.UI
             // Calculate stars from remaining time
             int stars = CalculateStars();
 
-            // Reward coins: 10 per star
-            int coinsEarned = stars * 10;
+            // Reward coins: Base coins from LevelData + Bonus per star
+            var levelData = LevelManager.Instance != null ? LevelManager.Instance.CurrentLevelData : null;
+            int coinsEarned = 50;
+
+            if (levelData != null)
+            {
+                if (levelData.rewardMode == LevelDataSO.RewardCalculationMode.FixedValue)
+                {
+                    coinsEarned = levelData.baseCoinReward;
+                }
+                else
+                {
+                    coinsEarned = levelData.baseCoinReward + (stars * levelData.coinsPerStar);
+                }
+            }
+            else
+            {
+                // Fallback
+                coinsEarned = 50 + (stars * 10);
+            }
+            
             SaveManager.AddCoins(coinsEarned);
 
             // Save progress (advances level index if this was a new level)
@@ -47,13 +64,25 @@ namespace MatchThemAll.Scripts.UI
 
         // ── Star Rating ──────────────────────────────────────────────────────
 
-        private static int CalculateStars()
+        private int CalculateStars()
         {
             if (LevelManager.Instance == null) return 1;
 
-            int total     = LevelManager.Instance.TotalLevelDuration;
+            var levelData = LevelManager.Instance.CurrentLevelData;
             int remaining = TimerManager.Instance ? TimerManager.Instance.CurrentTime : 0;
 
+            if (levelData != null)
+            {
+                // Note for Template Users:
+                // You can modify this method to evaluate stars based on Score, Moves, etc.
+                // Currently, it evaluates based on time remaining specified in LevelDataSO.
+                if (remaining >= levelData.timeFor3Stars) return 3;
+                if (remaining >= levelData.timeFor2Stars) return 2;
+                return 1;
+            }
+
+            // Fallback
+            int total = LevelManager.Instance.TotalLevelDuration;
             if (total <= 0) return 1;
 
             float ratio = (float)remaining / total;
