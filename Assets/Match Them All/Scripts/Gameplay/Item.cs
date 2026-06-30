@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.Rendering;
+using NaughtyAttributes;
 
 namespace MatchThemAll.Scripts
 {
@@ -12,6 +13,22 @@ namespace MatchThemAll.Scripts
 
         [SerializeField] private Sprite icon;
         public Sprite Icon => icon;
+
+        [Header("Dock Placement Overrides")]
+        [Tooltip("If enabled, overrides the default rotation when the item is placed in a dock/spot.")]
+        [SerializeField] private bool useCustomDockRotation;
+        [ShowIf(nameof(useCustomDockRotation))]
+        [SerializeField] private Vector3 customDockRotation;
+
+        [Tooltip("If enabled, adds an offset to the default position when the item is placed in a dock/spot.")]
+        [SerializeField] private bool useCustomDockPositionOffset;
+        [ShowIf(nameof(useCustomDockPositionOffset))]
+        [SerializeField] private Vector3 customDockPositionOffset;
+
+        public bool UseCustomDockRotation => useCustomDockRotation;
+        public Vector3 CustomDockRotation => customDockRotation;
+        public bool UseCustomDockPositionOffset => useCustomDockPositionOffset;
+        public Vector3 CustomDockPositionOffset => customDockPositionOffset;
 
         public ItemSpot Spot { get; private set; }
         public bool IsMovingToSpot { get; set; }

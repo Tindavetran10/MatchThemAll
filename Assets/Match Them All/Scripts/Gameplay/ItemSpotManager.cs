@@ -154,9 +154,17 @@ namespace MatchThemAll.Scripts
             // Stop any existing tween (like hint pulsing animations) to prevent conflicts
             Tween.StopAll(item.transform);
 
-            Tween.LocalPosition(item.transform, itemLocalPositionOnSpot, animationDuration, animationEase);
+            Vector3 targetPosition = itemLocalPositionOnSpot;
+            if (item.UseCustomDockPositionOffset)
+                targetPosition += item.CustomDockPositionOffset;
+
+            Vector3 targetRotation = Vector3.zero;
+            if (item.UseCustomDockRotation)
+                targetRotation = item.CustomDockRotation;
+
+            Tween.LocalPosition(item.transform, targetPosition, animationDuration, animationEase);
             Tween.Scale(item.transform, itemLocalScaleOnSpot, animationDuration, animationEase);
-            Tween.LocalRotation(item.transform, Vector3.zero, animationDuration, animationEase)
+            Tween.LocalRotation(item.transform, targetRotation, animationDuration, animationEase)
                 .OnComplete(completeCallback);
 
             item.DisableShadow();
