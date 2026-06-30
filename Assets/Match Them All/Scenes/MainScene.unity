@@ -8095,7 +8095,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 1, y: 0.5}
-  m_AnchoredPosition: {x: -102.5, y: 0}
+  m_AnchoredPosition: {x: -102.499756, y: 0}
   m_SizeDelta: {x: -785, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1267657396
@@ -12642,8 +12642,7 @@ MonoBehaviour:
   payCoinsButton: {fileID: 546544055}
   giveUpButton: {fileID: 1930788674}
   coinsCostText: {fileID: 0}
-  continueCost: 100
-  timeBonusSeconds: 30
+  gameSettings: {fileID: 0}
   closeDuration: 0.35
 --- !u!4 &2068970844 stripped
 Transform:

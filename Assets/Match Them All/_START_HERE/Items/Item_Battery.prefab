@@ -75,6 +75,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemNameKey: 7
   icon: {fileID: 21300000, guid: 88911adab42874245a9b4498f4c5d7f1, type: 3}
+  useCustomDockRotation: 0
+  customDockRotation: {x: 0, y: 0, z: 0}
+  useCustomDockPositionOffset: 0
+  customDockPositionOffset: {x: 0, y: 0, z: 0}
   _renderer: {fileID: 299216619929664116}
 --- !u!1001 &8188686443578721740
 PrefabInstance:
