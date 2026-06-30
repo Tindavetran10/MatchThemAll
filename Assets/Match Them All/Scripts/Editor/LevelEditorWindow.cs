@@ -165,7 +165,10 @@ namespace Match_Them_All.Scripts.Editor
             _levels.Clear();
             var guids = AssetDatabase.FindAssets("t:LevelDataSO");
             foreach (var g in guids)
-                _levels.Add(AssetDatabase.LoadAssetAtPath<LevelDataSO>(AssetDatabase.GUIDToAssetPath(g)));
+            {
+                var level = AssetDatabase.LoadAssetAtPath<LevelDataSO>(AssetDatabase.GUIDToAssetPath(g));
+                if (level != null) _levels.Add(level); // guard: a broken/missing level must not abort LoadAll (Sort NRE)
+            }
 
             // Sort by asset name so the list is stable
             _levels.Sort((a, b) => string.Compare(a.name, b.name, StringComparison.Ordinal));
@@ -1306,8 +1309,8 @@ namespace Match_Them_All.Scripts.Editor
                 {
                     var menu = new GenericMenu();
                     var capturedItem = itemComp; // Item on this prefab, for the permanent-delete closure
-                    menu.AddItem(new GUIContent("Move to Trash"), false, () => SoftDeleteItem(prefab));
-                    menu.AddItem(new GUIContent("Delete Permanently…"), false, () => HardDeleteItem(capturedItem));
+                    menu.AddItem(new GUIContent("Move to Trash"), false, () => { SoftDeleteItem(prefab); GUIUtility.ExitGUI(); });
+                    menu.AddItem(new GUIContent("Delete Permanently…"), false, () => { HardDeleteItem(capturedItem); GUIUtility.ExitGUI(); });
                     menu.ShowAsContext();
                     e.Use();
                 }
@@ -1522,18 +1525,26 @@ namespace Match_Them_All.Scripts.Editor
                 });
             }
 
-            // Move Icon if exists (warn-only; a missing icon is recoverable, unlike a stranded prefab).
-            string originalIconPath = $"{ItemReferenceOps.IconsFolder}/icon_{prefab.name.ToLowerInvariant()}.png";
-            if (File.Exists(originalIconPath))
+            // Move the icon (if any) — resolve its REAL path from the Item's serialized icon reference,
+            // not a name convention: the file may have been renamed or be a shared sprite, in which case the
+            // convention guess would silently skip the move and strand the icon. Only trash icons that live
+            // under the generated-icons folder (mirrors HardDelete's IsIconSafeToDelete guard).
+            if (itemComp != null && itemComp.Icon != null)
             {
-                if (!AssetDatabase.IsValidFolder(ItemReferenceOps.IconsTrashFolder))
-                    AssetDatabase.CreateFolder(ItemReferenceOps.IconsFolder, "Trash");
+                string originalIconPath = AssetDatabase.GetAssetPath(itemComp.Icon);
+                if (!string.IsNullOrEmpty(originalIconPath)
+                    && originalIconPath.StartsWith(ItemReferenceOps.IconsFolder + "/")
+                    && !originalIconPath.StartsWith(ItemReferenceOps.IconsTrashFolder + "/"))
+                {
+                    if (!AssetDatabase.IsValidFolder(ItemReferenceOps.IconsTrashFolder))
+                        AssetDatabase.CreateFolder(ItemReferenceOps.IconsFolder, "Trash");
 
-                record.originalIconPath = originalIconPath;
-                record.trashIconPath = AssetDatabase.GenerateUniqueAssetPath($"{ItemReferenceOps.IconsTrashFolder}/icon_{prefab.name.ToLowerInvariant()}.png");
+                    record.originalIconPath = originalIconPath;
+                    record.trashIconPath = AssetDatabase.GenerateUniqueAssetPath($"{ItemReferenceOps.IconsTrashFolder}/{Path.GetFileName(originalIconPath)}");
 
-                string iconError = AssetDatabase.MoveAsset(originalIconPath, record.trashIconPath);
-                if (!string.IsNullOrEmpty(iconError)) Debug.LogError($"[Template Editor] Failed to move icon to trash: {iconError}");
+                    string iconError = AssetDatabase.MoveAsset(originalIconPath, record.trashIconPath);
+                    if (!string.IsNullOrEmpty(iconError)) Debug.LogError($"[Template Editor] Failed to move icon to trash: {iconError}");
+                }
             }
 
             _deletedRecords.Add(record);
@@ -1617,7 +1628,22 @@ namespace Match_Them_All.Scripts.Editor
 
             var record = _deletedRecords.FirstOrDefault(r => r.trashPrefabPath == trashPrefabPath);
 
-            // Use the record's captured icon paths (robust); fall back to the name convention if no record.
+            // Move the PREFAB back first — it is the anchor. If it is missing or the move fails, abort
+            // BEFORE touching the icon, so we never leave a restored icon with no prefab referencing it.
+            if (AssetDatabase.LoadMainAssetAtPath(trashPrefabPath) == null)
+            {
+                Debug.LogError($"[Template Editor] Restore aborted: trashed prefab not found at {trashPrefabPath}");
+                return;
+            }
+            string prefabError = AssetDatabase.MoveAsset(trashPrefabPath, originalPrefabPath);
+            if (!string.IsNullOrEmpty(prefabError))
+            {
+                Debug.LogError($"[Template Editor] Restore aborted, prefab move failed: {prefabError}");
+                return;
+            }
+
+            // Prefab restored — now bring the icon back (secondary; warn-only on failure). Use the record's
+            // captured icon paths when available (robust); fall back to the name convention if no record.
             string trashIconPath = record != null && !string.IsNullOrEmpty(record.trashIconPath)
                 ? record.trashIconPath
                 : $"{ItemReferenceOps.IconsTrashFolder}/icon_{trashPrefab.name.ToLowerInvariant()}.png";
@@ -1629,19 +1655,6 @@ namespace Match_Them_All.Scripts.Editor
             {
                 string iconError = AssetDatabase.MoveAsset(trashIconPath, originalIconPath);
                 if (!string.IsNullOrEmpty(iconError)) Debug.LogWarning($"[Template Editor] Could not restore icon: {iconError}");
-            }
-
-            // Move Prefab back — abort if missing or the move fails; there is nothing valid to re-attach.
-            if (AssetDatabase.LoadMainAssetAtPath(trashPrefabPath) == null)
-            {
-                Debug.LogError($"[Template Editor] Restore aborted: trashed prefab not found at {trashPrefabPath}");
-                return;
-            }
-            string prefabError = AssetDatabase.MoveAsset(trashPrefabPath, originalPrefabPath);
-            if (!string.IsNullOrEmpty(prefabError))
-            {
-                Debug.LogError($"[Template Editor] Restore aborted, prefab move failed: {prefabError}");
-                return;
             }
 
             // Re-add to levels from the stored undo record (if any). The Item prefab reference is

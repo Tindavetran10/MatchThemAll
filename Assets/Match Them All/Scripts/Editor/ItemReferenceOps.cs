@@ -26,10 +26,6 @@ namespace Match_Them_All.Scripts.Editor
             .Select(g => AssetDatabase.LoadAssetAtPath<LevelDataSO>(AssetDatabase.GUIDToAssetPath(g)))
             .Where(so => so != null).ToList();
 
-        /// <summary>Every (level, index) where itemData[index].itemPrefab == item, across the whole project.</summary>
-        internal static List<(LevelDataSO level, int index)> FindReferencingLevels(Item item)
-            => FindReferencingLevels(FindAllLevels(), item);
-
         /// <summary>Every (level, index) where itemData[index].itemPrefab == item, within the given levels.</summary>
         internal static List<(LevelDataSO level, int index)> FindReferencingLevels(IList<LevelDataSO> levels, Item item)
         {
@@ -45,16 +41,11 @@ namespace Match_Them_All.Scripts.Editor
         }
 
         /// <summary>
-        /// Remove every entry whose itemPrefab == item, from every level. If <paramref name="capture"/>
+        /// Remove every entry whose itemPrefab == item, from the given levels. If <paramref name="capture"/>
         /// is non-null, appends (level, originalIndex, entry) for each removal (soft-delete uses this to
         /// rebuild its undo record). Marks each affected level dirty; registers Undo when requested.
-        /// Returns the number of entries removed.
+        /// Returns the number of entries removed. Pass a fresh FindAllLevels() to scrub every level.
         /// </summary>
-        internal static int RemoveFromLevels(Item item, bool registerUndo,
-            List<(LevelDataSO level, int index, ItemLevelData entry)> capture = null)
-            => RemoveFromLevels(FindAllLevels(), item, registerUndo, capture);
-
-        /// <summary>Overload that reuses a pre-loaded level list (avoids a second AssetDatabase scan).</summary>
         internal static int RemoveFromLevels(IList<LevelDataSO> levels, Item item, bool registerUndo,
             List<(LevelDataSO level, int index, ItemLevelData entry)> capture = null)
         {
