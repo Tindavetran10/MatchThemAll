@@ -50,7 +50,7 @@ namespace MatchThemAll.Scripts.UI
             if (!continuePanel) return;
             continuePanel.SetActive(true); // UIAnimator.OnEnable() handles the pop-in
 
-            int cost = gameSettings != null ? gameSettings.continueCoinCost : 900;
+            int cost = gameSettings ? gameSettings.continueCoinCost : 900;
 
             if (coinsCostText)
                 coinsCostText.text = cost.ToString();
@@ -58,7 +58,7 @@ namespace MatchThemAll.Scripts.UI
             bool hasCoins = SaveManager.GetCoins() >= cost;
 
             // Prioritize Coins. If they don't have enough, show Ads (if allowed by settings).
-            bool allowAds = gameSettings == null || gameSettings.allowAdContinue;
+            bool allowAds = !gameSettings || gameSettings.allowAdContinue;
             
             payCoinsButton.gameObject.SetActive(hasCoins);
             watchAdButton.gameObject.SetActive(!hasCoins && allowAds);
@@ -79,7 +79,7 @@ namespace MatchThemAll.Scripts.UI
         private void OnWatchAdClicked()
         {
             // Using our AdManagerMock. Template users will replace the mock logic with their real SDK.
-            if (AdManagerMock.Instance != null)
+            if (AdManagerMock.Instance)
             {
                 AdManagerMock.Instance.ShowRewardedAd(
                     onRewardEarned: ContinueGame,
@@ -96,7 +96,7 @@ namespace MatchThemAll.Scripts.UI
 
         private void OnPayCoinsClicked()
         {
-            int cost = gameSettings != null ? gameSettings.continueCoinCost : 900;
+            int cost = gameSettings ? gameSettings.continueCoinCost : 900;
 
             if (SaveManager.SpendCoins(cost))
             {
@@ -117,13 +117,13 @@ namespace MatchThemAll.Scripts.UI
             watchAdButton.interactable = false;
             payCoinsButton.interactable = false;
 
-            // Trigger GAMEOVER immediately. OnGameStateChanged will handle HidePanel().
+            // Trigger GAME OVER immediately. OnGameStateChanged will handle HidePanel().
             GameManager.Instance.SetGameState(EGameState.GAMEOVER);
         }
 
         private void ContinueGame()
         {
-            int timeBonus = gameSettings != null ? gameSettings.continueTimeBonus : 30;
+            int timeBonus = gameSettings ? gameSettings.continueTimeBonus : 30;
 
             TimerManager.Instance.AddTime(timeBonus);
             GameManager.Instance.SetGameState(EGameState.GAME);
