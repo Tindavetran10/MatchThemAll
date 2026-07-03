@@ -82,7 +82,7 @@ namespace MatchThemAll.Scripts.UI
             if (AdManagerMock.Instance != null)
             {
                 AdManagerMock.Instance.ShowRewardedAd(
-                    onRewardEarned: () => ContinueGame(),
+                    onRewardEarned: ContinueGame,
                     onFailed: () => Debug.LogWarning("[ContinuePanel] Ad failed or skipped.")
                 );
             }

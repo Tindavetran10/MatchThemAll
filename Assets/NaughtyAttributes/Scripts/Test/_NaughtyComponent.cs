@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace NaughtyAttributes.Test
 {
-    public class TestNaughtyComponent : MonoBehaviour
+    public class _NaughtyComponent : MonoBehaviour
     {
     }
 

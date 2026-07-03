@@ -15,14 +15,14 @@
         "com.unity.nuget.newtonsoft-json": "3.0.2",
         "com.unity.test-framework": "1.1.31"
       },
-      "hash": "85c101f5329ec1b0c6f70cba44614166dd78f53c"
+      "hash": "11836003a5e2ffcb7715ecec7e1fbb9d9cdb5bb8"
     },
     "com.cysharp.zlinq": {
       "version": "https://github.com/Cysharp/ZLinq.git?path=src/ZLinq.Unity/Assets/ZLinq.Unity",
       "depth": 0,
       "source": "git",
       "dependencies": {},
-      "hash": "ba8178709faa326c3c1c7bc4b879aad9b3dc739a"
+      "hash": "357a6382acffb612764bdfe6f0fe1ba9971878d5"
     },
     "com.github-glitchenzo.nugetforunity": {
       "version": "https://github.com/GlitchEnzo/NuGetForUnity.git?path=/src/NuGetForUnity",
