@@ -52,6 +52,10 @@ namespace Match_Them_All.Scripts.Editor
         private float   _previewPitch = 85f;   // start top-down like real gameplay
         private float   _previewDist  = 0.4f;
         private Vector3 _previewPanOffset = new(0f, 0f, 0f);
+        // Auto-computed look-at focus (world-space center of the dock+item bounds) so the camera
+        // frames the assembly instead of aiming at the dock base and clipping the item's head.
+        // _previewPanOffset is a user delta on top of this.
+        private Vector3 _previewFocus = Vector3.zero;
 
         // Default = top-down view matching the real game camera (90° pitch, FOV 50)
         private const float DefaultPreviewYaw   = 0f;
@@ -441,6 +445,7 @@ namespace Match_Them_All.Scripts.Editor
                 _previewDockInstance.transform.localScale = Vector3.one;
             }
 
+            _previewFocus = ComputePreviewFocus();
             _isDockPreviewInitialized = true;
         }
 
@@ -461,6 +466,28 @@ namespace Match_Them_All.Scripts.Editor
                 _dockPreviewUtility = null;
             }
             _isDockPreviewInitialized = false;
+        }
+
+        /// <summary>
+        /// World-space center of the combined dock + item renderer bounds — the point the orbital
+        /// camera should look at so the whole assembly is framed (head included) regardless of the
+        /// item's height or pivot. Falls back to the dock origin if nothing has bounds yet.
+        /// </summary>
+        private Vector3 ComputePreviewFocus()
+        {
+            Bounds b = new Bounds(Vector3.zero, Vector3.zero);
+            bool any = false;
+            foreach (var root in new[] { _previewDockInstance, _previewItemInstance })
+            {
+                if (!root) continue;
+                foreach (var r in root.GetComponentsInChildren<Renderer>())
+                {
+                    if (!r) continue;
+                    if (!any) { b = r.bounds; any = true; }
+                    else b.Encapsulate(r.bounds);
+                }
+            }
+            return any ? b.center : Vector3.zero;
         }
 
         private void RefreshDockPreview()
@@ -506,6 +533,10 @@ namespace Match_Them_All.Scripts.Editor
             _previewItemInstance.transform.localScale    = targetScale;
             _previewItemInstance.transform.localPosition = targetPosition;
             _previewItemInstance.transform.localRotation = Quaternion.Euler(targetEuler);
+
+            // Re-center the framing whenever the item's pose changes (spawn or offset/rotation tweak),
+            // so the camera always targets the assembly's bounds center instead of the dock base.
+            _previewFocus = ComputePreviewFocus();
         }
 
         private void DrawDockPreview(Rect rect, Item item)
@@ -564,8 +595,10 @@ namespace Match_Them_All.Scripts.Editor
                 _previewDist * Mathf.Sin(pitchRad),
                 _previewDist * Mathf.Cos(pitchRad) * Mathf.Cos(yawRad)
             );
-            _dockPreviewUtility.camera.transform.position = _previewPanOffset + camOffset;
-            _dockPreviewUtility.camera.transform.LookAt(_previewPanOffset, Vector3.up);
+            // Orbit around the auto-framed focus (bounds center) plus any user pan delta.
+            Vector3 target = _previewFocus + _previewPanOffset;
+            _dockPreviewUtility.camera.transform.position = target + camOffset;
+            _dockPreviewUtility.camera.transform.LookAt(target, Vector3.up);
 
             // ── Render ───────────────────────────────────────────────────────
             _dockPreviewUtility.BeginPreview(rect, GUIStyle.none);
