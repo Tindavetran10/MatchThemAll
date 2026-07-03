@@ -48,7 +48,7 @@ namespace Match_Them_All.Scripts.Editor
         private GameObject _dockPrefab;
 
         // --- Orbital Camera State ---
-        private float   _previewYaw   = 0f;
+        private float   _previewYaw;
         private float   _previewPitch = 85f;   // start top-down like real gameplay
         private float   _previewDist  = 0.4f;
         private Vector3 _previewPanOffset = new(0f, 0f, 0f);
@@ -413,11 +413,16 @@ namespace Match_Them_All.Scripts.Editor
         {
             if (_isDockPreviewInitialized && _dockPreviewUtility != null) return;
             
-            _dockPreviewUtility = new PreviewRenderUtility();
-            _dockPreviewUtility.camera.fieldOfView = 50f;  // matches real game camera FOV
-            _dockPreviewUtility.camera.clearFlags = CameraClearFlags.SolidColor;
-            _dockPreviewUtility.camera.backgroundColor = new Color(0.15f, 0.15f, 0.17f, 1f);
-            _dockPreviewUtility.camera.nearClipPlane = 0.01f;
+            _dockPreviewUtility = new PreviewRenderUtility
+            {
+                camera =
+                {
+                    fieldOfView = 50f, // matches real game camera FOV
+                    clearFlags = CameraClearFlags.SolidColor,
+                    backgroundColor = new Color(0.15f, 0.15f, 0.17f, 1f),
+                    nearClipPlane = 0.01f
+                }
+            };
 
             // Lighting
             _dockPreviewUtility.lights[0].intensity = 1.5f;
@@ -679,13 +684,13 @@ namespace Match_Them_All.Scripts.Editor
                     settingsChanged = true;
                 GUI.color = Color.white;
                 
-                if (_newItemModelPrefab == null)
+                if (!_newItemModelPrefab)
                     EditorGUILayout.HelpBox("Assign a 3D Model Prefab to preview.", MessageType.Info);
                 EditorGUILayout.EndVertical();
 
                 GUILayout.Space(10);
                 TryConsumeIconPreview();
-                if (_previewIconTexture != null)
+                if (_previewIconTexture)
                 {
                     Rect outerRect = GUILayoutUtility.GetRect(84, 84, GUILayout.ExpandWidth(false));
                     Rect texRect = new Rect(outerRect.x + 2, outerRect.y + 2, 80, 80);
@@ -817,10 +822,10 @@ namespace Match_Them_All.Scripts.Editor
 
         private void TryConsumeIconPreview()
         {
-            if (!_previewDirty || _newItemModelPrefab == null) return;
-            if (_previewIconTexture == null || EditorApplication.timeSinceStartup - _previewDirtyTime >= PreviewRenderThrottle)
+            if (!_previewDirty || !_newItemModelPrefab) return;
+            if (!_previewIconTexture || EditorApplication.timeSinceStartup - _previewDirtyTime >= PreviewRenderThrottle)
             {
-                if (_previewIconTexture != null) DestroyImmediate(_previewIconTexture);
+                if (_previewIconTexture) DestroyImmediate(_previewIconTexture);
                 _previewIconTexture = GetIconTexture2D(_newItemModelPrefab);
                 _previewDirty = false;
             }
