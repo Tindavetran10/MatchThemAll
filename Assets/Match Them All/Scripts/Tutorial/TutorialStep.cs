@@ -15,7 +15,7 @@ namespace MatchThemAll.Scripts.Tutorial
         [Tooltip("Highlight exactly 3 items that match a specific EItemName.")]
         SpecificItem,
         
-        [Tooltip("Highlight the powerup slot that matches a specific EPowerupType.")]
+        [Tooltip("Highlight the powerup slot that matches a specific powerup id.")]
         Powerup,
         
         [Tooltip("Highlight the goal card that matches a specific EItemName.")]
@@ -57,8 +57,8 @@ namespace MatchThemAll.Scripts.Tutorial
         [Tooltip("(SpecificItem / GoalCard) The item type to find and highlight.")]
         public EItemName itemName;
 
-        [Tooltip("(Powerup) The powerup slot to highlight.")]
-        public EPowerupType powerupType;
+        [Tooltip("(Powerup) The powerup id (PowerupDataSO.id, e.g. 'vacuum') of the slot to highlight.")]
+        public string powerupId;
 
         [Tooltip("(Manual) Drag in any GameObjects to highlight.")]
         public List<GameObject> manualTargets = new();

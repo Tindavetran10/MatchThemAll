@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 931950489cc1cb841b41c3e3a9175cbd, type: 3}
+  m_Name: Powerup_vacuum
+  m_EditorClassIdentifier: 
+  id: vacuum
+  displayName: Vacuum
+  icon: {fileID: 0}
+  order: 0
+  unlockLevel: 0
+  defaultAmount: 3
+  buyCurrency: 0
+  buyCost: 50
+  uiPrefab: {fileID: 2786794367453939414, guid: 73fc18920915a614e9e350ade3a95b05, type: 3}
+  effect:
+    rid: 1442196544509706359
+  references:
+    version: 2
+    RefIds:
+    - rid: 1442196544509706359
+      type: {class: VacuumEffect, ns: Match_Them_All.Scripts.Power_Ups, asm: Assembly-CSharp}
+      data: 

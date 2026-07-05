@@ -1,15 +1,6 @@
-using System;
-using UnityEngine;
-
+// ponytail: thin subclass kept through Stage 2 so the existing scene component keeps resolving.
+// All behavior now lives in the base Powerup + FreezeEffect. Deleted in Stage 3.
 namespace Match_Them_All.Scripts.Power_Ups
 {
-    public class FreezeGun : Powerup
-    {
-        public Animator animator;
-        [Header("Actions")] public static Action Started;
-        
-        private void TriggerPowerupStart() => Started?.Invoke();
-
-        public void Play() => animator.Play("Activate");
-    }
+    public class FreezeGun : Powerup { }
 }

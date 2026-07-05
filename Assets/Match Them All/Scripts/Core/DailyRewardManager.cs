@@ -89,24 +89,24 @@ namespace MatchThemAll.Scripts.UI
                     break;
                 case 3:
                     SaveManager.AddCoins(50);
-                    SaveManager.AddPowerupCharge(EPowerupType.Vacuum, 1);
+                    SaveManager.AddPowerupCharge("vacuum", 1);
                     break;
                 case 4:
                     SaveManager.AddCoins(75);
                     break;
                 case 5:
                     SaveManager.AddCoins(100);
-                    SaveManager.AddPowerupCharge(EPowerupType.Spring, 1);
+                    SaveManager.AddPowerupCharge("spring", 1);
                     break;
                 case 6:
                     SaveManager.AddCoins(150);
                     break;
                 case 7:
                     SaveManager.AddCoins(300);
-                    SaveManager.AddPowerupCharge(EPowerupType.Vacuum, 1);
-                    SaveManager.AddPowerupCharge(EPowerupType.Spring, 1);
-                    SaveManager.AddPowerupCharge(EPowerupType.Fan, 1);
-                    SaveManager.AddPowerupCharge(EPowerupType.FreezeGun, 1);
+                    SaveManager.AddPowerupCharge("vacuum", 1);
+                    SaveManager.AddPowerupCharge("spring", 1);
+                    SaveManager.AddPowerupCharge("fan", 1);
+                    SaveManager.AddPowerupCharge("freeze", 1);
                     break;
             }
 

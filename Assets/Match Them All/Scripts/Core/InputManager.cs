@@ -131,8 +131,8 @@ public class InputManager : MonoBehaviour
         if(!hit.collider)
             return;
         
-        if (hit.collider.TryGetComponent(out Powerup powerup)) 
-            EventBus.Publish(new PowerupClickedEvent(powerup));
+        if (hit.collider.TryGetComponent(out Powerup powerup) && powerup.Data != null)
+            EventBus.Publish(new PowerupClickedEvent(powerup.Data));
     }
     
     // Private method to handle mouse drag/hover for item selection

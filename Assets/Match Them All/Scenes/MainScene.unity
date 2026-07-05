@@ -1799,10 +1799,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8dee340ef6340f443a1c86b46c4f7ad6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  type: 2
+  data: {fileID: 11400000, guid: 8d8bce7b27df6184e9b7f08201817150, type: 2}
+  powerupId: 
+  animator: {fileID: 296670686}
   amountText: {fileID: 1546160664}
   videoIcons: {fileID: 527751313}
-  animator: {fileID: 296670686}
+  lockBadge: {fileID: 0}
+  levelLabel: {fileID: 0}
+  iconImage: {fileID: 0}
 --- !u!135 &296670685
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -7582,10 +7586,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 34aebb3933a4f3f42b2a511f799a48e4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  type: 3
+  data: {fileID: 11400000, guid: da2c5a3c10eddff4f88cdb07d8f275d4, type: 2}
+  powerupId: 
+  animator: {fileID: 1161338915}
   amountText: {fileID: 966952704}
   videoIcons: {fileID: 1198318077}
-  animator: {fileID: 1161338915}
+  lockBadge: {fileID: 0}
+  levelLabel: {fileID: 0}
+  iconImage: {fileID: 0}
 --- !u!135 &1161338914
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -7929,6 +7937,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 81f70e804ec2480eace7bde61fea1778, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MatchThemAll.Scripts.PowerupManager
+  database: {fileID: 0}
   vacuum: {fileID: 1947967955}
   vacuumSuckPosition: {fileID: 968201496}
   gameSettings: {fileID: 11400000, guid: 8ead217f245550649be423e8e56e2bd3, type: 2}
@@ -10339,10 +10348,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 499cf102ec70ed34db52507348197e0a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  type: 1
+  data: {fileID: 11400000, guid: b94442b1dd4dc644cb514b872cfcb58e, type: 2}
+  powerupId: 
+  animator: {fileID: 1719440898}
   amountText: {fileID: 399388228}
   videoIcons: {fileID: 186746798}
-  animator: {fileID: 1719440898}
+  lockBadge: {fileID: 0}
+  levelLabel: {fileID: 0}
+  iconImage: {fileID: 0}
 --- !u!135 &1719440897
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -11715,10 +11728,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5def571ef91a478b8ea8450fe4c6ad8f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Match_Them_All.Scripts.Power_Ups.Vacuum
-  type: 0
+  data: {fileID: 11400000, guid: cf46bb97d979c204481117286ed44372, type: 2}
+  powerupId: 
+  animator: {fileID: 1947967954}
   amountText: {fileID: 1048820055}
   videoIcons: {fileID: 2115461019}
-  animator: {fileID: 1947967954}
+  lockBadge: {fileID: 0}
+  levelLabel: {fileID: 0}
+  iconImage: {fileID: 0}
 --- !u!135 &1947967956
 SphereCollider:
   m_ObjectHideFlags: 0

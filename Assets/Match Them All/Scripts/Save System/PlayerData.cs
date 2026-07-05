@@ -1,5 +1,14 @@
+using System.Collections.Generic;
+
 namespace MatchThemAll.Scripts.SaveSystem
 {
+    /// <summary>One power-up's saved charge count, keyed by the PowerupDataSO.id.</summary>
+    [System.Serializable]
+    public class PowerupSaveEntry
+    {
+        public string id;
+        public int count;
+    }
     /// <summary>
     /// Plain data container for all persistent player progress.
     /// Serialized to JSON by SaveManager — no MonoBehaviour, no Unity lifecycle.
@@ -24,15 +33,41 @@ namespace MatchThemAll.Scripts.SaveSystem
 
         // ── Powerup Charges ────────────────────────────────────────────────
         public bool hasInitializedPowerups = false;
-        public int vacuumCount;
-        public int springCount;
-        public int fanCount;
-        public int freezeCount;
+        public List<PowerupSaveEntry> powerups = new();   // id-keyed map
 
         // ── Settings ───────────────────────────────────────────────────────
         public float musicVolume    = 1f;
         public float sfxVolume      = 1f;
         public bool  hapticsEnabled = true;
+
+        /// <summary>
+        /// Ensures the powerup map exists. (Old per-type fields were removed in Stage 3a;
+        /// this is a no-op aside from the null-guard. Kept as the load hook for future migrations.)
+        /// </summary>
+        public void MigrateLegacyPowerups()
+        {
+            if (powerups == null) powerups = new List<PowerupSaveEntry>();
+        }
+
+        /// <summary>Gets the saved count for an id, or 0 if absent.</summary>
+        public int GetPowerupCount(string id)
+        {
+            if (powerups == null || string.IsNullOrEmpty(id)) return 0;
+            for (int i = 0; i < powerups.Count; i++)
+                if (powerups[i].id == id) return powerups[i].count;
+            return 0;
+        }
+
+        /// <summary>Sets (or inserts) the count for an id.</summary>
+        public void SetPowerupCount(string id, int count)
+        {
+            if (powerups == null) powerups = new List<PowerupSaveEntry>();
+            for (int i = 0; i < powerups.Count; i++)
+            {
+                if (powerups[i].id == id) { powerups[i].count = count; return; }
+            }
+            powerups.Add(new PowerupSaveEntry { id = id, count = count });
+        }
 
         /// <summary>Records stars for a level, keeping the best score.</summary>
         public void SetLevelStars(int levelIndex, int stars)

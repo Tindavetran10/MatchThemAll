@@ -43,6 +43,7 @@ namespace MatchThemAll.Scripts.SaveSystem
         {
             if (_cache != null) return;
             _cache = LoadFromDisk();
+            _cache.MigrateLegacyPowerups();   // id-keyed map (one-time, idempotent)
         }
 
         /// <summary>
@@ -80,83 +81,61 @@ namespace MatchThemAll.Scripts.SaveSystem
 
         // ── Powerups ────────────────────────────────────────────────────────
 
-        public static int GetPowerupCount(EPowerupType type)
-        {
-            return type switch
-            {
-                EPowerupType.Vacuum   => Data.vacuumCount,
-                EPowerupType.Spring   => Data.springCount,
-                EPowerupType.Fan      => Data.fanCount,
-                EPowerupType.FreezeGun => Data.freezeCount,
-                _ => 0
-            };
-        }
+        /// <summary>Charge count for a power-up id (e.g. "vacuum"). 0 if unknown/absent.</summary>
+        public static int GetPowerupCount(string id) => Data.GetPowerupCount(id);
 
-        /// <summary>
-        /// Consumes one charge of the given powerup type.
-        /// Returns false if the player has zero charges left.
-        /// </summary>
-        public static bool UsePowerupCharge(EPowerupType type)
+        /// <summary>Consumes one charge; false if the player has none.</summary>
+        public static bool UsePowerupCharge(string id)
         {
-            switch (type)
-            {
-                case EPowerupType.Vacuum:
-                    if (Data.vacuumCount <= 0) return false;
-                    Data.vacuumCount--;
-                    break;
-                case EPowerupType.Spring:
-                    if (Data.springCount <= 0) return false;
-                    Data.springCount--;
-                    break;
-                case EPowerupType.Fan:
-                    if (Data.fanCount <= 0) return false;
-                    Data.fanCount--;
-                    break;
-                case EPowerupType.FreezeGun:
-                    if (Data.freezeCount <= 0) return false;
-                    Data.freezeCount--;
-                    break;
-                default:
-                    return false;
-            }
-
+            int current = Data.GetPowerupCount(id);
+            if (current <= 0) return false;
+            Data.SetPowerupCount(id, current - 1);
             MarkDirty();
             OnPowerupsChanged?.Invoke();
             return true;
         }
 
-        /// <summary>
-        /// Adds charges to a specific powerup type (e.g., from daily rewards).
-        /// </summary>
-        public static void AddPowerupCharge(EPowerupType type, int amount)
+        /// <summary>Adds charges to an id (e.g. from daily rewards).</summary>
+        public static void AddPowerupCharge(string id, int amount)
         {
-            switch (type)
-            {
-                case EPowerupType.Vacuum:   Data.vacuumCount += amount; break;
-                case EPowerupType.Spring:   Data.springCount += amount; break;
-                case EPowerupType.Fan:      Data.fanCount    += amount; break;
-                case EPowerupType.FreezeGun: Data.freezeCount += amount; break;
-            }
-
+            if (string.IsNullOrEmpty(id) || amount == 0) return;
+            Data.SetPowerupCount(id, Data.GetPowerupCount(id) + amount);
             MarkDirty();
             OnPowerupsChanged?.Invoke();
         }
 
-        /// <summary>
-        /// Seeds powerup counts from GameSettingsSO on first launch.
-        /// </summary>
-        public static void InitializePowerups(GameSettingsSO settings)
+        /// <summary>Seeds each database entry's defaultAmount on first launch.</summary>
+        public static void InitializePowerups(PowerupDatabaseSO database)
         {
             if (Data.hasInitializedPowerups) return;
-
             Data.hasInitializedPowerups = true;
-            Data.vacuumCount = settings.initialVacuumCount;
-            Data.springCount = settings.initialSpringCount;
-            Data.fanCount    = settings.initialFanCount;
-            Data.freezeCount = settings.initialFreezeCount;
+
+            if (database != null)
+            {
+                foreach (var so in database.Ordered)
+                {
+                    if (so != null && so.defaultAmount > 0)
+                        Data.SetPowerupCount(so.id, so.defaultAmount);
+                }
+            }
             MarkDirty();
             Flush(); // First launch — write immediately
         }
+
+        // ── Currency ───────────────────────────────────────────────────────
+
+        /// <summary>Spends an amount of a currency. Dispatches per ECurrency (Coins now).</summary>
+        public static bool Spend(ECurrency currency, int amount) => currency switch
+        {
+            ECurrency.Coins => SpendCoins(amount),
+            _ => false
+        };
+
+        public static int GetCurrency(ECurrency currency) => currency switch
+        {
+            ECurrency.Coins => Data.coins,
+            _ => 0
+        };
 
         // ── Level Progress ──────────────────────────────────────────────────
 

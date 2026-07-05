@@ -1,15 +1,6 @@
-using System;
-using UnityEngine;
-
+// ponytail: thin subclass kept through Stage 2 so the existing scene component keeps resolving.
+// All behavior now lives in the base Powerup + FanEffect. Deleted in Stage 3.
 namespace Match_Them_All.Scripts.Power_Ups
 {
-    public class Fan : Powerup
-    {
-        public Animator animator;
-        [Header("Actions")] public static Action Started;
-        
-        private void TriggerPowerupStart() => Started?.Invoke();
-
-        public void Play() => animator.Play("Activate");
-    }
+    public class Fan : Powerup { }
 }

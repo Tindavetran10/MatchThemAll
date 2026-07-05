@@ -1116,8 +1116,8 @@ namespace Match_Them_All.Scripts.Editor
                 else if (step.highlightTarget == EHighlightTarget.Powerup)
                 {
                     GUILayout.BeginHorizontal();
-                    GUILayout.Label("Powerup Type", GUILayout.Width(labelW));
-                    step.powerupType = (EPowerupType)EditorGUILayout.EnumPopup(step.powerupType);
+                    GUILayout.Label("Powerup Id", GUILayout.Width(labelW));
+                    step.powerupId = EditorGUILayout.TextField(step.powerupId);
                     GUILayout.EndHorizontal();
                 }
                 else if (step.highlightTarget == EHighlightTarget.Manual)

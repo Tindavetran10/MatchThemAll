@@ -51,8 +51,8 @@ namespace MatchThemAll.Scripts
 
     public struct PowerupClickedEvent
     {
-        public Powerup ClickedPowerup;
-        public PowerupClickedEvent(Powerup powerup) => ClickedPowerup = powerup;
+        public PowerupDataSO Powerup;
+        public PowerupClickedEvent(PowerupDataSO powerup) => Powerup = powerup;
     }
 
     public struct PowerupItemPickedUpEvent

@@ -10,23 +10,27 @@ using PrimeTween;
 
 namespace MatchThemAll.Scripts
 {
+    /// <summary>
+    /// Data-driven power-up controller. Resolves clicks to a <see cref="PowerupDataSO"/>,
+    /// checks unlock + CanActivate, spends a charge (or buys one), then runs the SO's
+    /// polymorphic <see cref="PowerupEffect"/>. No switch on powerup type.
+    /// </summary>
     public class PowerupManager : MonoBehaviour
     {
+        [Header("Database")]
+        [Tooltip("The registry of all power-ups. If unassigned, loaded from Resources/Powerups/PowerupDatabase.")]
+        [SerializeField] private PowerupDatabaseSO database;
+
         [Header("Vacuum Elements")]
-        [SerializeField] private Vacuum vacuum;
+        [SerializeField] private Vacuum vacuum;              // the vacuum button (plays the suck animation)
         [SerializeField] private Transform vacuumSuckPosition;
-        
+
         [Header("Global Settings")]
         [SerializeField] private GameSettingsSO gameSettings;
 
-        [Header("Settings")] 
+        [Header("State")]
         private bool _isBusy;
         private bool _vacuumRequested;
-
-        private int _vacuumItemToCollect;
-
-        // Optimized: pre-allocated list container reused on every call to avoid runtime list creations and GC allocations
-        private readonly List<Item> _itemsToCollect = new(3);
 
         public event Action<Item> OnItemPickup;
         public event Action<Item> OnItemBackToGame;
@@ -40,325 +44,138 @@ namespace MatchThemAll.Scripts
             if (Instance != null && Instance != this) { Destroy(gameObject); return; }
             Instance = this;
 
-            _powerupUIElements = FindObjectsByType<Powerup>(FindObjectsInactive.Include, FindObjectsSortMode.None);
-            
-            if (!gameSettings)
-            {
-                gameSettings = Resources.Load<GameSettingsSO>("GameSettings");
-            }
-            
-            // Seed first-launch powerup counts from GameSettings
-            SaveManager.InitializePowerups(gameSettings);
+            if (!database)
+                database = Resources.Load<PowerupDatabaseSO>("Powerups/PowerupDatabase");
 
-            // Update visuals from saved data
+            if (!gameSettings)
+                gameSettings = Resources.Load<GameSettingsSO>("GameSettings");
+
+            // Seed first-launch powerup counts from the database (defaultAmount per SO).
+            SaveManager.InitializePowerups(database);
+
+            _powerupUIElements = FindObjectsByType<Powerup>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            foreach (var pu in _powerupUIElements)
+            {
+                if (pu) pu.TryAutoResolve(database);
+            }
+
             UpdateAllPowerupVisuals();
-            
-            Vacuum.Started += OnVacuumStarted;
+
+            Powerup.Started += OnVacuumStarted;            // animation handshake (vacuum)
             EventBus.Subscribe<PowerupClickedEvent>(OnPowerupClickedEvent);
             SaveManager.OnPowerupsChanged += UpdateAllPowerupVisuals;
         }
 
         private void OnDestroy()
         {
-            Vacuum.Started -= OnVacuumStarted;
+            Powerup.Started -= OnVacuumStarted;
             EventBus.Unsubscribe<PowerupClickedEvent>(OnPowerupClickedEvent);
             SaveManager.OnPowerupsChanged -= UpdateAllPowerupVisuals;
         }
 
         private void OnPowerupClickedEvent(PowerupClickedEvent evt)
         {
-            var powerup = evt.ClickedPowerup;
-            if(_isBusy) 
-                return;
+            PowerupDataSO so = evt.Powerup;
+            if (so == null || so.Effect == null) return;
+            if (_isBusy) return;
+            if (GameManager.Instance.State != EGameState.GAME) return;
 
-            if (GameManager.Instance.State != EGameState.GAME)
-                return;
+            int playerLevel = SaveManager.GetCurrentLevelIndex();
+            if (so.IsLockedAt(playerLevel)) return;
 
-            if (!CanUsePowerup(powerup.Type))
-                return;
+            var ctx = BuildContext(so);
+            if (!so.Effect.CanActivate(ctx)) return;
 
-            // Try to use a charge, if not, try to buy one
-            if (!TryUsePowerupCharge(powerup.Type))
+            // Use a charge; if none, buy one with the SO's currency/cost.
+            if (!SaveManager.UsePowerupCharge(so.id))
             {
-                const int powerupCost = 50;
-                if (SaveManager.SpendCoins(powerupCost))
+                if (!SaveManager.Spend(so.buyCurrency, so.buyCost))
                 {
-                    // Successfully bought
-                }
-                else
-                {
-                    // Not enough coins
-                    Debug.Log($"Not enough coins to buy {powerup.Type}! Needs {powerupCost}.");
+                    Debug.Log($"Not enough {so.buyCurrency} to buy {so.id}! Needs {so.buyCost}.");
                     return;
                 }
             }
 
-            switch (powerup.Type)
+            // Vacuum waits for its suck animation; the others run immediately.
+            if (so.id == "vacuum")
             {
-                case EPowerupType.Vacuum:
+                _isBusy = true;
+                if (vacuum != null && vacuum.HasAnimator)
+                {
+                    // Sync collection to the suck animation via the Started animation event.
                     _vacuumRequested = true;
-                    _isBusy = true;
                     vacuum.Play();
-                    UpdateAllPowerupVisuals();
-                    break;
-                case EPowerupType.Spring:
-                    SpringPowerup();
-                    break;
-                case EPowerupType.Fan:
-                    FanPowerup();
-                    break;
-                case EPowerupType.FreezeGun:
-                    FreezePowerup();
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
+                }
+                else
+                {
+                    // No Animator wired (placeholder button) — run the effect immediately.
+                    so.Effect.Activate(ctx);
+                }
+                UpdateAllPowerupVisuals();
+            }
+            else
+            {
+                so.Effect.Activate(ctx);
             }
         }
-
-        private static bool CanUsePowerup(EPowerupType type)
-        {
-            return type switch
-            {
-                EPowerupType.Vacuum => true,
-                EPowerupType.Spring => ItemSpotManager.Instance.GetRandomOccupiedSpot(),
-                EPowerupType.Fan => true,
-                EPowerupType.FreezeGun => !TimerManager.Instance.IsFrozen,
-                _ => false
-            };
-        }
-
-        private static bool TryUsePowerupCharge(EPowerupType type) =>
-            // Visuals are updated automatically via SaveManager.OnPowerupsChanged
-            SaveManager.UsePowerupCharge(type);
-
-        #region Vacuum Powerup
 
         private void OnVacuumStarted()
         {
             if (!_vacuumRequested) return;
             _vacuumRequested = false;
-            VacuumPowerup();
-        }
 
-        [Button]
-        private void VacuumPowerup()
-        {
-            var items = LevelManager.Instance.Items;
-            ItemLevelData[] goals = GoalManager.Instance.Goals;
-            
-            int greatestGoalIndex = GetGreatestGoalIndex(goals);
-            if (greatestGoalIndex == -1)
-            {
+            // Find the vacuum SO and run its effect.
+            PowerupDataSO vacuumSo = database != null ? database.FindById("vacuum") : null;
+            if (vacuumSo != null && vacuumSo.Effect != null)
+                vacuumSo.Effect.Activate(BuildContext(vacuumSo));
+            else
                 _isBusy = false;
-                return;
-            }
-            
-            ItemLevelData goal = goals[greatestGoalIndex];
-            
-            //_isBusy = true;
-            _itemsToCollect.Clear();
-
-            if (items != null)
-            {
-                foreach (var item in items.AsValueEnumerable()
-                             .Where(item => item && item.gameObject.activeInHierarchy)
-                             .Where(item =>
-                                 item.ItemNameKey == goal.itemPrefab.ItemNameKey &&
-                                 !item.Spot &&
-                                 !item.IsMovingToSpot))
-                {
-                    _itemsToCollect.Add(item);
-                    if (_itemsToCollect.Count >= 3)
-                        break;
-                }
-            }
-            
-            _vacuumItemToCollect = _itemsToCollect.Count;
-
-            if (_vacuumItemToCollect == 0)
-            {
-                // Delay clearing busy state until the visual animation finishes (~2.5s)
-                Tween.Delay(2.5f).OnComplete(() => _isBusy = false);
-                return;
-            }
-
-            foreach (var itemToCollect in _itemsToCollect.AsValueEnumerable().Where(itemToCollect => itemToCollect != null))
-            {
-                itemToCollect.DisablePhysics();
-
-                // 1. Vortex move to vacuum suck position
-                var collect = itemToCollect;
-                Tween.Position(itemToCollect.transform, vacuumSuckPosition.position, 0.5f, Ease.InCubic)
-                    .OnComplete(() => ItemReachedVacuum(collect));
-
-                // 2. Shrink down to 0
-                Tween.Scale(itemToCollect.transform, Vector3.zero, 0.5f, Ease.InCubic);
-
-                // 3. Dynamic spin for aesthetic vortex feel
-                Tween.LocalEulerAngles(itemToCollect.transform, itemToCollect.transform.localEulerAngles,
-                    itemToCollect.transform.localEulerAngles + new Vector3(0, 720f, 0), 0.5f, Ease.InCubic);
-            }
-            
-            for (int i = _itemsToCollect.Count - 1; i >= 0; i--)
-            {
-                Item itemToCollect = _itemsToCollect[i];
-                if (!itemToCollect) continue;
-                OnItemPickup?.Invoke(itemToCollect);
-            }
-            
-            // Wait for the full vacuum animation to complete before allowing another powerup
-            Tween.Delay(2.5f).OnComplete(() => _isBusy = false);
         }
 
-        private static void ItemReachedVacuum(Item item) => 
-            ItemPoolManager.Instance.ReleaseItem(item);
+        /// <summary>Builds the per-activation dependency context handed to an effect.</summary>
+        private PowerupContext BuildContext(PowerupDataSO so)
+        {
+            return new PowerupContext
+            {
+                Items = LevelManager.Instance != null ? LevelManager.Instance.Items : null,
+                Goals = GoalManager.Instance != null ? GoalManager.Instance.Goals : null,
+                ItemSpots = ItemSpotManager.Instance,
+                Timer = TimerManager.Instance,
+                GameSettings = gameSettings,
+                VacuumSuckPosition = vacuumSuckPosition,
+                OnItemPickup = InvokeItemPickup,
+                OnItemBackToGame = InvokeItemBackToGame,
+                SetBusy = busy => _isBusy = busy,
+            };
+        }
+
+        private void InvokeItemPickup(Item item) => OnItemPickup?.Invoke(item);
+        private void InvokeItemBackToGame(Item item) => OnItemBackToGame?.Invoke(item);
 
         private void UpdateAllPowerupVisuals()
         {
+            if (_powerupUIElements == null) return;
+            int playerLevel = SaveManager.GetCurrentLevelIndex();
             foreach (var pu in _powerupUIElements)
             {
-                int count = SaveManager.GetPowerupCount(pu.Type);
-                pu.UpdateVisuals(count);
+                if (!pu || pu.Data == null) continue;
+                bool locked = pu.Data.IsLockedAt(playerLevel);
+                int count = locked ? 0 : SaveManager.GetPowerupCount(pu.Data.id);
+                pu.UpdateVisuals(count, locked);
             }
         }
-        #endregion
-
-        #region Spring Powerup
-        [Button]
-        private void SpringPowerup()
-        {
-            ItemSpot spot = ItemSpotManager.Instance.GetRandomOccupiedSpot();
-            
-            if(!spot)
-                return;
-            _isBusy = true;
-
-            Item itemToRelease = spot.Item;
-            
-            spot.Clear();
-            itemToRelease.UnassignSpot();
-            
-            itemToRelease.transform.parent = LevelManager.Instance.ItemParent;
-            itemToRelease.transform.localScale = Vector3.one;
-            
-            // Instantly pop the item up slightly so it doesn't collide with other items
-            // while trying to escape the tightly packed ItemSpot area!
-            Vector3 startPos = itemToRelease.transform.position + Vector3.up * 1f;
-            itemToRelease.transform.position = startPos;
-
-            // We will use pure physics for the throw instead of animation!
-            // This guarantees a perfect parabolic arc that respects all collisions on the way down.
-            itemToRelease.EnablePhysics();
-            OnItemBackToGame?.Invoke(itemToRelease);
-
-            Rigidbody rb = itemToRelease.GetComponent<Rigidbody>();
-            if (rb)
-            {
-                // Toss it like a real bomb!
-                // Throw it based on the Z direction setting, with a small random spread
-                float spreadAngle = UnityEngine.Random.Range(-45f, 45f);
-                Vector3 baseDirection = new Vector3(0, 0, Mathf.Sign(gameSettings.springThrowZDirection));
-                Vector3 throwDirection = Quaternion.Euler(0, spreadAngle, 0) * baseDirection;
-                
-                float throwForceXZ = UnityEngine.Random.Range(gameSettings.springHorizontalForceRange.x, gameSettings.springHorizontalForceRange.y); 
-                float throwForceY = UnityEngine.Random.Range(gameSettings.springVerticalForceRange.x, gameSettings.springVerticalForceRange.y);  
-                
-                // Apply the physical velocity
-                rb.linearVelocity = new Vector3(throwDirection.x * throwForceXZ, throwForceY, throwDirection.z * throwForceXZ);
-
-                // Add natural physical spin (tumble)
-                float spinSpeed = UnityEngine.Random.Range(gameSettings.springSpinSpeedRange.x, gameSettings.springSpinSpeedRange.y);
-                rb.angularVelocity = UnityEngine.Random.onUnitSphere * spinSpeed;
-
-                // Release the lock almost immediately so the game feels snappy and responsive!
-                // Players shouldn't be locked out of playing just because an item is falling.
-                Tween.Delay(0.2f, () => _isBusy = false);
-            }
-            else _isBusy = false;
-        }
-        #endregion
-
-        #region Fan Powerup
-        [Button]
-        private void FanPowerup()
-        {
-            foreach (var item in LevelManager.Instance.Items.AsValueEnumerable().Where(item => item && item.gameObject.activeInHierarchy))
-                item.ApplyRandomForce(gameSettings.fanMagnitude);
-        }
-        
-
-        #endregion
-
-        #region Freeze Powerup
-        [Button]
-        private static void FreezePowerup() => 
-            TimerManager.Instance.FreezeTimer();
-
-        #endregion
-        
-        // Optimized: Returns clean goal array index to completely avoid Nullable struct boxing overhead
-        private static int GetGreatestGoalIndex(ItemLevelData[] goals)
-        {
-            if (goals == null || goals.Length == 0)
-                return -1;
-
-            int max = 0;
-            int goalIndex = -1;
-
-            for (int i = 0; i < goals.Length; i++)
-            {
-                if (goals[i].amount > max)
-                {
-                    max = goals[i].amount;
-                    goalIndex = i;
-                }
-            }
-            
-            return goalIndex;
-        }
-
-
 
 #if UNITY_EDITOR
         private void OnDrawGizmosSelected()
         {
-            // Draw a preview of the Spring Powerup trajectory
+            // Spring trajectory preview, read from the SpringEffect on the spring SO.
+            if (database == null) return;
+            PowerupDataSO springSo = database.FindById("spring");
+            if (springSo == null || !(springSo.Effect is SpringEffect spring)) return;
+
             ItemSpot spot = FindAnyObjectByType<ItemSpot>();
             Vector3 startPos = spot != null ? spot.transform.position : transform.position;
-
-            // Draw a few sample trajectories to show the "cone" of throws
-            Gizmos.color = Color.green;
-            DrawTrajectoryGizmo(startPos, gameSettings.springHorizontalForceRange.x, gameSettings.springVerticalForceRange.x, 0f); // Min forward
-            
-            Gizmos.color = Color.red;
-            DrawTrajectoryGizmo(startPos, gameSettings.springHorizontalForceRange.y, gameSettings.springVerticalForceRange.y, 0f); // Max forward
-            
-            Gizmos.color = Color.yellow;
-            float midXZ = (gameSettings.springHorizontalForceRange.x + gameSettings.springHorizontalForceRange.y) / 2f;
-            float midY = (gameSettings.springVerticalForceRange.x + gameSettings.springVerticalForceRange.y) / 2f;
-            DrawTrajectoryGizmo(startPos, midXZ, midY, 45f); // Right spread
-            DrawTrajectoryGizmo(startPos, midXZ, midY, -45f); // Left spread
-        }
-
-        private void DrawTrajectoryGizmo(Vector3 startPos, float forceXZ, float forceY, float spreadAngle)
-        {
-            Vector3 baseDirection = new Vector3(0, 0, Mathf.Sign(gameSettings.springThrowZDirection));
-            Vector3 throwDirection = Quaternion.Euler(0, spreadAngle, 0) * baseDirection;
-            
-            Vector3 velocity = new Vector3(throwDirection.x * forceXZ, forceY, throwDirection.z * forceXZ);
-            Vector3 gravity = Physics.gravity;
-
-            Vector3 previousPos = startPos;
-            float timeStep = 0.05f;
-            for (float t = 0; t < 2f; t += timeStep)
-            {
-                Vector3 currentPos = startPos + velocity * t + 0.5f * gravity * (t * t);
-                Gizmos.DrawLine(previousPos, currentPos);
-                previousPos = currentPos;
-                
-                // Stop drawing if it hits the ground (approx 0.5 Y)
-                if (currentPos.y < 0.5f && t > 0.1f) break;
-            }
+            spring.DrawGizmos(startPos);
         }
 #endif
     }

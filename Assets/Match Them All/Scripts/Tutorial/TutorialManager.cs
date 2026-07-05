@@ -175,14 +175,14 @@ namespace MatchThemAll.Scripts.Managers
                     _targetPowerup = null;
                     foreach (var p in allPowerups)
                     {
-                        if (p.Type != step.powerupType) continue;
+                        if (p.Data == null || p.Data.id != step.powerupId) continue;
                         _targetPowerup = p;
                         break;
                     }
 
                     if (!_targetPowerup)
                     {
-                        Debug.LogWarning($"[TutorialManager] Powerup: no powerup of type '{step.powerupType}' found.");
+                        Debug.LogWarning($"[TutorialManager] Powerup: no powerup with id '{step.powerupId}' found.");
                         return null;
                     }
                     result.Add(_targetPowerup.gameObject);
@@ -291,10 +291,9 @@ namespace MatchThemAll.Scripts.Managers
 
         private void OnPowerupClickedEvent(PowerupClickedEvent evt)
         {
-            var powerup = evt.ClickedPowerup;
             if (_currentStep == null) return;
             if (_currentStep.completionCondition != ECompletionCondition.OnPowerupUsed) return;
-            if (powerup == _targetPowerup)
+            if (_targetPowerup != null && evt.Powerup == _targetPowerup.Data)
                 CompleteCurrentStep();
         }
 
