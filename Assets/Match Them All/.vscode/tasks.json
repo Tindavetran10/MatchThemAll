@@ -1,0 +1,68 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Claude: Switch to GLM 5.2 (z.ai)",
+      "type": "shell",
+      "command": "& '${workspaceFolder}\\switch-model.ps1' glm",
+      "options": {
+        "shell": {
+          "executable": "pwsh.exe",
+          "args": ["-NonInteractive", "-ExecutionPolicy", "Bypass", "-Command"]
+        }
+      },
+      "group": "none",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": false,
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Claude: Switch to OpenRouter (free)",
+      "type": "shell",
+      "command": "& '${workspaceFolder}\\switch-model.ps1' openrouter",
+      "options": {
+        "shell": {
+          "executable": "pwsh.exe",
+          "args": ["-NonInteractive", "-ExecutionPolicy", "Bypass", "-Command"]
+        }
+      },
+      "group": "none",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": false,
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Claude: Show Active Model",
+      "type": "shell",
+      "command": "& '${workspaceFolder}\\switch-model.ps1'",
+      "options": {
+        "shell": {
+          "executable": "pwsh.exe",
+          "args": ["-NonInteractive", "-ExecutionPolicy", "Bypass", "-Command"]
+        }
+      },
+      "group": "none",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": false,
+        "clear": true
+      },
+      "problemMatcher": []
+    }
+  ]
+}

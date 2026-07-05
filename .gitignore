@@ -77,3 +77,6 @@ Assets/Pixelate.meta
 /Assets/Match Them All/graphify-out
 Assets/Match Them All/graphify-out.meta
 /.agents
+/Assets/Match Them All/.claude
+Assets/Match Them All/switch-model.ps1
+Assets/Match Them All/switch-model.ps1.meta
