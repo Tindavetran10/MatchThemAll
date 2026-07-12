@@ -11,6 +11,22 @@ namespace MatchThemAll.Scripts
     [CreateAssetMenu(fileName = "LevelData", menuName = "Match Them All/Level Data")]
     public class LevelDataSO : ScriptableObject
     {
+        [Header("Identity")]
+        [Tooltip("Stable key used by the save system (keyed by identity, not array position). " +
+                 "Defaults to the asset filename; leave empty to auto-fill from the asset name.")]
+        [SerializeField] private string levelId;
+
+        /// <summary>Stable identity for save data. Falls back to the asset name (= filename) if unset.</summary>
+        public string Id => string.IsNullOrEmpty(levelId) ? name : levelId;
+
+        [Header("Theme")]
+        [Tooltip("Optional background art shown behind this level's node on the saga map. Null = no themed background.")]
+        [SerializeField] private Sprite themeBackground;
+        [Tooltip("Optional theme/chapter name shown on the saga map.")]
+        [SerializeField] private string themeName;
+        public Sprite ThemeBackground => themeBackground;
+        public string ThemeName => string.IsNullOrEmpty(themeName) ? name : themeName;
+
         [Header("Settings")]
         [Tooltip("How many slots are available for matching items in this level.")]
         [Range(5, 7)]
@@ -55,6 +71,8 @@ namespace MatchThemAll.Scripts
         private void OnValidate()
         {
             _cachedGoals = null; // Invalidate cache when edited in Inspector
+            if (string.IsNullOrEmpty(levelId) && !string.IsNullOrEmpty(name))
+                levelId = name; // auto-seed the save key from the asset filename
             if (itemData == null) return;
             for (int i = 0; i < itemData.Count; i++)
             {

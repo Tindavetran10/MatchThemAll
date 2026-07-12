@@ -29,7 +29,22 @@ namespace MatchThemAll.Scripts
         public LevelDataSO CurrentLevelData => levels != null && levels.Length > 0 ? levels[CurrentLevelIndex % levels.Length] : null;
 
         public int TotalLevelDuration  => _currentLevel != null ? _currentLevel.Duration : 1;
-        public int TotalLevelCount     => levels.Length;
+        public int TotalLevelCount     => levels != null ? levels.Length : 0;
+
+        /// <summary>Ordered list of level ids (LevelDataSO.Id), matching the play sequence. Source of truth for keyed save data.
+        /// Empty until LoadDataAsync completes. Safe to call at any time (never throws).</summary>
+        public System.Collections.Generic.IReadOnlyList<string> OrderedLevelIds
+        {
+            get
+            {
+                // Cached & valid only after LoadDataAsync finishes. Before that, `levels` may be the
+                // serialized Inspector array (possibly with null/missing entries), so return empty.
+                if (_idsReady && _orderedIds != null) return _orderedIds;
+                return System.Array.Empty<string>();
+            }
+        }
+        private System.Collections.Generic.List<string> _orderedIds;
+        private bool _idsReady;
 
         [Header("Actions")]
         public static Action<Level> LevelSpawned;
@@ -133,6 +148,15 @@ namespace MatchThemAll.Scripts
                     var list = new List<LevelDataSO>(loadedLevels);
                     list.Sort((a, b) => string.Compare(a.name, b.name, StringComparison.Ordinal));
                     levels = list.ToArray();
+
+                    // Build the id cache from the fully-loaded list and mark it ready.
+                    _orderedIds = new List<string>(levels.Length);
+                    for (int i = 0; i < levels.Length; i++) _orderedIds.Add(levels[i].Id);
+                    _idsReady = true;
+
+                    // ponytail: migration runs here, not in SaveManager.Initialize, because SaveManager
+                    // loads before the level list exists. This is the first moment orderedIds are known.
+                    SaveManager.MigrateLevelsToKeyed(OrderedLevelIds);
                 }
             }
             catch (Exception e)
@@ -145,14 +169,32 @@ namespace MatchThemAll.Scripts
         }
 
         /// <summary>
-        /// Saves progress and stars on level complete.
-        /// Only advances currentLevelIndex if the player just beat their furthest level
-        /// (not a replay of an old level).
+        /// Saves progress and stars on level complete (keyed by level id).
+        /// Advances the furthest-unlocked frontier if this was the furthest level.
         /// </summary>
         public void SaveLevelComplete(int starsEarned)
         {
-            SaveManager.SaveLevelComplete(CurrentLevelIndex, _savedProgressIndex, starsEarned, out int newProgressIndex);
-            _savedProgressIndex = newProgressIndex;
+            if (levels == null || levels.Length == 0) return;
+            int idx = CurrentLevelIndex % levels.Length;
+            string id = levels[idx].Id;
+            var ids = OrderedLevelIds;
+            string furthest = SaveManager.GetFurthestLevelId();
+            int furthestIdx = IndexOfId(ids, furthest);
+            bool isFurthest = string.IsNullOrEmpty(furthest) ? idx == 0 : (furthestIdx >= 0 && idx == furthestIdx);
+
+            SaveManager.SetLevelComplete(id, starsEarned, isFurthest, ids);
+
+            // Keep the legacy index in sync for any code still reading it during the transition.
+            _savedProgressIndex = Mathf.Max(0, idx);
+            CurrentLevelIndex = idx;
+        }
+
+        private static int IndexOfId(System.Collections.Generic.IReadOnlyList<string> ids, string id)
+        {
+            if (ids == null || string.IsNullOrEmpty(id)) return -1;
+            for (int i = 0; i < ids.Count; i++)
+                if (ids[i] == id) return i;
+            return -1;
         }
 
         /// <summary>Wipes all save data and resets to Level 1.</summary>

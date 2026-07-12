@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6555fd2a693358d43a48520c3eaaa4b4, type: 3}
+  m_Name: LevelData08
+  m_EditorClassIdentifier: 
+  levelId: 
+  themeBackground: {fileID: 0}
+  themeName: 
+  spotCount: 7
+  duration: 60
+  seed: 62150
+  itemData:
+  - itemPrefab: {fileID: 5344777744879384591, guid: e17a29bbc586e254fa7cce4ae7d2081e, type: 3}
+    isGoal: 0
+    multiplier: 5
+    amount: 24
+  - itemPrefab: {fileID: 8007656322365431951, guid: 1f154021cb988a94ba661692b3d8ed63, type: 3}
+    isGoal: 0
+    multiplier: 1
+    amount: 30
+  - itemPrefab: {fileID: 6469244774931994542, guid: a60c4fa3d71c98747aebff0cb3f94755, type: 3}
+    isGoal: 1
+    multiplier: 2
+    amount: 21
+  - itemPrefab: {fileID: 6712440319158832157, guid: 700e992717e541549a1dd9f5ff3b009e, type: 3}
+    isGoal: 1
+    multiplier: 5
+    amount: 18
+  tutorialSteps: []
+  rewardMode: 1
+  baseCoinReward: 50
+  coinsPerStar: 10
+  timeFor3Stars: 40
+  timeFor2Stars: 20

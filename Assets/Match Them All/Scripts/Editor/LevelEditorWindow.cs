@@ -1720,10 +1720,31 @@ namespace Match_Them_All.Scripts.Editor
         }
 
         // ── CRUD Operations ───────────────────────────────────────────────────
+        /// <summary>
+        /// Picks a default name for a new level: "LevelData{N:D2}" where N = max trailing number across
+        /// existing level names + 1 (or count+1 if none parse). This keeps alphabetical sort == numeric
+        /// order when appending levels, avoiding the "LevelData06 1" duplicate-name ordering break.
+        /// </summary>
+        private string DefaultNewLevelName()
+        {
+            int max = 0; bool any = false;
+            foreach (var lv in _levels)
+            {
+                if (lv == null) continue;
+                string n = lv.name;
+                int lastNonDigit = n.Length;
+                while (lastNonDigit > 0 && char.IsDigit(n[lastNonDigit - 1])) lastNonDigit--;
+                if (lastNonDigit < n.Length && int.TryParse(n.AsSpan(lastNonDigit), out int num) && num > max)
+                { max = num; any = true; }
+            }
+            int next = any ? max + 1 : _levels.Count + 1;
+            return $"LevelData{next:D2}";
+        }
+
         private void CreateNewLevel()
         {
-            var safeName = string.IsNullOrWhiteSpace(_newLevelName) 
-                ? $"LevelData{_levels.Count + 1:D2}" 
+            var safeName = string.IsNullOrWhiteSpace(_newLevelName)
+                ? DefaultNewLevelName()
                 : _newLevelName.Trim();
 
             if (!Directory.Exists(LevelDataFolder))
@@ -1746,7 +1767,7 @@ namespace Match_Them_All.Scripts.Editor
                 var entry = settings.CreateOrMoveEntry(guid, settings.DefaultGroup);
                 entry.address = safeName;
                 
-                // Add the LevelData label so LevelSelectManager can discover it
+                // Add the LevelData label so the saga map + LevelManager can discover it
                 settings.AddLabel("LevelData");
                 entry.SetLabel("LevelData", true, true);
                 

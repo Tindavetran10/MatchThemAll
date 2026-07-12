@@ -1,11 +1,12 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using Match_Them_All.Scripts.Power_Ups;
-using MatchThemAll.Scripts.Settings;
 using UnityEngine;
 
 namespace MatchThemAll.Scripts.SaveSystem
 {
+    // LevelManager (MatchThemAll.Scripts) referenced fully-qualified to avoid a namespace import cycle.
     /// <summary>
     /// Centralized data access layer for all persistent player data.
     /// Holds an in-memory cache and flushes to disk only when needed
@@ -44,6 +45,17 @@ namespace MatchThemAll.Scripts.SaveSystem
             if (_cache != null) return;
             _cache = LoadFromDisk();
             _cache.MigrateLegacyPowerups();   // id-keyed map (one-time, idempotent)
+        }
+
+        /// <summary>
+        /// Migrates legacy positional level progress to the id-keyed map. Called by LevelManager once
+        /// the ordered level list is loaded (SaveManager loads before levels exist, so this runs later).
+        /// Idempotent.
+        /// </summary>
+        public static void MigrateLevelsToKeyed(IReadOnlyList<string> orderedIds)
+        {
+            Data.MigrateLevelsToKeyed(orderedIds);
+            if (_cache != null) { MarkDirty(); Flush(); } // persist the one-time migration
         }
 
         /// <summary>
@@ -137,30 +149,66 @@ namespace MatchThemAll.Scripts.SaveSystem
             _ => 0
         };
 
-        // ── Level Progress ──────────────────────────────────────────────────
+        // ── Level Progress (keyed by stable level identity) ─────────────────
 
-        public static int GetCurrentLevelIndex() => Data.currentLevelIndex;
+        /// <summary>Id of the furthest unlocked level. Empty if no progress.</summary>
+        public static string GetFurthestLevelId() => Data.furthestLevelId ?? "";
 
-        public static int GetLevelStars(int levelIndex) => Data.GetLevelStars(levelIndex);
+        /// <summary>Best stars for a level id, or 0.</summary>
+        public static int GetLevelStars(string id) => Data.GetLevelStars(id);
+
+        /// <summary>True if the level id is unlocked (== furthest or any level before it in the ordered list).</summary>
+        public static bool IsLevelUnlocked(string id, IReadOnlyList<string> orderedIds)
+        {
+            if (string.IsNullOrEmpty(id) || orderedIds == null || orderedIds.Count == 0) return false;
+            string furthest = Data.furthestLevelId;
+            if (string.IsNullOrEmpty(furthest)) return id.Equals(orderedIds[0]); // nothing played → only first open
+            int furthestIdx = IndexOfId(orderedIds, furthest);
+            int targetIdx = IndexOfId(orderedIds, id);
+            return furthestIdx >= 0 && targetIdx >= 0 && targetIdx <= furthestIdx;
+        }
 
         /// <summary>
-        /// Saves progress and stars on level completion.
-        /// Only advances currentLevelIndex if this was a new (non-replay) level.
-        /// Flushes to disk immediately since this is a natural save point.
+        /// Records completion of a level by id. Sets best stars, and advances furthestLevelId to the
+        /// next level when <paramref name="isFurthest"/> (first-time frontier clear).
         /// </summary>
-        public static void SaveLevelComplete(int levelIndex, int savedProgressIndex, int starsEarned, out int newProgressIndex)
+        public static void SetLevelComplete(string id, int stars, bool isFurthest, IReadOnlyList<string> orderedIds)
         {
-            bool isNewLevel = levelIndex == savedProgressIndex;
-            newProgressIndex = savedProgressIndex;
-            if (isNewLevel)
-            {
-                newProgressIndex++;
-                Data.currentLevelIndex = newProgressIndex;
-            }
+            if (string.IsNullOrEmpty(id)) return;
+            Data.SetLevelStars(id, stars);
 
-            Data.SetLevelStars(levelIndex, starsEarned);
+            if (isFurthest && orderedIds != null)
+            {
+                int idx = IndexOfId(orderedIds, id);
+                if (idx >= 0 && idx + 1 < orderedIds.Count)
+                    Data.furthestLevelId = orderedIds[idx + 1];
+                // last level cleared → furthest stays (campaign complete)
+            }
             MarkDirty();
             Flush(); // Level complete = natural save point
+        }
+
+        // ── Index bridge (for callers that still think in indices, e.g. PowerupManager unlock level) ──
+
+        /// <summary>Position of the furthest level in the current ordered list, or 0.</summary>
+        public static int GetCurrentLevelIndex()
+        {
+            var ids = LiveOrderedIds;
+            string furthest = Data.furthestLevelId;
+            if (ids == null || ids.Count == 0 || string.IsNullOrEmpty(furthest)) return 0;
+            int idx = IndexOfId(ids, furthest);
+            return idx >= 0 ? idx : 0;
+        }
+
+        /// <summary>The live ordered level id list from LevelManager, or null if unavailable (menu scenes).</summary>
+        private static IReadOnlyList<string> LiveOrderedIds
+            => MatchThemAll.Scripts.LevelManager.Instance != null ? MatchThemAll.Scripts.LevelManager.Instance.OrderedLevelIds : null;
+
+        private static int IndexOfId(IReadOnlyList<string> ids, string id)
+        {
+            for (int i = 0; i < ids.Count; i++)
+                if (ids[i] == id) return i;
+            return -1;
         }
 
         // ── Daily Rewards ───────────────────────────────────────────────────

@@ -9,6 +9,14 @@ namespace MatchThemAll.Scripts.SaveSystem
         public string id;
         public int count;
     }
+
+    /// <summary>One level's saved star rating, keyed by the LevelDataSO.Id (stable identity).</summary>
+    [System.Serializable]
+    public class LevelProgressEntry
+    {
+        public string id;
+        public int stars;
+    }
     /// <summary>
     /// Plain data container for all persistent player progress.
     /// Serialized to JSON by SaveManager — no MonoBehaviour, no Unity lifecycle.
@@ -18,8 +26,16 @@ namespace MatchThemAll.Scripts.SaveSystem
     [System.Serializable]
     public class PlayerData
     {
-        // ── Level Progress ─────────────────────────────────────────────────
+        // ── Level Progress (keyed by stable level identity) ────────────────
+        /// <summary>Id (LevelDataSO.Id) of the furthest unlocked level. Source of truth for progression.</summary>
+        public string furthestLevelId = "";
+        /// <summary>Best stars per level, keyed by LevelDataSO.Id.</summary>
+        public List<LevelProgressEntry> levelProgress = new();
+
+        // ponytail: legacy positional fields — read once by MigrateLevelsToKeyed, then cleared. Removed Stage 3.
         public int currentLevelIndex;
+        /// <summary>Best star rating (0-3) earned per level index (legacy positional).</summary>
+        public int[] levelStars = System.Array.Empty<int>();
 
         // ── Player Engagement ──────────────────────────────────────────────
         public string lastPlayedDate = "";
@@ -27,9 +43,6 @@ namespace MatchThemAll.Scripts.SaveSystem
 
         // ── Economy ────────────────────────────────────────────────────────
         public int coins;
-
-        /// <summary>Best star rating (0-3) earned per level index.</summary>
-        public int[] levelStars = System.Array.Empty<int>();
 
         // ── Powerup Charges ────────────────────────────────────────────────
         public bool hasInitializedPowerups = false;
@@ -47,6 +60,72 @@ namespace MatchThemAll.Scripts.SaveSystem
         public void MigrateLegacyPowerups()
         {
             if (powerups == null) powerups = new List<PowerupSaveEntry>();
+        }
+
+        /// <summary>
+        /// Migrates legacy positional level progress (currentLevelIndex + levelStars[]) into the
+        /// id-keyed map, using the current ordered level id list. Idempotent: once levelProgress is
+        /// populated it never re-runs, and legacy fields are cleared. Safe to call repeatedly.
+        /// </summary>
+        public void MigrateLevelsToKeyed(IReadOnlyList<string> orderedIds)
+        {
+            if (levelProgress == null) levelProgress = new List<LevelProgressEntry>();
+
+            // Already keyed — just ensure legacy fields stay cleared.
+            if (levelProgress.Count > 0 || !string.IsNullOrEmpty(furthestLevelId))
+            {
+                currentLevelIndex = 0;
+                levelStars = System.Array.Empty<int>();
+                return;
+            }
+
+            // Nothing legacy to migrate from.
+            if (levelStars == null || levelStars.Length == 0)
+            {
+                currentLevelIndex = 0;
+                return;
+            }
+
+            // Zip positional stars → keyed entries by id.
+            if (orderedIds != null && orderedIds.Count > 0)
+            {
+                for (int i = 0; i < levelStars.Length && i < orderedIds.Count; i++)
+                {
+                    if (levelStars[i] > 0)
+                        levelProgress.Add(new LevelProgressEntry { id = orderedIds[i], stars = levelStars[i] });
+                }
+                int lo = currentLevelIndex < 0 ? 0 : currentLevelIndex;
+                if (lo > orderedIds.Count - 1) lo = orderedIds.Count - 1;
+                furthestLevelId = orderedIds[lo];
+            }
+
+            currentLevelIndex = 0;
+            levelStars = System.Array.Empty<int>();
+        }
+
+        /// <summary>Best stars for a level id, or 0 if absent.</summary>
+        public int GetLevelStars(string id)
+        {
+            if (levelProgress == null || string.IsNullOrEmpty(id)) return 0;
+            for (int i = 0; i < levelProgress.Count; i++)
+                if (levelProgress[i].id == id) return levelProgress[i].stars;
+            return 0;
+        }
+
+        /// <summary>Sets (or inserts) the star rating for a level id, keeping the max.</summary>
+        public void SetLevelStars(string id, int stars)
+        {
+            if (string.IsNullOrEmpty(id)) return;
+            if (levelProgress == null) levelProgress = new List<LevelProgressEntry>();
+            for (int i = 0; i < levelProgress.Count; i++)
+            {
+                if (levelProgress[i].id == id)
+                {
+                    if (stars > levelProgress[i].stars) levelProgress[i].stars = stars;
+                    return;
+                }
+            }
+            levelProgress.Add(new LevelProgressEntry { id = id, stars = stars });
         }
 
         /// <summary>Gets the saved count for an id, or 0 if absent.</summary>
@@ -67,28 +146,6 @@ namespace MatchThemAll.Scripts.SaveSystem
                 if (powerups[i].id == id) { powerups[i].count = count; return; }
             }
             powerups.Add(new PowerupSaveEntry { id = id, count = count });
-        }
-
-        /// <summary>Records stars for a level, keeping the best score.</summary>
-        public void SetLevelStars(int levelIndex, int stars)
-        {
-            if (levelIndex < 0) return;
-            if (levelStars == null || levelStars.Length <= levelIndex)
-            {
-                var expanded = new int[levelIndex + 1];
-                if (levelStars != null)
-                    System.Array.Copy(levelStars, expanded, levelStars.Length);
-                levelStars = expanded;
-            }
-            if (stars > levelStars[levelIndex])
-                levelStars[levelIndex] = stars;
-        }
-
-        /// <summary>Returns best stars earned for a level, or 0 if never played.</summary>
-        public int GetLevelStars(int levelIndex)
-        {
-            if (levelStars == null || levelIndex >= levelStars.Length) return 0;
-            return levelStars[levelIndex];
         }
     }
 }

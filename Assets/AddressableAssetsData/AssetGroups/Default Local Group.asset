@@ -15,8 +15,26 @@ MonoBehaviour:
   m_GroupName: Default Local Group
   m_GUID: 5c72d642e4ef4a0429ae91bbd2d9e95f
   m_SerializeEntries:
+  - m_GUID: 20f9eda7dfaca6e45ac687d54855fb5d
+    m_Address: LevelData10
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - LevelData
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 3acead6c047e62a44a862d8a0c2fa263
+    m_Address: LevelData09
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - LevelData
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 80142a14945e1fc469b54a1ced20f5a2
     m_Address: Assets/Match Them All/_START_HERE/Levels/LevelData04.asset
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - LevelData
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ad0028ee22d24c4438c6a8085452d5ce
+    m_Address: LevelData08
     m_ReadOnly: 0
     m_SerializedLabels:
     - LevelData
@@ -41,6 +59,12 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: ddd45b48393916c4db70064ae78f3c9e
     m_Address: Assets/Match Them All/_START_HERE/Levels/LevelData02.asset
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - LevelData
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e18e62e981301c44685a52e3d48bc0ea
+    m_Address: LevelData07
     m_ReadOnly: 0
     m_SerializedLabels:
     - LevelData
