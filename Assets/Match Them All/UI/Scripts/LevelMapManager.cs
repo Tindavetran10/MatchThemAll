@@ -26,15 +26,24 @@ namespace MatchThemAll.Scripts.UI
         [SerializeField] private LevelMapPath pathRenderer;
         [SerializeField] private Button backButton;
 
-        [Header("Layout")]
-        [Tooltip("Fixed vertical distance between consecutive nodes (canvas units). Content height grows with level count.")]
-        [SerializeField] private float verticalSpacing = 400f;
-        [Tooltip("Half the horizontal zig-zag width.")]
-        [SerializeField] private float zigzagWidth = 360f;
-        [Tooltip("Extra space ABOVE the highest level node so it is not cut off at the top.")]
-        [SerializeField] private float topPadding = 500f;
-        [Tooltip("Extra space BELOW the first level node so it is not cut off at the bottom.")]
-        [SerializeField] private float bottomPadding = 250f;
+        [Header("Layout (device-robust — computed from viewport at runtime)")]
+        [Tooltip("Node square size, as a fraction of the viewport width (e.g. 0.22 = 22% of screen width).")]
+        [SerializeField, Range(0.1f, 0.4f)] private float nodeSizeFraction = 0.22f;
+        [Tooltip("Vertical gap between nodes, as a multiple of node size (e.g. 1.6 = comfortable spacing).")]
+        [SerializeField, Range(0.5f, 3f)] private float verticalSpacingMultiplier = 1.6f;
+        [Tooltip("Half the horizontal zig-zag swing, as a fraction of viewport width. Clamped so nodes stay on-screen.")]
+        [SerializeField, Range(0f, 0.35f)] private float zigzagFraction = 0.26f;
+        [Tooltip("Scroll slack ABOVE the top node, as a fraction of viewport height (breathing room so the top node isn't cut off).")]
+        [SerializeField, Range(0f, 1f)] private float topPaddingFraction = 0.5f;
+        [Tooltip("Gap between level 1 and the bottom edge, as a fraction of viewport height. Keep small so level 1 sits near the bottom.")]
+        [SerializeField, Range(0f, 1f)] private float bottomPaddingFraction = 0.15f;
+
+        // Resolved in GenerateMap from the live viewport (device-dependent → consistent look everywhere).
+        private float _nodeSize;
+        private float _verticalSpacing;
+        private float _zigzagWidth;
+        private float _topPadding;
+        private float _bottomPadding;
 
         private readonly List<LevelDataSO> _levels = new();
         private readonly List<LevelMapNode> _nodes  = new();
@@ -120,6 +129,10 @@ namespace MatchThemAll.Scripts.UI
 
             ClearExisting();
 
+            // Resolve layout from the LIVE viewport so it looks the same on any portrait device.
+            // (CanvasScaler matches height → vertical units constant; width clamped via fractions below.)
+            ResolveLayout();
+
             // Enforce bottom-center anchoring and pivot so height expansion only goes UP.
             contentRoot.anchorMin = new Vector2(0.5f, 0f);
             contentRoot.anchorMax = new Vector2(0.5f, 0f);
@@ -144,6 +157,9 @@ namespace MatchThemAll.Scripts.UI
                     rt.anchorMax = new Vector2(0.5f, 0f);
                     // Pivot can remain (0.5, 0.5) so the node is centered on the specified Y coordinate
                     rt.pivot = new Vector2(0.5f, 0.5f);
+                    // Size the node from the live viewport so it scales consistently across devices.
+                    rt.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, _nodeSize);
+                    rt.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical,   _nodeSize);
                     rt.anchoredPosition = pos;
                     rt.gameObject.SetActive(true);
                 }
@@ -176,27 +192,45 @@ namespace MatchThemAll.Scripts.UI
         }
 
         /// <summary>
-        /// index 0 → Level 1 → sits at y=bottomPadding.
+        /// Derives every layout dimension from the live viewport rect, so the map looks identical
+        /// (relative to the screen) on any portrait phone/tablet. Must run AFTER the canvas has a real
+        /// size (i.e. inside GenerateMap, which runs from the BuildAfterLayout coroutine post-yield).
+        /// </summary>
+        private void ResolveLayout()
+        {
+            float vw = scrollRect != null && scrollRect.viewport != null ? scrollRect.viewport.rect.width  : 1080f;
+            float vh = scrollRect != null && scrollRect.viewport != null ? scrollRect.viewport.rect.height : 1920f;
+            vh = Mathf.Max(1f, vh); vw = Mathf.Max(1f, vw);
+
+            _nodeSize        = vw * nodeSizeFraction;
+            _verticalSpacing = _nodeSize * verticalSpacingMultiplier;
+            _zigzagWidth     = vw * zigzagFraction;
+            _topPadding      = vh * topPaddingFraction;
+            _bottomPadding   = vh * bottomPaddingFraction;
+        }
+
+        /// <summary>
+        /// index 0 → Level 1 → sits at y=_bottomPadding.
         /// index N-1 → Highest level → sits near the top.
         /// Content pivot=(0.5,0) so positive y goes upward.
         /// </summary>
         private Vector2 NodeLocalPosition(int index)
         {
             float x = _levels.Count > 1
-                ? Mathf.Sin((index / (float)(_levels.Count - 1)) * Mathf.PI * 2f) * zigzagWidth
+                ? Mathf.Sin((index / (float)(_levels.Count - 1)) * Mathf.PI * 2f) * _zigzagWidth
                 : 0f;
-            // index 0 → y = bottomPadding. Each subsequent level adds verticalSpacing.
-            float y = bottomPadding + index * verticalSpacing;
+            // index 0 → y = _bottomPadding. Each subsequent level adds _verticalSpacing.
+            float y = _bottomPadding + index * _verticalSpacing;
             return new Vector2(x, y);
         }
 
         /// <summary>
-        /// Content height = bottomPadding + (levels − 1) spacings + topPadding so the highest node has
+        /// Content height = _bottomPadding + (levels − 1) spacings + _topPadding so the highest node has
         /// breathing room above it. Grows automatically as more levels are added.
         /// </summary>
         private void SizeContent()
         {
-            float height = bottomPadding + (_levels.Count - 1) * verticalSpacing + topPadding;
+            float height = _bottomPadding + (_levels.Count - 1) * _verticalSpacing + _topPadding;
             contentRoot.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, height);
         }
 
@@ -218,10 +252,13 @@ namespace MatchThemAll.Scripts.UI
             }
 
             int   idx   = ResolveCurrentProgressIndex(BuildOrderedIds());
-            float nodeY = bottomPadding + idx * verticalSpacing;
+            float nodeY = _bottomPadding + idx * _verticalSpacing;
 
-            // Place the furthest node ~1/3 from the top of the viewport.
-            float contentBottom = nodeY - viewportH * 2f / 3f;
+            // Place the furthest node ~2/3 down the viewport (lower third) — so level 1 reads as
+            // "near the bottom" on a fresh save, and the next levels scroll up into view above it.
+            float nodeScreenOffsetFromTop = viewportH * 2f / 3f;
+            // Content-local y where the viewport's bottom should sit so the node lands at that screen position.
+            float contentBottom = nodeY - viewportH + nodeScreenOffsetFromTop;
             float normalized    = Mathf.Clamp01(contentBottom / scrollable);
 
             scrollRect.normalizedPosition = new Vector2(0f, normalized);

@@ -54,7 +54,10 @@ namespace Match_Them_All.Scripts.Editor
             var scaler = canvasGo.AddComponent<CanvasScaler>();
             scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
             scaler.referenceResolution = new Vector2(1080, 1920);
-            scaler.matchWidthOrHeight = 0.5f;
+            // Match HEIGHT for a vertical scroll map: vertical canvas units stay constant across
+            // portrait phones/tablets, so node spacing reads consistently. (Width varies, handled by
+            // clamping zigzagWidth to a fraction of the viewport at runtime — see LevelMapManager.)
+            scaler.matchWidthOrHeight = 1f;
             canvasGo.AddComponent<GraphicRaycaster>();
             // No EventSystem: taps go through the uGUI Button on each node, but the project uses the new
             // Input System. If an EventSystem already exists (for other UI), leave it; otherwise uGUI
@@ -77,11 +80,8 @@ namespace Match_Them_All.Scripts.Editor
             var scrollRect = canvasGo.AddComponent<ScrollRect>();
             scrollRect.horizontal = false;
             scrollRect.vertical = true;
-            scrollRect.movementType = ScrollRect.MovementType.Elastic;
-            scrollRect.elasticity = 0.15f;
-            scrollRect.inertia = true;
-            scrollRect.decelerationRate = 0.135f;
-            scrollRect.scrollSensitivity = 60f; // comfortable mouse-wheel and touch sensitivity
+            // movementType/elasticity/scrollSensitivity are set at runtime by LevelMapManager.Start
+            // (it forces Clamped); keeping them here too would be dead config that misleads.
             scrollRect.viewport = viewport;
             scrollRect.content = content;
 
@@ -196,15 +196,13 @@ namespace Match_Them_All.Scripts.Editor
 
         private static void EnsureEventSystemForUgui()
         {
-            // uGUI Button.onClick needs an EventSystem + an input module to receive pointer events.
-            // The project uses the new Input System; try the InputSystemUIInputModule if present, else basic.
-            if (Object.FindObjectOfType<UnityEngine.EventSystems.EventSystem>() != null) return;
+            // uGUI needs an EventSystem + an input module. The project uses the Input System only
+            // (activeInputHandler: 1), so the legacy StandaloneInputModule does nothing — use the
+            // Input System UI module. Direct reference resolves reliably (Unity.InputSystem is a dep).
+            if (Object.FindFirstObjectByType<UnityEngine.EventSystems.EventSystem>() != null) return;
             var es = new GameObject("EventSystem");
             es.AddComponent<UnityEngine.EventSystems.EventSystem>();
-            // Try to add the new Input System UI module if its type exists; silently skip otherwise.
-            var type = System.Type.GetType("UnityEngine.InputSystem.UI.InputSystemUIInputModule, Unity.InputSystem");
-            if (type != null) es.AddComponent(type);
-            else es.AddComponent<UnityEngine.EventSystems.StandaloneInputModule>();
+            es.AddComponent<UnityEngine.InputSystem.UI.InputSystemUIInputModule>();
         }
     }
 }

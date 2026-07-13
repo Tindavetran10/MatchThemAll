@@ -19,7 +19,9 @@ namespace MatchThemAll.Scripts.UI
 
         [Header("Transition")]
         [Tooltip("Should match the animationDuration on the UIAnimator component.")]
+#pragma warning disable CS0414 // intentionally serialized for Inspector tuning; wired up when the close animation is implemented.
         [SerializeField] private float closeDuration = 0.35f;
+#pragma warning restore CS0414
 
         private void Awake()
         {
