@@ -38,7 +38,7 @@ namespace Match_Them_All.Scripts.Editor
             }
 
             GameObject levelButtonPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(LEVEL_BUTTON_PREFAB);
-            if (levelButtonPrefab == null)
+            if (!levelButtonPrefab)
             {
                 Debug.LogError($"[LevelMapBuilder] Existing LevelButton prefab not found at {LEVEL_BUTTON_PREFAB}.");
                 return;
@@ -46,7 +46,7 @@ namespace Match_Them_All.Scripts.Editor
 
             // Root Canvas.
             GameObject existing = GameObject.Find("Level Saga Map Canvas");
-            if (existing != null) Object.DestroyImmediate(existing);
+            if (existing) Object.DestroyImmediate(existing);
 
             var canvasGo = new GameObject("Level Saga Map Canvas");
             Canvas canvas = canvasGo.AddComponent<Canvas>();
@@ -122,7 +122,7 @@ namespace Match_Them_All.Scripts.Editor
             arrowImg.preserveAspect = true;
             arrowRt.localRotation = Quaternion.Euler(0f, 0f, -90f); // point left
             var upArrowSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Match Them All/Sprites/UI/Up Arrow.png");
-            if (upArrowSprite != null) arrowImg.sprite = upArrowSprite;
+            if (upArrowSprite) arrowImg.sprite = upArrowSprite;
 
             // Node prefab.
             LevelMapNode nodePrefab = BuildNodePrefab(levelButtonPrefab);
@@ -153,10 +153,10 @@ namespace Match_Them_All.Scripts.Editor
             themeBg.color = new Color(0.15f, 0.15f, 0.2f, 0.8f); // placeholder panel; LevelMapNode swaps the sprite in
 
             var button = (GameObject)PrefabUtility.InstantiatePrefab(levelButtonPrefab, root.transform);
-            if (button != null)
+            if (button)
             {
                 var btnRt = button.transform as RectTransform;
-                if (btnRt != null)
+                if (btnRt)
                 {
                     btnRt.anchorMin = Vector2.zero;
                     btnRt.anchorMax = Vector2.one;
@@ -168,7 +168,7 @@ namespace Match_Them_All.Scripts.Editor
             var node = root.AddComponent<LevelMapNode>();
             var ser = new SerializedObject(node);
             ser.FindProperty("themeBackground").objectReferenceValue = themeBg;
-            ser.FindProperty("button").objectReferenceValue = button != null ? button.GetComponent<LevelButtonUI>() : null;
+            ser.FindProperty("button").objectReferenceValue = button ? button.GetComponent<LevelButtonUI>() : null;
             ser.ApplyModifiedPropertiesWithoutUndo();
 
             string dir = Path.GetDirectoryName(NODE_PREFAB_PATH);
@@ -199,7 +199,7 @@ namespace Match_Them_All.Scripts.Editor
             // uGUI needs an EventSystem + an input module. The project uses the Input System only
             // (activeInputHandler: 1), so the legacy StandaloneInputModule does nothing — use the
             // Input System UI module. Direct reference resolves reliably (Unity.InputSystem is a dep).
-            if (Object.FindFirstObjectByType<UnityEngine.EventSystems.EventSystem>() != null) return;
+            if (Object.FindFirstObjectByType<UnityEngine.EventSystems.EventSystem>()) return;
             var es = new GameObject("EventSystem");
             es.AddComponent<UnityEngine.EventSystems.EventSystem>();
             es.AddComponent<UnityEngine.InputSystem.UI.InputSystemUIInputModule>();

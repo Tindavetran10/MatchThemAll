@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using System.Linq;
+using ZLinq;
 
 namespace MatchThemAll.Scripts.SaveSystem
 {
@@ -10,7 +12,7 @@ namespace MatchThemAll.Scripts.SaveSystem
         public int count;
     }
 
-    /// <summary>One level's saved star rating, keyed by the LevelDataSO.Id (stable identity).</summary>
+    /// <summary>One level's saved star rating, keyed by the LevelDataSO.ID (stable identity).</summary>
     [System.Serializable]
     public class LevelProgressEntry
     {
@@ -27,9 +29,9 @@ namespace MatchThemAll.Scripts.SaveSystem
     public class PlayerData
     {
         // ── Level Progress (keyed by stable level identity) ────────────────
-        /// <summary>Id (LevelDataSO.Id) of the furthest unlocked level. Source of truth for progression.</summary>
+        /// <summary>ID (LevelDataSO.ID) of the furthest unlocked level. Source of truth for progression.</summary>
         public string furthestLevelId = "";
-        /// <summary>Best stars per level, keyed by LevelDataSO.Id.</summary>
+        /// <summary>Best stars per level, keyed by LevelDataSO.ID.</summary>
         public List<LevelProgressEntry> levelProgress = new();
 
         // ponytail: legacy positional fields — read once by MigrateLevelsToKeyed, then cleared. Removed Stage 3.
@@ -57,10 +59,7 @@ namespace MatchThemAll.Scripts.SaveSystem
         /// Ensures the powerup map exists. (Old per-type fields were removed in Stage 3a;
         /// this is a no-op aside from the null-guard. Kept as the load hook for future migrations.)
         /// </summary>
-        public void MigrateLegacyPowerups()
-        {
-            if (powerups == null) powerups = new List<PowerupSaveEntry>();
-        }
+        public void MigrateLegacyPowerups() => powerups ??= new List<PowerupSaveEntry>();
 
         /// <summary>
         /// Migrates legacy positional level progress (currentLevelIndex + levelStars[]) into the
@@ -69,7 +68,7 @@ namespace MatchThemAll.Scripts.SaveSystem
         /// </summary>
         public void MigrateLevelsToKeyed(IReadOnlyList<string> orderedIds)
         {
-            if (levelProgress == null) levelProgress = new List<LevelProgressEntry>();
+            levelProgress ??= new List<LevelProgressEntry>();
 
             // Already keyed — just ensure legacy fields stay cleared.
             if (levelProgress.Count > 0 || !string.IsNullOrEmpty(furthestLevelId))
@@ -87,7 +86,7 @@ namespace MatchThemAll.Scripts.SaveSystem
             }
 
             // Zip positional stars → keyed entries by id.
-            if (orderedIds != null && orderedIds.Count > 0)
+            if (orderedIds is { Count: > 0 })
             {
                 for (int i = 0; i < levelStars.Length && i < orderedIds.Count; i++)
                 {
@@ -107,23 +106,21 @@ namespace MatchThemAll.Scripts.SaveSystem
         public int GetLevelStars(string id)
         {
             if (levelProgress == null || string.IsNullOrEmpty(id)) return 0;
-            for (int i = 0; i < levelProgress.Count; i++)
-                if (levelProgress[i].id == id) return levelProgress[i].stars;
-            return 0;
+            
+            return levelProgress.AsValueEnumerable()
+                                .FirstOrDefault(t => t.id == id)?.stars ?? 0;
         }
+
 
         /// <summary>Sets (or inserts) the star rating for a level id, keeping the max.</summary>
         public void SetLevelStars(string id, int stars)
         {
             if (string.IsNullOrEmpty(id)) return;
-            if (levelProgress == null) levelProgress = new List<LevelProgressEntry>();
-            for (int i = 0; i < levelProgress.Count; i++)
+            levelProgress ??= new List<LevelProgressEntry>();
+            foreach (var t in levelProgress.AsValueEnumerable().Where(t => t.id == id))
             {
-                if (levelProgress[i].id == id)
-                {
-                    if (stars > levelProgress[i].stars) levelProgress[i].stars = stars;
-                    return;
-                }
+                if (stars > t.stars) t.stars = stars;
+                return;
             }
             levelProgress.Add(new LevelProgressEntry { id = id, stars = stars });
         }
@@ -132,18 +129,16 @@ namespace MatchThemAll.Scripts.SaveSystem
         public int GetPowerupCount(string id)
         {
             if (powerups == null || string.IsNullOrEmpty(id)) return 0;
-            for (int i = 0; i < powerups.Count; i++)
-                if (powerups[i].id == id) return powerups[i].count;
-            return 0;
+            return powerups.AsValueEnumerable().FirstOrDefault(t => t.id == id)?.count ?? 0;
         }
 
         /// <summary>Sets (or inserts) the count for an id.</summary>
         public void SetPowerupCount(string id, int count)
         {
-            if (powerups == null) powerups = new List<PowerupSaveEntry>();
-            for (int i = 0; i < powerups.Count; i++)
+            powerups ??= new List<PowerupSaveEntry>();
+            foreach (var t in powerups.AsValueEnumerable().Where(t => t.id == id))
             {
-                if (powerups[i].id == id) { powerups[i].count = count; return; }
+                t.count = count; return;
             }
             powerups.Add(new PowerupSaveEntry { id = id, count = count });
         }

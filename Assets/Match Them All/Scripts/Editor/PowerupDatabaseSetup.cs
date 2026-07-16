@@ -38,7 +38,7 @@ namespace Match_Them_All.Scripts.Editor
             // Build the database.
             string dbPath = $"{OUTPUT_DIR}/PowerupDatabase.asset";
             var db = AssetDatabase.LoadAssetAtPath<PowerupDatabaseSO>(dbPath);
-            if (db == null)
+            if (!db)
             {
                 db = ScriptableObject.CreateInstance<PowerupDatabaseSO>();
                 AssetDatabase.CreateAsset(db, dbPath);
@@ -57,7 +57,7 @@ namespace Match_Them_All.Scripts.Editor
         {
             string path = $"{OUTPUT_DIR}/Powerup_{id}.asset";
             var so = AssetDatabase.LoadAssetAtPath<PowerupDataSO>(path);
-            if (so == null)
+            if (!so)
             {
                 so = ScriptableObject.CreateInstance<PowerupDataSO>();
                 AssetDatabase.CreateAsset(so, path);

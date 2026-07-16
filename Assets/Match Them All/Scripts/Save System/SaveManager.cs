@@ -122,11 +122,11 @@ namespace MatchThemAll.Scripts.SaveSystem
             if (Data.hasInitializedPowerups) return;
             Data.hasInitializedPowerups = true;
 
-            if (database != null)
+            if (database)
             {
                 foreach (var so in database.Ordered)
                 {
-                    if (so != null && so.defaultAmount > 0)
+                    if (so && so.defaultAmount > 0)
                         Data.SetPowerupCount(so.id, so.defaultAmount);
                 }
             }
@@ -151,7 +151,7 @@ namespace MatchThemAll.Scripts.SaveSystem
 
         // ── Level Progress (keyed by stable level identity) ─────────────────
 
-        /// <summary>Id of the furthest unlocked level. Empty if no progress.</summary>
+        /// <summary>ID of the furthest unlocked level. Empty if no progress.</summary>
         public static string GetFurthestLevelId() => Data.furthestLevelId ?? "";
 
         /// <summary>Best stars for a level id, or 0.</summary>
@@ -202,7 +202,7 @@ namespace MatchThemAll.Scripts.SaveSystem
 
         /// <summary>The live ordered level id list from LevelManager, or null if unavailable (menu scenes).</summary>
         private static IReadOnlyList<string> LiveOrderedIds
-            => MatchThemAll.Scripts.LevelManager.Instance != null ? MatchThemAll.Scripts.LevelManager.Instance.OrderedLevelIds : null;
+            => LevelManager.Instance ? LevelManager.Instance.OrderedLevelIds : null;
 
         private static int IndexOfId(IReadOnlyList<string> ids, string id)
         {

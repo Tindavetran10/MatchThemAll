@@ -1,9 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text.RegularExpressions;
-using Match_Them_All.Scripts.Power_Ups;
 using MatchThemAll.Scripts;
 using MatchThemAll.Scripts.Settings;
 using MatchThemAll.Scripts.Tutorial;
@@ -11,7 +8,7 @@ using UnityEditor;
 using UnityEditor.AddressableAssets;
 using UnityEditor.AddressableAssets.Settings;
 using UnityEngine;
-using Object = UnityEngine.Object;
+using ZLinq;
 using Random = UnityEngine.Random;
 
 namespace Match_Them_All.Scripts.Editor
@@ -150,9 +147,9 @@ namespace Match_Them_All.Scripts.Editor
                 DestroyImmediate(_gameSettingsEditor);
                 _gameSettingsEditor = null;
             }
-            foreach (var t in _ownedTextures)
+            foreach (var t in _ownedTextures.AsValueEnumerable().Where(t => t))
             {
-                if (t != null) DestroyImmediate(t);
+                DestroyImmediate(t);
             }
             _ownedTextures.Clear();
         }
@@ -182,10 +179,10 @@ namespace Match_Them_All.Scripts.Editor
                 if (!path.Contains("/Trash/"))
                 {
                     var loaded = AssetDatabase.LoadAssetAtPath<GameObject>(path);
-                    if (loaded != null) _itemPrefabs.Add(loaded); // guard: a broken/missing prefab must not abort LoadAll
+                    if (loaded) _itemPrefabs.Add(loaded); // guard: a broken/missing prefab must not abort LoadAll
                 }
             }
-            _itemPrefabNames = _itemPrefabs.Select(p => p.name).ToArray();
+            _itemPrefabNames = _itemPrefabs.AsValueEnumerable().Select(p => p.name).ToArray();
             _lastItemSearchQuery = null; // force library refresh
 
             // Trash prefabs
@@ -197,7 +194,7 @@ namespace Match_Them_All.Scripts.Editor
                 foreach (var g in trashGuids)
                 {
                     var loaded = AssetDatabase.LoadAssetAtPath<GameObject>(AssetDatabase.GUIDToAssetPath(g));
-                    if (loaded != null) _trashPrefabs.Add(loaded);
+                    if (loaded) _trashPrefabs.Add(loaded);
                 }
             }
 
@@ -398,7 +395,7 @@ namespace Match_Them_All.Scripts.Editor
                 GUILayout.Space(8);
             }
 
-            if (_isDirty && _selectedLevel != null)
+            if (_isDirty && _selectedLevel)
             {
                 GUI.color = AccentGreen;
                 if (GUILayout.Button("💾 Save", GUILayout.Height(28), GUILayout.Width(80)))
@@ -549,7 +546,7 @@ namespace Match_Them_All.Scripts.Editor
             GUILayout.FlexibleSpace();
 
             // Warn if the scene preview is showing a different level than the current selection
-            if (_previewedLevel != null && _previewedLevel != _selectedLevel)
+            if (_previewedLevel && _previewedLevel != _selectedLevel)
             {
                 GUI.color = AccentOrange;
                 GUILayout.Label($"⚠ Scene shows '{_previewedLevel.name}'", EditorStyles.miniLabel, GUILayout.Height(26));
@@ -688,7 +685,7 @@ namespace Match_Them_All.Scripts.Editor
                 Undo.RecordObject(_selectedLevel, "Randomize Level");
                 _selectedLevel.seed = Random.Range(0, 99999);
                 
-                var availablePrefabs = _itemPrefabs?.ToList() ?? new List<GameObject>();
+                var availablePrefabs = _itemPrefabs?.AsValueEnumerable().ToList() ?? new List<GameObject>();
                 // Pick between 2 and 6 item types, capped by how many prefabs actually exist
                 var minTypes = Mathf.Min(2, availablePrefabs.Count);
                 var maxTypes = Mathf.Min(7, availablePrefabs.Count + 1);
@@ -696,7 +693,7 @@ namespace Match_Them_All.Scripts.Editor
 
                 _selectedLevel.itemData = new List<ItemLevelData>();
                 var goalCount = Random.Range(1, Mathf.Min(4, typeCount + 1));
-                var shuffled = Enumerable.Range(0, typeCount).OrderBy(x => Random.value).ToList();
+                var shuffled = ValueEnumerable.Range(0, typeCount).OrderBy(x => Random.value).ToList();
                 
                 for (var i = 0; i < typeCount; i++)
                 {
@@ -901,7 +898,7 @@ namespace Match_Them_All.Scripts.Editor
                 GUILayout.Space(6);
                 GUILayout.BeginVertical(GUILayout.Height(38)); 
                 GUILayout.Space(4); // (38-30)/2 = 4px padding
-                if (entry.itemPrefab != null)
+                if (entry.itemPrefab)
                     GUILayout.Label(GetItemIcon(entry.itemPrefab.gameObject), GUILayout.Width(iconW - 6), GUILayout.Height(30));
                 else
                     GUILayout.Label("◉", GUILayout.Width(iconW - 6), GUILayout.Height(30));
@@ -1006,9 +1003,9 @@ namespace Match_Them_All.Scripts.Editor
 
             if (_summaryDirty || _lastSummaryLevel != _selectedLevel)
             {
-                _cachedTotalItems = _selectedLevel.itemData.Sum(i => i.amount);
-                _cachedGoalItems  = _selectedLevel.itemData.Where(i => i.isGoal).Sum(i => i.amount);
-                _cachedGoalTypes  = _selectedLevel.itemData.Count(i => i.isGoal);
+                _cachedTotalItems = _selectedLevel.itemData.AsValueEnumerable().Sum(i => i.amount);
+                _cachedGoalItems  = _selectedLevel.itemData.AsValueEnumerable().Where(i => i.isGoal).Sum(i => i.amount);
+                _cachedGoalTypes  = _selectedLevel.itemData.AsValueEnumerable().Count(i => i.isGoal);
                 _cachedValid      = _selectedLevel.itemData.Count > 0 && _cachedGoalTypes > 0;
                 
                 _lastSummaryLevel = _selectedLevel;
@@ -1247,7 +1244,7 @@ namespace Match_Them_All.Scripts.Editor
             if (searchChanged || _lastItemSearchQuery != _itemSearchQuery)
             {
                 _lastItemSearchQuery = _itemSearchQuery;
-                _filteredLibraryItems = _itemPrefabs.Where(p =>
+                _filteredLibraryItems = _itemPrefabs.AsValueEnumerable().Where(p =>
                     string.IsNullOrEmpty(_itemSearchQuery) ||
                     p.name.IndexOf(_itemSearchQuery, StringComparison.OrdinalIgnoreCase) >= 0).ToList();
             }
@@ -1462,10 +1459,10 @@ namespace Match_Them_All.Scripts.Editor
         /// <summary>Resolved icon texture for an item: its generated icon, else the prefab preview, else black.</summary>
         private Texture GetItemIcon(GameObject prefab)
         {
-            var itemComp = prefab != null ? prefab.GetComponent<Item>() : null;
-            if (itemComp != null && itemComp.Icon != null) return itemComp.Icon.texture;
+            var itemComp = prefab ? prefab.GetComponent<Item>() : null;
+            if (itemComp && itemComp.Icon) return itemComp.Icon.texture;
             var preview = AssetPreview.GetAssetPreview(prefab);
-            return preview != null ? preview : Texture2D.blackTexture;
+            return preview ? preview : Texture2D.blackTexture;
         }
 
         private void SoftDeleteItem(GameObject prefab)
@@ -1475,7 +1472,7 @@ namespace Match_Them_All.Scripts.Editor
             var allLevels = ItemReferenceOps.FindAllLevels();
             var refs = ItemReferenceOps.FindReferencingLevels(allLevels, itemComp);
             // Count DISTINCT levels (an item may appear more than once in one level).
-            int usedLevels = refs.Select(r => r.level).Distinct().Count();
+            int usedLevels = refs.AsValueEnumerable().Select(r => r.level).Distinct().Count();
 
             string warning = $"Are you sure you want to delete '{prefab.name}'? It will be moved to the Trash folder.";
             if (usedLevels > 0)
@@ -1529,7 +1526,7 @@ namespace Match_Them_All.Scripts.Editor
             // not a name convention: the file may have been renamed or be a shared sprite, in which case the
             // convention guess would silently skip the move and strand the icon. Only trash icons that live
             // under the generated-icons folder (mirrors HardDelete's IsIconSafeToDelete guard).
-            if (itemComp != null && itemComp.Icon != null)
+            if (itemComp && itemComp.Icon)
             {
                 string originalIconPath = AssetDatabase.GetAssetPath(itemComp.Icon);
                 if (!string.IsNullOrEmpty(originalIconPath)
@@ -1563,7 +1560,7 @@ namespace Match_Them_All.Scripts.Editor
         /// </summary>
         private void HardDeleteItem(Item item)
         {
-            if (item == null)
+            if (!item)
             {
                 // A prefab missing its Item component should explain itself, not silently no-op.
                 EditorUtility.DisplayDialog("Delete Permanently",
@@ -1582,7 +1579,7 @@ namespace Match_Them_All.Scripts.Editor
             // One scan, reused for both the reference count and the removal.
             var allLevels = ItemReferenceOps.FindAllLevels();
             var refs = ItemReferenceOps.FindReferencingLevels(allLevels, item);
-            int usedLevels = refs.Select(r => r.level).Distinct().Count();
+            int usedLevels = refs.AsValueEnumerable().Select(r => r.level).Distinct().Count();
             bool iconSafe = ItemReferenceOps.IsIconSafeToDelete(item);
             string iconNote = iconSafe ? ", its icon" : "";
             string msg = $"Permanently delete '{item.name}'?\n\n" +
@@ -1626,11 +1623,11 @@ namespace Match_Them_All.Scripts.Editor
             string trashPrefabPath = AssetDatabase.GetAssetPath(trashPrefab);
             string originalPrefabPath = $"{ItemReferenceOps.ItemPrefabFolder}/{trashPrefab.name}.prefab";
 
-            var record = _deletedRecords.FirstOrDefault(r => r.trashPrefabPath == trashPrefabPath);
+            var record = _deletedRecords.AsValueEnumerable().FirstOrDefault(r => r.trashPrefabPath == trashPrefabPath);
 
             // Move the PREFAB back first — it is the anchor. If it is missing or the move fails, abort
             // BEFORE touching the icon, so we never leave a restored icon with no prefab referencing it.
-            if (AssetDatabase.LoadMainAssetAtPath(trashPrefabPath) == null)
+            if (!AssetDatabase.LoadMainAssetAtPath(trashPrefabPath))
             {
                 Debug.LogError($"[Template Editor] Restore aborted: trashed prefab not found at {trashPrefabPath}");
                 return;
@@ -1651,7 +1648,7 @@ namespace Match_Them_All.Scripts.Editor
                 ? record.originalIconPath
                 : $"{ItemReferenceOps.IconsFolder}/icon_{trashPrefab.name.ToLowerInvariant()}.png";
 
-            if (AssetDatabase.LoadMainAssetAtPath(trashIconPath) != null)
+            if (AssetDatabase.LoadMainAssetAtPath(trashIconPath))
             {
                 string iconError = AssetDatabase.MoveAsset(trashIconPath, originalIconPath);
                 if (!string.IsNullOrEmpty(iconError)) Debug.LogWarning($"[Template Editor] Could not restore icon: {iconError}");
@@ -1662,7 +1659,7 @@ namespace Match_Them_All.Scripts.Editor
             if (record != null)
             {
                 var restoredPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(originalPrefabPath);
-                var itemComp = restoredPrefab != null ? restoredPrefab.GetComponent<Item>() : null;
+                var itemComp = restoredPrefab ? restoredPrefab.GetComponent<Item>() : null;
                 if (!itemComp)
                     Debug.LogWarning($"[Template Editor] Restored '{trashPrefab.name}' has no Item component; skipped level re-attach.");
 
@@ -1730,7 +1727,7 @@ namespace Match_Them_All.Scripts.Editor
             int max = 0; bool any = false;
             foreach (var lv in _levels)
             {
-                if (lv == null) continue;
+                if (!lv) continue;
                 string n = lv.name;
                 int lastNonDigit = n.Length;
                 while (lastNonDigit > 0 && char.IsDigit(n[lastNonDigit - 1])) lastNonDigit--;
@@ -1761,7 +1758,7 @@ namespace Match_Them_All.Scripts.Editor
 
             // Automate Addressable configuration
             var settings = AddressableAssetSettingsDefaultObject.Settings;
-            if (settings != null)
+            if (settings)
             {
                 var guid = AssetDatabase.AssetPathToGUID(path);
                 var entry = settings.CreateOrMoveEntry(guid, settings.DefaultGroup);
@@ -1796,7 +1793,7 @@ namespace Match_Them_All.Scripts.Editor
             var path = AssetDatabase.GetAssetPath(lv);
 
             var settings = AddressableAssetSettingsDefaultObject.Settings;
-            if (settings != null)
+            if (settings)
             {
                 var guid = AssetDatabase.AssetPathToGUID(path);
                 settings.RemoveAssetEntry(guid);
@@ -1811,7 +1808,7 @@ namespace Match_Them_All.Scripts.Editor
 
         private void SaveLevel()
         {
-            if (_selectedLevel == null) return;
+            if (!_selectedLevel) return;
             EditorUtility.SetDirty(_selectedLevel);
             AssetDatabase.SaveAssets();
             _isDirty = false;

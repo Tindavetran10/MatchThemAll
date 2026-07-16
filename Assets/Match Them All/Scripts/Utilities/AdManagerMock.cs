@@ -13,7 +13,7 @@ namespace MatchThemAll.Scripts.Utilities
 
         private void Awake()
         {
-            if (Instance == null)
+            if (!Instance)
             {
                 Instance = this;
                 DontDestroyOnLoad(gameObject);

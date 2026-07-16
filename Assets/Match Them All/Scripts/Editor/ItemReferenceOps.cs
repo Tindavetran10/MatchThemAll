@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using MatchThemAll.Scripts;
 using UnityEditor;
 using UnityEngine;
@@ -24,7 +25,7 @@ namespace Match_Them_All.Scripts.Editor
         internal static List<LevelDataSO> FindAllLevels() => AssetDatabase.FindAssets("t:LevelDataSO")
             .AsValueEnumerable()
             .Select(g => AssetDatabase.LoadAssetAtPath<LevelDataSO>(AssetDatabase.GUIDToAssetPath(g)))
-            .Where(so => so != null).ToList();
+            .Where(so => so).ToList();
 
         /// <summary>Every (level, index) where itemData[index].itemPrefab == item, within the given levels.</summary>
         internal static List<(LevelDataSO level, int index)> FindReferencingLevels(IList<LevelDataSO> levels, Item item)
@@ -51,7 +52,7 @@ namespace Match_Them_All.Scripts.Editor
         {
             int removed = 0;
             if (!item || levels == null) return removed;
-            foreach (var level in levels.AsValueEnumerable().Where(l => l != null && l.itemData != null))
+            foreach (var level in levels.AsValueEnumerable().Where(l => l && l.itemData != null))
             {
                 // high -> low so removals don't shift the indices we still need to read
                 for (int i = level.itemData.Count - 1; i >= 0; i--)
@@ -71,10 +72,10 @@ namespace Match_Them_All.Scripts.Editor
         internal static List<(LevelDataSO level, int index, string levelName)> FindBrokenReferences()
         {
             var result = new List<(LevelDataSO, int, string)>();
-            foreach (var level in FindAllLevels().AsValueEnumerable().Where(l => l != null && l.itemData != null))
+            foreach (var level in FindAllLevels().AsValueEnumerable().Where(l => l && l.itemData != null))
             {
                 for (int i = 0; i < level.itemData.Count; i++)
-                    if (level.itemData[i].itemPrefab == null)
+                    if (!level.itemData[i].itemPrefab)
                         result.Add((level, i, level.name));
             }
             return result;
@@ -84,11 +85,11 @@ namespace Match_Them_All.Scripts.Editor
         internal static int RemoveBrokenReferences(bool registerUndo)
         {
             int removed = 0;
-            foreach (var level in FindAllLevels().AsValueEnumerable().Where(l => l != null && l.itemData != null))
+            foreach (var level in FindAllLevels().AsValueEnumerable().Where(l => l && l.itemData != null))
             {
                 for (int i = level.itemData.Count - 1; i >= 0; i--)
                 {
-                    if (level.itemData[i].itemPrefab != null) continue;
+                    if (level.itemData[i].itemPrefab) continue;
                     if (registerUndo) Undo.RecordObject(level, "Remove Broken Item Reference");
                     level.itemData.RemoveAt(i);
                     EditorUtility.SetDirty(level);
@@ -113,13 +114,10 @@ namespace Match_Them_All.Scripts.Editor
             if (!iconPath.StartsWith(IconsFolder + "/")) return false;
             if (iconPath.StartsWith(IconsTrashFolder + "/")) return false;
 
-            int users = 0;
-            foreach (var g in AssetDatabase.FindAssets("t:Prefab", new[] { ItemPrefabFolder }))
-            {
-                var go = AssetDatabase.LoadAssetAtPath<GameObject>(AssetDatabase.GUIDToAssetPath(g));
-                var it = go != null ? go.GetComponent<Item>() : null;
-                if (it != null && it.Icon == item.Icon) users++;
-            }
+            int users = AssetDatabase.FindAssets("t:Prefab", new[] { ItemPrefabFolder })
+                .Select(g => AssetDatabase.LoadAssetAtPath<GameObject>(AssetDatabase.GUIDToAssetPath(g)))
+                .Select(go => go ? go.GetComponent<Item>() : null)
+                .Count(it => it && it.Icon == item.Icon);
             return users <= 1;
         }
     }

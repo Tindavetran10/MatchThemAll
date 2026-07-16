@@ -341,7 +341,7 @@ namespace MatchThemAll.Scripts
             if (GetFreeSpot()) return false;
             for (int i = 0; i < _activeSpotCount; i++)
             {
-                if (_spots[i].Item != null && _spots[i].Item.IsMovingToSpot) return false;
+                if (_spots[i].Item && _spots[i].Item.IsMovingToSpot) return false;
             }
             return true;
         }

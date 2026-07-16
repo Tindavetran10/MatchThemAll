@@ -48,6 +48,10 @@ namespace MatchThemAll.Scripts.UI
         private readonly List<LevelDataSO> _levels = new();
         private readonly List<LevelMapNode> _nodes  = new();
 
+        // Remembered vertical scroll position across scene reloads (0 = bottom, 1 = top).
+        // Static so it survives navigating MainMenu → LevelSelect → MainMenu. Null = never set.
+        private static float? _rememberedNormalizedY;
+
         private async void Start()
         {
             if (backButton != null)
@@ -60,6 +64,7 @@ namespace MatchThemAll.Scripts.UI
             {
                 scrollRect.movementType = ScrollRect.MovementType.Clamped;
                 scrollRect.elasticity   = 0f;
+                scrollRect.onValueChanged.AddListener(OnScrollChanged);
             }
 
             try { await LoadLevelsAsync(); }
@@ -69,6 +74,12 @@ namespace MatchThemAll.Scripts.UI
             StartCoroutine(BuildAfterLayout());
         }
 
+        private void OnScrollChanged(Vector2 pos)
+        {
+            // Remember the vertical scroll so re-entering the map restores the player's spot.
+            _rememberedNormalizedY = pos.y;
+        }
+
         private IEnumerator BuildAfterLayout()
         {
             yield return null;
@@ -76,13 +87,19 @@ namespace MatchThemAll.Scripts.UI
             yield return null;
 
             GenerateMap();          // uses viewport.rect.height (now correct)
-            SnapToFurthest();       // safe to call now – content height is known
+            // Restore the player's last scroll position if we have one; otherwise snap to the furthest level.
+            if (_rememberedNormalizedY.HasValue)
+                RestoreScroll(_rememberedNormalizedY.Value);
+            else
+                SnapToFurthest();
         }
 
         private void OnDestroy()
         {
             if (backButton != null)
                 backButton.onClick.RemoveListener(OnBackClicked);
+            if (scrollRect != null)
+                scrollRect.onValueChanged.RemoveListener(OnScrollChanged);
         }
 
         public void OnBackClicked() => SceneLoader.Load(SceneLoader.MainMenu);
@@ -234,20 +251,22 @@ namespace MatchThemAll.Scripts.UI
             contentRoot.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, height);
         }
 
-        // ── Snap (one-shot, no repeat) ───────────────────────────────────────
+        // ── Scroll position (one-shot, on build) ─────────────────────────────
+
+        private float ComputedContentHeight()
+            => _bottomPadding + (_levels.Count - 1) * _verticalSpacing + _topPadding;
 
         private void SnapToFurthest()
         {
             if (scrollRect == null || _levels.Count == 0) return;
 
-            float contentH   = contentRoot.rect.height;   // real height after SizeContent()
+            float contentH   = ComputedContentHeight();     // use the formula, not rect.height (can be stale post-size)
             float viewportH  = scrollRect.viewport.rect.height;
             float scrollable = Mathf.Max(0f, contentH - viewportH);
 
             if (scrollable < 1f)
             {
-                // Content fits in viewport — show the bottom (level 1 visible).
-                scrollRect.normalizedPosition = new Vector2(0f, 0f);
+                SetScrollNormalized(0f); // content fits — show level 1 at the bottom
                 return;
             }
 
@@ -257,11 +276,23 @@ namespace MatchThemAll.Scripts.UI
             // Place the furthest node ~2/3 down the viewport (lower third) — so level 1 reads as
             // "near the bottom" on a fresh save, and the next levels scroll up into view above it.
             float nodeScreenOffsetFromTop = viewportH * 2f / 3f;
-            // Content-local y where the viewport's bottom should sit so the node lands at that screen position.
             float contentBottom = nodeY - viewportH + nodeScreenOffsetFromTop;
             float normalized    = Mathf.Clamp01(contentBottom / scrollable);
 
-            scrollRect.normalizedPosition = new Vector2(0f, normalized);
+            SetScrollNormalized(normalized);
+        }
+
+        /// <summary>Restores a previously-remembered scroll position (0=bottom, 1=top).</summary>
+        private void RestoreScroll(float normalizedY) => SetScrollNormalized(normalizedY);
+
+        /// <summary>Sets the vertical normalized position and forces it to stick (beats ScrollRect's re-clamp on re-entry).</summary>
+        private void SetScrollNormalized(float normalizedY)
+        {
+            if (scrollRect == null) return;
+            scrollRect.normalizedPosition = new Vector2(0f, normalizedY);
+            scrollRect.velocity = Vector2.zero;
+            Canvas.ForceUpdateCanvases();   // commit content size so LateUpdate's clamp agrees
+            scrollRect.normalizedPosition = new Vector2(0f, normalizedY);
         }
 
         // ── Helpers ──────────────────────────────────────────────────────────

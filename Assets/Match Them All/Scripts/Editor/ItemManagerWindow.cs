@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text.RegularExpressions;
 using MatchThemAll.Scripts;
 using UnityEditor;
 using UnityEngine;
+using ZLinq;
 using Object = UnityEngine.Object;
 
 namespace Match_Them_All.Scripts.Editor
@@ -99,9 +99,9 @@ namespace Match_Them_All.Scripts.Editor
         private void OnDisable()
         {
             _stylesInitialized = false;
-            foreach (var t in _ownedTextures)
+            foreach (var t in _ownedTextures.AsValueEnumerable().Where(t => t))
             {
-                if (t != null) DestroyImmediate(t);
+                DestroyImmediate(t);
             }
             _ownedTextures.Clear();
             CleanupDockPreview();
@@ -127,7 +127,7 @@ namespace Match_Them_All.Scripts.Editor
                     if (!path.Contains("/Trash/"))
                     {
                         var loaded = AssetDatabase.LoadAssetAtPath<GameObject>(path);
-                        if (loaded != null && loaded.GetComponent<Item>() != null) 
+                        if (loaded && loaded.GetComponent<Item>()) 
                             _itemPrefabs.Add(loaded);
                     }
                 }
@@ -327,7 +327,7 @@ namespace Match_Them_All.Scripts.Editor
         private void DrawEditMode()
         {
             var item = _selectedPrefab?.GetComponent<Item>();
-            if (item == null) return;
+            if (!item) return;
 
             // \u2500\u2500 Settings section (fixed height, scrollable) \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
             GUILayout.BeginHorizontal();
@@ -393,7 +393,7 @@ namespace Match_Them_All.Scripts.Editor
             GUILayout.EndHorizontal();
             GUILayout.Space(4);
 
-            if (_dockPrefab == null)
+            if (!_dockPrefab)
             {
                 EditorGUILayout.HelpBox("Could not find 'Item Spot.prefab' to render the preview.", MessageType.Warning);
             }
@@ -510,7 +510,7 @@ namespace Match_Them_All.Scripts.Editor
                 Transform itemParent = null;
                 if (_previewDockInstance)
                     itemParent = _previewDockInstance.transform.Find("Animation Parent");
-                if (itemParent == null && _previewDockInstance)
+                if (!itemParent && _previewDockInstance)
                     itemParent = _previewDockInstance.transform;
                 
                 if (itemParent)
@@ -713,7 +713,7 @@ namespace Match_Them_All.Scripts.Editor
             GUILayout.Space(5);
             EditorGUI.BeginChangeCheck();
             _newItemModelPrefab = (GameObject)EditorGUILayout.ObjectField("3D Model Prefab", _newItemModelPrefab, typeof(GameObject), false);
-            if (EditorGUI.EndChangeCheck() && _newItemModelPrefab != null && _autoGenerateIcon)
+            if (EditorGUI.EndChangeCheck() && _newItemModelPrefab && _autoGenerateIcon)
                 ScheduleIconPreview();
 
             GUILayout.Space(15);
@@ -829,10 +829,7 @@ namespace Match_Them_All.Scripts.Editor
                 _previewIconTexture = GetIconTexture2D(_newItemModelPrefab);
                 _previewDirty = false;
             }
-            else
-            {
-                Repaint();
-            }
+            else Repaint();
         }
 
         private Texture2D GetIconTexture2D(GameObject modelPrefab)
@@ -913,7 +910,7 @@ namespace Match_Them_All.Scripts.Editor
 
             AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceUpdate);
             var importer = (TextureImporter)AssetImporter.GetAtPath(path);
-            if (importer != null)
+            if (importer)
             {
                 importer.textureType = TextureImporterType.Sprite;
                 importer.spriteImportMode = SpriteImportMode.Single;
@@ -958,7 +955,7 @@ namespace Match_Them_All.Scripts.Editor
             int closeBrace = fileContent.IndexOf("}", firstBrace, StringComparison.Ordinal);
             
             string enumBody = fileContent.Substring(firstBrace + 1, closeBrace - firstBrace - 1);
-            int highestVal = Enum.GetValues(typeof(EItemName)).Cast<int>().Prepend(-1).Max();
+            int highestVal = Enum.GetValues(typeof(EItemName)).AsValueEnumerable().Cast<int>().Prepend(-1).Max();
             int nextVal = highestVal + 1;
 
             string newEnumBody = enumBody.TrimEnd();

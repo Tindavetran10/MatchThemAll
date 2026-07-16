@@ -79,7 +79,7 @@ namespace MatchThemAll.Scripts
                     // Fade back out from black to transparent over 0.6 seconds with OutQuad ease
                     Tween.Custom(1f, 0f, 0.6f, onValueChange: val =>
                         {
-                            if (img != null) img.color = new Color(0, 0, 0, val);
+                            if (img) img.color = new Color(0, 0, 0, val);
                         }, startDelay: 0.15f, ease: Ease.OutQuad, useUnscaledTime: true)
                         .OnComplete(() =>
                         {

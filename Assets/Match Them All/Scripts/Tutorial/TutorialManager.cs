@@ -175,7 +175,7 @@ namespace MatchThemAll.Scripts.Managers
                     _targetPowerup = null;
                     foreach (var p in allPowerups)
                     {
-                        if (p.Data == null || p.Data.id != step.powerupId) continue;
+                        if (!p.Data || p.Data.id != step.powerupId) continue;
                         _targetPowerup = p;
                         break;
                     }
@@ -293,7 +293,7 @@ namespace MatchThemAll.Scripts.Managers
         {
             if (_currentStep == null) return;
             if (_currentStep.completionCondition != ECompletionCondition.OnPowerupUsed) return;
-            if (_targetPowerup != null && evt.Powerup == _targetPowerup.Data)
+            if (_targetPowerup && evt.Powerup == _targetPowerup.Data)
                 CompleteCurrentStep();
         }
 
@@ -352,7 +352,7 @@ namespace MatchThemAll.Scripts.Managers
             Tween.Alpha(tutorialCanvasGroup, 0f, 0.5f, useUnscaledTime: true)
                      .OnComplete(() => tutorialCanvasGroup.gameObject.SetActive(false));
 
-            if (tutorialTextCanvasGroup != null)
+            if (tutorialTextCanvasGroup)
             {
                 Tween.Alpha(tutorialTextCanvasGroup, 0f, 0.5f, useUnscaledTime: true)
                          .OnComplete(() => tutorialTextCanvasGroup.gameObject.SetActive(false));

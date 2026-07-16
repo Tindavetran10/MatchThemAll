@@ -27,7 +27,7 @@ namespace MatchThemAll.Scripts
         /// </summary>
         public void Initialize(LevelDataSO data)
         {
-            if (data == null) { Debug.LogError("ItemPlacer: null LevelDataSO received."); return; }
+            if (!data) { Debug.LogError("ItemPlacer: null LevelDataSO received."); return; }
             ClearItems();
             Random.InitState(data.seed);
 
@@ -95,7 +95,7 @@ namespace MatchThemAll.Scripts
         {
             for (int i = _activeItems.Count - 1; i >= 0; i--)
             {
-                if (_activeItems[i] == null)
+                if (!_activeItems[i])
                     _activeItems.RemoveAt(i);
             }
         }

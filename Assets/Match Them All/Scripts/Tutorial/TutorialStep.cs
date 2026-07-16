@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using UnityEngine;
-using Match_Them_All.Scripts.Power_Ups;
 
 namespace MatchThemAll.Scripts.Tutorial
 {
