@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using NaughtyAttributes;
 
-namespace Match_Them_All.Scripts.Power_Ups
+namespace MatchThemAll.Scripts.Power_Ups
 {
     /// <summary>
     /// Generic, data-driven power-up button. Driven by its <see cref="PowerupDataSO"/>.

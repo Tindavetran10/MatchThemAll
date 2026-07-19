@@ -49,7 +49,7 @@ namespace MatchThemAll.Scripts
         public void QuitToMenuCallback()
         {
             ResumeGame(); // Resumes game state which smoothly closes the Pause panel
-            SceneLoader.Load(SceneLoader.MainMenu);
+            SceneLoader.Load(SceneLoader.Lobby);
         }
 
         private static void RetryLevelCallback() =>

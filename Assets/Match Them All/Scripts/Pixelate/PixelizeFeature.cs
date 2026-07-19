@@ -1,6 +1,6 @@
 using UnityEngine.Rendering.Universal;
 
-namespace Match_Them_All.Scripts.Pixelate
+namespace MatchThemAll.Scripts.Pixelate
 {
     public class PixelizeFeature : ScriptableRendererFeature
     {

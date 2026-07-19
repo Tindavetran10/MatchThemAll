@@ -3,7 +3,7 @@ using PrimeTween;
 using ZLinq;
 using MatchThemAll.Scripts;
 
-namespace Match_Them_All.Scripts.Power_Ups
+namespace MatchThemAll.Scripts.Power_Ups
 {
     /// <summary>
     /// Releases a random occupied item and throws it with physics.

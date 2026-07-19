@@ -2,7 +2,7 @@ using UnityEngine;
 using ZLinq;
 using MatchThemAll.Scripts;
 
-namespace Match_Them_All.Scripts.Power_Ups
+namespace MatchThemAll.Scripts.Power_Ups
 {
     /// <summary>
     /// Applies a random force to all active items. Owns fanMagnitude.

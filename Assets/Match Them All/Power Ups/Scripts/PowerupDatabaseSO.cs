@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace Match_Them_All.Scripts.Power_Ups
+namespace MatchThemAll.Scripts.Power_Ups
 {
     /// <summary>
     /// The registry of all power-ups — the single source of truth consumed by PowerupManager.

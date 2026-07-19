@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using MatchThemAll.Scripts.SaveSystem;
 using UnityEngine;
@@ -54,13 +55,13 @@ namespace MatchThemAll.Scripts.UI
 
         private async void Start()
         {
-            if (backButton != null)
+            if (backButton)
                 backButton.onClick.AddListener(OnBackClicked);
 
             EnsureViewportRaycastImage();
 
             // Clamped = no elastic bounce/snap-back, ever.
-            if (scrollRect != null)
+            if (scrollRect)
             {
                 scrollRect.movementType = ScrollRect.MovementType.Clamped;
                 scrollRect.elasticity   = 0f;
@@ -96,19 +97,19 @@ namespace MatchThemAll.Scripts.UI
 
         private void OnDestroy()
         {
-            if (backButton != null)
+            if (backButton)
                 backButton.onClick.RemoveListener(OnBackClicked);
-            if (scrollRect != null)
+            if (scrollRect)
                 scrollRect.onValueChanged.RemoveListener(OnScrollChanged);
         }
 
-        public void OnBackClicked() => SceneLoader.Load(SceneLoader.MainMenu);
+        public void OnBackClicked() => SceneLoader.Load(SceneLoader.Lobby);
 
         // ── Viewport background ──────────────────────────────────────────────
 
         private void EnsureViewportRaycastImage()
         {
-            if (scrollRect?.viewport == null) return;
+            if (!scrollRect?.viewport) return;
             var img = scrollRect.viewport.GetComponent<Image>()
                    ?? scrollRect.viewport.gameObject.AddComponent<Image>();
             img.color         = new Color(0, 0, 0, 0);
@@ -133,7 +134,7 @@ namespace MatchThemAll.Scripts.UI
 
         private void GenerateMap()
         {
-            if (nodePrefab == null || contentRoot == null)
+            if (!nodePrefab || !contentRoot)
             {
                 Debug.LogError("[LevelMapManager] nodePrefab/contentRoot not assigned.", this);
                 return;
@@ -192,11 +193,11 @@ namespace MatchThemAll.Scripts.UI
 
             SizeContent();
 
-            if (pathRenderer != null)
+            if (pathRenderer)
             {
                 // Align path exactly with Content so node positions (local to Content) match path coordinates
                 var pathRt = pathRenderer.GetComponent<RectTransform>();
-                if (pathRt != null)
+                if (pathRt)
                 {
                     pathRt.anchorMin = new Vector2(0.5f, 0f);
                     pathRt.anchorMax = new Vector2(0.5f, 0f);
@@ -215,8 +216,8 @@ namespace MatchThemAll.Scripts.UI
         /// </summary>
         private void ResolveLayout()
         {
-            float vw = scrollRect != null && scrollRect.viewport != null ? scrollRect.viewport.rect.width  : 1080f;
-            float vh = scrollRect != null && scrollRect.viewport != null ? scrollRect.viewport.rect.height : 1920f;
+            float vw = scrollRect && scrollRect.viewport ? scrollRect.viewport.rect.width  : 1080f;
+            float vh = scrollRect && scrollRect.viewport ? scrollRect.viewport.rect.height : 1920f;
             vh = Mathf.Max(1f, vh); vw = Mathf.Max(1f, vw);
 
             _nodeSize        = vw * nodeSizeFraction;
@@ -258,7 +259,7 @@ namespace MatchThemAll.Scripts.UI
 
         private void SnapToFurthest()
         {
-            if (scrollRect == null || _levels.Count == 0) return;
+            if (!scrollRect || _levels.Count == 0) return;
 
             float contentH   = ComputedContentHeight();     // use the formula, not rect.height (can be stale post-size)
             float viewportH  = scrollRect.viewport.rect.height;
@@ -288,7 +289,7 @@ namespace MatchThemAll.Scripts.UI
         /// <summary>Sets the vertical normalized position and forces it to stick (beats ScrollRect's re-clamp on re-entry).</summary>
         private void SetScrollNormalized(float normalizedY)
         {
-            if (scrollRect == null) return;
+            if (!scrollRect) return;
             scrollRect.normalizedPosition = new Vector2(0f, normalizedY);
             scrollRect.velocity = Vector2.zero;
             Canvas.ForceUpdateCanvases();   // commit content size so LateUpdate's clamp agrees
@@ -309,16 +310,15 @@ namespace MatchThemAll.Scripts.UI
         private IReadOnlyList<string> BuildOrderedIds()
         {
             var ids = new List<string>(_levels.Count);
-            foreach (var lvl in _levels) ids.Add(lvl.Id);
+            ids.AddRange(_levels.Select(lvl => lvl.Id));
             return ids;
         }
 
         private void ClearExisting()
         {
-            foreach (var n in _nodes)
-                if (n != null) Destroy(n.gameObject);
+            foreach (var n in _nodes.Where(n => n)) Destroy(n.gameObject);
             _nodes.Clear();
-            if (pathRenderer != null) pathRenderer.ClearPoints();
+            if (pathRenderer) pathRenderer.ClearPoints();
         }
     }
 }

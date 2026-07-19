@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using ZLinq;
-using Match_Them_All.Scripts.Power_Ups;
+using MatchThemAll.Scripts.Power_Ups;
 using MatchThemAll.Scripts.SaveSystem;
 using MatchThemAll.Scripts.Settings;
 using NaughtyAttributes;

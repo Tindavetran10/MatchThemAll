@@ -8,7 +8,7 @@ using UnityEngine;
 using ZLinq;
 using Object = UnityEngine.Object;
 
-namespace Match_Them_All.Scripts.Editor
+namespace MatchThemAll.Scripts.Editor
 {
     public class ItemManagerWindow : EditorWindow
     {

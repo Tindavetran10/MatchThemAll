@@ -5,7 +5,7 @@ using UnityEditor;
 using UnityEngine;
 using ZLinq;
 
-namespace Match_Them_All.Scripts.Editor
+namespace MatchThemAll.Scripts.Editor
 {
     /// <summary>
     /// Shared, editor-only operations for finding and removing item-prefab references

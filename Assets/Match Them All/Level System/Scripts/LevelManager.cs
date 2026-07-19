@@ -153,10 +153,6 @@ namespace MatchThemAll.Scripts
                     _orderedIds = new List<string>(levels.Length);
                     for (int i = 0; i < levels.Length; i++) _orderedIds.Add(levels[i].Id);
                     _idsReady = true;
-
-                    // ponytail: migration runs here, not in SaveManager.Initialize, because SaveManager
-                    // loads before the level list exists. This is the first moment orderedIds are known.
-                    SaveManager.MigrateLevelsToKeyed(OrderedLevelIds);
                 }
             }
             catch (Exception e)

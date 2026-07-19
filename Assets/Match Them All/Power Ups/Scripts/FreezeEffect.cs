@@ -1,6 +1,6 @@
 using MatchThemAll.Scripts;
 
-namespace Match_Them_All.Scripts.Power_Ups
+namespace MatchThemAll.Scripts.Power_Ups
 {
     /// <summary>
     /// Freezes the level timer. Logic extracted verbatim from PowerupManager.FreezePowerup().

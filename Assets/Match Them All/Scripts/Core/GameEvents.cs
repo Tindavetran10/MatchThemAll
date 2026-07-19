@@ -1,5 +1,6 @@
 using System.Collections.Generic;
-using Match_Them_All.Scripts.Power_Ups;
+using MatchThemAll.Scripts.Power_Ups;
+using MatchThemAll.Scripts.Shop;
 
 namespace MatchThemAll.Scripts
 {
@@ -65,5 +66,15 @@ namespace MatchThemAll.Scripts
     {
         public Item ReturnedItem;
         public PowerupItemBackToGameEvent(Item item) => ReturnedItem = item;
+    }
+
+    // ==========================================
+    // SHOP EVENTS
+    // ==========================================
+
+    public struct ShopPurchaseSucceededEvent
+    {
+        public ShopProductSO Product;
+        public ShopPurchaseSucceededEvent(ShopProductSO product) => Product = product;
     }
 }

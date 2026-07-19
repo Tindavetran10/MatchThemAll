@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using ZLinq;
 using TMPro;
-using Match_Them_All.Scripts.Power_Ups;
+using MatchThemAll.Scripts.Power_Ups;
 using MatchThemAll.Scripts.Tutorial;
 using MatchThemAll.Scripts.UI;
 using PrimeTween;

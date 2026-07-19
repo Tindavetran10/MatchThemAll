@@ -22,7 +22,7 @@ namespace MatchThemAll.Scripts.UI
         /// <summary>Called by the Settings button. Opens the settings overlay.</summary>
         public void OnSettingsClicked()
         {
-            if (settingsPanel != null)
+            if (settingsPanel)
                 settingsPanel.SetActive(true);
         }
 

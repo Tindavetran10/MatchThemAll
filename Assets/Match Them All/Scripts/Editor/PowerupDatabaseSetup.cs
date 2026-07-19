@@ -2,9 +2,9 @@
 using System.IO;
 using UnityEngine;
 using UnityEditor;
-using Match_Them_All.Scripts.Power_Ups;
+using MatchThemAll.Scripts.Power_Ups;
 
-namespace Match_Them_All.Scripts.Editor
+namespace MatchThemAll.Scripts.Editor
 {
     /// <summary>
     /// One-shot setup: generates the 4 default PowerupDataSO assets + a PowerupDatabaseSO,

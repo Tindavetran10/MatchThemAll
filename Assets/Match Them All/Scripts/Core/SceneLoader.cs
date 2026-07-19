@@ -15,9 +15,9 @@ namespace MatchThemAll.Scripts
     public static class SceneLoader
     {
         // Scene name constants — update these if you rename your scenes
-        public const string MainMenu    = "MainMenu";
+        public const string Lobby       = "Lobby";
         public const string LevelSelect = "LevelSelect";
-        private const string Loading     = "LoadingScene";
+        private const string Loading    = "LoadingScene";
         public const string Game        = "MainScene";
 
         /// <summary>

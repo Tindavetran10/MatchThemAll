@@ -11,7 +11,7 @@ using UnityEngine;
 using ZLinq;
 using Random = UnityEngine.Random;
 
-namespace Match_Them_All.Scripts.Editor
+namespace MatchThemAll.Scripts.Editor
 {
     /// <summary>
     /// A self-contained Template Editor window for Levels, Items, and Settings.
@@ -507,8 +507,11 @@ namespace Match_Them_All.Scripts.Editor
             if (pendingDeleteIndex >= 0)
             {
                 var lv = _levels[pendingDeleteIndex];
-                if (EditorUtility.DisplayDialog("Delete Level",
-                        $"Delete '{lv.name}'? This cannot be undone.", "Delete", "Cancel"))
+                string warning = $"Delete '{lv.name}'? This cannot be undone.\n\n" +
+                                 "Note: player progress is saved by this level's identity. Deleting it " +
+                                 "orphans any saved stars/lock state for that level (it won't map to another level), " +
+                                 "and the saga-map node disappears. Other levels are unaffected.";
+                if (EditorUtility.DisplayDialog("Delete Level", warning, "Delete", "Cancel"))
                 {
                     DeleteLevel(pendingDeleteIndex);
                     GUIUtility.ExitGUI();
@@ -1718,9 +1721,10 @@ namespace Match_Them_All.Scripts.Editor
 
         // ── CRUD Operations ───────────────────────────────────────────────────
         /// <summary>
-        /// Picks a default name for a new level: "LevelData{N:D2}" where N = max trailing number across
-        /// existing level names + 1 (or count+1 if none parse). This keeps alphabetical sort == numeric
-        /// order when appending levels, avoiding the "LevelData06 1" duplicate-name ordering break.
+        /// Picks a default name for a new level: "LevelData{N}" where N = max trailing number across
+        /// existing level names + 1 (or count+1 if none parse). Zero-padding widens to D3 once the
+        /// campaign reaches 100+ levels so alphabetical sort keeps == numeric order past 99.
+        /// (Avoids the "LevelData06 1" duplicate-name ordering break at smaller counts.)
         /// </summary>
         private string DefaultNewLevelName()
         {
@@ -1735,7 +1739,9 @@ namespace Match_Them_All.Scripts.Editor
                 { max = num; any = true; }
             }
             int next = any ? max + 1 : _levels.Count + 1;
-            return $"LevelData{next:D2}";
+            // Widen padding once the project scales past 99 levels; D2 is enough below that.
+            string format = next >= 100 || max >= 100 ? "D3" : "D2";
+            return $"LevelData{next.ToString(format)}";
         }
 
         private void CreateNewLevel()

@@ -1,6 +1,6 @@
 using System;
 
-namespace Match_Them_All.Scripts.Power_Ups
+namespace MatchThemAll.Scripts.Power_Ups
 {
     /// <summary>
     /// Polymorphic power-up behavior, stored via [SerializeReference] on a <see cref="PowerupDataSO"/>.

@@ -27,9 +27,9 @@ namespace MatchThemAll.Scripts.UI
         /// <param name="bestStars">Best stars earned (0-3).</param>
         public void Configure(LevelDataSO level, int orderedIndex, int currentProgressIndex, int bestStars)
         {
-            if (themeBackground != null)
+            if (themeBackground)
             {
-                if (level != null && level.ThemeBackground != null)
+                if (level && level.ThemeBackground)
                 {
                     themeBackground.sprite = level.ThemeBackground;
                     themeBackground.enabled = true;
@@ -40,7 +40,7 @@ namespace MatchThemAll.Scripts.UI
                 }
             }
 
-            if (button != null)
+            if (button)
                 button.Configure(levelIndex: orderedIndex, currentProgress: currentProgressIndex, bestStars: bestStars);
         }
     }

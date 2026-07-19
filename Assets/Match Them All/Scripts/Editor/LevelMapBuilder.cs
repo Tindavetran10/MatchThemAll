@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using MatchThemAll.Scripts.UI;
 
-namespace Match_Them_All.Scripts.Editor
+namespace MatchThemAll.Scripts.Editor
 {
     /// <summary>
     /// One-click builder for the scrolling level saga map. Menu:

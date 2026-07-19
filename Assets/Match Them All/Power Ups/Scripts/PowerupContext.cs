@@ -4,7 +4,7 @@ using MatchThemAll.Scripts;
 using UnityEngine;
 using MatchThemAll.Scripts.Settings;
 
-namespace Match_Them_All.Scripts.Power_Ups
+namespace MatchThemAll.Scripts.Power_Ups
 {
     /// <summary>
     /// Dependencies handed to a <see cref="PowerupEffect"/> on activation.

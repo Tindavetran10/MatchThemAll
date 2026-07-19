@@ -1,4 +1,4 @@
-using Match_Them_All.Scripts.Power_Ups;
+using MatchThemAll.Scripts.Power_Ups;
 using MatchThemAll.Scripts;
 using UnityEngine;
 

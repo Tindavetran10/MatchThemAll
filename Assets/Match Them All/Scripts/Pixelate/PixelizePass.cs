@@ -3,7 +3,7 @@ using UnityEngine.Rendering;
 using UnityEngine.Rendering.RenderGraphModule;
 using UnityEngine.Rendering.Universal;
 
-namespace Match_Them_All.Scripts.Pixelate
+namespace MatchThemAll.Scripts.Pixelate
 {
     public class PixelizePass : ScriptableRenderPass
     {

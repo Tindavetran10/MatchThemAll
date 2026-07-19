@@ -34,21 +34,22 @@ namespace MatchThemAll.Scripts.SaveSystem
         /// <summary>Best stars per level, keyed by LevelDataSO.ID.</summary>
         public List<LevelProgressEntry> levelProgress = new();
 
-        // ponytail: legacy positional fields — read once by MigrateLevelsToKeyed, then cleared. Removed Stage 3.
-        public int currentLevelIndex;
-        /// <summary>Best star rating (0-3) earned per level index (legacy positional).</summary>
-        public int[] levelStars = System.Array.Empty<int>();
-
         // ── Player Engagement ──────────────────────────────────────────────
         public string lastPlayedDate = "";
         public int loginStreak = 0;
 
         // ── Economy ────────────────────────────────────────────────────────
         public int coins;
+        /// <summary>Premium (hard) currency — bought with real money via IAP; spent on coin/power-up packs.</summary>
+        public int gems;
 
         // ── Powerup Charges ────────────────────────────────────────────────
         public bool hasInitializedPowerups = false;
         public List<PowerupSaveEntry> powerups = new();   // id-keyed map
+
+        // ── Shop (first-purchase bonus tracking) ───────────────────────────
+        /// <summary>Product ids whose one-time first-purchase bonus has already been claimed.</summary>
+        public List<string> claimedFirstBonusProductIds = new();
 
         // ── Settings ───────────────────────────────────────────────────────
         public float musicVolume    = 1f;
@@ -62,45 +63,11 @@ namespace MatchThemAll.Scripts.SaveSystem
         public void MigrateLegacyPowerups() => powerups ??= new List<PowerupSaveEntry>();
 
         /// <summary>
-        /// Migrates legacy positional level progress (currentLevelIndex + levelStars[]) into the
-        /// id-keyed map, using the current ordered level id list. Idempotent: once levelProgress is
-        /// populated it never re-runs, and legacy fields are cleared. Safe to call repeatedly.
+        /// Ensures the level-progress list exists. (Legacy positional fields were removed; this is now
+        /// a defensive init guard retained as a load hook for any future schema migration.)
         /// </summary>
         public void MigrateLevelsToKeyed(IReadOnlyList<string> orderedIds)
-        {
-            levelProgress ??= new List<LevelProgressEntry>();
-
-            // Already keyed — just ensure legacy fields stay cleared.
-            if (levelProgress.Count > 0 || !string.IsNullOrEmpty(furthestLevelId))
-            {
-                currentLevelIndex = 0;
-                levelStars = System.Array.Empty<int>();
-                return;
-            }
-
-            // Nothing legacy to migrate from.
-            if (levelStars == null || levelStars.Length == 0)
-            {
-                currentLevelIndex = 0;
-                return;
-            }
-
-            // Zip positional stars → keyed entries by id.
-            if (orderedIds is { Count: > 0 })
-            {
-                for (int i = 0; i < levelStars.Length && i < orderedIds.Count; i++)
-                {
-                    if (levelStars[i] > 0)
-                        levelProgress.Add(new LevelProgressEntry { id = orderedIds[i], stars = levelStars[i] });
-                }
-                int lo = currentLevelIndex < 0 ? 0 : currentLevelIndex;
-                if (lo > orderedIds.Count - 1) lo = orderedIds.Count - 1;
-                furthestLevelId = orderedIds[lo];
-            }
-
-            currentLevelIndex = 0;
-            levelStars = System.Array.Empty<int>();
-        }
+            => levelProgress ??= new List<LevelProgressEntry>();
 
         /// <summary>Best stars for a level id, or 0 if absent.</summary>
         public int GetLevelStars(string id)

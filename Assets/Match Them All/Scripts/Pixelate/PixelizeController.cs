@@ -1,7 +1,7 @@
 using MatchThemAll.Scripts;
 using UnityEngine;
 
-namespace Match_Them_All.Scripts.Pixelate
+namespace MatchThemAll.Scripts.Pixelate
 {
     /// <summary>
     /// Activates/deactivates the pixelate renderer feature based on game state.

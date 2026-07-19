@@ -116,7 +116,7 @@ namespace MatchThemAll.Scripts
                 }
 
                 // Wait for LevelManager to finish loading Addressable data to prevent the 200ms integration spike from freezing the fade-in animation
-                if (LevelManager.Instance != null && LevelManager.Instance.LoadTask != null)
+                if (LevelManager.Instance && LevelManager.Instance.LoadTask != null)
                 {
                     await LevelManager.Instance.LoadTask;
                 }
@@ -124,7 +124,7 @@ namespace MatchThemAll.Scripts
                 // Fade back in
                 await Tween.Custom(1f, 0f, 0.6f, onValueChange: val =>
                     {
-                        if (img != null) img.color = new Color(0, 0, 0, val);
+                        if (img) img.color = new Color(0, 0, 0, val);
                     }, startDelay: 0.15f, ease: Ease.OutQuad, useUnscaledTime: true)
                     .OnComplete(() => { Destroy(faderGo); });
             }

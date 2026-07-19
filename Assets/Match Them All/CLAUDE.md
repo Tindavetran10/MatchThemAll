@@ -1,18 +1,92 @@
 # MatchThemAll — Claude Code Context
 
-## graphify
+Behavioral guidelines adapted for this Unity project. These rules reduce common LLM coding mistakes
+and encode architecture knowledge specific to MatchThemAll.
 
-This project has a knowledge graph at graphify-out/ with god nodes, community structure, and cross-file relationships.
+**Tradeoff:** These guidelines bias toward caution over speed. For trivial tasks, use judgment.
+
+---
+
+## 1. Think Before Coding
+
+**Don't assume. Don't hide confusion. Surface tradeoffs.**
+
+Before implementing:
+- State your assumptions explicitly. If uncertain, ask.
+- If multiple interpretations exist, present them — don't pick silently.
+- If a simpler approach exists, say so. Push back when warranted.
+- If something is unclear, stop. Name what's confusing. Ask.
+- For Unity-specific tasks, verify the API exists via `unity_reflect` or `unity_docs` before writing code — training data may be stale.
+
+---
+
+## 2. Simplicity First
+
+**Minimum code that solves the problem. Nothing speculative.**
+
+- No features beyond what was asked.
+- No abstractions for single-use MonoBehaviours or ScriptableObjects.
+- No "flexibility" or "configurability" that wasn't requested.
+- No error handling for impossible Unity lifecycle scenarios.
+- If you write 200 lines and it could be 50, rewrite it.
+- Prefer extending existing managers (e.g. `PowerupManager`, `GoalManager`) over creating new ones.
+
+Ask yourself: "Would a senior Unity engineer say this is overcomplicated?" If yes, simplify.
+
+---
+
+## 3. Surgical Changes
+
+**Touch only what you must. Clean up only your own mess.**
+
+When editing existing Unity scripts:
+- Don't "improve" adjacent code, serialized fields, or Inspector labels.
+- Don't refactor things that aren't broken.
+- Match existing style (field naming, region layout, event subscription pattern).
+- If you notice unrelated dead code, mention it — don't delete it.
+- Never rename public fields or serialized properties without flagging it — this breaks Inspector references and prefab overrides.
+
+When your changes create orphans:
+- Remove `using` directives, variables, and methods that YOUR changes made unused.
+- Don't remove pre-existing dead code unless asked.
+
+The test: Every changed line should trace directly to the user's request.
+
+---
+
+## 4. Goal-Driven Execution
+
+**Define success criteria. Loop until verified.**
+
+Transform tasks into verifiable goals:
+- "Add a power-up" → "Wire up the new type in `PowerupManager`, subscribe to events in `GameEvents.cs`, test in Play mode"
+- "Fix the bug" → "Reproduce it first, identify the root cause, then fix — don't guess"
+- "Refactor X" → "Confirm all call sites compile and behavior is unchanged"
+
+For multi-step tasks, state a brief plan:
+```
+1. [Step] → verify: [check]
+2. [Step] → verify: [check]
+3. [Step] → verify: [check]
+```
+
+Strong success criteria let you loop independently. Weak criteria ("make it work") require constant clarification.
+
+---
+
+## 5. graphify
+
+This project has a knowledge graph at `graphify-out/` with god nodes, community structure, and cross-file relationships.
 
 Rules:
-- For codebase questions, first run `graphify query "<question>"` when graphify-out/graph.json exists. Use `graphify path "<A>" "<B>"` for relationships and `graphify explain "<concept>"` for focused concepts. These return a scoped subgraph, usually much smaller than GRAPH_REPORT.md or raw grep output.
-- If graphify-out/wiki/index.md exists, use it for broad navigation instead of raw source browsing.
-- Read graphify-out/GRAPH_REPORT.md only for broad architecture review or when query/path/explain do not surface enough context.
+- For codebase questions, first run `graphify query "<question>"` when `graphify-out/graph.json` exists. Use `graphify path "<A>" "<B>"` for relationships and `graphify explain "<concept>"` for focused concepts. These return a scoped subgraph, usually much smaller than `GRAPH_REPORT.md` or raw grep output.
+- If `graphify-out/wiki/index.md` exists, use it for broad navigation instead of raw source browsing.
+- Read `graphify-out/GRAPH_REPORT.md` only for broad architecture review or when query/path/explain do not surface enough context.
 - After modifying code, run `graphify update .` to keep the graph current (AST-only, no API cost).
 
 ---
 
-## God Nodes (most connected — touch with extreme care)
+## 6. God Nodes (most connected — touch with extreme care)
 
 These classes have the most edges in the graph. Changes here have wide ripple effects.
 
@@ -33,7 +107,7 @@ These classes have the most edges in the graph. Changes here have wide ripple ef
 
 ---
 
-## Architecture Rules
+## 7. Architecture Rules
 
 ### Communication Pattern
 - **All inter-system events go through `EventBus<T>`** — subscribe in `GameEvents.cs`
@@ -57,9 +131,17 @@ These classes have the most edges in the graph. Changes here have wide ripple ef
 - Access via `SaveManager.Instance` — do **not** drag it into the Inspector
 - `PlayerData` is the serialized model — modify only through `SaveManager`
 
+### Shop & Economy
+- Gem/currency reads and writes must go through `SaveManager` — never modify `PlayerData` fields directly
+- `ShopManager` owns product validation; `ShopProductCard` is purely presentational
+
+### Performance (ZLinq)
+- LINQ is replaced with ZLinq (`AsValueEnumerable()`) in hot paths — maintain this pattern in new code inside managers
+- Avoid allocations in `Update()` / per-frame callbacks
+
 ---
 
-## Community Map (75 communities — key ones listed)
+## 8. Community Map (key communities)
 
 | Community | Key Class(es) | What it owns |
 |-----------|--------------|--------------|
@@ -83,12 +165,13 @@ These classes have the most edges in the graph. Changes here have wide ripple ef
 | Tutorial Steps | `TutorialManager` | Step-based tutorial logic |
 | Combo System | `ComboManager` | Combo tracking + multiplier |
 | Hint System | `HintManager` | Item highlight hints |
+| Shop & Gems | `ShopManager`, `ShopProductCard` | IAP-style shop, gem economy |
 
 > Full list: see `graphify-out/GRAPH_REPORT.md` → Community Hubs section
 
 ---
 
-## Cross-Community Bridge Nodes (high betweenness — careful!)
+## 9. Cross-Community Bridge Nodes (high betweenness — careful!)
 
 These nodes connect otherwise separate communities. Breaking them breaks multiple systems:
 - `ItemSpotManager` — bridges Item Spot Management ↔ Lose Panel (betweenness: 0.050)
@@ -97,7 +180,7 @@ These nodes connect otherwise separate communities. Breaking them breaks multipl
 
 ---
 
-## Obsidian Second Brain
+## 10. Obsidian Second Brain
 
 The vault root is this folder. In Obsidian:
 - `graphify-out/GRAPH_REPORT.md` — clickable `[[community links]]` for navigation
@@ -108,7 +191,7 @@ When you make an architectural decision, log it in Obsidian under `docs/decision
 
 ---
 
-## Quick Commands
+## 11. Quick Commands
 
 ```powershell
 # Query the knowledge graph (use before browsing code)
@@ -122,3 +205,7 @@ graphify update .
 # Full re-cluster (regenerates GRAPH_REPORT.md)
 graphify cluster-only .
 ```
+
+---
+
+**These guidelines are working if:** fewer unnecessary changes in diffs, fewer rewrites due to overcomplication, clarifying questions come before implementation rather than after mistakes, and no broken Inspector references or prefab overrides from silent renames.

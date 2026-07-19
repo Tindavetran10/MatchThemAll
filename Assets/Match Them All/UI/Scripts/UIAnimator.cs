@@ -64,7 +64,7 @@ namespace MatchThemAll.Scripts.UI
                 c.a = 0f;
                 _backgroundImage.color = c;
 
-                Tween.Custom(0f, _originalAlpha, animationDuration, onValueChange: (float a) => 
+                Tween.Custom(0f, _originalAlpha, animationDuration, onValueChange: a => 
                 {
                     Color col = _backgroundImage.color;
                     col.a = a;
@@ -107,7 +107,7 @@ namespace MatchThemAll.Scripts.UI
             {
                 hasAnimation = true;
                 Tween.StopAll(gameObject.transform);
-                Tween.Custom(_backgroundImage.color.a, 0f, animationDuration, onValueChange: (float a) => 
+                Tween.Custom(_backgroundImage.color.a, 0f, animationDuration, onValueChange: a => 
                 {
                     Color col = _backgroundImage.color;
                     col.a = a;
@@ -124,10 +124,7 @@ namespace MatchThemAll.Scripts.UI
                          .OnComplete(() => { if (!_targetToScale && !_backgroundImage) gameObject.SetActive(false); });
             }
 
-            if (!hasAnimation)
-            {
-                gameObject.SetActive(false);
-            }
+            if (!hasAnimation) gameObject.SetActive(false);
         }
     }
 }

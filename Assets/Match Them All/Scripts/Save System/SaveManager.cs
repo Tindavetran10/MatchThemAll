@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using Match_Them_All.Scripts.Power_Ups;
+using MatchThemAll.Scripts.Power_Ups;
 using UnityEngine;
 
 namespace MatchThemAll.Scripts.SaveSystem
@@ -32,6 +32,7 @@ namespace MatchThemAll.Scripts.SaveSystem
 
         // ── Events ──────────────────────────────────────────────────────────
         public static event Action<int> OnCoinsChanged;
+        public static event Action<int> OnGemsChanged;
         public static event Action OnPowerupsChanged;
 
         // ── Initialization ──────────────────────────────────────────────────
@@ -45,17 +46,6 @@ namespace MatchThemAll.Scripts.SaveSystem
             if (_cache != null) return;
             _cache = LoadFromDisk();
             _cache.MigrateLegacyPowerups();   // id-keyed map (one-time, idempotent)
-        }
-
-        /// <summary>
-        /// Migrates legacy positional level progress to the id-keyed map. Called by LevelManager once
-        /// the ordered level list is loaded (SaveManager loads before levels exist, so this runs later).
-        /// Idempotent.
-        /// </summary>
-        public static void MigrateLevelsToKeyed(IReadOnlyList<string> orderedIds)
-        {
-            Data.MigrateLevelsToKeyed(orderedIds);
-            if (_cache != null) { MarkDirty(); Flush(); } // persist the one-time migration
         }
 
         /// <summary>
@@ -91,6 +81,27 @@ namespace MatchThemAll.Scripts.SaveSystem
             return true;
         }
 
+        // ── Gems (premium currency) ─────────────────────────────────────────
+
+        public static int GetGems() => Data.gems;
+
+        public static void AddGems(int amount)
+        {
+            if (amount == 0) return;
+            Data.gems += amount;
+            MarkDirty();
+            OnGemsChanged?.Invoke(Data.gems);
+        }
+
+        public static bool SpendGems(int amount)
+        {
+            if (Data.gems < amount) return false;
+            Data.gems -= amount;
+            MarkDirty();
+            OnGemsChanged?.Invoke(Data.gems);
+            return true;
+        }
+
         // ── Powerups ────────────────────────────────────────────────────────
 
         /// <summary>Charge count for a power-up id (e.g. "vacuum"). 0 if unknown/absent.</summary>
@@ -116,6 +127,28 @@ namespace MatchThemAll.Scripts.SaveSystem
             OnPowerupsChanged?.Invoke();
         }
 
+        // ── Shop: first-purchase bonus claims ──────────────────────────────
+
+        /// <summary>True if this product's one-time first-purchase bonus was already claimed.</summary>
+        public static bool HasClaimedFirstBonus(string productId)
+            => !string.IsNullOrEmpty(productId)
+               && Data.claimedFirstBonusProductIds != null
+               && Data.claimedFirstBonusProductIds.Contains(productId);
+
+        /// <summary>
+        /// Atomically claims a product's first-purchase bonus. Returns true if THIS call claimed it
+        /// (caller may grant the bonus), false if it was already claimed or the id is empty.
+        /// </summary>
+        public static bool MarkFirstBonusClaimed(string productId)
+        {
+            if (string.IsNullOrEmpty(productId) || HasClaimedFirstBonus(productId)) return false;
+            Data.claimedFirstBonusProductIds ??= new List<string>();
+            Data.claimedFirstBonusProductIds.Add(productId);
+            MarkDirty();
+            Flush();
+            return true;
+        }
+
         /// <summary>Seeds each database entry's defaultAmount on first launch.</summary>
         public static void InitializePowerups(PowerupDatabaseSO database)
         {
@@ -136,16 +169,18 @@ namespace MatchThemAll.Scripts.SaveSystem
 
         // ── Currency ───────────────────────────────────────────────────────
 
-        /// <summary>Spends an amount of a currency. Dispatches per ECurrency (Coins now).</summary>
+        /// <summary>Spends an amount of a currency. Dispatches per ECurrency.</summary>
         public static bool Spend(ECurrency currency, int amount) => currency switch
         {
             ECurrency.Coins => SpendCoins(amount),
+            ECurrency.Gems  => SpendGems(amount),
             _ => false
         };
 
         public static int GetCurrency(ECurrency currency) => currency switch
         {
             ECurrency.Coins => Data.coins,
+            ECurrency.Gems  => Data.gems,
             _ => 0
         };
 

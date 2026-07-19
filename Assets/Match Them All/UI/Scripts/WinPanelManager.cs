@@ -33,10 +33,10 @@ namespace MatchThemAll.Scripts.UI
             int stars = CalculateStars();
 
             // Reward coins: Base coins from LevelData + Bonus per star
-            var levelData = LevelManager.Instance != null ? LevelManager.Instance.CurrentLevelData : null;
+            var levelData = LevelManager.Instance ? LevelManager.Instance.CurrentLevelData : null;
             int coinsEarned = 50;
 
-            if (levelData != null)
+            if (levelData)
             {
                 if (levelData.rewardMode == LevelDataSO.RewardCalculationMode.FixedValue)
                 {
@@ -64,14 +64,14 @@ namespace MatchThemAll.Scripts.UI
 
         // ── Star Rating ──────────────────────────────────────────────────────
 
-        private int CalculateStars()
+        private static int CalculateStars()
         {
-            if (LevelManager.Instance == null) return 1;
+            if (!LevelManager.Instance) return 1;
 
             var levelData = LevelManager.Instance.CurrentLevelData;
             int remaining = TimerManager.Instance ? TimerManager.Instance.CurrentTime : 0;
 
-            if (levelData != null)
+            if (levelData)
             {
                 // Note for Template Users:
                 // You can modify this method to evaluate stars based on Score, Moves, etc.
