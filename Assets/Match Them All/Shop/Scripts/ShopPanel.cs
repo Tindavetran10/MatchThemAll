@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using MatchThemAll.Scripts.UI;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -34,10 +35,12 @@ namespace MatchThemAll.Scripts.Shop
         private readonly List<ShopProductCard> _cards = new();
         private readonly List<Button> _tabButtons = new();
         private string _activeTabId;
+        private UIAnimator _animator;
 
         private void Awake()
         {
             if (!root) root = gameObject;
+            _animator = root.GetComponent<UIAnimator>();
             if (closeButton) closeButton.onClick.AddListener(Close);
         }
 
@@ -59,7 +62,14 @@ namespace MatchThemAll.Scripts.Shop
             Refresh();
         }
 
-        public void Close() { if (root) root.SetActive(false); }
+        public void Close()
+        {
+            if (!root) return;
+            // Delegate to UIAnimator so the zoom-out + fade plays before SetActive(false),
+            // matching the Settings / Daily Reward panel close behaviour.
+            if (_animator) _animator.ClosePanel();
+            else root.SetActive(false);
+        }
         public bool IsOpen => root && root.activeSelf;
 
         /// <summary>Opens the panel and jumps directly to a tab by its id.</summary>
