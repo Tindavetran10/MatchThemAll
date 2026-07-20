@@ -62,7 +62,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5f54437255e640a5af3914389af6f6e1, type: 3}
   m_Name: PixelizeFeature
-  m_EditorClassIdentifier: Assembly-CSharp::Match_Them_All.Scripts.Pixelate.PixelizeFeature
+  m_EditorClassIdentifier: Assembly-CSharp::MatchThemAll.Scripts.Pixelate.PixelizeFeature
   m_Active: 1
   settings:
     renderPassEvent: 550

@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using System.Linq;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -6,8 +8,9 @@ namespace MatchThemAll.Scripts.Shop
 {
     /// <summary>
     /// The shop overlay panel. Toggled open/closed, spawns one <see cref="ShopProductCard"/> per
-    /// product in the active category, with tab switching. Mirrors the ContinuePanelManager/DailyRewardPanel
-    /// show/hide pattern. No Canvas needed in code — it's a child of the scene's UI Canvas.
+    /// product in the active tab. Tabs are data-driven: one <see cref="ShopTabSO"/> asset = one tab button,
+    /// built at runtime from <see cref="ShopDatabaseSO.OrderedTabs"/>. No code change needed to add a tab.
+    /// Mirrors the ContinuePanelManager/DailyRewardPanel show/hide pattern.
     /// </summary>
     public class ShopPanel : MonoBehaviour
     {
@@ -18,57 +21,94 @@ namespace MatchThemAll.Scripts.Shop
         [SerializeField] private ShopProductCard cardPrefab;
         [SerializeField] private Transform cardContainer;
 
-        [Header("Tabs (optional — if empty, shows all products)")]
-        [SerializeField] private Button coinsTabButton;
-        [SerializeField] private Button gemsTabButton;
-        [SerializeField] private Button powerupsTabButton;
-        [SerializeField] private Button bundlesTabButton;
+        [Header("Tabs (data-driven)")]
+        [Tooltip("Prefab with a Button + TMP child for the tab label. Created by ShopSetup if missing.")]
+        [SerializeField] private Button tabButtonPrefab;
+        [Tooltip("Parent transform (HorizontalLayoutGroup) that tab buttons are spawned into.")]
+        [SerializeField] private Transform tabContainer;
 
         [Header("Chrome")]
         [SerializeField] private Button closeButton;
         [SerializeField] private GameObject root; // the panel root GO toggled for show/hide; defaults to this GO.
 
         private readonly List<ShopProductCard> _cards = new();
-        private EShopCategory _activeCategory = EShopCategory.Powerups;
+        private readonly List<Button> _tabButtons = new();
+        private string _activeTabId;
 
         private void Awake()
         {
             if (!root) root = gameObject;
             if (closeButton) closeButton.onClick.AddListener(Close);
-            if (coinsTabButton)    coinsTabButton.onClick.AddListener(() => ShowCategory(EShopCategory.Coins));
-            if (gemsTabButton)     gemsTabButton.onClick.AddListener(() => ShowCategory(EShopCategory.Gems));
-            if (powerupsTabButton) powerupsTabButton.onClick.AddListener(() => ShowCategory(EShopCategory.Powerups));
-            if (bundlesTabButton)  bundlesTabButton.onClick.AddListener(() => ShowCategory(EShopCategory.Bundles));
         }
 
         private void OnDestroy()
         {
-            if (closeButton != null) closeButton.onClick.RemoveListener(Close);
+            if (closeButton) closeButton.onClick.RemoveListener(Close);
         }
 
-        public void Open() { if (root != null) root.SetActive(true); Refresh(); }
-        public void Close() { if (root != null) root.SetActive(false); }
-        public bool IsOpen => root != null && root.activeSelf;
-
-        /// <summary>Opens the panel and jumps to a category (used by out-of-coins auto-open, etc.).</summary>
-        public void OpenAtCategory(EShopCategory category)
+        public void Open()
         {
-            _activeCategory = category;
+            if (root) root.SetActive(true);
+            BuildTabs();
+            // Default to the first tab if none is active yet (or the active one no longer exists).
+            if (string.IsNullOrEmpty(_activeTabId) || !database.FindTabById(_activeTabId))
+            {
+                var ordered = database ? database.OrderedTabs : null;
+                _activeTabId = ordered is { Count: > 0 } ? ordered[0].id : null;
+            }
+            Refresh();
+        }
+
+        public void Close() { if (root) root.SetActive(false); }
+        public bool IsOpen => root && root.activeSelf;
+
+        /// <summary>Opens the panel and jumps directly to a tab by its id.</summary>
+        public void OpenAtTab(string tabId)
+        {
+            _activeTabId = tabId;
             Open();
         }
 
-        public void ShowCategory(EShopCategory category)
+        public void ShowTab(string tabId)
         {
-            _activeCategory = category;
+            _activeTabId = tabId;
             Refresh();
         }
+
+        // ── Tab building ──────────────────────────────────────────────────────
+
+        private void BuildTabs()
+        {
+            // Clear stale tab buttons
+            foreach (var b in _tabButtons.Where(b => b)) Destroy(b.gameObject);
+            _tabButtons.Clear();
+
+            if (!database || !tabButtonPrefab || !tabContainer) return;
+
+            foreach (var tab in database.OrderedTabs)
+            {
+                if (!tab) continue;
+                var btn = Instantiate(tabButtonPrefab, tabContainer);
+                // Set the label text via TMP child (first TMP found in the prefab hierarchy)
+                var label = btn.GetComponentInChildren<TMP_Text>();
+                if (label) label.text = tab.DisplayName;
+
+                // Capture for the lambda
+                string tabId = tab.id;
+                btn.onClick.AddListener(() => ShowTab(tabId));
+                _tabButtons.Add(btn);
+            }
+        }
+
+        // ── Card spawning ─────────────────────────────────────────────────────
 
         private void Refresh()
         {
             ClearCards();
-            if (database == null || cardPrefab == null || cardContainer == null) return;
+            if (!database || !cardPrefab || !cardContainer) return;
+            if (string.IsNullOrEmpty(_activeTabId)) return;
 
-            foreach (var product in database.FindByCategory(_activeCategory))
+            foreach (var product in database.ProductsByTab(_activeTabId))
             {
                 ShopProductCard card = Instantiate(cardPrefab, cardContainer);
                 card.Configure(product);
@@ -78,8 +118,7 @@ namespace MatchThemAll.Scripts.Shop
 
         private void ClearCards()
         {
-            foreach (var c in _cards)
-                if (c != null) Destroy(c.gameObject);
+            foreach (var c in _cards.Where(c => c)) Destroy(c.gameObject);
             _cards.Clear();
         }
     }

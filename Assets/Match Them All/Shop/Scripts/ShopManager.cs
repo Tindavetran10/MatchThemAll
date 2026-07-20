@@ -111,9 +111,11 @@ namespace MatchThemAll.Scripts.Shop
             {
                 switch (r.kind)
                 {
-                    case ShopReward.EKind.Coins:        SaveManager.AddCoins(r.amount); break;
-                    case ShopReward.EKind.Gems:         SaveManager.AddGems(r.amount); break;
+                    case ShopReward.EKind.Coins:         SaveManager.AddCoins(r.amount); break;
+                    case ShopReward.EKind.Gems:          SaveManager.AddGems(r.amount); break;
                     case ShopReward.EKind.PowerupCharge: SaveManager.AddPowerupCharge(r.powerupId, r.amount); break;
+                    // powerupId is reused as the entitlement key (tagged union — field name is cosmetic).
+                    case ShopReward.EKind.Entitlement:   SaveManager.GrantEntitlement(r.powerupId); break;
                     default: throw new ArgumentOutOfRangeException();
                 }
             }

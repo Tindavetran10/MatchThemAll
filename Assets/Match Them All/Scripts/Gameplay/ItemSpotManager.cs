@@ -58,7 +58,7 @@ namespace MatchThemAll.Scripts
 
         private void OnItemBackToGame(Item releasedItem)
         {
-            if (releasedItem.Spot != null) 
+            if (releasedItem.Spot) 
                 releasedItem.Spot.Clear();
             MoveAllItemsToTheLeft();
         }

@@ -1,6 +1,6 @@
+using MatchThemAll.Scripts.SaveSystem;
 using UnityEngine;
 using UnityEngine.UI;
-using MatchThemAll.Scripts.SaveSystem;
 
 namespace MatchThemAll.Scripts.Shop
 {
@@ -8,6 +8,9 @@ namespace MatchThemAll.Scripts.Shop
     /// "Watch Ad for N Coins" button. Phase-1 stub: no ad SDK installed yet, so it grants coins
     /// directly. Replace OnAdComplete with a real Rewarded-Ad callback (Unity Ads / UGS Ads) later.
     /// Attach alongside a Button; set coinsPerWatch.
+    ///
+    /// Hidden automatically when the player owns the <see cref="EntitlementIds.RemoveAds"/> entitlement
+    /// (they paid to remove ads; the free-coin tap goes away with them).
     /// </summary>
     [RequireComponent(typeof(Button))]
     public class WatchAdForCoinsButton : MonoBehaviour
@@ -25,8 +28,22 @@ namespace MatchThemAll.Scripts.Shop
                 btn.onClick.AddListener(OnClicked);
         }
 
+        private void Start()
+        {
+            // Hide if the player has removed ads — the watch-ad free reward goes away with the ads.
+            if (SaveManager.OwnsEntitlement(EntitlementIds.RemoveAds))
+                gameObject.SetActive(false);
+        }
+
         private void OnClicked()
         {
+            // Belt-and-suspenders: also check at click time in case the entitlement was granted this session.
+            if (SaveManager.OwnsEntitlement(EntitlementIds.RemoveAds))
+            {
+                gameObject.SetActive(false);
+                return;
+            }
+
             // TODO(ad-sdk): wire the Rewarded Ad SDK; call OnAdComplete only on a verified view.
             // For now (no ad package installed), grant coins immediately so the flow is testable — but cap it.
             if (_sessionClaims >= maxPerSession)

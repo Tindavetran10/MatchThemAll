@@ -149,6 +149,25 @@ namespace MatchThemAll.Scripts.SaveSystem
             return true;
         }
 
+        // ── Entitlements (permanent unlocks) ────────────────────────────────
+
+        /// <summary>True if the player owns the given entitlement key (e.g. EntitlementIds.RemoveAds).</summary>
+        public static bool OwnsEntitlement(string id) => Data.OwnsEntitlement(id);
+
+        /// <summary>
+        /// Atomically grants an entitlement. Returns true if THIS call granted it (caller may react),
+        /// false if it was already owned or the id is empty. Persisted immediately.
+        /// </summary>
+        public static bool GrantEntitlement(string id)
+        {
+            if (string.IsNullOrEmpty(id) || Data.OwnsEntitlement(id)) return false;
+            Data.ownedEntitlements ??= new List<string>();
+            Data.ownedEntitlements.Add(id);
+            MarkDirty();
+            Flush();
+            return true;
+        }
+
         /// <summary>Seeds each database entry's defaultAmount on first launch.</summary>
         public static void InitializePowerups(PowerupDatabaseSO database)
         {

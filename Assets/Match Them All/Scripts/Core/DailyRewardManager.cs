@@ -29,20 +29,19 @@ namespace MatchThemAll.Scripts.UI
             {
                 int daysDifference = (int)(currentDate - lastPlayedDate.Date).TotalDays;
 
-                if (daysDifference == 0)
+                switch (daysDifference)
                 {
-                    // Already played today, no reward.
-                    return;
-                }
-                else if (daysDifference == 1)
-                {
-                    // Played exactly yesterday, increment streak
-                    loginStreak++;
-                }
-                else if (daysDifference > 1)
-                {
-                    // Missed a day or more, reset streak
-                    loginStreak = 1;
+                    case 0:
+                        // Already played today, no reward.
+                        return;
+                    case 1:
+                        // Played exactly yesterday, increment streak
+                        loginStreak++;
+                        break;
+                    case > 1:
+                        // Missed a day or more, reset streak
+                        loginStreak = 1;
+                        break;
                 }
                 
                 // Cap streak logic (loop back or cap at 7)
@@ -64,7 +63,7 @@ namespace MatchThemAll.Scripts.UI
 
         private void ShowRewardPopup(int streakDay)
         {
-            if (rewardPanelPrefab != null && uiCanvas != null)
+            if (rewardPanelPrefab && uiCanvas)
             {
                 DailyRewardPanel panel = Instantiate(rewardPanelPrefab, uiCanvas);
                 panel.Initialize(streakDay, () => GrantReward(streakDay));

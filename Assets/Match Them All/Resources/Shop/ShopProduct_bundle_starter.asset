@@ -15,7 +15,7 @@ MonoBehaviour:
   id: bundle_starter
   displayName: Starter Bundle
   icon: {fileID: 0}
-  category: 3
+  tabId: bundles
   priceCurrency: 0
   priceAmount: 300
   rewards:
@@ -28,8 +28,18 @@ MonoBehaviour:
   - kind: 0
     amount: 50
     powerupId: 
-  firstPurchaseBonus: []
+  firstPurchaseBonus:
+  - kind: 2
+    amount: 2
+    powerupId: vacuum
+  - kind: 2
+    amount: 2
+    powerupId: spring
+  - kind: 0
+    amount: 50
+    powerupId: 
   bestValue: 0
   mostPopular: 1
   description: 
+  isOneTime: 1
   iapProductId: 

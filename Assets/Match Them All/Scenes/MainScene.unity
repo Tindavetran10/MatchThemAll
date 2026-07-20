@@ -11462,7 +11462,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5def571ef91a478b8ea8450fe4c6ad8f, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Match_Them_All.Scripts.Power_Ups.Vacuum
+  m_EditorClassIdentifier: Assembly-CSharp::MatchThemAll.Scripts.Power_Ups.Vacuum
   data: {fileID: 11400000, guid: cf46bb97d979c204481117286ed44372, type: 2}
   powerupId: 
   animator: {fileID: 1947967954}

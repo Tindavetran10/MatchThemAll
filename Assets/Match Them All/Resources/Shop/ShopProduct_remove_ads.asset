@@ -10,21 +10,21 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 995405b99ebf2fe4f8857ca324cd3beb, type: 3}
-  m_Name: ShopProduct_powerup_fan_pack
+  m_Name: ShopProduct_remove_ads
   m_EditorClassIdentifier: 
-  id: powerup_fan_pack
-  displayName: Fan Pack
+  id: remove_ads
+  displayName: Remove Ads
   icon: {fileID: 0}
-  tabId: powerups
-  priceCurrency: 0
-  priceAmount: 120
+  tabId: offers
+  priceCurrency: 1
+  priceAmount: 200
   rewards:
-  - kind: 2
-    amount: 5
-    powerupId: fan
+  - kind: 3
+    amount: 1
+    powerupId: remove_ads
   firstPurchaseBonus: []
-  bestValue: 0
+  bestValue: 1
   mostPopular: 0
   description: 
-  isOneTime: 0
+  isOneTime: 1
   iapProductId: 

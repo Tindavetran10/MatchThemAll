@@ -141,7 +141,7 @@ namespace MatchThemAll.Scripts
         [Button("Preview Spawn")]
         private void PreviewSpawn()
         {
-            if (previewData == null)
+            if (!previewData)
             {
                 Debug.LogWarning("ItemPlacer: Assign a LevelDataSO to Preview Data first.");
                 return;

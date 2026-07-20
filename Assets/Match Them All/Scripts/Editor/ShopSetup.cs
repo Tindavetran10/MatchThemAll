@@ -37,6 +37,35 @@ namespace MatchThemAll.Scripts.Editor
         {
             if (!Directory.Exists(SHOP_RES_DIR)) Directory.CreateDirectory(SHOP_RES_DIR);
 
+            // ── 1. Seed ShopTabSO assets ─────────────────────────────────────
+            var tabDefs = new[] {
+                (id: "powerups", label: "Power-ups", order: 0),
+                (id: "bundles",  label: "Bundles",   order: 1),
+                (id: "coins",    label: "Coins",     order: 2),
+                (id: "offers",   label: "Offers",    order: 3),
+            };
+            var tabAssets = new List<ShopTabSO>();
+            foreach (var (id, label, order) in tabDefs)
+            {
+                string tabPath = $"{SHOP_RES_DIR}/ShopTab_{id}.asset";
+                var tab = AssetDatabase.LoadAssetAtPath<ShopTabSO>(tabPath);
+                if (!tab)
+                {
+                    tab = ScriptableObject.CreateInstance<ShopTabSO>();
+                    AssetDatabase.CreateAsset(tab, tabPath);
+                }
+                var tabSer = new SerializedObject(tab);
+                tabSer.FindProperty("id").stringValue = id;
+                tabSer.FindProperty("displayName").stringValue = label;
+                tabSer.FindProperty("order").intValue = order;
+                tabSer.ApplyModifiedPropertiesWithoutUndo();
+                EditorUtility.SetDirty(tab);
+                tabAssets.Add(tab);
+            }
+
+            // ── 2. Seed products with tabId strings ──────────────────────────
+            var created = new List<ShopProductSO>();
+
             var powerupPacks = new[]
             {
                 ("vacuum", "Vacuum Pack", 120, 5),
@@ -44,32 +73,58 @@ namespace MatchThemAll.Scripts.Editor
                 ("fan",    "Fan Pack",    120, 5),
                 ("freeze", "Freeze Pack", 120, 5),
             };
-
-            var created = new List<ShopProductSO>();
-
-            // Coin-for-coins value packs (buy coins with... coins makes no sense; these are placeholder
-            // "bulk" offers — replace with gem-priced coin packs in Phase 2). Kept minimal here.
-            // Instead, the meaningful Phase-1 products are power-up packs priced in coins.
             foreach (var (id, name, price, charges) in powerupPacks)
             {
-                var so = CreateSO($"powerup_{id}_pack", name, EShopCategory.Powerups,
+                var so = CreateSO($"powerup_{id}_pack", name, tabId: "powerups",
                     priceCurrency: ECurrency.Coins, price: price);
                 AddReward(so, ShopReward.EKind.PowerupCharge, charges, id);
                 EditorUtility.SetDirty(so);
                 created.Add(so);
             }
 
-            // One bundle: mix of charges, priced in coins.
-            var bundle = CreateSO("bundle_starter", "Starter Bundle", EShopCategory.Bundles,
+            // ── Bundles tab ───────────────────────────────────────────────────
+            // Starter Bundle — one-time; doubles rewards on the player's first purchase.
+            var bundle = CreateSO("bundle_starter", "Starter Bundle", tabId: "bundles",
                 priceCurrency: ECurrency.Coins, price: 300);
             bundle.mostPopular = true;
             AddReward(bundle, ShopReward.EKind.PowerupCharge, 2, "vacuum");
             AddReward(bundle, ShopReward.EKind.PowerupCharge, 2, "spring");
             AddReward(bundle, ShopReward.EKind.Coins, 50, null);
+            // First-purchase bonus: same rewards again (double value on first buy)
+            AddFirstPurchaseBonus(bundle, ShopReward.EKind.PowerupCharge, 2, "vacuum");
+            AddFirstPurchaseBonus(bundle, ShopReward.EKind.PowerupCharge, 2, "spring");
+            AddFirstPurchaseBonus(bundle, ShopReward.EKind.Coins, 50, null);
+            SetFlags(bundle, isOneTime: true);
             EditorUtility.SetDirty(bundle);
             created.Add(bundle);
 
-            // Build the database.
+            // ── Coins tab ─────────────────────────────────────────────────────
+            // Coin exchange — spend Gems to get Coins (soft-currency conversion).
+            var coinPack = CreateSO("coins_500", "500 Coins", tabId: "coins",
+                priceCurrency: ECurrency.Gems, price: 50);
+            AddReward(coinPack, ShopReward.EKind.Coins, 500, null);
+            EditorUtility.SetDirty(coinPack);
+            created.Add(coinPack);
+
+            // ── Offers tab ────────────────────────────────────────────────────
+            // Remove Ads — permanent entitlement; one-time purchase.
+            var removeAds = CreateSO("remove_ads", "Remove Ads", tabId: "offers",
+                priceCurrency: ECurrency.Gems, price: 200);
+            AddReward(removeAds, ShopReward.EKind.Entitlement, 1, EntitlementIds.RemoveAds);
+            SetFlags(removeAds, isOneTime: true, bestValue: true);
+            EditorUtility.SetDirty(removeAds);
+            created.Add(removeAds);
+
+            // 2× Gem Pack — first purchase doubles the payout (real-money IAP placeholder).
+            var gemPack = CreateSO("gems_2x_starter", "2× Gem Pack", tabId: "offers",
+                priceCurrency: ECurrency.Gems, price: 0); // price irrelevant for IAP
+            AddReward(gemPack, ShopReward.EKind.Gems, 100, null);
+            AddFirstPurchaseBonus(gemPack, ShopReward.EKind.Gems, 100, null); // +100 bonus on first buy
+            SetFlags(gemPack, iapProductId: "gems_2x_starter");
+            EditorUtility.SetDirty(gemPack);
+            created.Add(gemPack);
+
+            // ── 3. Update database ───────────────────────────────────────────
             string dbPath = $"{SHOP_RES_DIR}/ShopDatabase.asset";
             var db = AssetDatabase.LoadAssetAtPath<ShopDatabaseSO>(dbPath);
             if (!db)
@@ -78,15 +133,16 @@ namespace MatchThemAll.Scripts.Editor
                 AssetDatabase.CreateAsset(db, dbPath);
             }
             db.products = created;
+            db.tabs     = tabAssets;
             EditorUtility.SetDirty(db);
 
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
             Selection.activeObject = db;
-            Debug.Log($"[ShopSetup] Created {created.Count} products + ShopDatabase under {SHOP_RES_DIR}. Tune prices/rewards in the Inspector.");
+            Debug.Log($"[ShopSetup] Stage C: {tabAssets.Count} tabs + {created.Count} products seeded under {SHOP_RES_DIR}.");
         }
 
-        private static ShopProductSO CreateSO(string id, string displayName, EShopCategory category, ECurrency priceCurrency, int price)
+        private static ShopProductSO CreateSO(string id, string displayName, string tabId, ECurrency priceCurrency, int price)
         {
             string path = $"{SHOP_RES_DIR}/ShopProduct_{id}.asset";
             var so = AssetDatabase.LoadAssetAtPath<ShopProductSO>(path);
@@ -99,24 +155,54 @@ namespace MatchThemAll.Scripts.Editor
             var serialized = new SerializedObject(so);
             serialized.FindProperty("id").stringValue = id;
             serialized.FindProperty("displayName").stringValue = displayName;
-            serialized.FindProperty("category").enumValueIndex = (int)category;
+            serialized.FindProperty("tabId").stringValue = tabId;
             serialized.FindProperty("priceCurrency").enumValueIndex = (int)priceCurrency;
             serialized.FindProperty("priceAmount").intValue = price;
+            // Clear reward lists so re-running doesn't accumulate duplicates.
+            serialized.FindProperty("rewards").ClearArray();
+            serialized.FindProperty("firstPurchaseBonus").ClearArray();
+            // Reset one-time / IAP flags so they don't carry stale values on recreate.
+            serialized.FindProperty("isOneTime").boolValue = false;
+            serialized.FindProperty("bestValue").boolValue = false;
+            serialized.FindProperty("iapProductId").stringValue = "";
             serialized.ApplyModifiedPropertiesWithoutUndo();
+            // Force-flush to disk so subsequent SerializedObject instances (AddReward etc.)
+            // read the cleared arrays rather than the stale on-disk data.
+            EditorUtility.SetDirty(so);
+            AssetDatabase.SaveAssetIfDirty(so);
             return so;
         }
 
         private static void AddReward(ShopProductSO so, ShopReward.EKind kind, int amount, string powerupId)
+            => AppendRewardEntry(so, "rewards", kind, amount, powerupId);
+
+        /// <summary>Appends an entry to <see cref="ShopProductSO.firstPurchaseBonus"/>.</summary>
+        private static void AddFirstPurchaseBonus(ShopProductSO so, ShopReward.EKind kind, int amount, string powerupId)
+            => AppendRewardEntry(so, "firstPurchaseBonus", kind, amount, powerupId);
+
+        private static void AppendRewardEntry(ShopProductSO so, string listPropName,
+            ShopReward.EKind kind, int amount, string powerupId)
         {
             var serialized = new SerializedObject(so);
-            // Always populate the main rewards list — firstPurchaseBonus is a separate, one-time-only field.
-            // (Routing IAP rewards into firstPurchaseBonus made repeat real-money purchases grant nothing.)
-            var rewards = serialized.FindProperty("rewards");
-            rewards.arraySize++;
-            var entry = rewards.GetArrayElementAtIndex(rewards.arraySize - 1);
+            var list = serialized.FindProperty(listPropName);
+            list.arraySize++;
+            var entry = list.GetArrayElementAtIndex(list.arraySize - 1);
             entry.FindPropertyRelative("kind").enumValueIndex = (int)kind;
             entry.FindPropertyRelative("amount").intValue = amount;
             entry.FindPropertyRelative("powerupId").stringValue = powerupId ?? "";
+            serialized.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        /// <summary>Sets misc boolean/string flags on a product via SerializedObject.</summary>
+        private static void SetFlags(ShopProductSO so,
+            bool isOneTime = false, bool bestValue = false,
+            string iapProductId = null)
+        {
+            var serialized = new SerializedObject(so);
+            if (isOneTime)  serialized.FindProperty("isOneTime").boolValue  = true;
+            if (bestValue)  serialized.FindProperty("bestValue").boolValue  = true;
+            if (!string.IsNullOrEmpty(iapProductId))
+                serialized.FindProperty("iapProductId").stringValue = iapProductId;
             serialized.ApplyModifiedPropertiesWithoutUndo();
         }
 
@@ -193,8 +279,8 @@ namespace MatchThemAll.Scripts.Editor
             var areaImg = areaGo.AddComponent<Image>();
             areaImg.color = new Color(0.15f, 0.15f, 0.2f, 0.95f);
 
-            // Tabs row (top of card area)
-            var tabsGo = new GameObject("Tabs");
+            // Tab container (tabs are spawned at runtime by ShopPanel.BuildTabs())
+            var tabsGo = new GameObject("TabContainer");
             var tabsRt = tabsGo.AddComponent<RectTransform>();
             tabsRt.SetParent(areaRt, false);
             AnchorTopStretch(tabsRt, height: 110f);
@@ -202,10 +288,9 @@ namespace MatchThemAll.Scripts.Editor
             tabsHlg.childAlignment = TextAnchor.UpperCenter;
             tabsHlg.spacing = 20f; tabsHlg.childControlWidth = true; tabsHlg.childControlHeight = true;
             tabsHlg.childForceExpandWidth = true; tabsHlg.childForceExpandHeight = true;
-            Button coinsTab    = MakeTabButton(tabsGo.transform, "CoinsTab",    "Coins");
-            Button gemsTab     = MakeTabButton(tabsGo.transform, "GemsTab",     "Gems");
-            Button powerupsTab = MakeTabButton(tabsGo.transform, "PowerupsTab", "Power-ups");
-            Button bundlesTab  = MakeTabButton(tabsGo.transform, "BundlesTab",  "Bundles");
+
+            // Tab button prefab (Button + TMP label); ShopPanel instantiates one per ShopTabSO at runtime.
+            Button tabBtnPrefab = BuildTabButtonPrefab();
 
             // Scroll area for cards
             var viewport = MakeRect("Viewport", areaRt);
@@ -239,15 +324,13 @@ namespace MatchThemAll.Scripts.Editor
             // ShopPanel component, wired
             var panel = panelGo.AddComponent<ShopPanel>();
             var ser   = new SerializedObject(panel);
-            ser.FindProperty("database").objectReferenceValue          = db;
-            ser.FindProperty("cardPrefab").objectReferenceValue        = cardPrefab;
-            ser.FindProperty("cardContainer").objectReferenceValue     = content;
-            ser.FindProperty("coinsTabButton").objectReferenceValue    = coinsTab;
-            ser.FindProperty("gemsTabButton").objectReferenceValue     = gemsTab;
-            ser.FindProperty("powerupsTabButton").objectReferenceValue = powerupsTab;
-            ser.FindProperty("bundlesTabButton").objectReferenceValue  = bundlesTab;
-            ser.FindProperty("closeButton").objectReferenceValue       = closeBtn;
-            ser.FindProperty("root").objectReferenceValue              = panelGo;
+            ser.FindProperty("database").objectReferenceValue        = db;
+            ser.FindProperty("cardPrefab").objectReferenceValue      = cardPrefab;
+            ser.FindProperty("cardContainer").objectReferenceValue   = content;
+            ser.FindProperty("tabButtonPrefab").objectReferenceValue = tabBtnPrefab;
+            ser.FindProperty("tabContainer").objectReferenceValue    = tabsGo.transform;
+            ser.FindProperty("closeButton").objectReferenceValue     = closeBtn;
+            ser.FindProperty("root").objectReferenceValue            = panelGo;
             ser.ApplyModifiedPropertiesWithoutUndo();
 
             // ShopManager on the Lobby Canvas
@@ -270,6 +353,20 @@ namespace MatchThemAll.Scripts.Editor
             openerSer.ApplyModifiedPropertiesWithoutUndo();
             MakeLabel(openerGo.transform, "Shop", 40, Color.white);
 
+            // ── DEBUG: +coins/+gems button (development only — verify the spend→grant success path) ──
+            var debugGo = new GameObject("DebugGrantButton");
+            var debugRt = debugGo.AddComponent<RectTransform>();
+            debugRt.SetParent(canvasTf, false);
+            debugRt.anchorMin = new Vector2(1f, 1f);
+            debugRt.anchorMax = new Vector2(1f, 1f);
+            debugRt.pivot = new Vector2(1f, 1f);
+            debugRt.anchoredPosition = new Vector2(-40f, -150f);
+            debugRt.sizeDelta = new Vector2(160f, 90f);
+            debugGo.AddComponent<Image>().color = new Color(0.9f, 0.7f, 0.2f, 0.95f);
+            debugGo.AddComponent<Button>();
+            debugGo.AddComponent<DebugGrantCurrencyButton>(); // +500 coins / +50 gems per tap
+            MakeLabel(debugGo.transform, "+Coins", 32, Color.black);
+
             // ── Save Lobby scene ─────────────────────────────────────────────
             UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(lobbyScene);
             UnityEditor.SceneManagement.EditorSceneManager.SaveScene(lobbyScene);
@@ -281,6 +378,23 @@ namespace MatchThemAll.Scripts.Editor
             Selection.activeObject = panelGo;
             Debug.Log("[ShopSetup] Shop panel built inside Lobby.unity's Canvas and scene saved. " +
                       "Re-run to rebuild idempotently.");
+        }
+
+        private const string TAB_BTN_PREFAB_PATH = "Assets/Match Them All/UI/Prefabs/ShopTabButton.prefab";
+
+        private static Button BuildTabButtonPrefab()
+        {
+            var root = new GameObject("ShopTabButton");
+            root.AddComponent<RectTransform>();
+            root.AddComponent<Image>().color = new Color(0.3f, 0.45f, 0.7f, 0.95f);
+            var btn = root.AddComponent<Button>();
+            MakeLabel(root.transform, "Tab", 44, Color.white);
+
+            string dir = Path.GetDirectoryName(TAB_BTN_PREFAB_PATH);
+            if (!string.IsNullOrEmpty(dir)) Directory.CreateDirectory(dir);
+            var prefab = PrefabUtility.SaveAsPrefabAsset(root, TAB_BTN_PREFAB_PATH).GetComponent<Button>();
+            Object.DestroyImmediate(root);
+            return prefab;
         }
 
         private static ShopProductCard BuildCardPrefab()
@@ -378,7 +492,7 @@ namespace MatchThemAll.Scripts.Editor
             var rt = go.AddComponent<RectTransform>();
             rt.SetParent(parent, false);
             var label = go.AddComponent<TextMeshProUGUI>();
-            if (TmpFont != null) label.font = TmpFont;
+            if (TmpFont) label.font = TmpFont;
             label.text = text;
             label.fontSize = size;
             label.color = color;
@@ -422,7 +536,7 @@ namespace MatchThemAll.Scripts.Editor
 
         private static void EnsureEventSystem()
         {
-            if (Object.FindFirstObjectByType<UnityEngine.EventSystems.EventSystem>() != null) return;
+            if (Object.FindFirstObjectByType<UnityEngine.EventSystems.EventSystem>()) return;
             var es = new GameObject("EventSystem");
             es.AddComponent<UnityEngine.EventSystems.EventSystem>();
             es.AddComponent<UnityEngine.InputSystem.UI.InputSystemUIInputModule>();

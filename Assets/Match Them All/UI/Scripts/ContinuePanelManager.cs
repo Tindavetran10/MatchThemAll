@@ -59,11 +59,12 @@ namespace MatchThemAll.Scripts.UI
 
             bool hasCoins = SaveManager.GetCoins() >= cost;
 
-            // Prioritize Coins. If they don't have enough, show Ads (if allowed by settings).
+            // Prioritize Coins. If they don't have enough, show Ads (if allowed by settings and not removed).
             bool allowAds = !gameSettings || gameSettings.allowAdContinue;
-            
+            bool adsRemoved = SaveManager.OwnsEntitlement(MatchThemAll.Scripts.Shop.EntitlementIds.RemoveAds);
+
             payCoinsButton.gameObject.SetActive(hasCoins);
-            watchAdButton.gameObject.SetActive(!hasCoins && allowAds);
+            watchAdButton.gameObject.SetActive(!hasCoins && allowAds && !adsRemoved);
 
             payCoinsButton.interactable = true;
             giveUpButton.interactable = true;

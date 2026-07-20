@@ -59,7 +59,7 @@ public class InputManager : MonoBehaviour
 
     private void WarmupOutlineShader()
     {
-        if (outlineMaterial == null || _mainCamera == null) return;
+        if (!outlineMaterial || !_mainCamera) return;
         
         // Create a temporary dummy object to force the GPU to compile the Outline Shader variant immediately.
         // This prevents a massive CPU/GPU spike the first time the HintManager or user selects an item.

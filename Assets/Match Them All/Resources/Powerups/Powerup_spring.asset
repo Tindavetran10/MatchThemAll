@@ -27,7 +27,7 @@ MonoBehaviour:
     version: 2
     RefIds:
     - rid: 1442196544509706360
-      type: {class: SpringEffect, ns: Match_Them_All.Scripts.Power_Ups, asm: Assembly-CSharp}
+      type: {class: SpringEffect, ns: MatchThemAll.Scripts.Power_Ups, asm: Assembly-CSharp}
       data:
         springHorizontalForceRange: {x: 4, y: 7}
         springVerticalForceRange: {x: 6, y: 9}

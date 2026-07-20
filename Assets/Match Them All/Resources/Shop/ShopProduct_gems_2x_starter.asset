@@ -10,21 +10,24 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 995405b99ebf2fe4f8857ca324cd3beb, type: 3}
-  m_Name: ShopProduct_powerup_fan_pack
+  m_Name: ShopProduct_gems_2x_starter
   m_EditorClassIdentifier: 
-  id: powerup_fan_pack
-  displayName: Fan Pack
+  id: gems_2x_starter
+  displayName: "2\xD7 Gem Pack"
   icon: {fileID: 0}
-  tabId: powerups
-  priceCurrency: 0
-  priceAmount: 120
+  tabId: offers
+  priceCurrency: 1
+  priceAmount: 0
   rewards:
-  - kind: 2
-    amount: 5
-    powerupId: fan
-  firstPurchaseBonus: []
+  - kind: 1
+    amount: 100
+    powerupId: 
+  firstPurchaseBonus:
+  - kind: 1
+    amount: 100
+    powerupId: 
   bestValue: 0
   mostPopular: 0
   description: 
   isOneTime: 0
-  iapProductId: 
+  iapProductId: gems_2x_starter

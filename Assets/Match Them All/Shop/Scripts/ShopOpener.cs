@@ -20,7 +20,7 @@ namespace MatchThemAll.Scripts.Shop
 
         private void Open()
         {
-            if (shopPanel != null) shopPanel.Open();
+            if (shopPanel) shopPanel.Open();
             else Debug.LogWarning("[ShopOpener] No ShopPanel assigned.", this);
         }
     }

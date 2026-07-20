@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using ZLinq;
 
 namespace MatchThemAll.Scripts.SaveSystem
@@ -36,7 +35,7 @@ namespace MatchThemAll.Scripts.SaveSystem
 
         // ── Player Engagement ──────────────────────────────────────────────
         public string lastPlayedDate = "";
-        public int loginStreak = 0;
+        public int loginStreak;
 
         // ── Economy ────────────────────────────────────────────────────────
         public int coins;
@@ -44,12 +43,20 @@ namespace MatchThemAll.Scripts.SaveSystem
         public int gems;
 
         // ── Powerup Charges ────────────────────────────────────────────────
-        public bool hasInitializedPowerups = false;
+        public bool hasInitializedPowerups;
         public List<PowerupSaveEntry> powerups = new();   // id-keyed map
 
         // ── Shop (first-purchase bonus tracking) ───────────────────────────
         /// <summary>Product ids whose one-time first-purchase bonus has already been claimed.</summary>
         public List<string> claimedFirstBonusProductIds = new();
+
+        // ── Entitlements (permanent unlocks, e.g. "remove_ads") ─────────────
+        /// <summary>Entitlement keys the player owns (one-time unlocks granted by shop products).</summary>
+        public List<string> ownedEntitlements = new();
+
+        /// <summary>True if the player owns the given entitlement key.</summary>
+        public bool OwnsEntitlement(string id)
+            => !string.IsNullOrEmpty(id) && ownedEntitlements != null && ownedEntitlements.Contains(id);
 
         // ── Settings ───────────────────────────────────────────────────────
         public float musicVolume    = 1f;

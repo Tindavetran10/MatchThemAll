@@ -15,7 +15,7 @@ MonoBehaviour:
   id: powerup_spring_pack
   displayName: Spring Pack
   icon: {fileID: 0}
-  category: 2
+  tabId: powerups
   priceCurrency: 0
   priceAmount: 120
   rewards:
@@ -26,4 +26,5 @@ MonoBehaviour:
   bestValue: 0
   mostPopular: 0
   description: 
+  isOneTime: 0
   iapProductId: 
