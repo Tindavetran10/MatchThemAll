@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "CLAUDE.md",
+                "file": "graphify-out/2026-07-22/GRAPH_REPORT.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "CLAUDE"
+              "title": "GRAPH_REPORT"
             }
           }
         ]
@@ -181,13 +181,22 @@
       "bases:Create new base": false
     }
   },
-  "active": "fe382de81a5a264e",
+  "active": "731b9ced99820455",
   "lastOpenFiles": [
+    "graphify-out/cache/ast/v0.8.44/ed2019dbd8f2863cf9c624c2a0bd34e33b412e6f6af09be7b2c2f6f20c91ae11.json.meta",
+    "graphify-out/cache/ast/v0.8.44/6efa2665553fdce3a5cf869d65a6550eb4895d095d13f2e3cb014f2abf551d60.json.meta",
+    "graphify-out/cache/ast/v0.8.44/37dc6882a4962093033630c56534a8b65847c03470cc1187e5eec7f1acf16aed.json.meta",
+    "graphify-out/cache/ast/v0.8.44/fe3157f86d3bc3cb6c205666d676b9db1b8fa88c0a625c996ce0c2748c602ba0.json.meta",
+    "graphify-out/cache/ast/v0.8.44/f9a439ecc7d1c1b786f352dc5fe123f530998985dddd2988b3696fc92645a590.json.meta",
+    "graphify-out/cache/ast/v0.8.44/8af150ef504382e6a070c75124ff22d51e535f2dbefe769085aebe10f207d4be.json.meta",
+    "graphify-out/cache/ast/v0.8.44/60fdd33af4eef4a67a34af412be00e020e903c37f5912e0116a5b0f084cba7ba.json.meta",
+    "graphify-out/cache/ast/v0.8.44/b3d5dc902a2bbab7f29fc35ec52a78977e226369fc614e35abd26d8a92701737.json.meta",
+    "graphify-out/cache/ast/v0.8.44/eae36278c7aeb23aa8c2fc25a6cbc9ae4900a277282f613adc2c03e397953273.json.meta",
+    "graphify-out/cache/ast/v0.8.44/7487512f77bff02be3f4313289f2f933360cdd25364c6d7de7e5e097fd14f8c6.json.meta",
+    "graphify-out/cache/ast/v0.8.44/6c190c117f77e5b0ebcc174d367bb799cc0994475a05f1ea2ad09382706c9dcd.json.meta",
     "graphify-out/GRAPH_REPORT.md",
+    "graphify-out/_COMMUNITY_Input Handling.md",
     "graphify-out/2026-07-04/GRAPH_REPORT.md",
-    "graphify-out/2026-07-04/graph.json",
-    "graphify-out/2026-07-04/cost.json",
-    "graphify-out/2026-07-04",
-    "graphify-out/_COMMUNITY_Input Handling.md"
+    "CLAUDE.md"
   ]
 }
