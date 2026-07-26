@@ -49,9 +49,17 @@ namespace MatchThemAll.Scripts.UI
         private readonly List<LevelDataSO> _levels = new();
         private readonly List<LevelMapNode> _nodes  = new();
 
-        // Remembered vertical scroll position across scene reloads (0 = bottom, 1 = top).
-        // Static so it survives navigating MainMenu → LevelSelect → MainMenu. Null = never set.
+        // PlayerPrefs key for scroll position — persists across app launches.
+        private const string ScrollPrefKey = "LevelMap_ScrollY";
+
+        // In-session memory: survives MainMenu → LevelSelect → MainMenu within one play session.
+        // Null = not yet set this session. Reset at every app launch via RuntimeInitializeOnLoadMethod.
         private static float? _rememberedNormalizedY;
+
+        // Reset the in-session static at the start of every Play session so a fresh launch always
+        // falls through to PlayerPrefs (or SnapToFurthest) rather than a stale Editor-run value.
+        [UnityEngine.RuntimeInitializeOnLoadMethod(UnityEngine.RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetSessionStatics() => _rememberedNormalizedY = null;
 
         private async void Start()
         {
@@ -75,10 +83,13 @@ namespace MatchThemAll.Scripts.UI
             StartCoroutine(BuildAfterLayout());
         }
 
+
         private void OnScrollChanged(Vector2 pos)
         {
-            // Remember the vertical scroll so re-entering the map restores the player's spot.
+            // Store in session memory for fast in-session restoration (no I/O).
             _rememberedNormalizedY = pos.y;
+            // Persist to PlayerPrefs so the position survives app restarts.
+            PlayerPrefs.SetFloat(ScrollPrefKey, pos.y);
         }
 
         private IEnumerator BuildAfterLayout()
@@ -88,11 +99,22 @@ namespace MatchThemAll.Scripts.UI
             yield return null;
 
             GenerateMap();          // uses viewport.rect.height (now correct)
-            // Restore the player's last scroll position if we have one; otherwise snap to the furthest level.
+
+            // Priority: in-session memory → PlayerPrefs (cross-launch) → SnapToFurthest (first ever launch).
             if (_rememberedNormalizedY.HasValue)
+            {
                 RestoreScroll(_rememberedNormalizedY.Value);
+            }
+            else if (PlayerPrefs.HasKey(ScrollPrefKey))
+            {
+                float saved = PlayerPrefs.GetFloat(ScrollPrefKey);
+                RestoreScroll(saved);
+                _rememberedNormalizedY = saved; // seed session memory so back-navigation stays consistent
+            }
             else
+            {
                 SnapToFurthest();
+            }
         }
 
         private void OnDestroy()

@@ -135,9 +135,6 @@ namespace MatchThemAll.Scripts
 
         private async Task LoadDataAsync()
         {
-            _savedProgressIndex = SaveManager.GetCurrentLevelIndex();
-            CurrentLevelIndex = _savedProgressIndex;
-            
             try
             {
                 var handle = Addressables.LoadAssetsAsync<LevelDataSO>("LevelData");
@@ -160,29 +157,44 @@ namespace MatchThemAll.Scripts
                 Debug.LogError($"Failed to load LevelData from Addressable: {e.Message}");
             }
 
+            // Read saved progress AFTER Addressables load so OrderedLevelIds is populated.
+            // GetCurrentLevelIndex() looks up furthestLevelId in OrderedLevelIds; if called
+            // before _idsReady it always returns 0, causing the player to re-play Level 1.
+            _savedProgressIndex = SaveManager.GetCurrentLevelIndex();
+            CurrentLevelIndex = _savedProgressIndex;
+
             if (levels == null || levels.Length == 0)
                 Debug.LogError("LevelManager: No LevelDataSO assets loaded. Mark the LevelData .asset files Addressable in the Default Local Group and tag them with the 'LevelData' label.");
         }
 
-        /// <summary>
-        /// Saves progress and stars on level complete (keyed by level id).
-        /// Advances the furthest-unlocked frontier if this was the furthest level.
-        /// </summary>
+
         public void SaveLevelComplete(int starsEarned)
         {
             if (levels == null || levels.Length == 0) return;
             int idx = CurrentLevelIndex % levels.Length;
             string id = levels[idx].Id;
-            var ids = OrderedLevelIds;
+
+            // OrderedLevelIds is only populated after LoadDataAsync (Addressables) finishes.
+            // If it's still empty (rare async race), fall back to the local levels array so
+            // SetLevelComplete always receives a valid ordered list and can advance furthestLevelId.
+            IReadOnlyList<string> ids = OrderedLevelIds;
+            if (ids == null || ids.Count == 0)
+            {
+                var fallback = new System.Collections.Generic.List<string>(levels.Length);
+                for (int i = 0; i < levels.Length; i++) fallback.Add(levels[i].Id);
+                ids = fallback;
+            }
+
             string furthest = SaveManager.GetFurthestLevelId();
             int furthestIdx = IndexOfId(ids, furthest);
             bool isFurthest = string.IsNullOrEmpty(furthest) ? idx == 0 : (furthestIdx >= 0 && idx == furthestIdx);
 
             SaveManager.SetLevelComplete(id, starsEarned, isFurthest, ids);
 
-            // Keep the legacy index in sync for any code still reading it during the transition.
-            _savedProgressIndex = Mathf.Max(0, idx);
-            CurrentLevelIndex = idx;
+            // Advance _savedProgressIndex to the NEXT level so SpawnLevel picks the correct one
+            // if it reads this value before the next LoadDataAsync completes.
+            _savedProgressIndex = Mathf.Min(idx + 1, levels.Length - 1);
+            CurrentLevelIndex = _savedProgressIndex;
         }
 
         private static int IndexOfId(System.Collections.Generic.IReadOnlyList<string> ids, string id)

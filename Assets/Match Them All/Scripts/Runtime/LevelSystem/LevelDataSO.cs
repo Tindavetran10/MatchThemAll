@@ -70,7 +70,6 @@ namespace MatchThemAll.Scripts
         /// </summary>
         private void OnValidate()
         {
-            _cachedGoals = null; // Invalidate cache when edited in Inspector
             if (string.IsNullOrEmpty(levelId) && !string.IsNullOrEmpty(name))
                 levelId = name; // auto-seed the save key from the asset filename
             if (itemData == null) return;
@@ -87,19 +86,18 @@ namespace MatchThemAll.Scripts
             }
         }
 
-        // Cached to avoid rebuilding the array on every call (Vacuum, level spawn, etc.)
-        private ItemLevelData[] _cachedGoals;
-        
         public ItemLevelData[] GetGoals()
         {
-            if (_cachedGoals != null) return _cachedGoals;
-            
+            // IMPORTANT: Do NOT cache this array. ItemLevelData is a struct, so GoalManager
+            // mutates goal amounts in-place (Goals[i].amount--). If we returned a cached
+            // reference, those mutations would corrupt the SO's data across level loads,
+            // causing every subsequent level to see goals with amount = 0.
+            // A fresh copy is returned each time so the SO's source data is never touched.
             var goals = new List<ItemLevelData>();
             for (int i = 0; i < itemData.Count; i++)
                 if (itemData[i].isGoal)
                     goals.Add(itemData[i]);
-            _cachedGoals = goals.ToArray();
-            return _cachedGoals;
+            return goals.ToArray();
         }
     }
 }
