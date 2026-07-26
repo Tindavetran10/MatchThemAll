@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -60,13 +59,5 @@ namespace MatchThemAll.Scripts.Shop
                 if (t != null && t.id == tabId) return t;
             return null;
         }
-
-        /// <summary>
-        /// Deprecated — use <see cref="ProductsByTab"/> instead.
-        /// Kept temporarily so existing code referencing it still compiles during migration.
-        /// </summary>
-        [Obsolete("Use ProductsByTab(string tabId) and ShopTabSO assets instead.")]
-        public IEnumerable<ShopProductSO> FindByCategory(EShopCategory category)
-            => Array.Empty<ShopProductSO>();
     }
 }

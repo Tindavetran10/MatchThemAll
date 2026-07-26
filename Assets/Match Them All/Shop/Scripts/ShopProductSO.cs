@@ -7,10 +7,6 @@ using MatchThemAll.Scripts.Power_Ups;
 
 namespace MatchThemAll.Scripts.Shop
 {
-    /// <summary>Kept for migration only — replaced by <see cref="ShopTabSO"/>. Do not use in new code.</summary>
-    [Obsolete("Use ShopTabSO + ShopProductSO.tabId instead. This enum will be removed once all existing assets are regenerated.")]
-    public enum EShopCategory { Coins, Gems, Powerups, Bundles }
-
     /// <summary>
     /// One grantable thing a product pays out. Kept as a flat tagged union (enum kind + amount +
     /// optional key) rather than [SerializeReference] subclasses — simpler, serializes cleanly,

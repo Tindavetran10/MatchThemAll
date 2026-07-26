@@ -15,9 +15,6 @@ namespace MatchThemAll.Scripts.Shop
     /// </summary>
     public class ShopManager : MonoBehaviour
     {
-        [Header("Data")]
-        [SerializeField] private ShopDatabaseSO database;
-
         public static ShopManager Instance { get; private set; }
 
         // Phase 1: default NullIapService (no package). Phase 2: call SetIapService(...) with the Unity IAP impl.
@@ -99,6 +96,11 @@ namespace MatchThemAll.Scripts.Shop
             {
                 GrantRewards(product.FirstPurchaseBonus);
             }
+
+            // A one-time product is fulfilled after its first purchase even with no first-purchase bonus
+            // (e.g. a one-time coin pack). Reuse the claim set so IsFulfilled() reflects it.
+            if (product.isOneTime && !string.IsNullOrEmpty(product.id))
+                SaveManager.MarkFirstBonusClaimed(product.id);
 
             EventBus.Publish(new ShopPurchaseSucceededEvent(product));
             Debug.Log($"[Shop] Granted '{product.DisplayName}'.");

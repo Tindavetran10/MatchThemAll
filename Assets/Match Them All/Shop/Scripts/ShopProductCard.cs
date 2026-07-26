@@ -42,7 +42,7 @@ namespace MatchThemAll.Scripts.Shop
             if (iconImage)
             {
                 iconImage.sprite = _product.Icon;
-                iconImage.enabled = _product.Icon;
+                iconImage.enabled = _product.Icon != null;
             }
             if (nameText) nameText.text = _product.DisplayName;
             if (bestValueBadge) bestValueBadge.SetActive(_product.bestValue);
