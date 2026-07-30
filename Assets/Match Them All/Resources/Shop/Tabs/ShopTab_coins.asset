@@ -14,5 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: coins
   displayName: Coins
-  order: 2
+  order: 3
   icon: {fileID: 0}

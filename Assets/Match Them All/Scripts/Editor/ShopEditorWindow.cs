@@ -4,21 +4,84 @@ using System.IO;
 using MatchThemAll.Scripts.Shop;
 using UnityEditor;
 using UnityEngine;
+using ZLinq;
 
 namespace MatchThemAll.Scripts.Editor
 {
-    /// <summary>
-    /// Shop Manager editor window. Three-column layout using standard EditorGUILayout (no manual
-    /// BeginArea/DrawRect/MakeTex — clean, fast, no per-frame texture leaks).
-    ///
-    /// Open: Match Them All → Shop Manager
-    /// Left   — tabs (add / remove / reorder)
-    /// Middle — products in the selected tab (add / remove / reorder)
-    /// Right  — product detail editor (all fields + rewards)
-    /// </summary>
     public class ShopEditorWindow : EditorWindow
     {
         private const string DatabaseAssetPath = "Assets/Match Them All/Resources/Shop/ShopDatabase.asset";
+        private static readonly Color PanelBg       = new(0.18f, 0.18f, 0.20f);
+        private static readonly Color CardBg         = new(0.22f, 0.22f, 0.25f);
+        private static readonly Color AccentBlue     = new(0.27f, 0.55f, 1.00f);
+        private static readonly Color AccentGreen    = new(0.26f, 0.83f, 0.53f);
+        private static readonly Color BgLight        = new(0.25f, 0.25f, 0.28f);
+        private static readonly Color BgHover        = new(0.30f, 0.30f, 0.34f);
+        private static readonly Color AccentRed      = new(0.90f, 0.30f, 0.30f);
+        private static readonly Color AccentOrange   = new(1.00f, 0.65f, 0.20f);
+        private static readonly Color DividerColor   = new(0.12f, 0.12f, 0.14f);
+        private static readonly Color TextMuted      = new(0.60f, 0.60f, 0.65f);
+
+        private void OnGUI()
+        {
+            EnsureStyles();
+
+            if (!_db) { DrawNoDatabase(); return; }
+
+            // Full-window dark background (matches LevelEditorWindow / ItemManagerWindow)
+            EditorGUI.DrawRect(new Rect(0, 0, position.width, position.height), PanelBg);
+
+            // ── Toolbar ────────────────────────────────────────────────────────
+            EditorGUI.DrawRect(new Rect(0, 0, position.width, 38), new Color(0.14f, 0.14f, 0.16f));
+            GUILayout.BeginHorizontal(GUILayout.Height(38));
+            GUILayout.Space(12);
+            GUI.color = AccentBlue;
+            GUILayout.Label("🛒  Shop Manager", _headerStyle, GUILayout.Height(38));
+            GUI.color = Color.white;
+            GUILayout.FlexibleSpace();
+
+            GUI.color = AccentGreen;
+            if (GUILayout.Button("💾 Save All", GUILayout.Height(28), GUILayout.Width(90)))
+            {
+                AssetDatabase.SaveAssets();
+                EditorUtility.SetDirty(_db);
+                GUIUtility.ExitGUI();
+            }
+            GUI.color = new Color(0.7f, 0.7f, 0.7f);
+            if (GUILayout.Button("↻ Reload", GUILayout.Height(28), GUILayout.Width(80)))
+            {
+                LoadDatabase();
+                GUIUtility.ExitGUI();
+            }
+            GUI.color = Color.white;
+            GUILayout.Space(12);
+            GUILayout.EndHorizontal();
+
+            // ── Three-column body ──────────────────────────────────────────────
+            float topY     = 38f;
+            float bodyH    = position.height - topY;
+            float tabW     = 170f;
+            float productW = 250f;
+            float detailW  = position.width - tabW - productW - 4f;
+
+            GUILayout.BeginArea(new Rect(0, topY, tabW, bodyH));
+            DrawTabColumn();
+            GUILayout.EndArea();
+
+            EditorGUI.DrawRect(new Rect(tabW, topY, 2, bodyH), DividerColor);
+
+            GUILayout.BeginArea(new Rect(tabW + 2, topY, productW, bodyH));
+            DrawProductColumn();
+            GUILayout.EndArea();
+
+            EditorGUI.DrawRect(new Rect(tabW + 2 + productW, topY, 2, bodyH), DividerColor);
+
+            GUILayout.BeginArea(new Rect(tabW + 2 + productW + 2, topY, detailW, bodyH));
+            DrawDetailColumn();
+            GUILayout.EndArea();
+        }
+
+
 
         private ShopDatabaseSO _db;
         private int _selectedTabIdx = -1;
@@ -28,6 +91,16 @@ namespace MatchThemAll.Scripts.Editor
         private string _newTabId = "", _newTabLabel = "";
         private string _newProductId = "", _newProductName = "";
         private SerializedObject _productSO;
+        private List<ShopProductSO> _tabProducts = new();
+
+        private bool _stylesInitialized;
+        private readonly List<Texture2D> _ownedTextures = new();
+        private GUIStyle _columnStyle, _headerStyle, _subHeaderStyle;
+        private GUIStyle _tabButtonStyle, _selectedTabButtonStyle;
+        private GUIStyle _productButtonStyle, _selectedProductButtonStyle;
+        private GUIStyle _badgeStyle, _detailHeaderStyle, _toolbarStyle, _toolbarHeaderStyle;
+        private GUIStyle _applyButtonStyle, _revertButtonStyle, _noDbLabelStyle;
+        private GUIStyle _addButtonStyle, _addFormButtonStyle, _toolbarSaveButtonStyle;
 
         [MenuItem("Match Them All/Shop Manager")]
         public static void ShowWindow()
@@ -39,14 +112,161 @@ namespace MatchThemAll.Scripts.Editor
 
         private void OnEnable() => LoadDatabase();
 
-        // ── Loading ───────────────────────────────────────────────────────────
+        private void OnDisable()
+        {
+            _stylesInitialized = false;
+            foreach (var t in _ownedTextures.AsValueEnumerable().Where(t => t))
+                DestroyImmediate(t);
+            _ownedTextures.Clear();
+        }
+
+        private void EnsureStyles()
+        {
+            if (_stylesInitialized) return;
+            _stylesInitialized = true;
+
+            foreach (var t in _ownedTextures.AsValueEnumerable().Where(t => t))
+                DestroyImmediate(t);
+            _ownedTextures.Clear();
+
+            var cardBg = MakeTex(2, 2, CardBg);
+            var bgLight = MakeTex(2, 2, BgLight);
+            var bgHover = MakeTex(2, 2, BgHover);
+            var selectedBg = MakeTex(2, 2, new Color(AccentBlue.r * 0.7f, AccentBlue.g * 0.7f, AccentBlue.b * 0.7f));
+
+            _columnStyle = new GUIStyle(GUI.skin.box)
+            {
+                padding = new RectOffset(12, 12, 10, 10),
+                margin = new RectOffset(4, 4, 4, 4),
+                normal = { background = cardBg }
+            };
+
+            _headerStyle = new GUIStyle(EditorStyles.boldLabel)
+            {
+                fontSize = 16,
+                alignment = TextAnchor.MiddleLeft,
+                normal = { textColor = Color.white }
+            };
+
+            _subHeaderStyle = new GUIStyle(EditorStyles.boldLabel)
+            {
+                fontSize = 12,
+                normal = { textColor = new Color(0.8f, 0.8f, 0.85f) }
+            };
+
+            _tabButtonStyle = new GUIStyle(GUI.skin.button)
+            {
+                alignment = TextAnchor.MiddleLeft,
+                padding = new RectOffset(12, 8, 8, 8),
+                margin = new RectOffset(4, 4, 2, 2),
+                fontSize = 12,
+                normal = { background = bgLight, textColor = Color.white },
+                hover = { background = bgHover }
+            };
+
+            _selectedTabButtonStyle = new GUIStyle(_tabButtonStyle)
+            {
+                normal = { background = selectedBg },
+                fontStyle = FontStyle.Bold
+            };
+
+            _productButtonStyle = new GUIStyle(GUI.skin.button)
+            {
+                alignment = TextAnchor.MiddleLeft,
+                padding = new RectOffset(12, 8, 8, 8),
+                margin = new RectOffset(4, 4, 2, 2),
+                fontSize = 12,
+                normal = { background = bgLight, textColor = Color.white },
+                hover = { background = bgHover }
+            };
+
+            _selectedProductButtonStyle = new GUIStyle(_productButtonStyle)
+            {
+                normal = { background = selectedBg },
+                fontStyle = FontStyle.Bold
+            };
+
+            _badgeStyle = new GUIStyle(EditorStyles.miniLabel)
+            {
+                fontSize = 9,
+                fontStyle = FontStyle.Bold,
+                alignment = TextAnchor.MiddleCenter,
+                padding = new RectOffset(5, 5, 2, 2),
+                normal = { textColor = Color.white }
+            };
+
+            _detailHeaderStyle = new GUIStyle(EditorStyles.boldLabel)
+            {
+                fontSize = 16,
+                normal = { textColor = Color.white }
+            };
+
+            _toolbarStyle = new GUIStyle(EditorStyles.toolbar)
+            {
+                fixedHeight = 22,
+                normal = { background = MakeTex(2, 2, PanelBg) }
+            };
+
+            _toolbarHeaderStyle = new GUIStyle(EditorStyles.boldLabel)
+            {
+                fontSize = 12,
+                normal = { textColor = Color.white }
+            };
+
+            _toolbarSaveButtonStyle = new GUIStyle(EditorStyles.toolbarButton)
+            {
+                normal = { textColor = AccentGreen },
+                fontStyle = FontStyle.Bold
+            };
+
+            _addButtonStyle = new GUIStyle(EditorStyles.miniButton)
+            {
+                normal = { textColor = AccentGreen },
+                fontStyle = FontStyle.Bold,
+                fontSize = 11,
+                alignment = TextAnchor.MiddleCenter
+            };
+
+            _addFormButtonStyle = new GUIStyle(EditorStyles.miniButton)
+            {
+                fontSize = 11,
+                alignment = TextAnchor.MiddleCenter
+            };
+
+            _applyButtonStyle = new GUIStyle(EditorStyles.miniButton)
+            {
+                normal = { textColor = AccentGreen },
+                fontStyle = FontStyle.Bold
+            };
+
+            _revertButtonStyle = new GUIStyle(EditorStyles.miniButton)
+            {
+                normal = { textColor = new Color(1f, 0.65f, 0.20f) }
+            };
+
+            _noDbLabelStyle = new GUIStyle(EditorStyles.boldLabel)
+            {
+                alignment = TextAnchor.MiddleCenter,
+                normal = { textColor = new Color(0.60f, 0.60f, 0.65f) }
+            };
+        }
+
+        private Texture2D MakeTex(int w, int h, Color col)
+        {
+            var pix = new Color[w * h];
+            for (var i = 0; i < pix.Length; i++) pix[i] = col;
+            var t = new Texture2D(w, h);
+            t.SetPixels(pix);
+            t.Apply();
+            _ownedTextures.Add(t);
+            return t;
+        }
 
         private void LoadDatabase()
         {
             _db = AssetDatabase.LoadAssetAtPath<ShopDatabaseSO>(DatabaseAssetPath)
                   ?? Resources.Load<ShopDatabaseSO>("Shop/ShopDatabase");
 
-            // Auto-select the first valid tab so products are visible immediately.
             if (_db != null && _db.tabs != null && (_selectedTabIdx < 0 || _selectedTabIdx >= _db.tabs.Count))
             {
                 for (int i = 0; i < _db.tabs.Count; i++)
@@ -55,81 +275,38 @@ namespace MatchThemAll.Scripts.Editor
             Repaint();
         }
 
-        // ── Main Layout ───────────────────────────────────────────────────────
-
-        private void OnGUI()
-        {
-            if (!_db) { DrawNoDatabase(); return; }
-
-            // Toolbar
-            EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
-            GUI.color = new Color(0.55f, 0.85f, 1f);
-            GUILayout.Label("🛒 Shop Manager", EditorStyles.boldLabel);
-            GUI.color = Color.white;
-            GUILayout.FlexibleSpace();
-            GUI.backgroundColor = new Color(0.4f, 0.8f, 0.5f);
-            if (GUILayout.Button("Save All", EditorStyles.toolbarButton))
-            {
-                AssetDatabase.SaveAssets();
-                EditorUtility.SetDirty(_db);
-            }
-            GUI.backgroundColor = Color.white;
-            if (GUILayout.Button("Reload", EditorStyles.toolbarButton))
-                LoadDatabase();
-            EditorGUILayout.EndHorizontal();
-
-            // Three columns
-            EditorGUILayout.BeginHorizontal();
-            DrawTabColumn();
-            DrawProductColumn();
-            DrawDetailColumn();
-            EditorGUILayout.EndHorizontal();
-        }
-
-        // ── Left: Tabs ────────────────────────────────────────────────────────
 
         private void DrawTabColumn()
         {
-            EditorGUILayout.BeginVertical(GUI.skin.box, GUILayout.Width(160));
-            GUI.color = new Color(0.55f, 0.85f, 1f);
-            GUILayout.Label("TABS", EditorStyles.boldLabel);
-            GUI.color = Color.white;
+            EditorGUILayout.BeginVertical(_columnStyle, GUILayout.Width(160));
+            GUILayout.Label("TABS", _headerStyle);
 
-            // Add-tab form
             if (_addingTab)
-            {
-                _newTabId = EditorGUILayout.TextField("ID", _newTabId);
-                _newTabLabel = EditorGUILayout.TextField("Label", _newTabLabel);
-                EditorGUILayout.BeginHorizontal();
-                if (GUILayout.Button("Create")) { CreateTab(_newTabId.Trim(), _newTabLabel.Trim()); _addingTab = false; }
-                if (GUILayout.Button("Cancel")) _addingTab = false;
-                EditorGUILayout.EndHorizontal();
-            }
-            else
-            {
-                if (GUILayout.Button("+ Add Tab")) _addingTab = true;
-            }
+                DrawAddTabForm();
+            else if (GUILayout.Button("+ Add Tab", _addButtonStyle, GUILayout.Height(20)))
+                _addingTab = true;
 
-            EditorGUILayout.Separator();
+            EditorGUILayout.Space(4);
             _tabScroll = EditorGUILayout.BeginScrollView(_tabScroll);
             var tabs = _db.tabs ?? new List<ShopTabSO>();
             for (int i = 0; i < tabs.Count; i++)
             {
                 if (tabs[i] == null) continue;
                 bool sel = (i == _selectedTabIdx);
-                EditorGUILayout.BeginHorizontal(sel ? EditorStyles.helpBox : GUIStyle.none);
-                if (GUILayout.Button(tabs[i].DisplayName, EditorStyles.label, GUILayout.ExpandWidth(true)))
+                var style = sel ? _selectedTabButtonStyle : _tabButtonStyle;
+                EditorGUILayout.BeginHorizontal();
+                if (GUILayout.Button(tabs[i].DisplayName, style, GUILayout.ExpandWidth(true)))
                 {
                     _selectedTabIdx = i;
                     _selectedProduct = null;
                     GUIUtility.ExitGUI();
                 }
                 GUI.enabled = i > 0;
-                if (GUILayout.Button("▲", GUILayout.Width(22))) { MoveTab(i, -1); GUIUtility.ExitGUI(); }
+                if (GUILayout.Button("▲", GUILayout.Width(20), GUILayout.Height(18))) { MoveTab(i, -1); GUIUtility.ExitGUI(); }
                 GUI.enabled = i < tabs.Count - 1;
-                if (GUILayout.Button("▼", GUILayout.Width(22))) { MoveTab(i, 1); GUIUtility.ExitGUI(); }
+                if (GUILayout.Button("▼", GUILayout.Width(20), GUILayout.Height(18))) { MoveTab(i, 1); GUIUtility.ExitGUI(); }
                 GUI.enabled = true;
-                if (GUILayout.Button("✕", GUILayout.Width(22)))
+                if (GUILayout.Button("✕", GUILayout.Width(20), GUILayout.Height(18)))
                 {
                     if (EditorUtility.DisplayDialog("Remove Tab", $"Remove '{tabs[i].DisplayName}'?", "Remove", "Cancel"))
                     { RemoveTab(i); GUIUtility.ExitGUI(); }
@@ -140,46 +317,41 @@ namespace MatchThemAll.Scripts.Editor
             EditorGUILayout.EndVertical();
         }
 
-        // ── Middle: Products ──────────────────────────────────────────────────
-
-        private List<ShopProductSO> _tabProducts = new();
+        private void DrawAddTabForm()
+        {
+            EditorGUILayout.Space(2);
+            GUILayout.Label("New Tab", _subHeaderStyle);
+            _newTabId = EditorGUILayout.TextField(_newTabId);
+            _newTabLabel = EditorGUILayout.TextField(_newTabLabel);
+            EditorGUILayout.BeginHorizontal();
+            if (GUILayout.Button("Create", _addFormButtonStyle)) { CreateTab(_newTabId.Trim(), _newTabLabel.Trim()); _addingTab = false; }
+            if (GUILayout.Button("Cancel", _addFormButtonStyle)) _addingTab = false;
+            EditorGUILayout.EndHorizontal();
+        }
 
         private void DrawProductColumn()
         {
             ShopTabSO tab = (_db.tabs != null && _selectedTabIdx >= 0 && _selectedTabIdx < _db.tabs.Count)
                             ? _db.tabs[_selectedTabIdx] : null;
 
-            EditorGUILayout.BeginVertical(GUI.skin.box, GUILayout.Width(220));
-            GUI.color = new Color(0.55f, 0.85f, 1f);
-            GUILayout.Label(tab != null ? $"PRODUCTS ({tab.DisplayName})" : "PRODUCTS", EditorStyles.boldLabel);
-            GUI.color = Color.white;
+            EditorGUILayout.BeginVertical(_columnStyle, GUILayout.Width(240));
+            GUILayout.Label(tab != null ? $"PRODUCTS  ({tab.DisplayName})" : "PRODUCTS", _headerStyle);
 
             if (tab == null)
             {
-                GUILayout.Label("Select a tab.", EditorStyles.miniLabel);
+                GUILayout.Label("Select a tab.", _subHeaderStyle);
                 EditorGUILayout.EndVertical();
                 return;
             }
 
-            // Add-product form
             if (_addingProduct)
-            {
-                _newProductId = EditorGUILayout.TextField("ID", _newProductId);
-                _newProductName = EditorGUILayout.TextField("Name", _newProductName);
-                EditorGUILayout.BeginHorizontal();
-                if (GUILayout.Button("Create")) { CreateProduct(_newProductId.Trim(), _newProductName.Trim(), tab.id); _addingProduct = false; }
-                if (GUILayout.Button("Cancel")) _addingProduct = false;
-                EditorGUILayout.EndHorizontal();
-            }
-            else
-            {
-                if (GUILayout.Button("+ Add Product")) _addingProduct = true;
-            }
+                DrawAddProductForm();
+            else if (GUILayout.Button("+ Add Product", _addButtonStyle, GUILayout.Height(20)))
+                _addingProduct = true;
 
-            EditorGUILayout.Separator();
+            EditorGUILayout.Space(4);
             _productScroll = EditorGUILayout.BeginScrollView(_productScroll);
 
-            // Cache the tab's products
             _tabProducts.Clear();
             foreach (var p in _db.products)
                 if (p != null && p.tabId == tab.id) _tabProducts.Add(p);
@@ -188,49 +360,63 @@ namespace MatchThemAll.Scripts.Editor
             {
                 var p = _tabProducts[i];
                 bool sel = (p == _selectedProduct);
-                EditorGUILayout.BeginHorizontal(sel ? EditorStyles.helpBox : GUIStyle.none);
-                if (GUILayout.Button(p.DisplayName, EditorStyles.boldLabel, GUILayout.ExpandWidth(true)))
+                var btnStyle = sel ? _selectedProductButtonStyle : _productButtonStyle;
+
+                EditorGUILayout.BeginVertical(GUIStyle.none);
+                EditorGUILayout.BeginHorizontal();
+                if (GUILayout.Button(p.DisplayName, btnStyle, GUILayout.ExpandWidth(true)))
                 {
                     _selectedProduct = p;
                     _productSO = new SerializedObject(p);
                     GUIUtility.ExitGUI();
                 }
                 GUI.enabled = i > 0;
-                if (GUILayout.Button("▲", GUILayout.Width(22))) { MoveProductWithinTab(tab.id, i, -1); GUIUtility.ExitGUI(); }
+                if (GUILayout.Button("▲", GUILayout.Width(20), GUILayout.Height(18))) { MoveProductWithinTab(tab.id, i, -1); GUIUtility.ExitGUI(); }
                 GUI.enabled = i < _tabProducts.Count - 1;
-                if (GUILayout.Button("▼", GUILayout.Width(22))) { MoveProductWithinTab(tab.id, i, 1); GUIUtility.ExitGUI(); }
+                if (GUILayout.Button("▼", GUILayout.Width(20), GUILayout.Height(18))) { MoveProductWithinTab(tab.id, i, 1); GUIUtility.ExitGUI(); }
                 GUI.enabled = true;
-                if (GUILayout.Button("✕", GUILayout.Width(22)))
+                if (GUILayout.Button("✕", GUILayout.Width(20), GUILayout.Height(18)))
                 {
                     if (EditorUtility.DisplayDialog("Remove Product", $"Remove '{p.DisplayName}'?", "Remove", "Cancel"))
                     { _db.products.Remove(p); _selectedProduct = null; SaveAll(); GUIUtility.ExitGUI(); }
                 }
                 EditorGUILayout.EndHorizontal();
 
-                // Price + badges row (colored mini-labels — zero texture allocation)
                 EditorGUILayout.BeginHorizontal();
                 GUILayout.Space(18);
-                EditorGUILayout.LabelField(FormatPrice(p), EditorStyles.boldLabel);
+                EditorGUILayout.LabelField(FormatPrice(p), EditorStyles.boldLabel, GUILayout.Width(80));
                 if (p.bestValue)   DrawBadge("Best Value",  new Color(1f, 0.85f, 0.1f));
                 if (p.mostPopular) DrawBadge("Popular",     new Color(0.4f, 0.7f, 1f));
                 if (p.isOneTime)   DrawBadge("One-Time",    new Color(1f, 0.65f, 0.2f));
                 if (p.IsIap)       DrawBadge("IAP",         new Color(0.8f, 0.3f, 1f));
                 GUILayout.FlexibleSpace();
                 EditorGUILayout.EndHorizontal();
+
+                EditorGUILayout.EndVertical();
             }
             EditorGUILayout.EndScrollView();
             EditorGUILayout.EndVertical();
         }
 
-        // ── Right: Detail ─────────────────────────────────────────────────────
+        private void DrawAddProductForm()
+        {
+            EditorGUILayout.Space(2);
+            GUILayout.Label("New Product", _subHeaderStyle);
+            _newProductId = EditorGUILayout.TextField(_newProductId);
+            _newProductName = EditorGUILayout.TextField(_newProductName);
+            EditorGUILayout.BeginHorizontal();
+            if (GUILayout.Button("Create", _addFormButtonStyle)) { CreateProduct(_newProductId.Trim(), _newProductName.Trim(), _db.tabs[_selectedTabIdx].id); _addingProduct = false; }
+            if (GUILayout.Button("Cancel", _addFormButtonStyle)) _addingProduct = false;
+            EditorGUILayout.EndHorizontal();
+        }
 
         private void DrawDetailColumn()
         {
-            EditorGUILayout.BeginVertical(GUI.skin.box);
+            EditorGUILayout.BeginVertical(_columnStyle);
             if (_selectedProduct == null)
             {
                 GUILayout.FlexibleSpace();
-                GUILayout.Label("← Select a product to edit", EditorStyles.boldLabel);
+                GUILayout.Label("Select a product to edit", _noDbLabelStyle);
                 GUILayout.FlexibleSpace();
                 EditorGUILayout.EndVertical();
                 return;
@@ -240,9 +426,9 @@ namespace MatchThemAll.Scripts.Editor
             _productSO.Update();
 
             _detailScroll = EditorGUILayout.BeginScrollView(_detailScroll);
-            GUILayout.Label(_selectedProduct.DisplayName, EditorStyles.boldLabel);
+            GUILayout.Label(_selectedProduct.DisplayName, _detailHeaderStyle);
+            EditorGUILayout.Space(4);
 
-            // All standard fields via PropertyField — Unity renders them correctly.
             EditorGUILayout.PropertyField(_productSO.FindProperty("id"));
             EditorGUILayout.PropertyField(_productSO.FindProperty("displayName"));
             EditorGUILayout.PropertyField(_productSO.FindProperty("icon"));
@@ -261,29 +447,34 @@ namespace MatchThemAll.Scripts.Editor
 
             if (_productSO.hasModifiedProperties)
             {
+                EditorGUILayout.Space(4);
                 EditorGUILayout.BeginHorizontal();
-                if (GUILayout.Button("Apply")) { _productSO.ApplyModifiedProperties(); EditorUtility.SetDirty(_selectedProduct); AssetDatabase.SaveAssets(); }
-                if (GUILayout.Button("Revert")) _productSO.Update();
+                if (GUILayout.Button("Apply", _applyButtonStyle)) { _productSO.ApplyModifiedProperties(); EditorUtility.SetDirty(_selectedProduct); AssetDatabase.SaveAssets(); }
+                if (GUILayout.Button("Revert", _revertButtonStyle)) _productSO.Update();
                 EditorGUILayout.EndHorizontal();
             }
 
             EditorGUILayout.EndVertical();
         }
 
-        // ── No-database fallback ──────────────────────────────────────────────
-
         private void DrawNoDatabase()
         {
             GUILayout.FlexibleSpace();
             GUILayout.BeginHorizontal();
             GUILayout.FlexibleSpace();
-            GUILayout.Label("No ShopDatabase found.\nRun Tools → Shop → Create Default Shop Products first.", EditorStyles.boldLabel);
+            GUILayout.Label("No ShopDatabase found.\nRun Tools  Shop  Create Default Shop Products first.", _noDbLabelStyle);
             GUILayout.FlexibleSpace();
             GUILayout.EndHorizontal();
             GUILayout.FlexibleSpace();
         }
 
-        // ── CRUD ──────────────────────────────────────────────────────────────
+        private void DrawBadge(string text, Color color)
+        {
+            var prev = GUI.backgroundColor;
+            GUI.backgroundColor = color;
+            GUILayout.Label(text, _badgeStyle, GUILayout.Height(16));
+            GUI.backgroundColor = prev;
+        }
 
         private void CreateTab(string id, string label)
         {
@@ -330,7 +521,6 @@ namespace MatchThemAll.Scripts.Editor
             int newIdx = idx + dir;
             if (newIdx < 0 || newIdx >= list.Count) return;
             (list[idx], list[newIdx]) = (list[newIdx], list[idx]);
-            // Sync order fields so runtime OrderedTabs matches the editor.
             for (int i = 0; i < list.Count; i++)
             {
                 if (!list[i]) continue;
@@ -345,7 +535,6 @@ namespace MatchThemAll.Scripts.Editor
 
         private void MoveProductWithinTab(string tabId, int filteredIdx, int dir)
         {
-            // Collect the global indices of products in this tab, then swap the two.
             var globals = new List<int>();
             for (int i = 0; i < _db.products.Count; i++)
                 if (_db.products[i] != null && _db.products[i].tabId == tabId) globals.Add(i);
@@ -373,8 +562,6 @@ namespace MatchThemAll.Scripts.Editor
             AssetDatabase.Refresh();
         }
 
-        // ── Helpers ───────────────────────────────────────────────────────────
-
         private static void EnsureDir()
         {
             Directory.CreateDirectory("Assets/Match Them All/Resources/Shop/Tabs");
@@ -388,15 +575,6 @@ namespace MatchThemAll.Scripts.Editor
         {
             if (p.IsIap) return $"${p.priceAmount / 100f:0.00}";
             return $"{p.priceAmount} {p.priceCurrency}";
-        }
-
-        /// <summary>Draws a colored mini-badge — tints a built-in style, zero texture allocation.</summary>
-        private static void DrawBadge(string text, Color color)
-        {
-            var prev = GUI.backgroundColor;
-            GUI.backgroundColor = color;
-            GUILayout.Label(text, EditorStyles.miniButtonMid, GUILayout.Height(16));
-            GUI.backgroundColor = prev;
         }
     }
 }

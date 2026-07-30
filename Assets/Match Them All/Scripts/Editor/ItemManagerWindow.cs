@@ -157,6 +157,10 @@ namespace MatchThemAll.Scripts.Editor
             if (_stylesInitialized) return;
             _stylesInitialized = true;
 
+            foreach (var t in _ownedTextures.AsValueEnumerable().Where(t => t))
+                DestroyImmediate(t);
+            _ownedTextures.Clear();
+
             _cardStyle = new GUIStyle(GUI.skin.box)
             {
                 padding = new RectOffset(12, 12, 10, 10),

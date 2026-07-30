@@ -14,5 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: offers
   displayName: Offers
-  order: 3
+  order: 2
   icon: {fileID: 0}
