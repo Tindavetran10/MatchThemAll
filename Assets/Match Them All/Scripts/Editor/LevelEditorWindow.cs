@@ -94,7 +94,7 @@ namespace MatchThemAll.Scripts.Editor
         // Delegates to ItemReferenceOps so the item/icon folder paths have one source of truth.
         private const string ItemPrefabFolder       = ItemReferenceOps.ItemPrefabFolder;
         private const string LevelDataFolder         = "Assets/Match Them All/_START_HERE/Levels";
-        private const string LevelTemplatePrefabPath = "Assets/Match Them All/Level System/Prefabs/LevelTemplate.prefab";
+        private const string LevelTemplatePrefabPath = "Assets/Match Them All/Prefabs/Levels/LevelTemplate.prefab";
 
         // ── Preview State ────────────────────────────────────────────────────
         // Tracks which level is currently previewed in the scene so we can warn

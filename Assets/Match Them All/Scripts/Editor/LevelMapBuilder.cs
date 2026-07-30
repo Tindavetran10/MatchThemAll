@@ -16,7 +16,7 @@ namespace MatchThemAll.Scripts.Editor
     ///   • Level Saga Map Canvas — Screen Space Overlay + CanvasScaler + GraphicRaycaster
     ///   • a vertical ScrollRect + Content RectTransform (BOTTOM-anchored, AutoLayout off — nodes are absolutely positioned)
     ///   • a LevelMapPath (the connecting line, sitting behind nodes)
-    ///   • a LevelMapNode prefab under UI/Prefabs/ (theme background Image + an instance of the existing
+    ///   • a LevelMapNode prefab under Prefabs/UI/Level/ (theme background Image + an instance of the existing
     ///     LevelButton prefab + the LevelMapNode component), all wired
     ///   • a LevelMapManager on the Canvas, wired to nodePrefab / contentRoot / scrollRect / pathRenderer / backButton
     ///   • a BackButton overlay (top-left corner) wired to LevelMapManager.OnBackClicked()
@@ -25,8 +25,8 @@ namespace MatchThemAll.Scripts.Editor
     /// </summary>
     public static class LevelMapBuilder
     {
-        private const string NODE_PREFAB_PATH = "Assets/Match Them All/UI/Prefabs/LevelMapNode.prefab";
-        private const string LEVEL_BUTTON_PREFAB = "Assets/Match Them All/UI/Prefabs/LevelButton.prefab";
+        private const string NODE_PREFAB_PATH = "Assets/Match Them All/Prefabs/UI/Level/LevelMapNode.prefab";
+        private const string LEVEL_BUTTON_PREFAB = "Assets/Match Them All/Prefabs/UI/Level/LevelButton.prefab";
 
         [MenuItem("Tools/Levels/Build Saga Map")]
         public static void Build()

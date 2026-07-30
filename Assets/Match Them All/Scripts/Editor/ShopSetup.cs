@@ -27,7 +27,7 @@ namespace MatchThemAll.Scripts.Editor
     public static class ShopSetup
     {
         private const string SHOP_RES_DIR = "Assets/Match Them All/Resources/Shop";
-        private const string CARD_PREFAB_PATH = "Assets/Match Them All/UI/Prefabs/ShopProductCard.prefab";
+        private const string CARD_PREFAB_PATH = "Assets/Match Them All/Prefabs/UI/Shop/ShopProductCard.prefab";
 
         // ─────────────────────────────────────────────────────────────────────
         // 1. Default products + database
@@ -380,7 +380,7 @@ namespace MatchThemAll.Scripts.Editor
                       "Re-run to rebuild idempotently.");
         }
 
-        private const string TAB_BTN_PREFAB_PATH = "Assets/Match Them All/UI/Prefabs/ShopTabButton.prefab";
+        private const string TAB_BTN_PREFAB_PATH = "Assets/Match Them All/Prefabs/UI/Shop/ShopTabButton.prefab";
 
         private static Button BuildTabButtonPrefab()
         {
