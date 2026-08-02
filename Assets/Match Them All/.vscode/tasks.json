@@ -44,51 +44,9 @@
       "problemMatcher": []
     },
     {
-      "label": "Claude: Switch to Kimi K2 (Moonshot AI)",
-      "type": "shell",
-      "command": "& '${workspaceFolder}\\switch-model.ps1' kimi",
-      "options": {
-        "shell": {
-          "executable": "pwsh.exe",
-          "args": ["-NonInteractive", "-ExecutionPolicy", "Bypass", "-Command"]
-        }
-      },
-      "group": "none",
-      "presentation": {
-        "echo": true,
-        "reveal": "always",
-        "focus": false,
-        "panel": "shared",
-        "showReuseMessage": false,
-        "clear": true
-      },
-      "problemMatcher": []
-    },
-    {
       "label": "Claude: Switch to OpenRouter (free)",
       "type": "shell",
       "command": "& '${workspaceFolder}\\switch-model.ps1' openrouter",
-      "options": {
-        "shell": {
-          "executable": "pwsh.exe",
-          "args": ["-NonInteractive", "-ExecutionPolicy", "Bypass", "-Command"]
-        }
-      },
-      "group": "none",
-      "presentation": {
-        "echo": true,
-        "reveal": "always",
-        "focus": false,
-        "panel": "shared",
-        "showReuseMessage": false,
-        "clear": true
-      },
-      "problemMatcher": []
-    },
-    {
-      "label": "Claude: Switch to TokenRouter",
-      "type": "shell",
-      "command": "& '${workspaceFolder}\\switch-model.ps1' tokenrouter",
       "options": {
         "shell": {
           "executable": "pwsh.exe",
@@ -160,16 +118,8 @@
           "value": "glm"
         },
         {
-          "label": "Kimi K2 (Moonshot AI)",
-          "value": "kimi"
-        },
-        {
           "label": "OpenRouter (free)",
           "value": "openrouter"
-        },
-        {
-          "label": "TokenRouter",
-          "value": "tokenrouter"
         },
         {
           "label": "OmniRouter (Local)",
