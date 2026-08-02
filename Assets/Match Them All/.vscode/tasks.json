@@ -107,6 +107,27 @@
       "problemMatcher": []
     },
     {
+      "label": "Claude: Switch to OmniRouter",
+      "type": "shell",
+      "command": "& '${workspaceFolder}\\switch-model.ps1' omnirouter",
+      "options": {
+        "shell": {
+          "executable": "pwsh.exe",
+          "args": ["-NonInteractive", "-ExecutionPolicy", "Bypass", "-Command"]
+        }
+      },
+      "group": "none",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": false,
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+    {
       "label": "Claude: Show Active Model",
       "type": "shell",
       "command": "& '${workspaceFolder}\\switch-model.ps1'",
@@ -149,6 +170,10 @@
         {
           "label": "TokenRouter",
           "value": "tokenrouter"
+        },
+        {
+          "label": "OmniRouter (Local)",
+          "value": "omnirouter"
         }
       ],
       "default": "glm"
