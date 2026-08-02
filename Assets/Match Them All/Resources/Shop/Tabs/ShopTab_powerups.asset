@@ -14,5 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: powerups
   displayName: Power-ups
-  order: 0
+  order: 1
   icon: {fileID: 0}

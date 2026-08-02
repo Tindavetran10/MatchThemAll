@@ -123,6 +123,13 @@ namespace MatchThemAll.Scripts.Editor
         private static readonly Color AccentOrange   = new(1.00f, 0.65f, 0.20f);
         private static readonly Color GoalBadgeColor = new(0.26f, 0.83f, 0.53f);
         private static readonly Color TextMuted      = new(0.60f, 0.60f, 0.65f);
+
+        // ── Resizable column ─────────────────────────────────────────────────
+        private float _listWidth = -1f;
+        private bool _draggingDivider;
+        private const float DividerGrabRange = 6f;
+        private const float MinColumnWidth = 120f;
+        private static readonly Color DividerColor = new(0.12f, 0.12f, 0.14f);
         #endregion
 
         #region Entry Point
@@ -267,7 +274,8 @@ namespace MatchThemAll.Scripts.Editor
                 },
                 hover =
                 {
-                    background = MakeTex(2, 2, new Color(0.30f, 0.30f, 0.34f))
+                    background = MakeTex(2, 2, new Color(0.30f, 0.30f, 0.34f)),
+                    textColor = Color.white
                 }
             };
 
@@ -275,7 +283,13 @@ namespace MatchThemAll.Scripts.Editor
             {
                 normal =
                 {
-                    background = MakeTex(2, 2, new Color(AccentBlue.r * 0.7f, AccentBlue.g * 0.7f, AccentBlue.b * 0.7f))
+                    background = MakeTex(2, 2, new Color(AccentBlue.r * 0.7f, AccentBlue.g * 0.7f, AccentBlue.b * 0.7f)),
+                    textColor = Color.white
+                },
+                hover =
+                {
+                    background = MakeTex(2, 2, new Color(AccentBlue.r * 0.7f, AccentBlue.g * 0.7f, AccentBlue.b * 0.7f)),
+                    textColor = Color.white
                 },
                 fontStyle = FontStyle.Bold
             };
@@ -343,8 +357,9 @@ namespace MatchThemAll.Scripts.Editor
 
         private void DrawLevelEditorTab()
         {
-            // Two-column layout — left panel is 27% of window width, min 180 px
-            var leftWidth  = Mathf.Max(180f, position.width * 0.27f);
+            // Two-column layout — left panel is resizable
+            if (_listWidth < 0f) _listWidth = Mathf.Max(180f, position.width * 0.27f);
+            var leftWidth  = Mathf.Clamp(_listWidth, MinColumnWidth, position.width - MinColumnWidth);
             var rightWidth = position.width - leftWidth - 2;
 
             GUILayout.BeginHorizontal();
@@ -354,9 +369,8 @@ namespace MatchThemAll.Scripts.Editor
             DrawLevelList(leftWidth);
             GUILayout.EndVertical();
 
-            // Divider
-            EditorGUI.DrawRect(new Rect(leftWidth, 38, 2, position.height - 38), new Color(0.12f, 0.12f, 0.14f));
-            GUILayout.Space(2);
+            // Resizable divider
+            DrawResizableDivider(leftWidth);
 
             // RIGHT: Level detail
             GUILayout.BeginVertical(GUILayout.Width(rightWidth));
@@ -486,7 +500,7 @@ namespace MatchThemAll.Scripts.Editor
                 GUILayout.BeginHorizontal();
                 GUILayout.Space(8);
 
-                if (GUILayout.Button($"  {i + 1:00}  {lv.name}", style, GUILayout.Height(36)))
+                if (GUILayout.Button($"  {i + 1:00}  {lv.name}", style, GUILayout.Height(36), GUILayout.MaxWidth(width - 58)))
                     pendingSelectIndex = i;
 
                 // Delete button — only show dialog, queue the actual delete
@@ -1846,6 +1860,36 @@ namespace MatchThemAll.Scripts.Editor
             t.Apply();
             _ownedTextures.Add(t);
             return t;
+        }
+
+        // ── Resizable Column Divider ──────────────────────────────────────────
+        private void DrawResizableDivider(float x)
+        {
+            float topY = 38f;
+            float bodyH = position.height - topY;
+            Rect grabRect = new Rect(x - DividerGrabRange, topY, DividerGrabRange * 2, bodyH);
+            bool hovering = grabRect.Contains(Event.current.mousePosition);
+            bool active = _draggingDivider || hovering;
+
+            EditorGUIUtility.AddCursorRect(grabRect, MouseCursor.ResizeHorizontal);
+            EditorGUI.DrawRect(new Rect(x, topY, 2, bodyH), active ? AccentBlue : DividerColor);
+
+            if (Event.current.type == EventType.MouseDown && hovering)
+            {
+                _draggingDivider = true;
+                Event.current.Use();
+            }
+            if (_draggingDivider && Event.current.type == EventType.MouseDrag)
+            {
+                _listWidth = Mathf.Clamp(Event.current.mousePosition.x, MinColumnWidth, position.width - MinColumnWidth);
+                Event.current.Use();
+                Repaint();
+            }
+            if (_draggingDivider && Event.current.type == EventType.MouseUp)
+            {
+                _draggingDivider = false;
+                Event.current.Use();
+            }
         }
         #endregion
 

@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+﻿#if UNITY_EDITOR
 using System.Collections.Generic;
 using System.IO;
 using MatchThemAll.Scripts.Shop;
@@ -28,27 +28,25 @@ namespace MatchThemAll.Scripts.Editor
 
             if (!_db) { DrawNoDatabase(); return; }
 
-            // Full-window dark background (matches LevelEditorWindow / ItemManagerWindow)
             EditorGUI.DrawRect(new Rect(0, 0, position.width, position.height), PanelBg);
 
-            // ── Toolbar ────────────────────────────────────────────────────────
             EditorGUI.DrawRect(new Rect(0, 0, position.width, 38), new Color(0.14f, 0.14f, 0.16f));
             GUILayout.BeginHorizontal(GUILayout.Height(38));
             GUILayout.Space(12);
             GUI.color = AccentBlue;
-            GUILayout.Label("🛒  Shop Manager", _headerStyle, GUILayout.Height(38));
+            GUILayout.Label("\uD83D\uDED2  Shop Manager", _headerStyle, GUILayout.Height(38));
             GUI.color = Color.white;
             GUILayout.FlexibleSpace();
 
             GUI.color = AccentGreen;
-            if (GUILayout.Button("💾 Save All", GUILayout.Height(28), GUILayout.Width(90)))
+            if (GUILayout.Button("\uD83D\uDCBE Save All", GUILayout.Height(28), GUILayout.Width(90)))
             {
                 AssetDatabase.SaveAssets();
                 EditorUtility.SetDirty(_db);
                 GUIUtility.ExitGUI();
             }
             GUI.color = new Color(0.7f, 0.7f, 0.7f);
-            if (GUILayout.Button("↻ Reload", GUILayout.Height(28), GUILayout.Width(80)))
+            if (GUILayout.Button("\u21BB Reload", GUILayout.Height(28), GUILayout.Width(80)))
             {
                 LoadDatabase();
                 GUIUtility.ExitGUI();
@@ -57,7 +55,6 @@ namespace MatchThemAll.Scripts.Editor
             GUILayout.Space(12);
             GUILayout.EndHorizontal();
 
-            // ── Three-column body (resizable) ──────────────────────────────────
             float topY     = 38f;
             float bodyH    = position.height - topY;
             float tabW     = _tabWidth;
@@ -81,32 +78,21 @@ namespace MatchThemAll.Scripts.Editor
             GUILayout.EndArea();
         }
 
-        // ── Resizable column divider ──────────────────────────────────────────
-
-        /// <summary>
-        /// Draws a draggable divider at x. Shows a ↔ resize cursor on hover, highlights while dragging,
-        /// and resizes the column to the left of the divider. dividerIndex 0 = tab/product, 1 = product/detail.
-        /// </summary>
         private void DrawResizableDivider(float x, float topY, float bodyH, int dividerIndex)
         {
             Rect grabRect = new Rect(x - DividerGrabRange, topY, DividerGrabRange * 2, bodyH);
             bool hovering = grabRect.Contains(Event.current.mousePosition);
             bool active = _draggingDivider == dividerIndex || hovering;
 
-            // Cursor: ↔ on hover
             EditorGUIUtility.AddCursorRect(grabRect, MouseCursor.ResizeHorizontal);
-
-            // Divider line (highlighted when active)
             EditorGUI.DrawRect(new Rect(x, topY, 2, bodyH), active ? AccentBlue : DividerColor);
 
-            // Start drag
             if (Event.current.type == EventType.MouseDown && hovering)
             {
                 _draggingDivider = dividerIndex;
                 Event.current.Use();
             }
 
-            // During drag: update the column width
             if (_draggingDivider == dividerIndex && Event.current.type == EventType.MouseDrag)
             {
                 float mouseX = Event.current.mousePosition.x;
@@ -118,7 +104,6 @@ namespace MatchThemAll.Scripts.Editor
                 Repaint();
             }
 
-            // End drag
             if (_draggingDivider == dividerIndex && Event.current.type == EventType.MouseUp)
             {
                 _draggingDivider = -1;
@@ -136,10 +121,9 @@ namespace MatchThemAll.Scripts.Editor
         private SerializedObject _productSO;
         private List<ShopProductSO> _tabProducts = new();
 
-        // ── Resizable columns ────────────────────────────────────────────────
         private float _tabWidth = 170f;
         private float _productWidth = 250f;
-        private int _draggingDivider = -1; // -1 = none, 0 = tab/product, 1 = product/detail
+        private int _draggingDivider = -1;
         private const float DividerGrabRange = 6f;
         private const float MinColumnWidth = 100f;
 
@@ -155,7 +139,7 @@ namespace MatchThemAll.Scripts.Editor
         [MenuItem("Match Them All/Shop Manager")]
         public static void ShowWindow()
         {
-            var w = GetWindow<ShopEditorWindow>("Shop Manager");
+            var w = GetWindow<ShopEditorWindow>("\uD83D\uDED2  Shop Manager");
             w.minSize = new Vector2(800, 500);
             w.LoadDatabase();
         }
@@ -211,12 +195,13 @@ namespace MatchThemAll.Scripts.Editor
                 margin = new RectOffset(4, 4, 2, 2),
                 fontSize = 12,
                 normal = { background = bgLight, textColor = Color.white },
-                hover = { background = bgHover }
+                hover = { background = bgHover, textColor = Color.white }
             };
 
             _selectedTabButtonStyle = new GUIStyle(_tabButtonStyle)
             {
-                normal = { background = selectedBg },
+                normal = { background = selectedBg, textColor = Color.white },
+                hover = { background = selectedBg, textColor = Color.white },
                 fontStyle = FontStyle.Bold
             };
 
@@ -227,12 +212,13 @@ namespace MatchThemAll.Scripts.Editor
                 margin = new RectOffset(4, 4, 2, 2),
                 fontSize = 12,
                 normal = { background = bgLight, textColor = Color.white },
-                hover = { background = bgHover }
+                hover = { background = bgHover, textColor = Color.white }
             };
 
             _selectedProductButtonStyle = new GUIStyle(_productButtonStyle)
             {
-                normal = { background = selectedBg },
+                normal = { background = selectedBg, textColor = Color.white },
+                hover = { background = selectedBg, textColor = Color.white },
                 fontStyle = FontStyle.Bold
             };
 
@@ -325,7 +311,6 @@ namespace MatchThemAll.Scripts.Editor
             Repaint();
         }
 
-
         private void DrawTabColumn()
         {
             EditorGUILayout.BeginVertical(_columnStyle);
@@ -352,13 +337,13 @@ namespace MatchThemAll.Scripts.Editor
                     GUIUtility.ExitGUI();
                 }
                 GUI.enabled = i > 0;
-                if (GUILayout.Button("▲", GUILayout.Width(20), GUILayout.Height(18))) { MoveTab(i, -1); GUIUtility.ExitGUI(); }
+                if (GUILayout.Button("\u25B2", GUILayout.Width(20), GUILayout.Height(18))) { MoveTab(i, -1); GUIUtility.ExitGUI(); }
                 GUI.enabled = i < tabs.Count - 1;
-                if (GUILayout.Button("▼", GUILayout.Width(20), GUILayout.Height(18))) { MoveTab(i, 1); GUIUtility.ExitGUI(); }
+                if (GUILayout.Button("\u25BC", GUILayout.Width(20), GUILayout.Height(18))) { MoveTab(i, 1); GUIUtility.ExitGUI(); }
                 GUI.enabled = true;
-                if (GUILayout.Button("✕", GUILayout.Width(20), GUILayout.Height(18)))
+                if (GUILayout.Button("\u2715", GUILayout.Width(20), GUILayout.Height(18)))
                 {
-                    if (EditorUtility.DisplayDialog("Remove Tab", $"Remove '{tabs[i].DisplayName}'?", "Remove", "Cancel"))
+                    if (EditorUtility.DisplayDialog("Remove Tab", string.Format("Remove '{0}'?", tabs[i].DisplayName), "Remove", "Cancel"))
                     { RemoveTab(i); GUIUtility.ExitGUI(); }
                 }
                 EditorGUILayout.EndHorizontal();
@@ -385,7 +370,7 @@ namespace MatchThemAll.Scripts.Editor
                             ? _db.tabs[_selectedTabIdx] : null;
 
             EditorGUILayout.BeginVertical(_columnStyle);
-            GUILayout.Label(tab != null ? $"PRODUCTS  ({tab.DisplayName})" : "PRODUCTS", _headerStyle);
+            GUILayout.Label(tab != null ? string.Format("PRODUCTS  ({0})", tab.DisplayName) : "PRODUCTS", _headerStyle);
 
             if (tab == null)
             {
@@ -421,13 +406,13 @@ namespace MatchThemAll.Scripts.Editor
                     GUIUtility.ExitGUI();
                 }
                 GUI.enabled = i > 0;
-                if (GUILayout.Button("▲", GUILayout.Width(20), GUILayout.Height(18))) { MoveProductWithinTab(tab.id, i, -1); GUIUtility.ExitGUI(); }
+                if (GUILayout.Button("\u25B2", GUILayout.Width(20), GUILayout.Height(18))) { MoveProductWithinTab(tab.id, i, -1); GUIUtility.ExitGUI(); }
                 GUI.enabled = i < _tabProducts.Count - 1;
-                if (GUILayout.Button("▼", GUILayout.Width(20), GUILayout.Height(18))) { MoveProductWithinTab(tab.id, i, 1); GUIUtility.ExitGUI(); }
+                if (GUILayout.Button("\u25BC", GUILayout.Width(20), GUILayout.Height(18))) { MoveProductWithinTab(tab.id, i, 1); GUIUtility.ExitGUI(); }
                 GUI.enabled = true;
-                if (GUILayout.Button("✕", GUILayout.Width(20), GUILayout.Height(18)))
+                if (GUILayout.Button("\u2715", GUILayout.Width(20), GUILayout.Height(18)))
                 {
-                    if (EditorUtility.DisplayDialog("Remove Product", $"Remove '{p.DisplayName}'?", "Remove", "Cancel"))
+                    if (EditorUtility.DisplayDialog("Remove Product", string.Format("Remove '{0}'?", p.DisplayName), "Remove", "Cancel"))
                     { _db.products.Remove(p); _selectedProduct = null; SaveAll(); GUIUtility.ExitGUI(); }
                 }
                 EditorGUILayout.EndHorizontal();
@@ -512,7 +497,7 @@ namespace MatchThemAll.Scripts.Editor
             GUILayout.FlexibleSpace();
             GUILayout.BeginHorizontal();
             GUILayout.FlexibleSpace();
-            GUILayout.Label("No ShopDatabase found.\nRun Tools  Shop  Create Default Shop Products first.", _noDbLabelStyle);
+            GUILayout.Label("No ShopDatabase found.\nRun Tools > Shop > Create Default Shop Products first.", _noDbLabelStyle);
             GUILayout.FlexibleSpace();
             GUILayout.EndHorizontal();
             GUILayout.FlexibleSpace();
@@ -530,7 +515,7 @@ namespace MatchThemAll.Scripts.Editor
         {
             if (string.IsNullOrEmpty(id)) { ShowDialog("Missing ID", "Enter a tab ID."); return; }
             EnsureDir();
-            string path = $"Assets/Match Them All/Resources/Shop/Tabs/ShopTab_{id}.asset";
+            string path = string.Format("Assets/Match Them All/Resources/Shop/Tabs/ShopTab_{0}.asset", id);
             var tab = AssetDatabase.LoadAssetAtPath<ShopTabSO>(path);
             if (!tab) { tab = CreateInstance<ShopTabSO>(); AssetDatabase.CreateAsset(tab, path); }
             var so = new SerializedObject(tab);
@@ -548,7 +533,7 @@ namespace MatchThemAll.Scripts.Editor
         {
             if (string.IsNullOrEmpty(id)) { ShowDialog("Missing ID", "Enter a product ID."); return; }
             EnsureDir();
-            string path = $"Assets/Match Them All/Resources/Shop/Items/ShopProduct_{id}.asset";
+            string path = string.Format("Assets/Match Them All/Resources/Shop/Items/ShopProduct_{0}.asset", id);
             var p = AssetDatabase.LoadAssetAtPath<ShopProductSO>(path);
             if (!p) { p = CreateInstance<ShopProductSO>(); AssetDatabase.CreateAsset(p, path); }
             var so = new SerializedObject(p);
@@ -623,8 +608,8 @@ namespace MatchThemAll.Scripts.Editor
 
         private static string FormatPrice(ShopProductSO p)
         {
-            if (p.IsIap) return $"${p.priceAmount / 100f:0.00}";
-            return $"{p.priceAmount} {p.priceCurrency}";
+            if (p.IsIap) return string.Format("${0:0.00}", p.priceAmount / 100f);
+            return string.Format("{0} {1}", p.priceAmount, p.priceCurrency);
         }
     }
 }
