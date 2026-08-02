@@ -57,31 +57,74 @@ namespace MatchThemAll.Scripts.Editor
             GUILayout.Space(12);
             GUILayout.EndHorizontal();
 
-            // ── Three-column body ──────────────────────────────────────────────
+            // ── Three-column body (resizable) ──────────────────────────────────
             float topY     = 38f;
             float bodyH    = position.height - topY;
-            float tabW     = 170f;
-            float productW = 250f;
+            float tabW     = _tabWidth;
+            float productW = _productWidth;
             float detailW  = position.width - tabW - productW - 4f;
 
             GUILayout.BeginArea(new Rect(0, topY, tabW, bodyH));
             DrawTabColumn();
             GUILayout.EndArea();
 
-            EditorGUI.DrawRect(new Rect(tabW, topY, 2, bodyH), DividerColor);
+            DrawResizableDivider(tabW, topY, bodyH, 0);
 
             GUILayout.BeginArea(new Rect(tabW + 2, topY, productW, bodyH));
             DrawProductColumn();
             GUILayout.EndArea();
 
-            EditorGUI.DrawRect(new Rect(tabW + 2 + productW, topY, 2, bodyH), DividerColor);
+            DrawResizableDivider(tabW + 2 + productW, topY, bodyH, 1);
 
             GUILayout.BeginArea(new Rect(tabW + 2 + productW + 2, topY, detailW, bodyH));
             DrawDetailColumn();
             GUILayout.EndArea();
         }
 
+        // ── Resizable column divider ──────────────────────────────────────────
 
+        /// <summary>
+        /// Draws a draggable divider at x. Shows a ↔ resize cursor on hover, highlights while dragging,
+        /// and resizes the column to the left of the divider. dividerIndex 0 = tab/product, 1 = product/detail.
+        /// </summary>
+        private void DrawResizableDivider(float x, float topY, float bodyH, int dividerIndex)
+        {
+            Rect grabRect = new Rect(x - DividerGrabRange, topY, DividerGrabRange * 2, bodyH);
+            bool hovering = grabRect.Contains(Event.current.mousePosition);
+            bool active = _draggingDivider == dividerIndex || hovering;
+
+            // Cursor: ↔ on hover
+            EditorGUIUtility.AddCursorRect(grabRect, MouseCursor.ResizeHorizontal);
+
+            // Divider line (highlighted when active)
+            EditorGUI.DrawRect(new Rect(x, topY, 2, bodyH), active ? AccentBlue : DividerColor);
+
+            // Start drag
+            if (Event.current.type == EventType.MouseDown && hovering)
+            {
+                _draggingDivider = dividerIndex;
+                Event.current.Use();
+            }
+
+            // During drag: update the column width
+            if (_draggingDivider == dividerIndex && Event.current.type == EventType.MouseDrag)
+            {
+                float mouseX = Event.current.mousePosition.x;
+                if (dividerIndex == 0)
+                    _tabWidth = Mathf.Clamp(mouseX, MinColumnWidth, position.width - MinColumnWidth * 2);
+                else
+                    _productWidth = Mathf.Clamp(mouseX - (_tabWidth + 2), MinColumnWidth, position.width - _tabWidth - MinColumnWidth);
+                Event.current.Use();
+                Repaint();
+            }
+
+            // End drag
+            if (_draggingDivider == dividerIndex && Event.current.type == EventType.MouseUp)
+            {
+                _draggingDivider = -1;
+                Event.current.Use();
+            }
+        }
 
         private ShopDatabaseSO _db;
         private int _selectedTabIdx = -1;
@@ -92,6 +135,13 @@ namespace MatchThemAll.Scripts.Editor
         private string _newProductId = "", _newProductName = "";
         private SerializedObject _productSO;
         private List<ShopProductSO> _tabProducts = new();
+
+        // ── Resizable columns ────────────────────────────────────────────────
+        private float _tabWidth = 170f;
+        private float _productWidth = 250f;
+        private int _draggingDivider = -1; // -1 = none, 0 = tab/product, 1 = product/detail
+        private const float DividerGrabRange = 6f;
+        private const float MinColumnWidth = 100f;
 
         private bool _stylesInitialized;
         private readonly List<Texture2D> _ownedTextures = new();
@@ -278,7 +328,7 @@ namespace MatchThemAll.Scripts.Editor
 
         private void DrawTabColumn()
         {
-            EditorGUILayout.BeginVertical(_columnStyle, GUILayout.Width(160));
+            EditorGUILayout.BeginVertical(_columnStyle);
             GUILayout.Label("TABS", _headerStyle);
 
             if (_addingTab)
@@ -334,7 +384,7 @@ namespace MatchThemAll.Scripts.Editor
             ShopTabSO tab = (_db.tabs != null && _selectedTabIdx >= 0 && _selectedTabIdx < _db.tabs.Count)
                             ? _db.tabs[_selectedTabIdx] : null;
 
-            EditorGUILayout.BeginVertical(_columnStyle, GUILayout.Width(240));
+            EditorGUILayout.BeginVertical(_columnStyle);
             GUILayout.Label(tab != null ? $"PRODUCTS  ({tab.DisplayName})" : "PRODUCTS", _headerStyle);
 
             if (tab == null)
