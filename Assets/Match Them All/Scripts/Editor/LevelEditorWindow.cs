@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using MatchThemAll.Scripts;
 using MatchThemAll.Scripts.Settings;
 using MatchThemAll.Scripts.Tutorial;
 using UnityEditor;
