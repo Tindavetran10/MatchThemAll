@@ -142,6 +142,7 @@ namespace MatchThemAll.Scripts.Editor
 
         private void OnEnable()
         {
+            wantsMouseMove = true; // repaint on mouse move so hover states update instantly
             LoadAll();
             LoadTrashUndo();
         }
@@ -260,38 +261,8 @@ namespace MatchThemAll.Scripts.Editor
                 normal = { textColor = new Color(0.8f, 0.8f, 0.85f) }
             };
 
-            _levelButtonStyle = new GUIStyle(GUI.skin.button)
-            {
-                alignment = TextAnchor.MiddleLeft,
-                padding = new RectOffset(12, 8, 8, 8),
-                margin  = new RectOffset(4, 4, 2, 2),
-                fontSize = 12,
-                normal =
-                {
-                    background = MakeTex(2, 2, new Color(0.25f, 0.25f, 0.28f)),
-                    textColor = Color.white
-                },
-                hover =
-                {
-                    background = MakeTex(2, 2, new Color(0.30f, 0.30f, 0.34f)),
-                    textColor = Color.white
-                }
-            };
-
-            _selectedLevelButtonStyle = new GUIStyle(_levelButtonStyle)
-            {
-                normal =
-                {
-                    background = MakeTex(2, 2, new Color(AccentBlue.r * 0.7f, AccentBlue.g * 0.7f, AccentBlue.b * 0.7f)),
-                    textColor = Color.white
-                },
-                hover =
-                {
-                    background = MakeTex(2, 2, new Color(AccentBlue.r * 0.7f, AccentBlue.g * 0.7f, AccentBlue.b * 0.7f)),
-                    textColor = Color.white
-                },
-                fontStyle = FontStyle.Bold
-            };
+            _levelButtonStyle = EditorWindowStyles.CardButton(selected: false);
+            _selectedLevelButtonStyle = EditorWindowStyles.CardButton(selected: true);
 
             _goalBadgeStyle = new GUIStyle(EditorStyles.miniLabel)
             {
@@ -334,6 +305,11 @@ namespace MatchThemAll.Scripts.Editor
         #region Main Layout
         private void OnGUI()
         {
+            // MouseMove events arrive because wantsMouseMove = true.
+            // Explicitly scheduling a Repaint here turns each move into an immediate
+            // visual update so hover colours change without any perceptible delay.
+            if (Event.current.type == EventType.MouseMove) Repaint();
+
             EnsureStyles();
 
             // Background

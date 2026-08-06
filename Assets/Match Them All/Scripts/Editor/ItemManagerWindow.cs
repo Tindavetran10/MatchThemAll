@@ -99,6 +99,7 @@ namespace MatchThemAll.Scripts.Editor
 
         private void OnEnable()
         {
+            wantsMouseMove = true; // repaint on mouse move so hover states update instantly
             LoadAll();
             _dockPrefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Match Them All/Prefabs/Gameplay/Item Spot.prefab");
         }
@@ -188,38 +189,8 @@ namespace MatchThemAll.Scripts.Editor
                 normal = { textColor = new Color(0.8f, 0.8f, 0.85f) }
             };
 
-            _itemButtonStyle = new GUIStyle(GUI.skin.button)
-            {
-                alignment = TextAnchor.MiddleLeft,
-                padding = new RectOffset(12, 8, 8, 8),
-                margin = new RectOffset(4, 4, 2, 2),
-                fontSize = 12,
-                normal =
-                {
-                    background = MakeTex(2, 2, new Color(0.25f, 0.25f, 0.28f)),
-                    textColor = Color.white
-                },
-                hover =
-                {
-                    background = MakeTex(2, 2, new Color(0.30f, 0.30f, 0.34f)),
-                    textColor = Color.white
-                }
-            };
-
-            _selectedItemButtonStyle = new GUIStyle(_itemButtonStyle)
-            {
-                normal =
-                {
-                    background = MakeTex(2, 2, new Color(AccentBlue.r * 0.7f, AccentBlue.g * 0.7f, AccentBlue.b * 0.7f)),
-                    textColor = Color.white
-                },
-                hover =
-                {
-                    background = MakeTex(2, 2, new Color(AccentBlue.r * 0.7f, AccentBlue.g * 0.7f, AccentBlue.b * 0.7f)),
-                    textColor = Color.white
-                },
-                fontStyle = FontStyle.Bold
-            };
+            _itemButtonStyle = EditorWindowStyles.CardButton(selected: false);
+            _selectedItemButtonStyle = EditorWindowStyles.CardButton(selected: true);
         }
 
         private Texture2D MakeTex(int w, int h, Color col)
@@ -240,6 +211,8 @@ namespace MatchThemAll.Scripts.Editor
         #region Main Layout
         private void OnGUI()
         {
+            if (Event.current.type == EventType.MouseMove) Repaint();
+
             EnsureStyles();
 
             EditorGUI.DrawRect(new Rect(0, 0, position.width, position.height), PanelBg);

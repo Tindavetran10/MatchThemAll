@@ -1,4 +1,4 @@
-﻿#if UNITY_EDITOR
+#if UNITY_EDITOR
 using System.Collections.Generic;
 using System.IO;
 using MatchThemAll.Scripts.Shop;
@@ -15,8 +15,6 @@ namespace MatchThemAll.Scripts.Editor
         private static readonly Color CardBg         = new(0.22f, 0.22f, 0.25f);
         private static readonly Color AccentBlue     = new(0.27f, 0.55f, 1.00f);
         private static readonly Color AccentGreen    = new(0.26f, 0.83f, 0.53f);
-        private static readonly Color BgLight        = new(0.25f, 0.25f, 0.28f);
-        private static readonly Color BgHover        = new(0.30f, 0.30f, 0.34f);
         private static readonly Color AccentRed      = new(0.90f, 0.30f, 0.30f);
         private static readonly Color AccentOrange   = new(1.00f, 0.65f, 0.20f);
         private static readonly Color DividerColor   = new(0.12f, 0.12f, 0.14f);
@@ -24,6 +22,8 @@ namespace MatchThemAll.Scripts.Editor
 
         private void OnGUI()
         {
+            if (Event.current.type == EventType.MouseMove) Repaint();
+
             EnsureStyles();
 
             if (!_db) { DrawNoDatabase(); return; }
@@ -144,7 +144,11 @@ namespace MatchThemAll.Scripts.Editor
             w.LoadDatabase();
         }
 
-        private void OnEnable() => LoadDatabase();
+        private void OnEnable()
+        {
+            wantsMouseMove = true; // repaint on mouse move so hover states update instantly
+            LoadDatabase();
+        }
 
         private void OnDisable()
         {
@@ -164,9 +168,6 @@ namespace MatchThemAll.Scripts.Editor
             _ownedTextures.Clear();
 
             var cardBg = MakeTex(2, 2, CardBg);
-            var bgLight = MakeTex(2, 2, BgLight);
-            var bgHover = MakeTex(2, 2, BgHover);
-            var selectedBg = MakeTex(2, 2, new Color(AccentBlue.r * 0.7f, AccentBlue.g * 0.7f, AccentBlue.b * 0.7f));
 
             _columnStyle = new GUIStyle(GUI.skin.box)
             {
@@ -188,39 +189,10 @@ namespace MatchThemAll.Scripts.Editor
                 normal = { textColor = new Color(0.8f, 0.8f, 0.85f) }
             };
 
-            _tabButtonStyle = new GUIStyle(GUI.skin.button)
-            {
-                alignment = TextAnchor.MiddleLeft,
-                padding = new RectOffset(12, 8, 8, 8),
-                margin = new RectOffset(4, 4, 2, 2),
-                fontSize = 12,
-                normal = { background = bgLight, textColor = Color.white },
-                hover = { background = bgHover, textColor = Color.white }
-            };
-
-            _selectedTabButtonStyle = new GUIStyle(_tabButtonStyle)
-            {
-                normal = { background = selectedBg, textColor = Color.white },
-                hover = { background = selectedBg, textColor = Color.white },
-                fontStyle = FontStyle.Bold
-            };
-
-            _productButtonStyle = new GUIStyle(GUI.skin.button)
-            {
-                alignment = TextAnchor.MiddleLeft,
-                padding = new RectOffset(12, 8, 8, 8),
-                margin = new RectOffset(4, 4, 2, 2),
-                fontSize = 12,
-                normal = { background = bgLight, textColor = Color.white },
-                hover = { background = bgHover, textColor = Color.white }
-            };
-
-            _selectedProductButtonStyle = new GUIStyle(_productButtonStyle)
-            {
-                normal = { background = selectedBg, textColor = Color.white },
-                hover = { background = selectedBg, textColor = Color.white },
-                fontStyle = FontStyle.Bold
-            };
+            _tabButtonStyle = EditorWindowStyles.CardButton(selected: false);
+            _selectedTabButtonStyle = EditorWindowStyles.CardButton(selected: true);
+            _productButtonStyle = EditorWindowStyles.CardButton(selected: false);
+            _selectedProductButtonStyle = EditorWindowStyles.CardButton(selected: true);
 
             _badgeStyle = new GUIStyle(EditorStyles.miniLabel)
             {
