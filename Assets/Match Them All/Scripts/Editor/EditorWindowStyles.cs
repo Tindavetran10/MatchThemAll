@@ -1,33 +1,32 @@
 using System.Collections.Generic;
 using UnityEditor;
-using UnityEditor.Callbacks;
 using UnityEngine;
 
 namespace MatchThemAll.Scripts.Editor
 {
     /// <summary>
-    /// Shared IMGUI style factory for the Match Them All editor windows
+    /// Shared IMGUI style/texture factory for the Match Them All editor windows
     /// (LevelEditorWindow, ItemManagerWindow, ShopEditorWindow).
     ///
-    /// Single source of truth for the custom button styles so the windows can't
-    /// drift apart.
+    /// Single source of truth for the rounded button style so the windows can't drift apart.
     ///
     /// Performance notes (editor IMGUI):
-    ///  - Solid-color textures are cached statically (one per color, shared by every
-    ///    window) instead of being recreated per window. They use
-    ///    HideFlags.HideAndDontSave so Unity never tracks/leaks them.
-    ///  - Rounded-corner textures (MakeRounded) are 18×18, Bilinear-filtered, and
-    ///    9-sliced with a 4 px border so the corners never stretch regardless of
-    ///    button size. Using a real 9-slice means Unity's geometry generator stays on
-    ///    the fast path (no degenerate scaling branch).
-    ///  - Both caches are cleared on every domain reload via [InitializeOnLoadMethod]
-    ///    so stale destroyed textures never survive into the next session.
+    ///  - Rounded textures are cached statically (one per color, shared by every window)
+    ///    instead of being recreated per window, and use HideFlags.HideAndDontSave so
+    ///    Unity never tracks/leaks them.
+    ///  - They are 18×18, Bilinear-filtered, and 9-sliced with a 4 px border so the corners
+    ///    never stretch regardless of button size — a real 9-slice keeps Unity's geometry
+    ///    generator on the fast path (no degenerate scaling branch).
+    ///  - The cache is cleared on every domain reload via [InitializeOnLoadMethod] so stale
+    ///    destroyed textures never survive into the next session.
     /// </summary>
     public static class EditorWindowStyles
     {
         // ── Canonical button palette ─────────────────────────────────────────
         private static readonly Color ButtonBg   = new(0.25f, 0.25f, 0.28f);
+        private static readonly Color HoverBg    = new(0.30f, 0.30f, 0.34f);
         private static readonly Color AccentBlue = new(0.27f, 0.55f, 1.00f);
+        private static readonly Color SelectedBg = new(AccentBlue.r * 0.7f, AccentBlue.g * 0.7f, AccentBlue.b * 0.7f);
 
         // ── Rounded-texture constants ─────────────────────────────────────────
         // Texture is 18×18 px; 4 px corner radius; 9-slice border = 4 on each side.
@@ -42,43 +41,19 @@ namespace MatchThemAll.Scripts.Editor
         /// </summary>
         public const int RndBorder = RndRadius;
 
-        // ── Texture caches ───────────────────────────────────────────────────
-        private static readonly Dictionary<Color, Texture2D> SolidTextures   = new();
+        // ── Texture cache ────────────────────────────────────────────────────
         private static readonly Dictionary<Color, Texture2D> RoundedTextures = new();
 
         /// <summary>
-        /// Clears both texture caches on every domain reload (script compile, enter/exit
+        /// Clears the texture cache on every domain reload (script compile, enter/exit
         /// play mode). Unity destroys HideAndDontSave objects during reload, so any
-        /// Texture2D still in the dictionaries would become a fake-null white quad.
+        /// Texture2D still in the dictionary would become a fake-null white quad.
         /// Clearing forces fresh recreation after each reload.
         /// </summary>
         [InitializeOnLoadMethod]
-        private static void ClearTextureCaches()
+        private static void ClearTextureCache()
         {
-            SolidTextures.Clear();
             RoundedTextures.Clear();
-        }
-
-        /// <summary>
-        /// Returns a cached 2×2 solid-color texture (Point-filtered, border = 0 fast path).
-        /// </summary>
-        public static Texture2D MakeSolid(Color color)
-        {
-            if (!SolidTextures.TryGetValue(color, out var tex) || tex == null)
-            {
-                tex = new Texture2D(2, 2, TextureFormat.RGBA32, false)
-                {
-                    hideFlags  = HideFlags.HideAndDontSave,
-                    filterMode = FilterMode.Point,
-                    wrapMode   = TextureWrapMode.Clamp
-                };
-                var pixels = new Color[4];
-                for (var i = 0; i < pixels.Length; i++) pixels[i] = color;
-                tex.SetPixels(pixels);
-                tex.Apply(false, true); // upload, drop CPU copy
-                SolidTextures[color] = tex;
-            }
-            return tex;
         }
 
         /// <summary>
@@ -131,9 +106,6 @@ namespace MatchThemAll.Scripts.Editor
             return tex;
         }
 
-        private static readonly Color HoverBg    = new(0.30f, 0.30f, 0.34f);
-        private static readonly Color SelectedBg = new(AccentBlue.r * 0.7f, AccentBlue.g * 0.7f, AccentBlue.b * 0.7f);
-
         /// <summary>
         /// Standard dark list/card button used for level, item, tab and product rows.
         ///
@@ -165,69 +137,6 @@ namespace MatchThemAll.Scripts.Editor
                 active    = { background = activeTex, textColor = Color.white },
                 focused   = { background = normalTex, textColor = Color.white },
             };
-        }
-
-        /// <summary>Small square icon button (✕ / ⟲ / ⌫) placed on item &amp; trash cards.</summary>
-        public static GUIStyle SmallIconButton()
-        {
-            var activeBg = MakeSolid(AccentBlue);
-            var skinBg   = GUI.skin.button.normal.background;
-
-            return new GUIStyle(GUI.skin.button)
-            {
-                padding  = new RectOffset(0, 0, 0, 0),
-                fontSize = 10,
-                hover    = { background = skinBg,    textColor = Color.white },
-                active   = { background = activeBg,  textColor = Color.white },
-                focused  = { background = skinBg,    textColor = Color.white }
-            };
-        }
-
-        /// <summary>
-        /// Standard action/toolbar button (Save, Reload, + New, Preview Layout, …) that keeps the
-        /// default editor-skin look but with hover and focused identical to normal — so merely moving
-        /// the mouse over it never shows a different "released" form. Pressing still turns blue
-        /// (the skin's active state).
-        /// </summary>
-        public static GUIStyle ActionButton()
-        {
-            var style = new GUIStyle(GUI.skin.button);
-            NeutralizeHover(style);
-            return style;
-        }
-
-        /// <summary>Same as <see cref="ActionButton"/> for <c>EditorStyles.miniButton</c>-based buttons.</summary>
-        public static GUIStyle MiniActionButton()
-        {
-            var style = new GUIStyle(EditorStyles.miniButton);
-            NeutralizeHover(style);
-            return style;
-        }
-
-        /// <summary>
-        /// Style for a <c>GUILayout.Toolbar</c> tab switcher. Keeps the toolbarButton look but
-        /// with hover/focused identical to normal on every tab, so tabs never light up from a
-        /// plain mouse-over. The selected tab still renders via its on-state, and pressing
-        /// still shows the skin's active state.
-        /// </summary>
-        public static GUIStyle ToolbarStyle()
-        {
-            var style = new GUIStyle(EditorStyles.toolbarButton);
-            NeutralizeHover(style);
-            // The selected tab is drawn with on-states; make its hover/focused match its on-normal too.
-            style.onHover   = style.onNormal;
-            style.onFocused = style.onNormal;
-            return style;
-        }
-
-        /// <summary>
-        /// Makes a style's hover and focused states render exactly like its normal state (no
-        /// highlight when the mouse passes over, no stuck look after clicking).
-        /// </summary>
-        public static void NeutralizeHover(GUIStyle style)
-        {
-            style.hover   = style.normal;
-            style.focused = style.normal;
         }
     }
 }

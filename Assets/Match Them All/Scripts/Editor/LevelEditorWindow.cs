@@ -289,10 +289,20 @@ namespace MatchThemAll.Scripts.Editor
                 }
             };
 
+            // Small icon buttons (✕/⟲/⌫) are tinted per-button via GUI.color, so every
+            // state uses the same white rounded texture; GUI.color supplies the hue and
+            // the rounded corners never square off on hover/press.
+            var iconTex = EditorWindowStyles.MakeRounded(Color.white);
             _iconCardSmallButtonStyle = new GUIStyle(GUI.skin.button)
             {
-                padding = new RectOffset(0, 0, 0, 0),
-                fontSize = 10
+                padding  = new RectOffset(0, 0, 0, 0),
+                fontSize = 10,
+                border   = new RectOffset(EditorWindowStyles.RndBorder, EditorWindowStyles.RndBorder,
+                                          EditorWindowStyles.RndBorder, EditorWindowStyles.RndBorder),
+                normal   = { background = iconTex, textColor = Color.white },
+                hover    = { background = iconTex, textColor = Color.white },
+                active   = { background = iconTex, textColor = Color.white },
+                focused  = { background = iconTex, textColor = Color.white }
             };
 
             _iconCardLabelStyle = new GUIStyle(EditorStyles.miniLabel)
