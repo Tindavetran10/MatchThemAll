@@ -11,6 +11,13 @@ namespace MatchThemAll.Scripts.Power_Ups
         public override bool CanActivate(PowerupContext ctx) =>
             ctx.Timer != null && !ctx.Timer.IsFrozen;
 
-        public override void Activate(PowerupContext ctx) => ctx.Timer.FreezeTimer();
+        public override void Activate(PowerupContext ctx)
+        {
+            // Muzzle flash at the freeze gun's muzzle.
+            if (ctx.ActivateVfx != null && ctx.FreezeMuzzle != null)
+                VfxPool.Instance.Play(ctx.ActivateVfx, ctx.FreezeMuzzle.position);
+
+            ctx.Timer.FreezeTimer();
+        }
     }
 }
