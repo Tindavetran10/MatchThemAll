@@ -18,6 +18,9 @@ namespace MatchThemAll.Scripts.Power_Ups
         public override void Activate(PowerupContext ctx)
         {
             if (ctx.Items == null) return;
+            // Shockwave ring at the fan's origin.
+            if (ctx.ActivateVfx != null && ctx.FanOrigin != null)
+                VfxPool.Instance.Play(ctx.ActivateVfx, ctx.FanOrigin.position);
             foreach (var item in ctx.Items.AsValueEnumerable()
                          .Where(item => item && item.gameObject.activeInHierarchy))
             {
