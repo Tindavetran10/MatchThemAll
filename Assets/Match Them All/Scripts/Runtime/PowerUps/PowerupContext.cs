@@ -19,6 +19,10 @@ namespace MatchThemAll.Scripts.Power_Ups
         public TimerManager Timer;            // TimerManager.Instance
         public GameSettingsSO GameSettings;   // global, non-powerup tuning only
         public Transform VacuumSuckPosition;
+        public ParticleSystem ActivateVfx;     // from the activating SO
+        public ParticleSystem EndVfx;          // from the activating SO (optional)
+        public Transform FanOrigin;            // fan object's transform (nullable)
+        public Transform FreezeMuzzle;          // freeze gun muzzle transform (nullable)
 
         public Action<Item> OnItemPickup;
         public Action<Item> OnItemBackToGame;

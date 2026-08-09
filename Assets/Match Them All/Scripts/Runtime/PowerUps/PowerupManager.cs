@@ -25,6 +25,12 @@ namespace MatchThemAll.Scripts
         [SerializeField] private Vacuum vacuum;              // the vacuum button (plays the suck animation)
         [SerializeField] private Transform vacuumSuckPosition;
 
+        [Header("Fan Elements")]
+        [SerializeField] private Transform fanOrigin;          // where the fan VFX originates
+
+        [Header("Freeze Elements")]
+        [SerializeField] private Transform freezeMuzzle;       // the freeze gun muzzle
+
         [Header("Global Settings")]
         [SerializeField] private GameSettingsSO gameSettings;
 
@@ -143,6 +149,10 @@ namespace MatchThemAll.Scripts
                 Timer = TimerManager.Instance,
                 GameSettings = gameSettings,
                 VacuumSuckPosition = vacuumSuckPosition,
+                ActivateVfx = so.ActivateVfx,
+                EndVfx = so.EndVfx,
+                FanOrigin = fanOrigin,
+                FreezeMuzzle = freezeMuzzle,
                 OnItemPickup = InvokeItemPickup,
                 OnItemBackToGame = InvokeItemBackToGame,
                 SetBusy = busy => _isBusy = busy,
