@@ -6915,6 +6915,8 @@ MonoBehaviour:
   database: {fileID: 11400000, guid: 76763b36fc1a0b7458ce51b439ba4316, type: 2}
   vacuum: {fileID: 1947967955}
   vacuumSuckPosition: {fileID: 968201496}
+  fanOrigin: {fileID: 0}
+  freezeMuzzle: {fileID: 0}
   gameSettings: {fileID: 11400000, guid: 8ead217f245550649be423e8e56e2bd3, type: 2}
 --- !u!1001 &1208754725
 PrefabInstance:
