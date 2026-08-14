@@ -17,7 +17,7 @@ namespace MatchThemAll.Scripts
     {
         public static VfxPool Instance { get; private set; }
 
-        private readonly Dictionary<ParticleSystem, IObjectPool<ParticleSystem>> _pools = new();
+        private readonly Dictionary<GameObject, IObjectPool<GameObject>> _pools = new();
 
         private void Awake()
         {
@@ -34,45 +34,54 @@ namespace MatchThemAll.Scripts
         /// <summary>
         /// Spawns prefab at pos (world space), sets layer, plays, returns to pool after lifetime.
         /// Null-safe: no prefab = no-op.
+        /// The prefab reference may point at ANY ParticleSystem inside an effect prefab —
+        /// the whole prefab root is pooled and every system in it plays (asset-pack
+        /// VFX are commonly multi-system).
         /// </summary>
         public void Play(ParticleSystem prefab, Vector3 pos)
         {
             if (prefab == null) return;
 
-            var pool = GetOrCreatePool(prefab);
-            ParticleSystem ps = pool.Get();
-            ps.transform.position = pos;
-            ps.gameObject.layer = LayerMask.NameToLayer(InputManager.IsTutorialActive ? "Tutorial" : "Default");
+            var pool = GetOrCreatePool(prefab.transform.root.gameObject);
+            GameObject instance = pool.Get();
+            instance.transform.position = pos;
 
-            var main = ps.main;
-            ps.Play();
+            int layer = LayerMask.NameToLayer(InputManager.IsTutorialActive ? "Tutorial" : "Default");
+            float lifetime = 0f;
+            foreach (var t in instance.GetComponentsInChildren<Transform>(true))
+                t.gameObject.layer = layer;
+            foreach (var ps in instance.GetComponentsInChildren<ParticleSystem>(true))
+            {
+                var main = ps.main;
+                ps.Play();
+                lifetime = Mathf.Max(lifetime, main.duration + main.startLifetime.constantMax);
+            }
 
-            float lifetime = main.duration + main.startLifetime.constantMax;
-            StartCoroutine(ReturnToPool(pool, ps, lifetime));
+            StartCoroutine(ReturnToPool(pool, instance, lifetime));
         }
 
-        private IObjectPool<ParticleSystem> GetOrCreatePool(ParticleSystem prefab)
+        private IObjectPool<GameObject> GetOrCreatePool(GameObject prefabRoot)
         {
-            if (_pools.TryGetValue(prefab, out var pool)) return pool;
+            if (_pools.TryGetValue(prefabRoot, out var pool)) return pool;
 
-            pool = new ObjectPool<ParticleSystem>(
-                createFunc:      () => Instantiate(prefab, transform),
-                actionOnGet:     ps => ps.gameObject.SetActive(true),
-                actionOnRelease: ps => ps.gameObject.SetActive(false),
-                actionOnDestroy: ps => Destroy(ps.gameObject),
+            pool = new ObjectPool<GameObject>(
+                createFunc:      () => Instantiate(prefabRoot, transform),
+                actionOnGet:     go => go.SetActive(true),
+                actionOnRelease: go => go.SetActive(false),
+                actionOnDestroy: go => Destroy(go),
                 collectionCheck: false,
                 defaultCapacity: 4,
                 maxSize:         16
             );
-            _pools[prefab] = pool;
+            _pools[prefabRoot] = pool;
             return pool;
         }
 
-        private IEnumerator ReturnToPool(IObjectPool<ParticleSystem> pool, ParticleSystem ps, float delay)
+        private IEnumerator ReturnToPool(IObjectPool<GameObject> pool, GameObject go, float delay)
         {
             yield return new WaitForSeconds(delay);
             // Scene may have reloaded and destroyed this object while waiting.
-            if (ps) pool.Release(ps);
+            if (go) pool.Release(go);
         }
     }
 }
