@@ -41,7 +41,7 @@ namespace MatchThemAll.Scripts.Power_Ups
             itemToRelease.transform.position = startPos;
 
             // Teleporter charge-up flash at the ejection point.
-            if (ctx.ActivateVfx != null)
+            if (ctx.ActivateVfx != null && VfxPool.Instance != null)
                 VfxPool.Instance.Play(ctx.ActivateVfx, startPos);
 
             // Pure physics throw → perfect parabolic arc that respects collisions on the way down.

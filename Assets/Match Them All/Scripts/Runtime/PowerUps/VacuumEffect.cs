@@ -25,10 +25,6 @@ namespace MatchThemAll.Scripts.Power_Ups
 
         public override void Activate(PowerupContext ctx)
         {
-            // Portal opens at the suck position.
-            if (ctx.ActivateVfx != null && ctx.VacuumSuckPosition != null)
-                VfxPool.Instance.Play(ctx.ActivateVfx, ctx.VacuumSuckPosition.position);
-
             var items = ctx.Items;
             ItemLevelData[] goals = ctx.Goals;
 
@@ -38,6 +34,10 @@ namespace MatchThemAll.Scripts.Power_Ups
                 ctx.SetBusy(false);
                 return;
             }
+
+            // Portal opens at the suck position.
+            if (ctx.ActivateVfx != null && ctx.VacuumSuckPosition != null && VfxPool.Instance != null)
+                VfxPool.Instance.Play(ctx.ActivateVfx, ctx.VacuumSuckPosition.position);
 
             ItemLevelData goal = goals[greatestGoalIndex];
 
@@ -65,7 +65,7 @@ namespace MatchThemAll.Scripts.Power_Ups
                 // Delay clearing busy until the visual animation finishes (~2.5s).
                 Tween.Delay(2.5f).OnComplete(() =>
                 {
-                    if (ctx.EndVfx != null && ctx.VacuumSuckPosition != null)
+                    if (ctx.EndVfx != null && ctx.VacuumSuckPosition != null && VfxPool.Instance != null)
                         VfxPool.Instance.Play(ctx.EndVfx, ctx.VacuumSuckPosition.position);
                     ctx.SetBusy(false);
                 });
@@ -99,7 +99,7 @@ namespace MatchThemAll.Scripts.Power_Ups
             // Wait for the full vacuum animation before allowing another powerup.
             Tween.Delay(2.5f).OnComplete(() =>
             {
-                if (ctx.EndVfx != null && ctx.VacuumSuckPosition != null)
+                if (ctx.EndVfx != null && ctx.VacuumSuckPosition != null && VfxPool.Instance != null)
                     VfxPool.Instance.Play(ctx.EndVfx, ctx.VacuumSuckPosition.position);
                 ctx.SetBusy(false);
             });

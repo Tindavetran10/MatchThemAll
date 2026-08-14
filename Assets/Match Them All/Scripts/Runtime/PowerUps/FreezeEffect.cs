@@ -14,7 +14,7 @@ namespace MatchThemAll.Scripts.Power_Ups
         public override void Activate(PowerupContext ctx)
         {
             // Muzzle flash at the freeze gun's muzzle.
-            if (ctx.ActivateVfx != null && ctx.FreezeMuzzle != null)
+            if (ctx.ActivateVfx != null && ctx.FreezeMuzzle != null && VfxPool.Instance != null)
                 VfxPool.Instance.Play(ctx.ActivateVfx, ctx.FreezeMuzzle.position);
 
             ctx.Timer.FreezeTimer();
