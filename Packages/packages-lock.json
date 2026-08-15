@@ -31,6 +31,37 @@
       "dependencies": {},
       "hash": "acc1c7bc9ea34c33b830e40316fca52553878d29"
     },
+    "com.ivanmurzak.unity.mcp": {
+      "version": "0.87.0",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {
+        "com.unity.test-framework": "1.1.33",
+        "com.unity.modules.uielements": "1.0.0",
+        "extensions.unity.playerprefsex": "2.1.5"
+      },
+      "url": "https://package.openupm.com"
+    },
+    "com.ivanmurzak.unity.mcp.animation": {
+      "version": "1.2.31",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {
+        "com.ivanmurzak.unity.mcp": "0.86.3",
+        "com.unity.modules.animation": "1.0.0"
+      },
+      "url": "https://package.openupm.com"
+    },
+    "com.ivanmurzak.unity.mcp.particlesystem": {
+      "version": "1.2.30",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {
+        "com.ivanmurzak.unity.mcp": "0.86.3",
+        "com.unity.modules.particlesystem": "1.0.0"
+      },
+      "url": "https://package.openupm.com"
+    },
     "com.kyrylokuzyk.primetween": {
       "version": "file:../Packages/com.kyrylokuzyk.primetween.tgz",
       "depth": 0,
@@ -343,6 +374,13 @@
         "com.unity.shadergraph": "17.0.4",
         "com.unity.render-pipelines.core": "17.0.4"
       }
+    },
+    "extensions.unity.playerprefsex": {
+      "version": "2.1.5",
+      "depth": 1,
+      "source": "registry",
+      "dependencies": {},
+      "url": "https://package.openupm.com"
     },
     "com.unity.modules.accessibility": {
       "version": "1.0.0",
