@@ -29,11 +29,19 @@ namespace MatchThemAll.Scripts.Power_Ups
         [SerializeField] private GameObject uiPrefab;          // the button prefab (carries PowerupUI)
         [SerializeReference] private PowerupEffect effect;     // polymorphic behavior
 
+        [Header("VFX")]
+        [Tooltip("Plays once when the powerup activates. Required for VFX; null = no effect.")]
+        [SerializeField] private ParticleSystem activateVfx;
+        [Tooltip("Plays once when the effect resolves (e.g. portal collapse). Optional.")]
+        [SerializeField] private ParticleSystem endVfx;
+
         // ── Public read-only accessors ──────────────────────────────────────
         public string DisplayName => displayName;
         public Sprite Icon => icon;
         public GameObject UIPrefab => uiPrefab;
         public PowerupEffect Effect => effect;
+        public ParticleSystem ActivateVfx => activateVfx;
+        public ParticleSystem EndVfx => endVfx;
 
         /// <summary>True if this power-up is locked for the given player level.</summary>
         public bool IsLockedAt(int playerLevelIndex) => playerLevelIndex < unlockLevel;

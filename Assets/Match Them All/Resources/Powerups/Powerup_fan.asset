@@ -23,6 +23,8 @@ MonoBehaviour:
   uiPrefab: {fileID: 2786794367453939414, guid: 73fc18920915a614e9e350ade3a95b05, type: 3}
   effect:
     rid: 1442196544509706361
+  activateVfx: {fileID: 1167274644274403990, guid: 9e5636c964199804fa589346758bdd73, type: 3}
+  endVfx: {fileID: 0}
   references:
     version: 2
     RefIds:

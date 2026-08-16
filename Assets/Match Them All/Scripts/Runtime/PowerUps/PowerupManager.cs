@@ -25,6 +25,12 @@ namespace MatchThemAll.Scripts
         [SerializeField] private Vacuum vacuum;              // the vacuum button (plays the suck animation)
         [SerializeField] private Transform vacuumSuckPosition;
 
+        [Header("Fan Elements")]
+        [SerializeField] private Transform fanOrigin;          // where the fan VFX originates
+
+        [Header("Freeze Elements")]
+        [SerializeField] private Transform freezeMuzzle;       // the freeze gun muzzle
+
         [Header("Global Settings")]
         [SerializeField] private GameSettingsSO gameSettings;
 
@@ -143,6 +149,10 @@ namespace MatchThemAll.Scripts
                 Timer = TimerManager.Instance,
                 GameSettings = gameSettings,
                 VacuumSuckPosition = vacuumSuckPosition,
+                ActivateVfx = so.ActivateVfx,
+                EndVfx = so.EndVfx,
+                FanOrigin = fanOrigin,
+                FreezeMuzzle = freezeMuzzle,
                 OnItemPickup = InvokeItemPickup,
                 OnItemBackToGame = InvokeItemBackToGame,
                 SetBusy = busy => _isBusy = busy,
@@ -176,6 +186,39 @@ namespace MatchThemAll.Scripts
             ItemSpot spot = FindAnyObjectByType<ItemSpot>();
             Vector3 startPos = spot != null ? spot.transform.position : transform.position;
             spring.DrawGizmos(startPos);
+        }
+#endif
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        // ── Debug: force-activate (bypasses unlock level + cost) ──────────
+        [Button("Debug: Activate Vacuum")]
+        public void DebugActivateVacuum() => ForceActivate("vacuum");
+
+        [Button("Debug: Activate Fan")]
+        public void DebugActivateFan() => ForceActivate("fan");
+
+        [Button("Debug: Activate Freeze")]
+        public void DebugActivateFreeze() => ForceActivate("freeze");
+
+        [Button("Debug: Activate Spring")]
+        public void DebugActivateSpring() => ForceActivate("spring");
+
+        /// <summary>Runs a power-up's effect immediately, ignoring unlock level and charges. Needs GAME state.</summary>
+        public void ForceActivate(string id)
+        {
+            if (database == null) return;
+            PowerupDataSO so = database.FindById(id);
+            if (so == null || so.Effect == null)
+            {
+                Debug.LogWarning($"[PowerupManager] No effect found for '{id}'.");
+                return;
+            }
+            if (GameManager.Instance.State != EGameState.GAME)
+            {
+                Debug.LogWarning($"[PowerupManager] ForceActivate('{id}') needs GAME state (current: {GameManager.Instance.State}).");
+                return;
+            }
+            so.Effect.Activate(BuildContext(so));
         }
 #endif
     }

@@ -40,6 +40,10 @@ namespace MatchThemAll.Scripts.Power_Ups
             Vector3 startPos = itemToRelease.transform.position + Vector3.up * 1f;
             itemToRelease.transform.position = startPos;
 
+            // Teleporter charge-up flash at the ejection point.
+            if (ctx.ActivateVfx != null && VfxPool.Instance != null)
+                VfxPool.Instance.Play(ctx.ActivateVfx, startPos);
+
             // Pure physics throw → perfect parabolic arc that respects collisions on the way down.
             itemToRelease.EnablePhysics();
             ctx.OnItemBackToGame?.Invoke(itemToRelease);
