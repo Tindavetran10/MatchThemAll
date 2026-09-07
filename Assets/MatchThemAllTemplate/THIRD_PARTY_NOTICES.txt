@@ -1,0 +1,41 @@
+# Third-Party Notices
+
+This package includes the following third-party assets:
+
+## NaughtyAttributes
+
+Copyright (c) 2019 Martín San Martín
+MIT License
+https://github.com/vis2k/NaughtyAttributes
+
+## ZLinq
+
+MIT License
+https://github.com/Reptyr/ZLinq
+
+## SimpleFX - Cartoon Particle Effects
+
+Free Asset
+https://assetstore.unity.com/packages/vfx/particles/simplefx-cartoon-particle-effects-143334
+
+## UI Essential Pack
+
+Free Asset
+https://assetstore.unity.com/packages/tools/gui/ui-essential-pack-132891
+
+---
+
+## Fonts
+
+### Roboto (UI Font)
+
+Apache License 2.0
+https://fonts.google.com/specimen/Roboto
+
+---
+
+## Credits
+
+This template was created by TindaStudios.
+
+Thank you to the Unity community for the inspiration and assets that made this template possible.
