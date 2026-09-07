@@ -1,0 +1,1927 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using MatchThemAll.Scripts.Settings;
+using MatchThemAll.Scripts.Tutorial;
+using UnityEditor;
+using UnityEditor.AddressableAssets;
+using UnityEditor.AddressableAssets.Settings;
+using UnityEngine;
+using ZLinq;
+using Random = UnityEngine.Random;
+
+namespace MatchThemAll.Scripts.Editor
+{
+    /// <summary>
+    /// A self-contained Template Editor window for Levels, Items, and Settings.
+    /// Open via: Match Them All → Template Editor
+    /// </summary>
+    public class LevelEditorWindow : EditorWindow
+    {
+        #region State & Fields
+        // ── Tabs ─────────────────────────────────────────────────────────────
+        private int _currentTab;
+        private readonly string[] _tabNames = { "Levels", "Settings" };
+        // ── State ────────────────────────────────────────────────────────────
+        private readonly List<LevelDataSO> _levels = new();
+        private int _selectedLevelIndex = -1;
+        private LevelDataSO _selectedLevel;
+
+        private readonly List<GameObject> _itemPrefabs = new();
+        private readonly List<GameObject> _trashPrefabs = new();
+
+        private Vector2 _levelListScroll;
+        private Vector2 _itemListScroll;
+        private Vector2 _detailScroll;
+
+        private bool _isDirty;
+
+        // New level creation
+        private string _newLevelName = "";
+        private bool _showNewLevelField;
+        
+        private string _itemSearchQuery = "";
+        private string _lastItemSearchQuery;
+        private string[] _itemPrefabNames = Array.Empty<string>();
+        private List<GameObject> _filteredLibraryItems = new();
+        
+        // Cached Summary Stats
+        private int _cachedTotalItems;
+        private int _cachedGoalItems;
+        private int _cachedGoalTypes;
+        private bool _cachedValid;
+        private LevelDataSO _lastSummaryLevel;
+        private bool _summaryDirty = true;
+        
+        // Broken item-reference validator state (Items tab)
+        private List<(LevelDataSO level, int index, string levelName)> _brokenRefs;
+        // Undo State — a list of records persisted to SessionState so undo survives a second
+        // delete and a domain reload / window reopen. Only primitive fields are stored; the Item
+        // prefab reference is re-resolved from the restored prefab on restore (it is a struct copy
+        // and the asset GUID is stable across MoveAsset, so we never trust a stale captured ref).
+        [Serializable]
+        private class RemovedLevelEntry
+        {
+            public string levelGuid;
+            public int index; // original position in level.itemData; restore re-inserts here to keep spawn order
+            public bool isGoal;
+            public int multiplier;
+            public int amount;
+        }
+
+        [Serializable]
+        private class DeletedItemRecord
+        {
+            public string originalPrefabPath;
+            public string trashPrefabPath;
+            public string originalIconPath;
+            public string trashIconPath;
+            public List<RemovedLevelEntry> removedFromLevels = new();
+        }
+
+        [Serializable]
+        private class DeletedItemRecordList { public List<DeletedItemRecord> records = new(); }
+
+        private readonly List<DeletedItemRecord> _deletedRecords = new();
+        private const string TrashUndoSessionKey = "MTA_TemplateEditor_TrashUndo";
+
+        // Settings State
+        private GameSettingsSO _gameSettings;
+        private UnityEditor.Editor _gameSettingsEditor;
+        private readonly List<Texture2D> _ownedTextures = new();
+
+        // Delegates to ItemReferenceOps so the item/icon folder paths have one source of truth.
+        private const string ItemPrefabFolder       = ItemReferenceOps.ItemPrefabFolder;
+        private const string LevelDataFolder         = "Assets/MatchThemAllTemplate/_START_HERE/Levels";
+        private const string LevelTemplatePrefabPath = "Assets/MatchThemAllTemplate/Prefabs/Levels/LevelTemplate.prefab";
+
+        // ── Preview State ────────────────────────────────────────────────────
+        // Tracks which level is currently previewed in the scene so we can warn
+        // the user if they've switched selection without re-running the preview.
+        private LevelDataSO _previewedLevel;
+
+        // ── Styles (lazy init) ────────────────────────────────────────────────
+        private GUIStyle _cardStyle;
+        private GUIStyle _headerStyle;
+        private GUIStyle _subHeaderStyle;
+        private GUIStyle _levelButtonStyle;
+        private GUIStyle _selectedLevelButtonStyle;
+        private GUIStyle _goalBadgeStyle;
+        private GUIStyle _rowStyleEven;
+        private GUIStyle _rowStyleOdd;
+        private GUIStyle _iconCardSmallButtonStyle; // shared ✕/⟲ button on item & trash cards
+        private GUIStyle _iconCardLabelStyle;       // shared name label under item & trash cards
+        private bool _stylesInitialized;
+
+        // ── Colors ───────────────────────────────────────────────────────────
+        private static readonly Color PanelBg       = new(0.18f, 0.18f, 0.20f);
+        private static readonly Color CardBg         = new(0.22f, 0.22f, 0.25f);
+        private static readonly Color AccentBlue     = new(0.27f, 0.55f, 1.00f);
+        private static readonly Color AccentGreen    = new(0.26f, 0.83f, 0.53f);
+        private static readonly Color AccentRed      = new(0.90f, 0.30f, 0.30f);
+        private static readonly Color AccentOrange   = new(1.00f, 0.65f, 0.20f);
+        private static readonly Color GoalBadgeColor = new(0.26f, 0.83f, 0.53f);
+        private static readonly Color TextMuted      = new(0.60f, 0.60f, 0.65f);
+
+        // ── Resizable column ─────────────────────────────────────────────────
+        private float _listWidth = -1f;
+        private bool _draggingDivider;
+        private const float DividerGrabRange = 6f;
+        private const float MinColumnWidth = 120f;
+        private static readonly Color DividerColor = new(0.12f, 0.12f, 0.14f);
+        #endregion
+
+        #region Entry Point
+        [MenuItem("Match Them All/Template Editor")]
+        public static void ShowWindow()
+        {
+            var window = GetWindow<LevelEditorWindow>("Template Editor");
+            window.minSize = new Vector2(780, 540);
+            window.LoadAll();
+        }
+
+        private void OnEnable()
+        {
+            wantsMouseMove = true; // repaint on mouse move so hover states update instantly
+            LoadAll();
+            LoadTrashUndo();
+        }
+        private void OnDisable()
+        {
+            _stylesInitialized = false; // force style rebuild after domain reload
+            if (_gameSettingsEditor != null)
+            {
+                DestroyImmediate(_gameSettingsEditor);
+                _gameSettingsEditor = null;
+            }
+            foreach (var t in _ownedTextures.AsValueEnumerable().Where(t => t))
+            {
+                DestroyImmediate(t);
+            }
+            _ownedTextures.Clear();
+        }
+        #endregion
+
+        #region Data Loading
+        private void LoadAll()
+        {
+            // Levels
+            _levels.Clear();
+            var guids = AssetDatabase.FindAssets("t:LevelDataSO");
+            foreach (var g in guids)
+            {
+                var level = AssetDatabase.LoadAssetAtPath<LevelDataSO>(AssetDatabase.GUIDToAssetPath(g));
+                if (level != null) _levels.Add(level); // guard: a broken/missing level must not abort LoadAll (Sort NRE)
+            }
+
+            // Sort by asset name so the list is stable
+            _levels.Sort((a, b) => string.Compare(a.name, b.name, StringComparison.Ordinal));
+
+            // Item prefabs
+            _itemPrefabs.Clear();
+            var pGuids = AssetDatabase.FindAssets("t:Prefab", new[] { ItemPrefabFolder });
+            foreach (var g in pGuids)
+            {
+                string path = AssetDatabase.GUIDToAssetPath(g);
+                if (!path.Contains("/Trash/"))
+                {
+                    var loaded = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+                    if (loaded) _itemPrefabs.Add(loaded); // guard: a broken/missing prefab must not abort LoadAll
+                }
+            }
+            _itemPrefabNames = _itemPrefabs.AsValueEnumerable().Select(p => p.name).ToArray();
+            _lastItemSearchQuery = null; // force library refresh
+
+            // Trash prefabs
+            _trashPrefabs.Clear();
+            string trashFolder = ItemReferenceOps.ItemTrashFolder;
+            if (AssetDatabase.IsValidFolder(trashFolder))
+            {
+                var trashGuids = AssetDatabase.FindAssets("t:Prefab", new[] { trashFolder });
+                foreach (var g in trashGuids)
+                {
+                    var loaded = AssetDatabase.LoadAssetAtPath<GameObject>(AssetDatabase.GUIDToAssetPath(g));
+                    if (loaded) _trashPrefabs.Add(loaded);
+                }
+            }
+
+            // Restore selection
+            if (_selectedLevel)
+            {
+                _selectedLevelIndex = _levels.IndexOf(_selectedLevel);
+                if (_selectedLevelIndex < 0) SelectLevel(-1);
+            }
+            
+            // Settings
+            if (!_gameSettings) 
+                _gameSettings = Resources.Load<GameSettingsSO>("GameSettings");
+            if (_gameSettings) 
+                _gameSettingsEditor = UnityEditor.Editor.CreateEditor(_gameSettings);
+        }
+
+        private void SelectLevel(int idx)
+        {
+            _selectedLevelIndex = idx;
+            _selectedLevel = idx >= 0 && idx < _levels.Count ? _levels[idx] : null;
+            _isDirty = false;
+            _summaryDirty = true;
+        }
+        #endregion
+
+        #region Styles
+        private void EnsureStyles()
+        {
+            if (_stylesInitialized) return;
+            _stylesInitialized = true;
+
+            foreach (var t in _ownedTextures.AsValueEnumerable().Where(t => t))
+                DestroyImmediate(t);
+            _ownedTextures.Clear();
+
+            _cardStyle = new GUIStyle(GUI.skin.box)
+            {
+                padding = new RectOffset(12, 12, 10, 10),
+                margin  = new RectOffset(4, 4, 4, 4),
+                normal =
+                {
+                    background = MakeTex(2, 2, CardBg)
+                }
+            };
+
+            _headerStyle = new GUIStyle(EditorStyles.boldLabel)
+            {
+                fontSize = 16,
+                alignment = TextAnchor.MiddleLeft,
+                normal = { textColor = Color.white }
+            };
+
+            _subHeaderStyle = new GUIStyle(EditorStyles.boldLabel)
+            {
+                fontSize = 12,
+                normal = { textColor = new Color(0.8f, 0.8f, 0.85f) }
+            };
+
+            _levelButtonStyle = EditorWindowStyles.CardButton(selected: false);
+            _selectedLevelButtonStyle = EditorWindowStyles.CardButton(selected: true);
+
+            _goalBadgeStyle = new GUIStyle(EditorStyles.miniLabel)
+            {
+                fontSize  = 9,
+                fontStyle = FontStyle.Bold,
+                alignment = TextAnchor.MiddleCenter,
+                padding   = new RectOffset(5, 5, 2, 2),
+                normal    = { textColor = Color.white }
+            };
+
+            _rowStyleEven = new GUIStyle
+            {
+                normal =
+                {
+                    background = MakeTex(2, 2, new Color(0.20f, 0.20f, 0.23f))
+                }
+            };
+
+            _rowStyleOdd = new GUIStyle
+            {
+                normal =
+                {
+                    background = MakeTex(2, 2, new Color(0.23f, 0.23f, 0.26f))
+                }
+            };
+
+            // Small icon buttons (✕/⟲/⌫) are tinted per-button via GUI.color, so every
+            // state uses the same white rounded texture; GUI.color supplies the hue and
+            // the rounded corners never square off on hover/press.
+            var iconTex = EditorWindowStyles.MakeRounded(Color.white);
+            _iconCardSmallButtonStyle = new GUIStyle(GUI.skin.button)
+            {
+                padding  = new RectOffset(0, 0, 0, 0),
+                fontSize = 10,
+                border   = new RectOffset(EditorWindowStyles.RndBorder, EditorWindowStyles.RndBorder,
+                                          EditorWindowStyles.RndBorder, EditorWindowStyles.RndBorder),
+                normal   = { background = iconTex, textColor = Color.white },
+                hover    = { background = iconTex, textColor = Color.white },
+                active   = { background = iconTex, textColor = Color.white },
+                focused  = { background = iconTex, textColor = Color.white }
+            };
+
+            _iconCardLabelStyle = new GUIStyle(EditorStyles.miniLabel)
+            {
+                alignment = TextAnchor.UpperCenter
+            };
+        }
+        #endregion
+
+        #region Main Layout
+        private void OnGUI()
+        {
+            // MouseMove events arrive because wantsMouseMove = true.
+            // Explicitly scheduling a Repaint here turns each move into an immediate
+            // visual update so hover colours change without any perceptible delay.
+            if (Event.current.type == EventType.MouseMove) Repaint();
+
+            EnsureStyles();
+
+            // Background
+            EditorGUI.DrawRect(new Rect(0, 0, position.width, position.height), PanelBg);
+
+            // Top toolbar
+            DrawToolbar();
+
+            // Render current tab
+            switch (_currentTab)
+            {
+                case 0:
+                    DrawLevelEditorTab();
+                    break;
+                case 1:
+                    DrawSettingsTab();
+                    break;
+            }
+        }
+
+        private void DrawLevelEditorTab()
+        {
+            // Two-column layout — left panel is resizable
+            if (_listWidth < 0f) _listWidth = Mathf.Max(180f, position.width * 0.27f);
+            var leftWidth  = Mathf.Clamp(_listWidth, MinColumnWidth, position.width - MinColumnWidth);
+            var rightWidth = position.width - leftWidth - 2;
+
+            GUILayout.BeginHorizontal();
+
+            // LEFT: Level list
+            GUILayout.BeginVertical(GUILayout.Width(leftWidth));
+            DrawLevelList(leftWidth);
+            GUILayout.EndVertical();
+
+            // Resizable divider
+            DrawResizableDivider(leftWidth);
+
+            // RIGHT: Level detail
+            GUILayout.BeginVertical(GUILayout.Width(rightWidth));
+            DrawLevelDetail(rightWidth);
+            GUILayout.EndVertical();
+
+            GUILayout.EndHorizontal();
+        }
+        #endregion
+
+        #region Toolbar
+        private void DrawToolbar()
+        {
+            EditorGUI.DrawRect(new Rect(0, 0, position.width, 38), new Color(0.14f, 0.14f, 0.16f));
+            GUILayout.BeginHorizontal(GUILayout.Height(38));
+            GUILayout.Space(12);
+
+            GUI.color = AccentBlue;
+            GUILayout.Label("⚙ Template Editor", _headerStyle, GUILayout.Height(38));
+            GUI.color = Color.white;
+            
+            GUILayout.Space(20);
+            
+            // Draw Tabs
+            int newTab = GUILayout.Toolbar(_currentTab, _tabNames, GUILayout.Height(28), GUILayout.Width(250));
+            if (newTab != _currentTab)
+            {
+                _currentTab = newTab;
+                GUI.FocusControl(null); // Clear focus when switching tabs
+            }
+
+            GUILayout.FlexibleSpace();
+
+            // Save dirty indicator
+            if (_isDirty)
+            {
+                GUI.color = AccentOrange;
+                GUILayout.Label("● Unsaved Changes", EditorStyles.boldLabel, GUILayout.Height(38));
+                GUI.color = Color.white;
+                GUILayout.Space(8);
+            }
+
+            if (_isDirty && _selectedLevel)
+            {
+                GUI.color = AccentGreen;
+                if (GUILayout.Button("💾 Save", GUILayout.Height(28), GUILayout.Width(80)))
+                {
+                    SaveLevel();
+                    GUIUtility.ExitGUI();
+                }
+                GUI.color = Color.white;
+            }
+
+            GUILayout.Space(8);
+
+            GUI.color = new Color(0.7f, 0.7f, 0.7f);
+            if (GUILayout.Button("↻ Reload", GUILayout.Height(28), GUILayout.Width(80)))
+            {
+                LoadAll();
+                Repaint();
+                GUIUtility.ExitGUI();
+            }
+            GUI.color = Color.white;
+
+            GUILayout.Space(12);
+            GUILayout.EndHorizontal();
+        }
+        #endregion
+
+        #region Level List
+        private void DrawLevelList(float width)
+        {
+            GUILayout.Space(10);
+
+            // Section header
+            GUILayout.BeginHorizontal();
+            GUILayout.Space(8);
+            GUILayout.Label("LEVELS", _subHeaderStyle);
+            GUILayout.FlexibleSpace();
+            GUI.color = AccentGreen;
+            if (GUILayout.Button("+ New", GUILayout.Width(55), GUILayout.Height(22)))
+            {
+                _showNewLevelField = !_showNewLevelField;
+                GUIUtility.ExitGUI();
+            }
+            GUI.color = Color.white;
+            GUILayout.Space(8);
+            GUILayout.EndHorizontal();
+
+            // New level creation field
+            if (_showNewLevelField)
+            {
+                GUILayout.BeginHorizontal();
+                GUILayout.Space(8);
+                _newLevelName = EditorGUILayout.TextField(_newLevelName, GUILayout.Height(22));
+                GUI.color = AccentGreen;
+                if (GUILayout.Button("✓", GUILayout.Width(26), GUILayout.Height(22)))
+                {
+                    CreateNewLevel();
+                    GUIUtility.ExitGUI();
+                }
+                GUI.color = AccentRed;
+                if (GUILayout.Button("✕", GUILayout.Width(26), GUILayout.Height(22)))
+                {
+                    _showNewLevelField = false;
+                    GUIUtility.ExitGUI();
+                }
+                GUI.color = Color.white;
+                GUILayout.Space(8);
+                GUILayout.EndHorizontal();
+                GUILayout.Space(4);
+            }
+
+            GUILayout.Space(4);
+
+            // Level list scroll — defer mutations until after EndScrollView
+            var pendingDeleteIndex = -1;
+            var pendingSelectIndex = -1;
+
+            _levelListScroll = GUILayout.BeginScrollView(_levelListScroll);
+            for (var i = 0; i < _levels.Count; i++)
+            {
+                var lv = _levels[i];
+                var selected = i == _selectedLevelIndex;
+                var style = selected ? _selectedLevelButtonStyle : _levelButtonStyle;
+
+                GUILayout.BeginHorizontal();
+                GUILayout.Space(8);
+
+                if (GUILayout.Button($"  {i + 1:00}  {lv.name}", style, GUILayout.Height(36), GUILayout.MaxWidth(width - 58)))
+                    pendingSelectIndex = i;
+
+                // Delete button — only show dialog, queue the actual delete
+                GUI.color = new Color(0.7f, 0.3f, 0.3f);
+                if (GUILayout.Button("✕", GUILayout.Width(26), GUILayout.Height(36)))
+                    pendingDeleteIndex = i;
+                GUI.color = Color.white;
+
+                GUILayout.Space(8);
+                GUILayout.EndHorizontal();
+                GUILayout.Space(2);
+            }
+            GUILayout.EndScrollView();
+
+            // Apply pending actions now that all groups are closed
+            if (pendingSelectIndex >= 0)
+            {
+                SelectLevel(pendingSelectIndex);
+                GUIUtility.ExitGUI();
+            }
+
+            if (pendingDeleteIndex >= 0)
+            {
+                var lv = _levels[pendingDeleteIndex];
+                string warning = $"Delete '{lv.name}'? This cannot be undone.\n\n" +
+                                 "Note: player progress is saved by this level's identity. Deleting it " +
+                                 "orphans any saved stars/lock state for that level (it won't map to another level), " +
+                                 "and the saga-map node disappears. Other levels are unaffected.";
+                if (EditorUtility.DisplayDialog("Delete Level", warning, "Delete", "Cancel"))
+                {
+                    DeleteLevel(pendingDeleteIndex);
+                    GUIUtility.ExitGUI();
+                }
+            }
+
+            // Footer: level count
+            GUILayout.FlexibleSpace();
+            EditorGUI.DrawRect(GUILayoutUtility.GetRect(width, 1), new Color(0.12f, 0.12f, 0.14f));
+            GUI.color = TextMuted;
+            GUILayout.Label($"  {_levels.Count} level(s) total", EditorStyles.miniLabel, GUILayout.Height(22));
+            GUI.color = Color.white;
+        }
+        #endregion
+
+        #region Level Detail
+        private void DrawLevelDetail(float panelWidth = 0)
+        {
+            if (!_selectedLevel)
+            {
+                DrawEmptyState();
+                return;
+            }
+
+            _detailScroll = GUILayout.BeginScrollView(_detailScroll);
+
+            // Proportional label column: 22% of panel, clamped 120–220 px
+            var labelW = Mathf.Clamp(panelWidth * 0.22f, 120f, 220f);
+
+            GUILayout.Space(10);
+            GUILayout.BeginHorizontal();
+            GUILayout.Space(12);
+            GUI.color = Color.white; // Defensive reset before the header row
+            GUILayout.Label(_selectedLevel.name, _headerStyle);
+            GUILayout.FlexibleSpace();
+
+            // Warn if the scene preview is showing a different level than the current selection
+            if (_previewedLevel && _previewedLevel != _selectedLevel)
+            {
+                GUI.color = AccentOrange;
+                GUILayout.Label($"⚠ Scene shows '{_previewedLevel.name}'", EditorStyles.miniLabel, GUILayout.Height(26));
+                GUI.color = Color.white;
+                GUILayout.Space(4);
+            }
+
+            GUI.color = AccentBlue;
+            if (GUILayout.Button("👁 Preview Layout", GUILayout.Width(130), GUILayout.Height(26)))
+            {
+                var placer = FindAnyObjectByType<ItemPlacer>();
+                if (!placer)
+                {
+                    var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(LevelTemplatePrefabPath);
+                    if (prefab)
+                    {
+                        var go = (GameObject)PrefabUtility.InstantiatePrefab(prefab);
+                        placer = go.GetComponentInChildren<ItemPlacer>();
+                        Undo.RegisterCreatedObjectUndo(go, "Spawn Level Template");
+                        Debug.Log("Template Editor: Automatically spawned LevelTemplate into the scene.");
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"Template Editor: LevelTemplate prefab not found at '{LevelTemplatePrefabPath}'. Please update the path in LevelEditorWindow.");
+                    }
+                }
+                
+                if (placer) 
+                {
+                    Selection.activeGameObject = placer.gameObject;
+                    placer.PreviewSpawnFromEditor(_selectedLevel);
+                    _previewedLevel = _selectedLevel;
+                }
+                else 
+                {
+                    Debug.LogWarning("Template Editor: Could not find or spawn ItemPlacer.");
+                }
+                GUIUtility.ExitGUI();
+            }
+            
+            GUILayout.Space(4);
+            GUI.color = AccentGreen;
+            if (GUILayout.Button("▶ Play Level", GUILayout.Width(110), GUILayout.Height(26)))
+            {
+                // Guard: the Game scene must be in the build settings
+                bool gameSceneInBuild = false;
+                foreach (var buildScene in EditorBuildSettings.scenes)
+                {
+                    if (buildScene.enabled && buildScene.path.Contains("MainScene"))
+                    {
+                        gameSceneInBuild = true;
+                        break;
+                    }
+                }
+
+                if (!gameSceneInBuild)
+                {
+                    EditorUtility.DisplayDialog(
+                        "Scene Not in Build Settings",
+                        "The Game scene ('MainScene') was not found in Build Settings. " +
+                        "Please add it via File → Build Settings before using Play Level.",
+                        "OK");
+                    GUIUtility.ExitGUI();
+                    return;
+                }
+
+                // Clean up any preview instances before playing so there are no duplicates
+                var placer = FindAnyObjectByType<ItemPlacer>();
+                if (placer && !EditorApplication.isPlaying)
+                {
+                    DestroyImmediate(placer.transform.root.gameObject);
+                    _previewedLevel = null;
+                }
+
+                var path = AssetDatabase.GetAssetPath(_selectedLevel);
+                EditorPrefs.SetString("EditorTestLevelPath", path);
+                if (!EditorApplication.isPlaying) EditorApplication.isPlaying = true;
+
+                GUIUtility.ExitGUI();
+            }
+
+            GUILayout.Space(4);
+            // Open in Project button
+            GUI.color = new Color(0.65f, 0.65f, 0.7f);
+            if (GUILayout.Button("Ping Asset", GUILayout.Width(90), GUILayout.Height(26)))
+                EditorGUIUtility.PingObject(_selectedLevel);
+            GUI.color = Color.white;
+
+            GUILayout.Space(12);
+            GUILayout.EndHorizontal();
+            GUILayout.Space(8);
+
+            // ─ Settings Card ─
+            BeginCard();
+
+            GUILayout.Label("Level Settings", _subHeaderStyle);
+            GUILayout.Space(6);
+
+            EditorGUI.BeginChangeCheck();
+
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Spot Count", GUILayout.Width(labelW));
+            var newSpotCount = EditorGUILayout.IntSlider(_selectedLevel.spotCount, 5, 7);
+            if (newSpotCount != _selectedLevel.spotCount)
+            {
+                Undo.RecordObject(_selectedLevel, "Set Spot Count");
+                _selectedLevel.spotCount = newSpotCount;
+                MarkDirty();
+            }
+            GUILayout.EndHorizontal();
+
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Duration (seconds)", GUILayout.Width(labelW));
+            var newDuration = EditorGUILayout.IntSlider(_selectedLevel.duration, 15, 300);
+            if (newDuration != _selectedLevel.duration)
+            {
+                Undo.RecordObject(_selectedLevel, "Set Duration");
+                _selectedLevel.duration = newDuration;
+                MarkDirty();
+            }
+            GUILayout.EndHorizontal();
+
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Random Seed", GUILayout.Width(labelW));
+            var newSeed = EditorGUILayout.IntField(_selectedLevel.seed);
+            if (newSeed != _selectedLevel.seed)
+            {
+                Undo.RecordObject(_selectedLevel, "Set Seed");
+                _selectedLevel.seed = newSeed;
+                MarkDirty();
+            }
+            GUI.color = new Color(0.65f, 0.65f, 0.7f);
+            if (GUILayout.Button("🎲 Random", GUILayout.Width(88)))
+            {
+                GUI.FocusControl(null); // Clear IMGUI focus so integer fields update properly
+                Undo.RecordObject(_selectedLevel, "Randomize Level");
+                _selectedLevel.seed = Random.Range(0, 99999);
+                
+                var availablePrefabs = _itemPrefabs?.AsValueEnumerable().ToList() ?? new List<GameObject>();
+                // Pick between 2 and 6 item types, capped by how many prefabs actually exist
+                var minTypes = Mathf.Min(2, availablePrefabs.Count);
+                var maxTypes = Mathf.Min(7, availablePrefabs.Count + 1);
+                var typeCount = availablePrefabs.Count > 0 ? Random.Range(minTypes, maxTypes) : 3;
+
+                _selectedLevel.itemData = new List<ItemLevelData>();
+                var goalCount = Random.Range(1, Mathf.Min(4, typeCount + 1));
+                var shuffled = ValueEnumerable.Range(0, typeCount).OrderBy(x => Random.value).ToList();
+                
+                for (var i = 0; i < typeCount; i++)
+                {
+                    var entry = new ItemLevelData();
+                    if (availablePrefabs.Count > 0)
+                    {
+                        var r = Random.Range(0, availablePrefabs.Count);
+                        entry.itemPrefab = availablePrefabs[r].GetComponent<Item>();
+                        availablePrefabs.RemoveAt(r); // Ensure no duplicate items
+                    }
+                    entry.amount = Random.Range(1, 11) * 3;
+                    entry.multiplier = Random.Range(1, 6);
+                    entry.isGoal = shuffled.IndexOf(i) < goalCount;
+                    _selectedLevel.itemData.Add(entry);
+                }
+
+                MarkDirty();
+                GUIUtility.ExitGUI(); // Force abort GUI pass so layout redraws cleanly with new data
+            }
+            GUI.color = Color.white;
+            GUILayout.EndHorizontal();
+
+            EditorGUI.EndChangeCheck();
+
+            EndCard();
+
+            GUILayout.Space(8);
+
+            // ─ Rewards Card ─
+            BeginCard();
+            GUILayout.Label("Rewards & Monetization", _subHeaderStyle);
+            GUILayout.Space(6);
+            EditorGUI.BeginChangeCheck();
+
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Reward Mode", GUILayout.Width(labelW));
+            var newRewardMode = (LevelDataSO.RewardCalculationMode)EditorGUILayout.EnumPopup(_selectedLevel.rewardMode);
+            if (newRewardMode != _selectedLevel.rewardMode)
+            {
+                Undo.RecordObject(_selectedLevel, "Set Reward Mode");
+                _selectedLevel.rewardMode = newRewardMode;
+                MarkDirty();
+            }
+            GUILayout.EndHorizontal();
+
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Base Coin Reward", GUILayout.Width(labelW));
+            var newBaseReward = EditorGUILayout.IntField(_selectedLevel.baseCoinReward);
+            if (newBaseReward != _selectedLevel.baseCoinReward)
+            {
+                Undo.RecordObject(_selectedLevel, "Set Base Coin Reward");
+                _selectedLevel.baseCoinReward = newBaseReward;
+                MarkDirty();
+            }
+            GUILayout.EndHorizontal();
+
+            if (_selectedLevel.rewardMode == LevelDataSO.RewardCalculationMode.BasePlusPerStar)
+            {
+                GUILayout.BeginHorizontal();
+                GUILayout.Label("Coins Per Star", GUILayout.Width(labelW));
+                var newCoinsPerStar = EditorGUILayout.IntField(_selectedLevel.coinsPerStar);
+                if (newCoinsPerStar != _selectedLevel.coinsPerStar)
+                {
+                    Undo.RecordObject(_selectedLevel, "Set Coins Per Star");
+                    _selectedLevel.coinsPerStar = newCoinsPerStar;
+                    MarkDirty();
+                }
+                GUILayout.EndHorizontal();
+            }
+
+            GUILayout.Space(8);
+            GUILayout.Label("Star System Thresholds", _subHeaderStyle);
+            GUILayout.Space(6);
+
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Time For 3 Stars", GUILayout.Width(labelW));
+            var newTime3 = EditorGUILayout.IntField(_selectedLevel.timeFor3Stars);
+            if (newTime3 != _selectedLevel.timeFor3Stars)
+            {
+                Undo.RecordObject(_selectedLevel, "Set Time For 3 Stars");
+                _selectedLevel.timeFor3Stars = newTime3;
+                MarkDirty();
+            }
+            GUILayout.EndHorizontal();
+
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Time For 2 Stars", GUILayout.Width(labelW));
+            var newTime2 = EditorGUILayout.IntField(_selectedLevel.timeFor2Stars);
+            if (newTime2 != _selectedLevel.timeFor2Stars)
+            {
+                Undo.RecordObject(_selectedLevel, "Set Time For 2 Stars");
+                _selectedLevel.timeFor2Stars = newTime2;
+                MarkDirty();
+            }
+            GUILayout.EndHorizontal();
+
+            EditorGUI.EndChangeCheck();
+            EndCard();
+
+            GUILayout.Space(8);
+
+            // ─ Item List Card ─
+            BeginCard();
+            DrawItemsSection(panelWidth);
+            EndCard();
+
+            // ─ Item Library Card ─
+            GUILayout.Space(8);
+            BeginCard();
+            DrawItemLibrarySection(panelWidth);
+            EndCard();
+
+            // ─ Summary footer ─
+            GUILayout.Space(8);
+            DrawLevelSummary(panelWidth);
+
+            // ─ Tutorial Card ─
+            GUILayout.Space(8);
+            BeginCard();
+            DrawTutorialSection(panelWidth);
+            EndCard();
+
+            GUILayout.EndScrollView();
+        }
+        #endregion
+
+        #region Items Section
+        private void DrawItemsSection(float panelWidth = 0)
+        {
+            // Fixed columns: icon=36, total=52, goal=56, remove=30, padding=24
+            // Remaining space split ~40% name popup, ~60% amount slider
+            const float iconW      = 36f;
+            const float totalW     = 64f;
+            const float goalW      = 56f;
+            const float removeW    = 30f;
+            const float fixedW     = iconW + totalW + goalW + removeW + 24f;
+            // Subtract card padding (12+12) + card margin (4+4) + a few px of GUILayout inter-element spacing
+            const float cardOverhead = 40f;
+            var drawableW = Mathf.Max(0f, panelWidth - cardOverhead);
+            var flex      = Mathf.Max(60f, drawableW - fixedW);
+            var nameW     = Mathf.Max(80f, flex * 0.38f);
+            var sliderW   = Mathf.Max(80f, flex * 0.62f);
+
+            // Item list uses a fixed height in the scrollable detail view
+            var scrollH  = 200f;
+
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Configured Items", _subHeaderStyle);
+            GUILayout.FlexibleSpace();
+            GUILayout.EndHorizontal();
+            GUILayout.Space(8);
+
+            // Early-out: show placeholder WITHOUT returning (BeginCard is open in the caller)
+            if (_selectedLevel.itemData == null || _selectedLevel.itemData.Count == 0)
+            {
+                GUI.color = TextMuted;
+                GUILayout.Label("No items yet. Click '+ Add Item' to begin.", EditorStyles.centeredGreyMiniLabel);
+                GUI.color = Color.white;
+                // do NOT return — let the method exit normally so the caller's EndCard() runs
+                return;
+            }
+
+            // Header row
+            EditorGUI.DrawRect(GUILayoutUtility.GetRect(0, 1), new Color(0.15f, 0.15f, 0.18f));
+            GUILayout.BeginHorizontal(GUILayout.Height(24));
+            
+            GUILayout.BeginVertical(GUILayout.Height(24)); 
+            GUILayout.Space(4); // Fixed padding for optical text centering
+            GUILayout.BeginHorizontal();
+            GUI.color = TextMuted;
+            var centeredLabel = new GUIStyle(EditorStyles.label) { alignment = TextAnchor.MiddleCenter };
+            GUILayout.Label("",           centeredLabel, GUILayout.Width(iconW));
+            GUILayout.Label("Item",       centeredLabel, GUILayout.Width(nameW));
+            GUILayout.Label("Amount",     centeredLabel, GUILayout.Width(sliderW));
+            GUILayout.Label("Multiplier", centeredLabel, GUILayout.Width(totalW));
+            GUILayout.Label("Goal?",      centeredLabel, GUILayout.Width(goalW));
+            GUILayout.Label("",           centeredLabel, GUILayout.Width(removeW));
+            GUI.color = Color.white;
+            GUILayout.EndHorizontal();
+            GUILayout.EndVertical();
+            
+            GUILayout.EndHorizontal();
+            EditorGUI.DrawRect(GUILayoutUtility.GetRect(0, 1), new Color(0.15f, 0.15f, 0.18f));
+            GUILayout.Space(4);
+
+            // Pending change — applied AFTER the scroll view closes to avoid GUILayout mismatch
+            var pendingChangeIndex   = -1;
+            ItemLevelData pendingEntry = default;
+            var removeIndex          = -1;
+
+            _itemListScroll = GUILayout.BeginScrollView(_itemListScroll, GUILayout.Height(scrollH));
+
+            for (var i = 0; i < _selectedLevel.itemData.Count; i++)
+            {
+                var entry = _selectedLevel.itemData[i];
+                var rowStyle = i % 2 == 0 ? _rowStyleEven : _rowStyleOdd;
+
+                // Begin the row group with the pre-baked background style
+                GUILayout.BeginHorizontal(rowStyle, GUILayout.Height(38));
+
+                // Icon - vertically centered
+                GUILayout.Space(6);
+                GUILayout.BeginVertical(GUILayout.Height(38)); 
+                GUILayout.Space(4); // (38-30)/2 = 4px padding
+                if (entry.itemPrefab)
+                    GUILayout.Label(GetItemIcon(entry.itemPrefab.gameObject), GUILayout.Width(iconW - 6), GUILayout.Height(30));
+                else
+                    GUILayout.Label("◉", GUILayout.Width(iconW - 6), GUILayout.Height(30));
+                GUILayout.EndVertical();
+
+                // Group the remaining controls and center them vertically
+                GUILayout.BeginVertical(GUILayout.Height(38)); 
+                GUILayout.Space(11); // Push down by 11px for optical Midline centering of 18px controls
+                GUILayout.BeginHorizontal();
+
+                // Item popup — read only, queue change
+                var currentIdx   = _itemPrefabs.FindIndex(p => p == entry.itemPrefab?.gameObject);
+                var newIdx = EditorGUILayout.Popup(currentIdx, _itemPrefabNames, GUILayout.Width(nameW));
+                if (newIdx != currentIdx && newIdx >= 0)
+                {
+                    var itemComp = _itemPrefabs[newIdx].GetComponent<Item>();
+                    entry.itemPrefab = itemComp;
+                    pendingEntry = entry;
+                    pendingChangeIndex = i;
+                }
+
+                // Amount slider — read only, queue change
+                var rawAmt  = EditorGUILayout.IntSlider(entry.amount, 3, 30, GUILayout.Width(sliderW));
+                var snapped = Mathf.Max(3, Mathf.RoundToInt(rawAmt / 3f) * 3);
+                if (snapped != entry.amount)
+                {
+                    entry.amount = snapped;
+                    if (pendingChangeIndex != i) { pendingEntry = entry; pendingChangeIndex = i; }
+                    else pendingEntry.amount = snapped;
+                }
+
+                // Multiplier
+                var displayMult = (pendingChangeIndex == i) ? pendingEntry.multiplier : entry.multiplier;
+                var rawMult = EditorGUILayout.IntField(displayMult, GUILayout.Width(totalW));
+                if (rawMult != entry.multiplier)
+                {
+                    entry.multiplier = Mathf.Max(1, rawMult); // ensure it's at least 1
+                    if (pendingChangeIndex != i) { pendingEntry = entry; pendingChangeIndex = i; }
+                    else pendingEntry.multiplier = entry.multiplier;
+                }
+
+                // Goal toggle — queue change
+                var wasGoal = entry.isGoal;
+                var displayGoal = (pendingChangeIndex == i) ? pendingEntry.isGoal : wasGoal;
+                bool newGoal;
+                if (displayGoal)
+                {
+                    var savedBg = GUI.backgroundColor;
+                    GUI.backgroundColor = GoalBadgeColor;
+                    newGoal = GUILayout.Toggle(displayGoal, "GOAL", _goalBadgeStyle, GUILayout.Width(goalW));
+                    GUI.backgroundColor = savedBg;
+                }
+                else
+                {
+                    newGoal = GUILayout.Toggle(displayGoal, "goal", EditorStyles.miniButton, GUILayout.Width(goalW));
+                }
+                if (newGoal != wasGoal)
+                {
+                    entry.isGoal = newGoal;
+                    if (pendingChangeIndex != i) { pendingEntry = entry; pendingChangeIndex = i; }
+                    else pendingEntry.isGoal = newGoal;
+                }
+
+                GUILayout.EndHorizontal();
+                GUILayout.EndVertical();
+
+                // Remove - vertically centered for 24px height (38-24)/2 = 7px
+                GUILayout.BeginVertical(GUILayout.Height(38));
+                GUILayout.Space(7);
+                GUI.color = AccentRed;
+                if (GUILayout.Button("✕", GUILayout.Width(removeW), GUILayout.Height(24)))
+                    removeIndex = i;
+                GUI.color = Color.white;
+                GUILayout.EndVertical();
+
+                GUILayout.EndHorizontal();
+            }
+            GUILayout.EndScrollView();
+
+            // Apply all pending mutations now that all layout groups are closed
+            if (pendingChangeIndex >= 0)
+            {
+                Undo.RecordObject(_selectedLevel, "Edit Item");
+                _selectedLevel.itemData[pendingChangeIndex] = pendingEntry;
+                MarkDirty();
+            }
+
+            if (removeIndex >= 0)
+            {
+                Undo.RecordObject(_selectedLevel, "Remove Item");
+                _selectedLevel.itemData.RemoveAt(removeIndex);
+                MarkDirty();
+                GUIUtility.ExitGUI();
+            }
+        }
+        #endregion
+
+        #region Level Summary
+        private void DrawLevelSummary(float panelWidth = 0)
+        {
+            if (_selectedLevel?.itemData == null) return; // safe: no BeginCard open here
+
+            if (_summaryDirty || _lastSummaryLevel != _selectedLevel)
+            {
+                _cachedTotalItems = _selectedLevel.itemData.AsValueEnumerable().Sum(i => i.amount);
+                _cachedGoalItems  = _selectedLevel.itemData.AsValueEnumerable().Where(i => i.isGoal).Sum(i => i.amount);
+                _cachedGoalTypes  = _selectedLevel.itemData.AsValueEnumerable().Count(i => i.isGoal);
+                _cachedValid      = _selectedLevel.itemData.Count > 0 && _cachedGoalTypes > 0;
+                
+                _lastSummaryLevel = _selectedLevel;
+                _summaryDirty = false;
+            }
+
+            // Stat block width scales: 4 stats share 55% of panel, rest goes to validation label
+            var statW = Mathf.Max(70f, panelWidth * 0.55f / 4f);
+
+            BeginCard();
+            GUILayout.BeginHorizontal();
+
+            DrawStat("Total Items", _cachedTotalItems.ToString(), AccentBlue,    statW);
+            DrawStat("Goal Items",  _cachedGoalItems.ToString(),  AccentGreen,   statW);
+            DrawStat("Goal Types",  _cachedGoalTypes.ToString(),  AccentOrange,  statW);
+            DrawStat("Duration",    $"{_selectedLevel.duration}s", new Color(0.7f, 0.5f, 1f), statW);
+
+            GUILayout.FlexibleSpace();
+
+            if (_cachedValid)
+            {
+                GUI.color = AccentGreen;
+                GUILayout.Label("✔ Valid level", EditorStyles.boldLabel, GUILayout.Height(40));
+            }
+            else
+            {
+                GUI.color = AccentRed;
+                GUILayout.Label("⚠ Needs at least 1 goal", EditorStyles.boldLabel, GUILayout.Height(40));
+            }
+            GUI.color = Color.white;
+
+            GUILayout.Space(4);
+            GUILayout.EndHorizontal(); // ← must close Horizontal BEFORE EndCard (EndVertical)
+            EndCard();
+        }
+        #endregion
+
+        #region Tutorial Section
+        private void DrawTutorialSection(float panelWidth)
+        {
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Tutorial Steps", _subHeaderStyle);
+            GUILayout.FlexibleSpace();
+            
+            GUI.color = AccentBlue;
+            if (GUILayout.Button("+ Add Step", GUILayout.Width(90), GUILayout.Height(22)))
+            {
+                Undo.RecordObject(_selectedLevel, "Add Tutorial Step");
+                _selectedLevel.tutorialSteps ??= new List<TutorialStep>();
+                _selectedLevel.tutorialSteps.Add(new TutorialStep());
+                MarkDirty();
+            }
+            GUI.color = Color.white;
+            GUILayout.EndHorizontal();
+            GUILayout.Space(8);
+
+            if (_selectedLevel.tutorialSteps == null || _selectedLevel.tutorialSteps.Count == 0)
+            {
+                GUI.color = TextMuted;
+                GUILayout.Label("No tutorial steps for this level.", EditorStyles.centeredGreyMiniLabel);
+                GUI.color = Color.white;
+                return;
+            }
+
+            var labelW = Mathf.Clamp(panelWidth * 0.22f, 120f, 220f);
+            var stepsToRemove = new List<int>();
+
+            for (int i = 0; i < _selectedLevel.tutorialSteps.Count; i++)
+            {
+                var step = _selectedLevel.tutorialSteps[i];
+                
+                GUILayout.BeginVertical("box");
+                
+                GUILayout.BeginHorizontal();
+                GUILayout.Label($"Step {i + 1}", EditorStyles.boldLabel);
+                GUILayout.FlexibleSpace();
+                GUI.color = AccentRed;
+                if (GUILayout.Button("✕", GUILayout.Width(24), GUILayout.Height(20)))
+                {
+                    stepsToRemove.Add(i);
+                }
+                GUI.color = Color.white;
+                GUILayout.EndHorizontal();
+
+                EditorGUI.BeginChangeCheck();
+
+                GUILayout.BeginHorizontal();
+                GUILayout.Label("Message", GUILayout.Width(labelW));
+                step.message = EditorGUILayout.TextArea(step.message, GUILayout.Height(40));
+                GUILayout.EndHorizontal();
+
+                GUILayout.BeginHorizontal();
+                GUILayout.Label("Highlight Target", GUILayout.Width(labelW));
+                step.highlightTarget = (EHighlightTarget)EditorGUILayout.EnumPopup(step.highlightTarget);
+                GUILayout.EndHorizontal();
+
+                if (step.highlightTarget == EHighlightTarget.SpecificItem || 
+                    step.highlightTarget == EHighlightTarget.GoalCard)
+                {
+                    GUILayout.BeginHorizontal();
+                    GUILayout.Label("Item Name", GUILayout.Width(labelW));
+                    step.itemName = (EItemName)EditorGUILayout.EnumPopup(step.itemName);
+                    GUILayout.EndHorizontal();
+                }
+                else if (step.highlightTarget == EHighlightTarget.Powerup)
+                {
+                    GUILayout.BeginHorizontal();
+                    GUILayout.Label("Powerup Id", GUILayout.Width(labelW));
+                    step.powerupId = EditorGUILayout.TextField(step.powerupId);
+                    GUILayout.EndHorizontal();
+                }
+                else if (step.highlightTarget == EHighlightTarget.Manual)
+                {
+                    GUILayout.BeginHorizontal();
+                    GUILayout.Label("Manual Targets", GUILayout.Width(labelW));
+                    GUILayout.BeginVertical();
+                    step.manualTargets ??= new List<GameObject>();
+                    
+                    for (int j = 0; j < step.manualTargets.Count; j++)
+                    {
+                        GUILayout.BeginHorizontal();
+                        step.manualTargets[j] = (GameObject)EditorGUILayout.ObjectField(step.manualTargets[j], typeof(GameObject), true);
+                        if (GUILayout.Button("-", GUILayout.Width(20)))
+                        {
+                            step.manualTargets.RemoveAt(j);
+                            j--;
+                        }
+                        GUILayout.EndHorizontal();
+                    }
+                    if (GUILayout.Button("+ Add Target", GUILayout.Width(100)))
+                    {
+                        step.manualTargets.Add(null);
+                    }
+                    GUILayout.EndVertical();
+                    GUILayout.EndHorizontal();
+                }
+
+                GUILayout.BeginHorizontal();
+                GUILayout.Label("Completion Condition", GUILayout.Width(labelW));
+                step.completionCondition = (ECompletionCondition)EditorGUILayout.EnumPopup(step.completionCondition);
+                GUILayout.EndHorizontal();
+
+                if (step.completionCondition == ECompletionCondition.OnTimer)
+                {
+                    GUILayout.BeginHorizontal();
+                    GUILayout.Label("Auto Complete Delay", GUILayout.Width(labelW));
+                    step.autoCompleteDelay = EditorGUILayout.FloatField(step.autoCompleteDelay);
+                    GUILayout.EndHorizontal();
+                }
+
+                GUILayout.BeginHorizontal();
+                GUILayout.Label("Start Delay", GUILayout.Width(labelW));
+                step.startDelay = EditorGUILayout.FloatField(step.startDelay);
+                GUILayout.EndHorizontal();
+
+                GUILayout.BeginHorizontal();
+                GUILayout.Label("Pause Timer", GUILayout.Width(labelW));
+                step.pauseTimer = EditorGUILayout.Toggle(step.pauseTimer);
+                GUILayout.EndHorizontal();
+
+                if (EditorGUI.EndChangeCheck())
+                {
+                    Undo.RecordObject(_selectedLevel, "Edit Tutorial Step");
+                    MarkDirty();
+                }
+
+                GUILayout.EndVertical();
+                GUILayout.Space(8);
+            }
+
+            if (stepsToRemove.Count > 0)
+            {
+                Undo.RecordObject(_selectedLevel, "Remove Tutorial Step");
+                for (int i = stepsToRemove.Count - 1; i >= 0; i--)
+                {
+                    _selectedLevel.tutorialSteps.RemoveAt(stepsToRemove[i]);
+                }
+                MarkDirty();
+            }
+        }
+        #endregion
+
+        #region Utilities
+        private static void DrawStat(string label, string value, Color color, float width = 100f)
+        {
+            GUILayout.BeginVertical(GUILayout.Width(width));
+            GUI.color = color;
+            GUILayout.Label(value, new GUIStyle(EditorStyles.boldLabel) { fontSize = 20 }, GUILayout.Height(24));
+            GUI.color = TextMuted;
+            GUILayout.Label(label, EditorStyles.miniLabel);
+            GUI.color = Color.white;
+            GUILayout.EndVertical();
+        }
+
+        // ── Empty State ──────────────────────────────────────────────────────
+        private static void DrawEmptyState()
+        {
+            GUILayout.FlexibleSpace();
+            GUILayout.BeginHorizontal();
+            GUILayout.FlexibleSpace();
+            GUILayout.BeginVertical(GUILayout.Width(300));
+            GUI.color = new Color(0.4f, 0.4f, 0.45f);
+            GUILayout.Label("Select a level on the left\nor create a new one.", 
+                new GUIStyle(EditorStyles.centeredGreyMiniLabel) { fontSize = 13 },
+                GUILayout.Height(60));
+            GUI.color = Color.white;
+            GUILayout.EndVertical();
+            GUILayout.FlexibleSpace();
+            GUILayout.EndHorizontal();
+            GUILayout.FlexibleSpace();
+        }
+
+        #region Item Library Section
+        private Vector2 _libraryScroll;
+
+        private void DrawItemLibrarySection(float panelWidth)
+        {
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Prefab Library", _subHeaderStyle);
+            GUILayout.FlexibleSpace();
+            
+            // Search bar
+            GUILayout.Label("Search:", GUILayout.Width(50));
+            EditorGUI.BeginChangeCheck();
+            _itemSearchQuery = EditorGUILayout.TextField(_itemSearchQuery, GUILayout.Width(150));
+            if (GUILayout.Button("✕", GUILayout.Width(22)))
+            {
+                _itemSearchQuery = "";
+                GUI.FocusControl(null);
+            }
+            bool searchChanged = EditorGUI.EndChangeCheck();
+            GUILayout.EndHorizontal();
+            
+            GUILayout.Space(8);
+
+            if (searchChanged || _lastItemSearchQuery != _itemSearchQuery)
+            {
+                _lastItemSearchQuery = _itemSearchQuery;
+                _filteredLibraryItems = _itemPrefabs.AsValueEnumerable().Where(p =>
+                    string.IsNullOrEmpty(_itemSearchQuery) ||
+                    p.name.IndexOf(_itemSearchQuery, StringComparison.OrdinalIgnoreCase) >= 0).ToList();
+            }
+
+            if (_filteredLibraryItems.Count == 0)
+            {
+                GUI.color = TextMuted;
+                GUILayout.Label("No prefabs found matching search.", EditorStyles.centeredGreyMiniLabel);
+                GUI.color = Color.white;
+                return;
+            }
+
+            // Fixed height for the library
+            _libraryScroll = GUILayout.BeginScrollView(_libraryScroll, GUILayout.Height(240));
+
+            // Subtract card padding/margin overhead
+            var drawableW = Mathf.Max(100f, panelWidth - 40f);
+            int columns = Mathf.Max(1, Mathf.FloorToInt(drawableW / 75f));
+
+            int i = 0;
+            GameObject pendingDeletePrefab = null;
+
+            GUILayout.BeginHorizontal();
+            foreach (var prefab in _filteredLibraryItems)
+            {
+                if (i > 0 && i % columns == 0)
+                {
+                    GUILayout.EndHorizontal();
+                    GUILayout.Space(8);
+                    GUILayout.BeginHorizontal();
+                }
+
+                GUILayout.BeginVertical(GUILayout.Width(70), GUILayout.Height(90));
+                
+                var itemComp = prefab.GetComponent<Item>();
+                Texture tex = GetItemIcon(prefab);
+                var rect = GUILayoutUtility.GetRect(64, 64);
+                var deleteRect = new Rect(rect.xMax - 18, rect.yMin + 2, 16, 16);
+                
+                // Disable the main button if we are hovering the delete button so the click passes through
+                var e = Event.current;
+                bool isHoveringDelete = deleteRect.Contains(e.mousePosition);
+                
+                EditorGUI.BeginDisabledGroup(isHoveringDelete);
+                if (GUI.Button(rect, tex))
+                {
+                    AddItem(prefab);
+                }
+                EditorGUI.EndDisabledGroup();
+                
+                GUI.color = AccentRed;
+                if (GUI.Button(deleteRect, "✕", _iconCardSmallButtonStyle))
+                {
+                    pendingDeletePrefab = prefab;
+                }
+                GUI.color = Color.white;
+
+                if (e.type == EventType.ContextClick && rect.Contains(e.mousePosition))
+                {
+                    var menu = new GenericMenu();
+                    var capturedItem = itemComp; // Item on this prefab, for the permanent-delete closure
+                    menu.AddItem(new GUIContent("Move to Trash"), false, () => { SoftDeleteItem(prefab); GUIUtility.ExitGUI(); });
+                    menu.AddItem(new GUIContent("Delete Permanently…"), false, () => { HardDeleteItem(capturedItem); GUIUtility.ExitGUI(); });
+                    menu.ShowAsContext();
+                    e.Use();
+                }
+
+                GUILayout.Label(prefab.name, _iconCardLabelStyle, GUILayout.Width(64));
+                
+                GUILayout.EndVertical();
+                i++;
+            }
+            GUILayout.EndHorizontal();
+            
+            GUILayout.EndScrollView();
+
+            if (pendingDeletePrefab)
+            {
+                SoftDeleteItem(pendingDeletePrefab);
+                GUIUtility.ExitGUI();
+            }
+            
+            GUILayout.Space(12);
+            DrawTrashLibrarySection(panelWidth);
+            DrawItemReferenceValidator();
+        }
+
+        private Vector2 _trashScroll;
+
+        private void DrawTrashLibrarySection(float panelWidth)
+        {
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Trash Bin", _subHeaderStyle);
+            GUILayout.FlexibleSpace();
+            GUILayout.EndHorizontal();
+            
+            GUILayout.Space(8);
+
+            if (_trashPrefabs == null || _trashPrefabs.Count == 0)
+            {
+                GUI.color = TextMuted;
+                GUILayout.Label("Trash is empty.", EditorStyles.centeredGreyMiniLabel);
+                GUI.color = Color.white;
+                return;
+            }
+
+            _trashScroll = GUILayout.BeginScrollView(_trashScroll, GUILayout.Height(140));
+
+            float drawableW = Mathf.Max(100f, panelWidth - 40f);
+            int columns = Mathf.Max(1, Mathf.FloorToInt(drawableW / 75f));
+
+            int i = 0;
+            var pendingRestorePrefab = (GameObject)null;
+            var pendingPermanentDelete = (GameObject)null;
+
+            GUILayout.BeginHorizontal();
+            foreach (var prefab in _trashPrefabs)
+            {
+                if (i > 0 && i % columns == 0)
+                {
+                    GUILayout.EndHorizontal();
+                    GUILayout.Space(8);
+                    GUILayout.BeginHorizontal();
+                }
+
+                GUILayout.BeginVertical(GUILayout.Width(70), GUILayout.Height(90));
+                
+                Texture tex = GetItemIcon(prefab);
+                
+                var rect = GUILayoutUtility.GetRect(64, 64);
+                var restoreRect = new Rect(rect.xMax - 18, rect.yMin + 2, 16, 16);
+                
+                // Dim item to show it's in trash
+                GUI.color = new Color(0.6f, 0.6f, 0.6f, 0.8f);
+                GUI.DrawTexture(rect, tex, ScaleMode.ScaleToFit);
+                GUI.color = Color.white;
+                
+                GUI.color = AccentGreen;
+                if (GUI.Button(restoreRect, "⟲", _iconCardSmallButtonStyle))
+                {
+                    pendingRestorePrefab = prefab;
+                }
+                GUI.color = Color.white;
+
+                var permRect = new Rect(rect.xMin + 2, rect.yMin + 2, 16, 16);
+                GUI.color = AccentRed;
+                if (GUI.Button(permRect, "⌫", _iconCardSmallButtonStyle))
+                {
+                    pendingPermanentDelete = prefab;
+                }
+                GUI.color = Color.white;
+
+                GUILayout.Label(prefab.name, _iconCardLabelStyle, GUILayout.Width(64));
+                
+                GUILayout.EndVertical();
+                i++;
+            }
+            GUILayout.EndHorizontal();
+            
+            GUILayout.EndScrollView();
+
+            if (pendingRestorePrefab)
+            {
+                RestoreFromTrash(pendingRestorePrefab);
+                GUIUtility.ExitGUI();
+            }
+
+            if (pendingPermanentDelete)
+            {
+                HardDeleteItem(pendingPermanentDelete.GetComponent<Item>());
+                GUIUtility.ExitGUI();
+            }
+        }
+
+        private void DrawItemReferenceValidator()
+        {
+            GUILayout.Space(12);
+            GUILayout.Label("Item Reference Health", _subHeaderStyle);
+            GUILayout.Space(4);
+
+            if (GUILayout.Button("Check item references", GUILayout.Width(180)))
+                _brokenRefs = ItemReferenceOps.FindBrokenReferences();
+
+            if (_brokenRefs == null) return;
+
+            if (_brokenRefs.Count == 0)
+            {
+                GUI.color = AccentGreen;
+                GUILayout.Label("✓ No broken item references.", EditorStyles.wordWrappedLabel);
+                GUI.color = Color.white;
+                return;
+            }
+
+            GUI.color = AccentOrange;
+            GUILayout.Label($"⚠ {_brokenRefs.Count} broken item reference(s) found:", EditorStyles.wordWrappedLabel);
+            GUI.color = Color.white;
+            foreach (var (level, index, levelName) in _brokenRefs)
+                GUILayout.Label($"  • {levelName} → slot #{index}: missing item", EditorStyles.miniLabel);
+
+            GUILayout.Space(4);
+            if (GUILayout.Button("Remove all broken entries", GUILayout.Width(200)))
+            {
+                int n = ItemReferenceOps.RemoveBrokenReferences(registerUndo: true);
+                AssetDatabase.SaveAssets();
+                LoadAll();
+                _brokenRefs = ItemReferenceOps.FindBrokenReferences();
+                Debug.Log($"[Template Editor] Removed {n} broken item reference(s).");
+            }
+        }
+        #endregion
+
+        /// <summary>Resolved icon texture for an item: its generated icon, else the prefab preview, else black.</summary>
+        private Texture GetItemIcon(GameObject prefab)
+        {
+            var itemComp = prefab ? prefab.GetComponent<Item>() : null;
+            if (itemComp && itemComp.Icon) return itemComp.Icon.texture;
+            var preview = AssetPreview.GetAssetPreview(prefab);
+            return preview ? preview : Texture2D.blackTexture;
+        }
+
+        private void SoftDeleteItem(GameObject prefab)
+        {
+            var itemComp = prefab.GetComponent<Item>();
+            // One scan of all levels, reused for both the count and the removal (no double scan).
+            var allLevels = ItemReferenceOps.FindAllLevels();
+            var refs = ItemReferenceOps.FindReferencingLevels(allLevels, itemComp);
+            // Count DISTINCT levels (an item may appear more than once in one level).
+            int usedLevels = refs.AsValueEnumerable().Select(r => r.level).Distinct().Count();
+
+            string warning = $"Are you sure you want to delete '{prefab.name}'? It will be moved to the Trash folder.";
+            if (usedLevels > 0)
+            {
+                warning += $"\n\n⚠ It is currently used in {usedLevels} level(s). Deleting it will remove it from those levels. You can undo this action later.";
+            }
+
+            if (!EditorUtility.DisplayDialog("Delete Item", warning, "Delete", "Cancel"))
+                return;
+
+            if (!AssetDatabase.IsValidFolder(ItemReferenceOps.ItemTrashFolder))
+                AssetDatabase.CreateFolder(ItemReferenceOps.ItemPrefabFolder, "Trash");
+
+            var record = new DeletedItemRecord
+            {
+                originalPrefabPath = AssetDatabase.GetAssetPath(prefab),
+                trashPrefabPath = AssetDatabase.GenerateUniqueAssetPath($"{ItemReferenceOps.ItemTrashFolder}/{prefab.name}.prefab"),
+            };
+
+            // Move the prefab FIRST. If it fails (file locked, VCS checkout, invalid target) we must NOT
+            // scrub level references or record an undo entry — otherwise the item is stranded: removed
+            // from levels, never trashed, and un-restorable.
+            string moveError = AssetDatabase.MoveAsset(record.originalPrefabPath, record.trashPrefabPath);
+            if (!string.IsNullOrEmpty(moveError))
+            {
+                Debug.LogError($"[Template Editor] Failed to move prefab to trash: {moveError}");
+                EditorUtility.DisplayDialog("Delete Item",
+                    $"Could not move '{prefab.name}' to Trash:\n{moveError}\n\nNo changes were made.", "OK");
+                // Nothing was modified yet (no level removal, no record) — just refresh and abort.
+                LoadAll();
+                Repaint();
+                return;
+            }
+
+            // Prefab moved successfully — now safe to scrub level references and record undo.
+            var capture = new List<(LevelDataSO level, int index, ItemLevelData entry)>();
+            ItemReferenceOps.RemoveFromLevels(allLevels, itemComp, registerUndo: true, capture: capture);
+            foreach (var (level, index, entry) in capture)
+            {
+                record.removedFromLevels.Add(new RemovedLevelEntry
+                {
+                    levelGuid = AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(level)),
+                    index = index,
+                    isGoal = entry.isGoal,
+                    multiplier = entry.multiplier,
+                    amount = entry.amount,
+                });
+            }
+
+            // Move the icon (if any) — resolve its REAL path from the Item's serialized icon reference,
+            // not a name convention: the file may have been renamed or be a shared sprite, in which case the
+            // convention guess would silently skip the move and strand the icon. Only trash icons that live
+            // under the generated-icons folder (mirrors HardDelete's IsIconSafeToDelete guard).
+            if (itemComp && itemComp.Icon)
+            {
+                string originalIconPath = AssetDatabase.GetAssetPath(itemComp.Icon);
+                if (!string.IsNullOrEmpty(originalIconPath)
+                    && originalIconPath.StartsWith(ItemReferenceOps.IconsFolder + "/")
+                    && !originalIconPath.StartsWith(ItemReferenceOps.IconsTrashFolder + "/"))
+                {
+                    if (!AssetDatabase.IsValidFolder(ItemReferenceOps.IconsTrashFolder))
+                        AssetDatabase.CreateFolder(ItemReferenceOps.IconsFolder, "Trash");
+
+                    record.originalIconPath = originalIconPath;
+                    record.trashIconPath = AssetDatabase.GenerateUniqueAssetPath($"{ItemReferenceOps.IconsTrashFolder}/{Path.GetFileName(originalIconPath)}");
+
+                    string iconError = AssetDatabase.MoveAsset(originalIconPath, record.trashIconPath);
+                    if (!string.IsNullOrEmpty(iconError)) Debug.LogError($"[Template Editor] Failed to move icon to trash: {iconError}");
+                }
+            }
+
+            _deletedRecords.Add(record);
+            SaveTrashUndo();
+
+            AssetDatabase.SaveAssets();
+            LoadAll();
+            Repaint();
+        }
+
+        /// <summary>
+        /// Permanently delete an item: removes it from all levels, deletes its icon (only if it is the
+        /// item's own generated icon and unused elsewhere), deletes the prefab, and drops any trash-undo
+        /// record so it cannot be restored. Irreversible — gated by a confirm dialog. No Undo by design;
+        /// use Move to Trash (SoftDeleteItem) for a reversible delete.
+        /// </summary>
+        private void HardDeleteItem(Item item)
+        {
+            if (!item)
+            {
+                // A prefab missing its Item component should explain itself, not silently no-op.
+                EditorUtility.DisplayDialog("Delete Permanently",
+                    "This item prefab has no Item component, so it cannot be deleted from here.", "OK");
+                return;
+            }
+
+            string prefabPath = AssetDatabase.GetAssetPath(item.gameObject);
+            if (string.IsNullOrEmpty(prefabPath))
+            {
+                EditorUtility.DisplayDialog("Delete Permanently",
+                    $"Could not resolve the asset path for '{item.name}'.\nIs it a saved prefab asset?", "OK");
+                return;
+            }
+
+            // One scan, reused for both the reference count and the removal.
+            var allLevels = ItemReferenceOps.FindAllLevels();
+            var refs = ItemReferenceOps.FindReferencingLevels(allLevels, item);
+            int usedLevels = refs.AsValueEnumerable().Select(r => r.level).Distinct().Count();
+            bool iconSafe = ItemReferenceOps.IsIconSafeToDelete(item);
+            string iconNote = iconSafe ? ", its icon" : "";
+            string msg = $"Permanently delete '{item.name}'?\n\n" +
+                         $"This removes the prefab{iconNote} and its reference(s) in {usedLevels} level(s).\n" +
+                         "This CANNOT be undone. (Use Move to Trash if you want it reversible.)";
+            if (!EditorUtility.DisplayDialog("Delete Permanently", msg, "Delete permanently", "Cancel"))
+                return;
+
+            try
+            {
+                // 1. Scrub level references (no Undo — the whole operation is irreversible by design).
+                ItemReferenceOps.RemoveFromLevels(allLevels, item, registerUndo: false);
+
+                // 2. Delete the icon only if it's this item's own generated icon and unused elsewhere.
+                if (iconSafe && item.Icon != null)
+                {
+                    string iconPath = AssetDatabase.GetAssetPath(item.Icon);
+                    if (!string.IsNullOrEmpty(iconPath))
+                        AssetDatabase.DeleteAsset(iconPath);
+                }
+
+                // 3. Delete the prefab (works whether it is live or already in a Trash folder).
+                AssetDatabase.DeleteAsset(prefabPath);
+
+                // 4. Drop any trash-undo record so the item cannot be restored.
+                _deletedRecords.RemoveAll(r => r.originalPrefabPath == prefabPath || r.trashPrefabPath == prefabPath);
+                SaveTrashUndo();
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"[Template Editor] HardDeleteItem failed for '{item.name}': {e}");
+            }
+
+            AssetDatabase.SaveAssets();
+            LoadAll();
+            Repaint();
+        }
+
+        private void RestoreFromTrash(GameObject trashPrefab)
+        {
+            string trashPrefabPath = AssetDatabase.GetAssetPath(trashPrefab);
+            string originalPrefabPath = $"{ItemReferenceOps.ItemPrefabFolder}/{trashPrefab.name}.prefab";
+
+            var record = _deletedRecords.AsValueEnumerable().FirstOrDefault(r => r.trashPrefabPath == trashPrefabPath);
+
+            // Move the PREFAB back first — it is the anchor. If it is missing or the move fails, abort
+            // BEFORE touching the icon, so we never leave a restored icon with no prefab referencing it.
+            if (!AssetDatabase.LoadMainAssetAtPath(trashPrefabPath))
+            {
+                Debug.LogError($"[Template Editor] Restore aborted: trashed prefab not found at {trashPrefabPath}");
+                return;
+            }
+            string prefabError = AssetDatabase.MoveAsset(trashPrefabPath, originalPrefabPath);
+            if (!string.IsNullOrEmpty(prefabError))
+            {
+                Debug.LogError($"[Template Editor] Restore aborted, prefab move failed: {prefabError}");
+                return;
+            }
+
+            // Prefab restored — now bring the icon back (secondary; warn-only on failure). Use the record's
+            // captured icon paths when available (robust); fall back to the name convention if no record.
+            string trashIconPath = record != null && !string.IsNullOrEmpty(record.trashIconPath)
+                ? record.trashIconPath
+                : $"{ItemReferenceOps.IconsTrashFolder}/icon_{trashPrefab.name.ToLowerInvariant()}.png";
+            string originalIconPath = record != null && !string.IsNullOrEmpty(record.originalIconPath)
+                ? record.originalIconPath
+                : $"{ItemReferenceOps.IconsFolder}/icon_{trashPrefab.name.ToLowerInvariant()}.png";
+
+            if (AssetDatabase.LoadMainAssetAtPath(trashIconPath))
+            {
+                string iconError = AssetDatabase.MoveAsset(trashIconPath, originalIconPath);
+                if (!string.IsNullOrEmpty(iconError)) Debug.LogWarning($"[Template Editor] Could not restore icon: {iconError}");
+            }
+
+            // Re-add to levels from the stored undo record (if any). The Item prefab reference is
+            // re-resolved from the restored prefab, never trusted from the captured record.
+            if (record != null)
+            {
+                var restoredPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(originalPrefabPath);
+                var itemComp = restoredPrefab ? restoredPrefab.GetComponent<Item>() : null;
+                if (!itemComp)
+                    Debug.LogWarning($"[Template Editor] Restored '{trashPrefab.name}' has no Item component; skipped level re-attach.");
+
+                foreach (var e in record.removedFromLevels)
+                {
+                    var level = AssetDatabase.LoadAssetAtPath<LevelDataSO>(AssetDatabase.GUIDToAssetPath(e.levelGuid));
+                    if (!level || !itemComp) continue;
+                    Undo.RecordObject(level, "Restore Deleted Item");
+                    level.itemData ??= new List<ItemLevelData>();
+                    level.itemData.Insert(Mathf.Clamp(e.index, 0, level.itemData.Count), new ItemLevelData { itemPrefab = itemComp, isGoal = e.isGoal, multiplier = e.multiplier, amount = e.amount });
+                    EditorUtility.SetDirty(level);
+                }
+                _deletedRecords.Remove(record);
+                SaveTrashUndo();
+            }
+            else
+            {
+                Debug.LogWarning($"[Template Editor] Restored '{trashPrefab.name}' but no undo record exists (deleted before this session or record lost). Re-add it to levels manually if needed.");
+            }
+
+            AssetDatabase.SaveAssets();
+            LoadAll();
+            Repaint();
+        }
+
+        private void SaveTrashUndo()
+        {
+            if (_deletedRecords.Count == 0) { SessionState.EraseString(TrashUndoSessionKey); return; }
+            SessionState.SetString(TrashUndoSessionKey, JsonUtility.ToJson(new DeletedItemRecordList { records = _deletedRecords }));
+        }
+
+        private void LoadTrashUndo()
+        {
+            _deletedRecords.Clear();
+            var json = SessionState.GetString(TrashUndoSessionKey, "");
+            if (string.IsNullOrEmpty(json)) return;
+            var wrapper = JsonUtility.FromJson<DeletedItemRecordList>(json);
+            if (wrapper?.records != null) _deletedRecords.AddRange(wrapper.records);
+        }
+
+        private void AddItem(GameObject prefab)
+        {
+            Undo.RecordObject(_selectedLevel, "Add Item");
+            _selectedLevel.itemData ??= new List<ItemLevelData>();
+            var itemComp = prefab.GetComponent<Item>();
+            _selectedLevel.itemData.Add(new ItemLevelData
+            {
+                itemPrefab = itemComp,
+                amount = 3,
+                isGoal = false,
+                multiplier = 1
+            });
+            MarkDirty();
+            Repaint();
+        }
+
+        // ── CRUD Operations ───────────────────────────────────────────────────
+        /// <summary>
+        /// Picks a default name for a new level: "LevelData{N}" where N = max trailing number across
+        /// existing level names + 1 (or count+1 if none parse). Zero-padding widens to D3 once the
+        /// campaign reaches 100+ levels so alphabetical sort keeps == numeric order past 99.
+        /// (Avoids the "LevelData06 1" duplicate-name ordering break at smaller counts.)
+        /// </summary>
+        private string DefaultNewLevelName()
+        {
+            int max = 0; bool any = false;
+            foreach (var lv in _levels)
+            {
+                if (!lv) continue;
+                string n = lv.name;
+                int lastNonDigit = n.Length;
+                while (lastNonDigit > 0 && char.IsDigit(n[lastNonDigit - 1])) lastNonDigit--;
+                if (lastNonDigit < n.Length && int.TryParse(n.AsSpan(lastNonDigit), out int num) && num > max)
+                { max = num; any = true; }
+            }
+            int next = any ? max + 1 : _levels.Count + 1;
+            // Widen padding once the project scales past 99 levels; D2 is enough below that.
+            string format = next >= 100 || max >= 100 ? "D3" : "D2";
+            return $"LevelData{next.ToString(format)}";
+        }
+
+        private void CreateNewLevel()
+        {
+            var safeName = string.IsNullOrWhiteSpace(_newLevelName)
+                ? DefaultNewLevelName()
+                : _newLevelName.Trim();
+
+            if (!Directory.Exists(LevelDataFolder))
+                Directory.CreateDirectory(LevelDataFolder);
+            var path = AssetDatabase.GenerateUniqueAssetPath($"{LevelDataFolder}/{safeName}.asset");
+
+            var newLevel = CreateInstance<LevelDataSO>();
+            newLevel.duration = 60;
+            newLevel.seed = Random.Range(0, 99999);
+            newLevel.itemData = new List<ItemLevelData>();
+
+            AssetDatabase.CreateAsset(newLevel, path);
+            AssetDatabase.SaveAssets();
+
+            // Automate Addressable configuration
+            var settings = AddressableAssetSettingsDefaultObject.Settings;
+            if (settings)
+            {
+                var guid = AssetDatabase.AssetPathToGUID(path);
+                var entry = settings.CreateOrMoveEntry(guid, settings.DefaultGroup);
+                entry.address = safeName;
+                
+                // Add the LevelData label so the saga map + LevelManager can discover it
+                settings.AddLabel("LevelData");
+                entry.SetLabel("LevelData", true, true);
+                
+                settings.SetDirty(AddressableAssetSettings.ModificationEvent.EntryMoved, entry, true);
+                AssetDatabase.SaveAssets();
+                Debug.Log($"[Template Editor] Automatically added {safeName} to Addressable group '{settings.DefaultGroup.Name}' with label 'LevelData'.");
+            }
+            else
+            {
+                Debug.LogWarning("[Template Editor] AddressableAssetSettings not found. Could not automatically mark level as Addressable.");
+            }
+
+            _newLevelName = "";
+            _showNewLevelField = false;
+
+            LoadAll();
+            // Auto-select the new level
+            SelectLevel(_levels.IndexOf(newLevel));
+            EditorGUIUtility.PingObject(newLevel);
+            Repaint();
+        }
+
+        private void DeleteLevel(int idx)
+        {
+            var lv = _levels[idx];
+            var path = AssetDatabase.GetAssetPath(lv);
+
+            var settings = AddressableAssetSettingsDefaultObject.Settings;
+            if (settings)
+            {
+                var guid = AssetDatabase.AssetPathToGUID(path);
+                settings.RemoveAssetEntry(guid);
+            }
+
+            AssetDatabase.DeleteAsset(path);
+
+            LoadAll();
+            SelectLevel(-1);
+            Repaint();
+        }
+
+        private void SaveLevel()
+        {
+            if (!_selectedLevel) return;
+            EditorUtility.SetDirty(_selectedLevel);
+            AssetDatabase.SaveAssets();
+            _isDirty = false;
+            Repaint();
+        }
+
+        private void MarkDirty()
+        {
+            _isDirty = true;
+            _summaryDirty = true;
+            EditorUtility.SetDirty(_selectedLevel);
+            Repaint();
+        }
+
+        // ── Layout Helpers ─────────────────────────────────────────────────────
+        private void BeginCard()  => GUILayout.BeginVertical(_cardStyle);
+        private static void EndCard()    => GUILayout.EndVertical();
+
+        private Texture2D MakeTex(int w, int h, Color col)
+        {
+            var pix = new Color[w * h];
+            for (var i = 0; i < pix.Length; i++) pix[i] = col;
+            var t = new Texture2D(w, h);
+            t.SetPixels(pix);
+            t.Apply();
+            _ownedTextures.Add(t);
+            return t;
+        }
+
+        // ── Resizable Column Divider ──────────────────────────────────────────
+        private void DrawResizableDivider(float x)
+        {
+            float topY = 38f;
+            float bodyH = position.height - topY;
+            Rect grabRect = new Rect(x - DividerGrabRange, topY, DividerGrabRange * 2, bodyH);
+            bool hovering = grabRect.Contains(Event.current.mousePosition);
+            bool active = _draggingDivider || hovering;
+
+            EditorGUIUtility.AddCursorRect(grabRect, MouseCursor.ResizeHorizontal);
+            EditorGUI.DrawRect(new Rect(x, topY, 2, bodyH), active ? AccentBlue : DividerColor);
+
+            if (Event.current.type == EventType.MouseDown && hovering)
+            {
+                _draggingDivider = true;
+                Event.current.Use();
+            }
+            if (_draggingDivider && Event.current.type == EventType.MouseDrag)
+            {
+                _listWidth = Mathf.Clamp(Event.current.mousePosition.x, MinColumnWidth, position.width - MinColumnWidth);
+                Event.current.Use();
+                Repaint();
+            }
+            if (_draggingDivider && Event.current.type == EventType.MouseUp)
+            {
+                _draggingDivider = false;
+                Event.current.Use();
+            }
+        }
+        #endregion
+
+        // ── Settings Tab ─────────────────────────────────────────────────────
+        #region Settings Tab
+        private void DrawSettingsTab()
+        {
+            GUILayout.Space(10);
+            GUILayout.BeginHorizontal();
+            GUILayout.Space(20);
+            GUILayout.BeginVertical();
+
+            GUILayout.Label("GLOBAL GAME SETTINGS", _headerStyle);
+            GUILayout.Space(10);
+
+            if (!_gameSettings)
+            {
+                EditorGUILayout.HelpBox("GameSettings.asset could not be loaded from Resources. Please ensure it exists.", MessageType.Error);
+                if (GUILayout.Button("Create GameSettings Asset"))
+                {
+                    _gameSettings = CreateInstance<GameSettingsSO>();
+                    if (!Directory.Exists("Assets/MatchThemAllTemplate/Resources"))
+                    {
+                        Directory.CreateDirectory("Assets/MatchThemAllTemplate/Resources");
+                    }
+                    AssetDatabase.CreateAsset(_gameSettings, "Assets/MatchThemAllTemplate/Resources/GameSettings.asset");
+                    AssetDatabase.SaveAssets();
+                    _gameSettingsEditor = UnityEditor.Editor.CreateEditor(_gameSettings);
+                }
+            }
+            else
+            {
+                if (!_gameSettingsEditor) 
+                    _gameSettingsEditor = UnityEditor.Editor.CreateEditor(_gameSettings);
+
+                _detailScroll = GUILayout.BeginScrollView(_detailScroll);
+                BeginCard();
+                _gameSettingsEditor.OnInspectorGUI();
+                EndCard();
+                GUILayout.EndScrollView();
+            }
+
+            GUILayout.EndVertical();
+            GUILayout.Space(20);
+            GUILayout.EndHorizontal();
+        }
+        #endregion
+    }
+}
+

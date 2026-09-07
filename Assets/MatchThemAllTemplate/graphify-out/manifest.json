@@ -1,0 +1,702 @@
+{
+  "Scripts/Editor/EditorWindowStyles.cs": {
+    "mtime": 1788781045.417448,
+    "ast_hash": "9898c0174990ad385d8d68633ad6b2c4",
+    "semantic_hash": ""
+  },
+  "Scripts/Editor/HierarchySectionHeader.cs": {
+    "mtime": 1788781045.4189498,
+    "ast_hash": "aa8b33d2bf17f20f255a9d5e4c849c9f",
+    "semantic_hash": ""
+  },
+  "Scripts/Editor/ItemManagerWindow.cs": {
+    "mtime": 1788781045.4189498,
+    "ast_hash": "7e71048ba8acfc30f436b10553c566cc",
+    "semantic_hash": ""
+  },
+  "Scripts/Editor/ItemReferenceOps.cs": {
+    "mtime": 1788781045.419951,
+    "ast_hash": "3023cb55c08fce9424aa4c41d2cf1f6d",
+    "semantic_hash": ""
+  },
+  "Scripts/Editor/LevelEditorWindow.cs": {
+    "mtime": 1788781045.420951,
+    "ast_hash": "4b808ab802ef303d1bc468cccdffe292",
+    "semantic_hash": ""
+  },
+  "Scripts/Editor/LevelMapBuilder.cs": {
+    "mtime": 1788781045.4219508,
+    "ast_hash": "b3e3cc75980c53afb9ed1ceaf68ba296",
+    "semantic_hash": ""
+  },
+  "Scripts/Editor/PowerupDatabaseSetup.cs": {
+    "mtime": 1788781045.4219508,
+    "ast_hash": "a6ecaa10ad626dcc58ff4ba188417c6d",
+    "semantic_hash": ""
+  },
+  "Scripts/Editor/PrefabConsolidator.cs": {
+    "mtime": 1788781045.4234526,
+    "ast_hash": "da03a513afaa3c4179305743aba60beb",
+    "semantic_hash": ""
+  },
+  "Scripts/Editor/ShopEditorWindow.cs": {
+    "mtime": 1788781045.4234526,
+    "ast_hash": "00fa6e150b820e0386b96d35bd9c91d1",
+    "semantic_hash": ""
+  },
+  "Scripts/Editor/ShopSetup.cs": {
+    "mtime": 1788781045.424958,
+    "ast_hash": "7492e9faed21f260972a4b550dcb2304",
+    "semantic_hash": ""
+  },
+  "Scripts/Runtime/Core/DailyRewardManager.cs": {
+    "mtime": 1784480298.3806126,
+    "ast_hash": "4bc1ed027a08408373236ee12bed4c53",
+    "semantic_hash": ""
+  },
+  "Scripts/Runtime/Core/DebugCheats.cs": {
+    "mtime": 1786816809.2437022,
+    "ast_hash": "62ebf48fe240971da18a1dc1119450cb",
+    "semantic_hash": ""
+  },
+  "Scripts/Runtime/Core/EventBus.cs": {
+    "mtime": 1784448308.5877275,
+    "ast_hash": "38e40c3ee9d96a15f2ad1469763438d7",
+    "semantic_hash": ""
+  },
+  "Scripts/Runtime/Core/GameEvents.cs": {
+    "mtime": 1788780859.8509455,
+    "ast_hash": "cb66a37587a6f6157c387f1afc345f06",
+    "semantic_hash": ""
+  },
+  "Scripts/Runtime/Core/GameManager.cs": {
+    "mtime": 1784448308.5930777,
+    "ast_hash": "96825674b565ddc2468c357d2d093f56",
+    "semantic_hash": ""
+  },
+  "Scripts/Runtime/Core/InputManager.cs": {
+    "mtime": 1788783911.00319,
+    "ast_hash": "11185fad6a0bc53171a481e5536b879b",
+    "semantic_hash": ""
+  },
+  "Scripts/Runtime/Core/MTAInputSystem_Actions.cs": {
+    "mtime": 1784448308.5778103,
+    "ast_hash": "5249af1bfbfea6de4f4bcef38721c5a7",
+    "semantic_hash": ""
+  },
+  "Scripts/Runtime/Core/OpenSceneLoader.cs": {
+    "mtime": 1784448308.594341,
+    "ast_hash": "3abeb971f2f4f6b1d08aac20b8c0731b",
+    "semantic_hash": ""
+  },
+  "Scripts/Runtime/Core/SceneLoader.cs": {
+    "mtime": 1784448308.594341,
+    "ast_hash": "5b76a57b15ed8767afac9f910305d74b",
+    "semantic_hash": ""
+  },
+  "Scripts/Runtime/Core/SoundDataSO.cs": {
+    "mtime": 1784448308.596856,
+    "ast_hash": "c4232a8749efc6c56c4a23cfb3c2f108",
+    "semantic_hash": ""
+  },
+  "Scripts/Runtime/Core/SoundManager.cs": {
+    "mtime": 1784448308.596856,
+    "ast_hash": "f435e58481a28a5d60ddce0bd0402863",
+    "semantic_hash": ""
+  },
+  "Scripts/Runtime/Gameplay/ComboManager.cs": {
+    "mtime": 1788780859.8887782,
+    "ast_hash": "cfdbbdad2e2683a571ffff89476ad71c",
+    "semantic_hash": ""
+  },
+  "Scripts/Runtime/Gameplay/GoalManager.cs": {
+    "mtime": 1788780859.8898346,
+    "ast_hash": "cf89a1e861455af504aa518c99f06d1a",
+    "semantic_hash": ""
+  },
+  "Scripts/Runtime/Gameplay/HintManager.cs": {
+    "mtime": 1788780859.8902764,
+    "ast_hash": "29063d1dc55e6889bad8f0ba49fcaa99",
+    "semantic_hash": ""
+  },
+  "Scripts/Runtime/Gameplay/Item.cs": {
+    "mtime": 1788780859.8902764,
+    "ast_hash": "49bac1447907e35a429550177a27f822",
+    "semantic_hash": ""
+  },
+  "Scripts/Runtime/Gameplay/ItemPlacer.cs": {
+    "mtime": 1788780859.8918254,
+    "ast_hash": "ebb2c59ed31f5af15dae4eb3eaeee95f",
+    "semantic_hash": ""
+  },
+  "Scripts/Runtime/Gameplay/ItemSpot.cs": {
+    "mtime": 1788780859.8927715,
+    "ast_hash": "40b73a535a0762a7924fa44bcec02b06",
+    "semantic_hash": ""
+  },
+  "Scripts/Runtime/Gameplay/ItemSpotLayout.cs": {
+    "mtime": 1788780859.893555,
+    "ast_hash": "04e49dddb8d2d65843e231b514acec9e",
+    "semantic_hash": ""
+  },
+  "Scripts/Runtime/Gameplay/ItemSpotManager.cs": {
+    "mtime": 1788780859.893555,
+    "ast_hash": "17cafb7aade1242d94d3380b316b692f",
+    "semantic_hash": ""
+  },
+  "Scripts/Runtime/Gameplay/MatchSystem.cs": {
+    "mtime": 1788780859.8947804,
+    "ast_hash": "08b1648a105dae74d292eeb8012b4101",
+    "semantic_hash": ""
+  },
+  "Scripts/Runtime/Gameplay/MergeManager.cs": {
+    "mtime": 1788780859.8957825,
+    "ast_hash": "458dd9aacc32180adb0bca333a2c7fba",
+    "semantic_hash": ""
+  },
+  "Scripts/Runtime/Gameplay/TimerManager.cs": {
+    "mtime": 1788780859.896756,
+    "ast_hash": "d7aad265f5f9c5beb615afedd41eb4af",
+    "semantic_hash": ""
+  },
+  "Scripts/Runtime/LevelSystem/ItemLevelData.cs": {
+    "mtime": 1788780859.9294274,
+    "ast_hash": "8a9a17a1e1b990ad5be0b9733e694513",
+    "semantic_hash": ""
+  },
+  "Scripts/Runtime/LevelSystem/ItemPoolManager.cs": {
+    "mtime": 1788780859.9294274,
+    "ast_hash": "e9d8be6c582b569e0c1570e61924464c",
+    "semantic_hash": ""
+  },
+  "Scripts/Runtime/LevelSystem/Level.cs": {
+    "mtime": 1788780859.9313715,
+    "ast_hash": "bd059e0e777bddaa82ccd9f4ed3de900",
+    "semantic_hash": ""
+  },
+  "Scripts/Runtime/LevelSystem/LevelDataSO.cs": {
+    "mtime": 1788780859.9313715,
+    "ast_hash": "b5467e132dab23b5efd5d7bf8dc0d624",
+    "semantic_hash": ""
+  },
+  "Scripts/Runtime/LevelSystem/LevelManager.cs": {
+    "mtime": 1788780859.9326084,
+    "ast_hash": "9afa3492cd67bbd1103d1783de338ea7",
+    "semantic_hash": ""
+  },
+  "Scripts/Runtime/Pixelate/PixelizeController.cs": {
+    "mtime": 1788780859.9701912,
+    "ast_hash": "16993a924d9d775784212b44308f9c81",
+    "semantic_hash": ""
+  },
+  "Scripts/Runtime/Pixelate/PixelizeFeature.cs": {
+    "mtime": 1788780859.9721923,
+    "ast_hash": "aa5336656d250454bc8a957377cebf7d",
+    "semantic_hash": ""
+  },
+  "Scripts/Runtime/Pixelate/PixelizePass.cs": {
+    "mtime": 1788780859.9731932,
+    "ast_hash": "92bc820816bf20364667ec06dca80942",
+    "semantic_hash": ""
+  },
+  "Scripts/Runtime/PowerUps/ECurrency.cs": {
+    "mtime": 1788780859.9999774,
+    "ast_hash": "dece4cb18439fc9e184342a1e3057ed1",
+    "semantic_hash": ""
+  },
+  "Scripts/Runtime/PowerUps/Fan.cs": {
+    "mtime": 1788780860.0014791,
+    "ast_hash": "df02ef3e66bdcc5a95c2c60d73efd04a",
+    "semantic_hash": ""
+  },
+  "Scripts/Runtime/PowerUps/FanEffect.cs": {
+    "mtime": 1788780860.002481,
+    "ast_hash": "62fea2a45fa3e2d88072997c5961af75",
+    "semantic_hash": ""
+  },
+  "Scripts/Runtime/PowerUps/FreezeEffect.cs": {
+    "mtime": 1788780860.003481,
+    "ast_hash": "9e609fdd8292af13adc1ef4c7b6bbf83",
+    "semantic_hash": ""
+  },
+  "Scripts/Runtime/PowerUps/FreezeGun.cs": {
+    "mtime": 1788780860.004093,
+    "ast_hash": "48b8afdd4a94d8610a4402032148c614",
+    "semantic_hash": ""
+  },
+  "Scripts/Runtime/PowerUps/Powerup.cs": {
+    "mtime": 1788780860.004093,
+    "ast_hash": "6e0fd4a614c182ad0db85b8fd8e43dab",
+    "semantic_hash": ""
+  },
+  "Scripts/Runtime/PowerUps/PowerupContext.cs": {
+    "mtime": 1788780860.004093,
+    "ast_hash": "063269e320ed6e7842c9d1e94e5c4249",
+    "semantic_hash": ""
+  },
+  "Scripts/Runtime/PowerUps/PowerupDataSO.cs": {
+    "mtime": 1788780860.0062158,
+    "ast_hash": "d8b4065bf8d1e1c372ca1a04689a0b60",
+    "semantic_hash": ""
+  },
+  "Scripts/Runtime/PowerUps/PowerupDatabaseSO.cs": {
+    "mtime": 1788780860.0062158,
+    "ast_hash": "47386eb63142aa5b9456d2c9fdd42188",
+    "semantic_hash": ""
+  },
+  "Scripts/Runtime/PowerUps/PowerupEffect.cs": {
+    "mtime": 1788780860.0062158,
+    "ast_hash": "95ea49c72a9361acf867d5082c55c5ae",
+    "semantic_hash": ""
+  },
+  "Scripts/Runtime/PowerUps/PowerupManager.cs": {
+    "mtime": 1788780860.0082197,
+    "ast_hash": "62e530b8d362494d63d222c316ff9430",
+    "semantic_hash": ""
+  },
+  "Scripts/Runtime/PowerUps/Spring.cs": {
+    "mtime": 1788780860.0082197,
+    "ast_hash": "71f730685f33dd214217b105d91b49f5",
+    "semantic_hash": ""
+  },
+  "Scripts/Runtime/PowerUps/SpringEffect.cs": {
+    "mtime": 1788780860.0101676,
+    "ast_hash": "8d564cb963e9b5a6518ad34300865a1c",
+    "semantic_hash": ""
+  },
+  "Scripts/Runtime/PowerUps/Vacuum.cs": {
+    "mtime": 1788780860.0107992,
+    "ast_hash": "d2ffd5ccb5331bd9ae34a55328b0b6b2",
+    "semantic_hash": ""
+  },
+  "Scripts/Runtime/PowerUps/VacuumEffect.cs": {
+    "mtime": 1788780860.0113142,
+    "ast_hash": "4e23404ab382de61998ba8de2fc7284b",
+    "semantic_hash": ""
+  },
+  "Scripts/Runtime/SaveSystem/PlayerData.cs": {
+    "mtime": 1788780860.051056,
+    "ast_hash": "6b4f96a1c10b4f1af66a8f731a54bcdc",
+    "semantic_hash": ""
+  },
+  "Scripts/Runtime/SaveSystem/SaveManager.cs": {
+    "mtime": 1788780860.052056,
+    "ast_hash": "6c286937ec17fb1ab00d22f8c7211f93",
+    "semantic_hash": ""
+  },
+  "Scripts/Runtime/SaveSystem/SaveManagerBootstrapper.cs": {
+    "mtime": 1788780860.0530536,
+    "ast_hash": "70439bbf6d8d6957c3bb9dfe1c3351b4",
+    "semantic_hash": ""
+  },
+  "Scripts/Runtime/Shop/DebugGrantCurrencyButton.cs": {
+    "mtime": 1788780860.0817153,
+    "ast_hash": "734c64f272bcb14e374627038a91982a",
+    "semantic_hash": ""
+  },
+  "Scripts/Runtime/Shop/EntitlementIds.cs": {
+    "mtime": 1788780860.0817153,
+    "ast_hash": "c4b2c84d086de9f6e2fcf5b1688a59d9",
+    "semantic_hash": ""
+  },
+  "Scripts/Runtime/Shop/GemDisplay.cs": {
+    "mtime": 1788780860.0828671,
+    "ast_hash": "896c11f07266478d32ed04569ca9a98e",
+    "semantic_hash": ""
+  },
+  "Scripts/Runtime/Shop/IAP/IIapService.cs": {
+    "mtime": 1788780928.212742,
+    "ast_hash": "dd12df2aa94aa52eae7f76b036cb309b",
+    "semantic_hash": ""
+  },
+  "Scripts/Runtime/Shop/ShopDatabaseSO.cs": {
+    "mtime": 1788780860.083869,
+    "ast_hash": "a300cb880e38601ccc1c850fe634fa42",
+    "semantic_hash": ""
+  },
+  "Scripts/Runtime/Shop/ShopManager.cs": {
+    "mtime": 1788780860.083869,
+    "ast_hash": "bfb86e3ed26a4dec21c061e9a579f1ca",
+    "semantic_hash": ""
+  },
+  "Scripts/Runtime/Shop/ShopOpener.cs": {
+    "mtime": 1788780860.0848687,
+    "ast_hash": "674d6c772022cc044c264d82fd3796ea",
+    "semantic_hash": ""
+  },
+  "Scripts/Runtime/Shop/ShopPanel.cs": {
+    "mtime": 1788780860.0848687,
+    "ast_hash": "c8f3be7ebe78539416500982e7ffd38b",
+    "semantic_hash": ""
+  },
+  "Scripts/Runtime/Shop/ShopProductCard.cs": {
+    "mtime": 1788780860.0864027,
+    "ast_hash": "b1e95a223be98a25d28a47ba3dd5a9b4",
+    "semantic_hash": ""
+  },
+  "Scripts/Runtime/Shop/ShopProductSO.cs": {
+    "mtime": 1788780860.0874045,
+    "ast_hash": "2b7cda72bd8641f2068351fda86d75c8",
+    "semantic_hash": ""
+  },
+  "Scripts/Runtime/Shop/ShopTabSO.cs": {
+    "mtime": 1788780860.0884047,
+    "ast_hash": "2fa8a51970f280deaf7e279a060342ef",
+    "semantic_hash": ""
+  },
+  "Scripts/Runtime/Shop/WatchAdForCoinsButton.cs": {
+    "mtime": 1788780860.0888922,
+    "ast_hash": "b66bb2dc30ff3cf8e46fd45753ca6c05",
+    "semantic_hash": ""
+  },
+  "Scripts/Runtime/Tutorial/TutorialManager.cs": {
+    "mtime": 1788780860.1157084,
+    "ast_hash": "35a1299179e648623d8ab9d2babc6c9e",
+    "semantic_hash": ""
+  },
+  "Scripts/Runtime/Tutorial/TutorialStep.cs": {
+    "mtime": 1788780860.1157084,
+    "ast_hash": "ca75c7c75e7814cf93098ff43a9c43c5",
+    "semantic_hash": ""
+  },
+  "Scripts/Runtime/UI/CoinDisplay.cs": {
+    "mtime": 1788780860.1481364,
+    "ast_hash": "45112a43ce972a3a3869d04ae8e4c914",
+    "semantic_hash": ""
+  },
+  "Scripts/Runtime/UI/ComboVFX.cs": {
+    "mtime": 1788780860.1481364,
+    "ast_hash": "fbead239b6f873b736feb9ea63e3eefa",
+    "semantic_hash": ""
+  },
+  "Scripts/Runtime/UI/DailyRewardPanel.cs": {
+    "mtime": 1788780860.1494896,
+    "ast_hash": "03d34e20c2b07b35855c144e7edbab8d",
+    "semantic_hash": ""
+  },
+  "Scripts/Runtime/UI/FloatingText.cs": {
+    "mtime": 1788780860.1502397,
+    "ast_hash": "6eef1cc033ab09d798f945946a71b0c9",
+    "semantic_hash": ""
+  },
+  "Scripts/Runtime/UI/FloatingTextSpawner.cs": {
+    "mtime": 1788780860.1512413,
+    "ast_hash": "0fbdd10b2e49f6c2bfe85888deeff189",
+    "semantic_hash": ""
+  },
+  "Scripts/Runtime/UI/FloatingTextTester.cs": {
+    "mtime": 1788780860.1512413,
+    "ast_hash": "a41b7c00574a28c52c452c766b36f8ef",
+    "semantic_hash": ""
+  },
+  "Scripts/Runtime/UI/GoalCard.cs": {
+    "mtime": 1788780860.1522424,
+    "ast_hash": "82977cc38d89f1758367ab580d23ac9b",
+    "semantic_hash": ""
+  },
+  "Scripts/Runtime/UI/LevelButtonUI.cs": {
+    "mtime": 1788780860.1532412,
+    "ast_hash": "113efc84afdf85f6ab3c95c459878019",
+    "semantic_hash": ""
+  },
+  "Scripts/Runtime/UI/LevelMapNode.cs": {
+    "mtime": 1788780860.1537428,
+    "ast_hash": "f8a18d8b7851edab47a42438169a21e8",
+    "semantic_hash": ""
+  },
+  "Scripts/Runtime/UI/LevelMapPath.cs": {
+    "mtime": 1788780860.1537428,
+    "ast_hash": "429d214677786af61b67801fea51edef",
+    "semantic_hash": ""
+  },
+  "Scripts/Runtime/UI/Manager/ContinuePanelManager.cs": {
+    "mtime": 1788780928.284944,
+    "ast_hash": "9cdd5fcb91d7f2e6a1e4198a2512cfaa",
+    "semantic_hash": ""
+  },
+  "Scripts/Runtime/UI/Manager/LevelMapManager.cs": {
+    "mtime": 1788780928.2873933,
+    "ast_hash": "c218ad96c81cb52807156eb1a5cbd495",
+    "semantic_hash": ""
+  },
+  "Scripts/Runtime/UI/Manager/LoadingScreenManager.cs": {
+    "mtime": 1788780928.2891057,
+    "ast_hash": "9c197bb6afbe26c6f1164c207fe5ef82",
+    "semantic_hash": ""
+  },
+  "Scripts/Runtime/UI/Manager/LosePanelManager.cs": {
+    "mtime": 1788780928.2896378,
+    "ast_hash": "fb83fd5bbb708fb03214d490c3a6cc1d",
+    "semantic_hash": ""
+  },
+  "Scripts/Runtime/UI/Manager/MainMenuManager.cs": {
+    "mtime": 1788780928.2924218,
+    "ast_hash": "64b6359fefc781c251336f56922bcb03",
+    "semantic_hash": ""
+  },
+  "Scripts/Runtime/UI/Manager/SettingsManager.cs": {
+    "mtime": 1788780928.2924218,
+    "ast_hash": "734b9b5f0939663f1dd7231c4173578b",
+    "semantic_hash": ""
+  },
+  "Scripts/Runtime/UI/Manager/UIManager.cs": {
+    "mtime": 1788780928.295534,
+    "ast_hash": "827ff48d4ea9c3c3e42af3eb1d6adcee",
+    "semantic_hash": ""
+  },
+  "Scripts/Runtime/UI/Manager/WinPanelManager.cs": {
+    "mtime": 1788780928.2973058,
+    "ast_hash": "e4d606c993b85b1149fdc36d86d33078",
+    "semantic_hash": ""
+  },
+  "Scripts/Runtime/UI/UIAnimator.cs": {
+    "mtime": 1788780860.1555715,
+    "ast_hash": "3b718f72d365c0603d8ddb5a1be233b3",
+    "semantic_hash": ""
+  },
+  "Scripts/Runtime/Utilities/AdManagerMock.cs": {
+    "mtime": 1788780860.187611,
+    "ast_hash": "45c07dab57cff04cd2bff392a4956465",
+    "semantic_hash": ""
+  },
+  "Scripts/Runtime/Utilities/Enums/EGameState.cs": {
+    "mtime": 1788780928.3730812,
+    "ast_hash": "c251c31624c24410fd6250ab6ba99f85",
+    "semantic_hash": ""
+  },
+  "Scripts/Runtime/Utilities/Enums/EItemName.cs": {
+    "mtime": 1788780928.3745773,
+    "ast_hash": "bd404b3a4145a7039fe41786af4b8fe0",
+    "semantic_hash": ""
+  },
+  "Scripts/Runtime/Utilities/Extensions/TransformExtensions.cs": {
+    "mtime": 1788780928.4535966,
+    "ast_hash": "91390ffa81d6dd75f15f0edcb937ddde",
+    "semantic_hash": ""
+  },
+  "Scripts/Runtime/Utilities/Settings/GameSettingsSO.cs": {
+    "mtime": 1788780928.5180075,
+    "ast_hash": "da38b8528f0ffa54e9091def317d0ea6",
+    "semantic_hash": ""
+  },
+  "Scripts/Runtime/Utilities/StaticEventCleaner.cs": {
+    "mtime": 1788790109.156,
+    "ast_hash": "12286e260121cb888bc8f2d446bb06ea",
+    "semantic_hash": ""
+  },
+  "Scripts/Runtime/VFX/VfxPool.cs": {
+    "mtime": 1788780860.2332566,
+    "ast_hash": "b0f64fbf547faab0c5a49794d697769a",
+    "semantic_hash": ""
+  },
+  "CHANGELOG.md": {
+    "mtime": 1788781555.7591133,
+    "ast_hash": "d625b2c3fdc4c3f09c65cd589aa8e4c7",
+    "semantic_hash": ""
+  },
+  "Documentation/API_REFERENCE.md": {
+    "mtime": 1788781725.0852,
+    "ast_hash": "15cc50960f8763000816f1e7c5707ac6",
+    "semantic_hash": ""
+  },
+  "Documentation/CUSTOMIZATION_GUIDE.md": {
+    "mtime": 1788781724.0505295,
+    "ast_hash": "bff814a51b623b9a9e4576985a70f04c",
+    "semantic_hash": ""
+  },
+  "LICENSE.txt": {
+    "mtime": 1788781568.7911174,
+    "ast_hash": "7985bc5ff176b6eb0a27895f453eeffb",
+    "semantic_hash": ""
+  },
+  "README.md": {
+    "mtime": 1788781553.718336,
+    "ast_hash": "edb73c50028b40946c336419be02e971",
+    "semantic_hash": ""
+  },
+  "THIRD_PARTY_NOTICES.txt": {
+    "mtime": 1788781554.7390463,
+    "ast_hash": "43d48de21bd14b348b6b8240a4cdc676",
+    "semantic_hash": ""
+  },
+  "_START_HERE/README.md": {
+    "mtime": 1788792029.0350652,
+    "ast_hash": "f26f9ef9d7fb450724bb9bb5b07a2054",
+    "semantic_hash": ""
+  },
+  "Art/Materials/Textures/Vacuum Tex.png": {
+    "mtime": 1788781440.973352,
+    "ast_hash": "b5636b8e1b58aee80a5e033c8d649e61",
+    "semantic_hash": ""
+  },
+  "Art/Sprites/Background.png": {
+    "mtime": 1788781440.8569348,
+    "ast_hash": "c195168820e16323e8a9f3fe76d30bf4",
+    "semantic_hash": ""
+  },
+  "Art/Sprites/Goal_Card.png": {
+    "mtime": 1788781440.8589358,
+    "ast_hash": "b88148e17131ef1c8a6994461fa2e694",
+    "semantic_hash": ""
+  },
+  "Art/Sprites/Goal_Card_Back.png": {
+    "mtime": 1788781440.861438,
+    "ast_hash": "93b3b05d0e0032fef940d9b88dc1d7a8",
+    "semantic_hash": ""
+  },
+  "Art/Sprites/Icons/Trash/icon_item_bluepotion.png": {
+    "mtime": 1788781440.8734734,
+    "ast_hash": "44150fd3e2e3e37e1e64917b7874e3dd",
+    "semantic_hash": ""
+  },
+  "Art/Sprites/Icons/icon_heartgem.png": {
+    "mtime": 1788781440.8760266,
+    "ast_hash": "b330725be716ea165518f76889602d72",
+    "semantic_hash": ""
+  },
+  "Art/Sprites/Icons/icon_item_battery.png": {
+    "mtime": 1788781440.8724735,
+    "ast_hash": "b4ca3fa6e047617244101ebd3848ede6",
+    "semantic_hash": ""
+  },
+  "Art/Sprites/Icons/icon_item_bluepotion.png": {
+    "mtime": 1788781440.8684652,
+    "ast_hash": "4560529695ad64643bc46de9432eb44a",
+    "semantic_hash": ""
+  },
+  "Art/Sprites/Icons/icon_item_bomb.png": {
+    "mtime": 1788781440.8694649,
+    "ast_hash": "72311e9e86757848775632eb042264ae",
+    "semantic_hash": ""
+  },
+  "Art/Sprites/Icons/icon_item_coin.png": {
+    "mtime": 1788781440.8628821,
+    "ast_hash": "b04c407eba9a471fc5de8ff143e32494",
+    "semantic_hash": ""
+  },
+  "Art/Sprites/Icons/icon_item_diamond.png": {
+    "mtime": 1788781440.8709664,
+    "ast_hash": "362c1899c0ffea21bad0e662230b1e17",
+    "semantic_hash": ""
+  },
+  "Art/Sprites/Icons/icon_item_heartgem.png": {
+    "mtime": 1788781440.8782454,
+    "ast_hash": "4ee2cb6839992cf3776ebc6cccec0090",
+    "semantic_hash": ""
+  },
+  "Art/Sprites/Icons/icon_item_skull.png": {
+    "mtime": 1788781440.8664634,
+    "ast_hash": "561c0327e7bd80838c9a2ac75737a879",
+    "semantic_hash": ""
+  },
+  "Art/Sprites/Icons/icon_potion.png": {
+    "mtime": 1788781440.87552,
+    "ast_hash": "790848170a15b92c4e93759d23ef4f09",
+    "semantic_hash": ""
+  },
+  "Art/Sprites/UI/Background.png": {
+    "mtime": 1788781440.8951142,
+    "ast_hash": "51c1e01712441ce184dac592d2833b10",
+    "semantic_hash": ""
+  },
+  "Art/Sprites/UI/Basic Container.png": {
+    "mtime": 1788781440.8936121,
+    "ast_hash": "5d761ffde9b2718e6c14d30e2229b4d7",
+    "semantic_hash": ""
+  },
+  "Art/Sprites/UI/Button_Base.png": {
+    "mtime": 1788781440.8830614,
+    "ast_hash": "222bc1b0e9aebb33ea326bd386b6a9b0",
+    "semantic_hash": ""
+  },
+  "Art/Sprites/UI/Button_Outline.png": {
+    "mtime": 1788781440.8901088,
+    "ast_hash": "d878060746f8b5f58e636a09e7cd618a",
+    "semantic_hash": ""
+  },
+  "Art/Sprites/UI/Button_Overlay.png": {
+    "mtime": 1788781440.8835664,
+    "ast_hash": "fb3de2757f209523e680b6c2284e3459",
+    "semantic_hash": ""
+  },
+  "Art/Sprites/UI/Checkmark.png": {
+    "mtime": 1788781440.8956194,
+    "ast_hash": "0d4a9d47957402d4bf6a5ecd121d0028",
+    "semantic_hash": ""
+  },
+  "Art/Sprites/UI/Cross.png": {
+    "mtime": 1788781440.8936121,
+    "ast_hash": "5458805f397fff2f2d2c31f73da7983e",
+    "semantic_hash": ""
+  },
+  "Art/Sprites/UI/DailyRewardIcon.png": {
+    "mtime": 1788781440.899124,
+    "ast_hash": "59535e3d032f9646347e5925c4708673",
+    "semantic_hash": ""
+  },
+  "Art/Sprites/UI/Flying Cash.png": {
+    "mtime": 1788781440.8871071,
+    "ast_hash": "597b7fa316885268013fa4715ed537cc",
+    "semantic_hash": ""
+  },
+  "Art/Sprites/UI/Music.png": {
+    "mtime": 1788781440.8916104,
+    "ast_hash": "8bb46a4225fb6a385960d97058da8017",
+    "semantic_hash": ""
+  },
+  "Art/Sprites/UI/Round Button.png": {
+    "mtime": 1788781440.8901088,
+    "ast_hash": "12c0dee979eed31c4f0009cafe28875f",
+    "semantic_hash": ""
+  },
+  "Art/Sprites/UI/SFX.png": {
+    "mtime": 1788781440.8901088,
+    "ast_hash": "6dd6b2fba8f71e0ee91ec9e2ec8660bf",
+    "semantic_hash": ""
+  },
+  "Art/Sprites/UI/Settings.png": {
+    "mtime": 1788781440.8850746,
+    "ast_hash": "470fd9988122938ddf20ee97a8760cae",
+    "semantic_hash": ""
+  },
+  "Art/Sprites/UI/Star Scroll Tex.png": {
+    "mtime": 1788781440.8881085,
+    "ast_hash": "6a1509a41afd847271b94132647a1b83",
+    "semantic_hash": ""
+  },
+  "Art/Sprites/UI/Up Arrow Outline.png": {
+    "mtime": 1788781440.8812456,
+    "ast_hash": "a24c3ba2e104e7d4ceeaa13aec3d82bc",
+    "semantic_hash": ""
+  },
+  "Art/Sprites/UI/Up Arrow.png": {
+    "mtime": 1788781440.8926125,
+    "ast_hash": "805bbb197dfe79202ce774b9bcf64a95",
+    "semantic_hash": ""
+  },
+  "Art/Sprites/Video.png": {
+    "mtime": 1788781440.9001782,
+    "ast_hash": "83194cfd9c466b652f679baf4550df72",
+    "semantic_hash": ""
+  },
+  "Audio/Audio Clip/Item Complete.wav": {
+    "mtime": 1788781440.810927,
+    "ast_hash": "5b923c97df4cba166582bcfa8c8272e6",
+    "semantic_hash": ""
+  },
+  "Audio/Audio Clip/Item Placed.wav": {
+    "mtime": 1788781440.808927,
+    "ast_hash": "af72ebbff1852641ab9e516cd4118162",
+    "semantic_hash": ""
+  },
+  "Audio/Audio Clip/Item Selected.wav": {
+    "mtime": 1788781440.8069253,
+    "ast_hash": "4a1170cf5429715eb97f47c920d6d335",
+    "semantic_hash": ""
+  },
+  "Audio/Audio Clip/Merge.wav": {
+    "mtime": 1788781440.8079264,
+    "ast_hash": "ce617dc2c5d30763a3cc7568569f298b",
+    "semantic_hash": ""
+  }
+}
