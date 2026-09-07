@@ -25,8 +25,8 @@ namespace MatchThemAll.Scripts.Editor
     /// </summary>
     public static class LevelMapBuilder
     {
-        private const string NODE_PREFAB_PATH = "Assets/Match Them All/Prefabs/UI/Level/LevelMapNode.prefab";
-        private const string LEVEL_BUTTON_PREFAB = "Assets/Match Them All/Prefabs/UI/Level/LevelButton.prefab";
+        private const string NODE_PREFAB_PATH = "Assets/MatchThemAllTemplate/Prefabs/UI/Level/LevelMapNode.prefab";
+        private const string LEVEL_BUTTON_PREFAB = "Assets/MatchThemAllTemplate/Prefabs/UI/Level/LevelButton.prefab";
 
         [MenuItem("Tools/Levels/Build Saga Map")]
         public static void Build()
@@ -121,7 +121,7 @@ namespace MatchThemAll.Scripts.Editor
             arrowImg.raycastTarget = false;
             arrowImg.preserveAspect = true;
             arrowRt.localRotation = Quaternion.Euler(0f, 0f, -90f); // point left
-            var upArrowSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Match Them All/Sprites/UI/Up Arrow.png");
+            var upArrowSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/MatchThemAllTemplate/Art/Sprites/UI/Up Arrow.png");
             if (upArrowSprite) arrowImg.sprite = upArrowSprite;
 
             // Node prefab.
@@ -207,3 +207,4 @@ namespace MatchThemAll.Scripts.Editor
     }
 }
 #endif
+

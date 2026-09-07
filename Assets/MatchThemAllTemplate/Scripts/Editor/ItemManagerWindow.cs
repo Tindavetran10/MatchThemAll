@@ -101,7 +101,7 @@ namespace MatchThemAll.Scripts.Editor
         {
             wantsMouseMove = true; // repaint on mouse move so hover states update instantly
             LoadAll();
-            _dockPrefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Match Them All/Prefabs/Gameplay/Item Spot.prefab");
+            _dockPrefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/MatchThemAllTemplate/Prefabs/Gameplay/Item Spot.prefab");
         }
 
         private void OnDisable()
@@ -941,7 +941,7 @@ namespace MatchThemAll.Scripts.Editor
                 return;
             }
 
-            const string enumPath = "Assets/Match Them All/Scripts/Enums/EItemName.cs";
+            const string enumPath = "Assets/MatchThemAllTemplate/Scripts/Runtime/Utilities/Enums/EItemName.cs";
             if (!File.Exists(enumPath)) return;
 
             string fileContent = File.ReadAllText(enumPath);
@@ -1005,3 +1005,4 @@ namespace MatchThemAll.Scripts.Editor
         }
     }
 }
+

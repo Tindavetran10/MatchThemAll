@@ -92,8 +92,8 @@ namespace MatchThemAll.Scripts.Editor
 
         // Delegates to ItemReferenceOps so the item/icon folder paths have one source of truth.
         private const string ItemPrefabFolder       = ItemReferenceOps.ItemPrefabFolder;
-        private const string LevelDataFolder         = "Assets/Match Them All/_START_HERE/Levels";
-        private const string LevelTemplatePrefabPath = "Assets/Match Them All/Prefabs/Levels/LevelTemplate.prefab";
+        private const string LevelDataFolder         = "Assets/MatchThemAllTemplate/_START_HERE/Levels";
+        private const string LevelTemplatePrefabPath = "Assets/MatchThemAllTemplate/Prefabs/Levels/LevelTemplate.prefab";
 
         // ── Preview State ────────────────────────────────────────────────────
         // Tracks which level is currently previewed in the scene so we can warn
@@ -1896,11 +1896,11 @@ namespace MatchThemAll.Scripts.Editor
                 if (GUILayout.Button("Create GameSettings Asset"))
                 {
                     _gameSettings = CreateInstance<GameSettingsSO>();
-                    if (!Directory.Exists("Assets/Match Them All/Resources"))
+                    if (!Directory.Exists("Assets/MatchThemAllTemplate/Resources"))
                     {
-                        Directory.CreateDirectory("Assets/Match Them All/Resources");
+                        Directory.CreateDirectory("Assets/MatchThemAllTemplate/Resources");
                     }
-                    AssetDatabase.CreateAsset(_gameSettings, "Assets/Match Them All/Resources/GameSettings.asset");
+                    AssetDatabase.CreateAsset(_gameSettings, "Assets/MatchThemAllTemplate/Resources/GameSettings.asset");
                     AssetDatabase.SaveAssets();
                     _gameSettingsEditor = UnityEditor.Editor.CreateEditor(_gameSettings);
                 }
@@ -1924,3 +1924,4 @@ namespace MatchThemAll.Scripts.Editor
         #endregion
     }
 }
+

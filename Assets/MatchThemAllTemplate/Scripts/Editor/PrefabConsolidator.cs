@@ -17,7 +17,7 @@ namespace MatchThemAll.Scripts.Editor
     /// </summary>
     public static class PrefabConsolidator
     {
-        private const string ROOT = "Assets/Match Them All";
+        private const string ROOT = "Assets/MatchThemAllTemplate";
 
         // source path (relative to ROOT) → destination subfolder under Prefabs/
         private static readonly (string src, string destFolder)[] Moves =
@@ -123,7 +123,7 @@ namespace MatchThemAll.Scripts.Editor
 
         private static void EnsureFolder(string assetFolder)
         {
-            // assetFolder is an asset path like "Assets/Match Them All/Prefabs/UI/Level"
+            // assetFolder is an asset path like "Assets/MatchThemAllTemplate/Prefabs/UI/Level"
             string[] parts = assetFolder.Split('/');
             string current = parts[0];
             for (int i = 1; i < parts.Length; i++)
@@ -137,3 +137,4 @@ namespace MatchThemAll.Scripts.Editor
     }
 }
 #endif
+

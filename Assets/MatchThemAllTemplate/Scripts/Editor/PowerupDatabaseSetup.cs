@@ -19,7 +19,7 @@ namespace MatchThemAll.Scripts.Editor
     /// </summary>
     public static class PowerupDatabaseSetup
     {
-        private const string OUTPUT_DIR = "Assets/Match Them All/Resources/Powerups";
+        private const string OUTPUT_DIR = "Assets/MatchThemAllTemplate/Resources/Powerups";
 
         [MenuItem("Tools/Powerups/Create Default Database")]
         public static void CreateDatabase()
@@ -79,3 +79,4 @@ namespace MatchThemAll.Scripts.Editor
     }
 }
 #endif
+

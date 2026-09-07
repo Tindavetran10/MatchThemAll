@@ -10,7 +10,7 @@ namespace MatchThemAll.Scripts.Editor
 {
     public class ShopEditorWindow : EditorWindow
     {
-        private const string DatabaseAssetPath = "Assets/Match Them All/Resources/Shop/ShopDatabase.asset";
+        private const string DatabaseAssetPath = "Assets/MatchThemAllTemplate/Resources/Shop/ShopDatabase.asset";
         private static readonly Color PanelBg       = new(0.18f, 0.18f, 0.20f);
         private static readonly Color CardBg         = new(0.22f, 0.22f, 0.25f);
         private static readonly Color AccentBlue     = new(0.27f, 0.55f, 1.00f);
@@ -487,7 +487,7 @@ namespace MatchThemAll.Scripts.Editor
         {
             if (string.IsNullOrEmpty(id)) { ShowDialog("Missing ID", "Enter a tab ID."); return; }
             EnsureDir();
-            string path = string.Format("Assets/Match Them All/Resources/Shop/Tabs/ShopTab_{0}.asset", id);
+            string path = string.Format("Assets/MatchThemAllTemplate/Resources/Shop/Tabs/ShopTab_{0}.asset", id);
             var tab = AssetDatabase.LoadAssetAtPath<ShopTabSO>(path);
             if (!tab) { tab = CreateInstance<ShopTabSO>(); AssetDatabase.CreateAsset(tab, path); }
             var so = new SerializedObject(tab);
@@ -505,7 +505,7 @@ namespace MatchThemAll.Scripts.Editor
         {
             if (string.IsNullOrEmpty(id)) { ShowDialog("Missing ID", "Enter a product ID."); return; }
             EnsureDir();
-            string path = string.Format("Assets/Match Them All/Resources/Shop/Items/ShopProduct_{0}.asset", id);
+            string path = string.Format("Assets/MatchThemAllTemplate/Resources/Shop/Items/ShopProduct_{0}.asset", id);
             var p = AssetDatabase.LoadAssetAtPath<ShopProductSO>(path);
             if (!p) { p = CreateInstance<ShopProductSO>(); AssetDatabase.CreateAsset(p, path); }
             var so = new SerializedObject(p);
@@ -571,8 +571,8 @@ namespace MatchThemAll.Scripts.Editor
 
         private static void EnsureDir()
         {
-            Directory.CreateDirectory("Assets/Match Them All/Resources/Shop/Tabs");
-            Directory.CreateDirectory("Assets/Match Them All/Resources/Shop/Items");
+            Directory.CreateDirectory("Assets/MatchThemAllTemplate/Resources/Shop/Tabs");
+            Directory.CreateDirectory("Assets/MatchThemAllTemplate/Resources/Shop/Items");
         }
 
         private static void ShowDialog(string title, string msg)
@@ -586,3 +586,4 @@ namespace MatchThemAll.Scripts.Editor
     }
 }
 #endif
+

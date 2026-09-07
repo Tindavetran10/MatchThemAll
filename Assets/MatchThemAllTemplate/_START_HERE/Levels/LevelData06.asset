@@ -12,6 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6555fd2a693358d43a48520c3eaaa4b4, type: 3}
   m_Name: LevelData06
   m_EditorClassIdentifier: 
+  levelId: LevelData06
+  themeBackground: {fileID: 0}
+  themeName: 
   spotCount: 7
   duration: 60
   seed: 70784

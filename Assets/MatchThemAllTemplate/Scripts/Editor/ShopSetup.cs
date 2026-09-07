@@ -26,8 +26,8 @@ namespace MatchThemAll.Scripts.Editor
     /// </summary>
     public static class ShopSetup
     {
-        private const string SHOP_RES_DIR = "Assets/Match Them All/Resources/Shop";
-        private const string CARD_PREFAB_PATH = "Assets/Match Them All/Prefabs/UI/Shop/ShopProductCard.prefab";
+        private const string SHOP_RES_DIR = "Assets/MatchThemAllTemplate/Resources/Shop";
+        private const string CARD_PREFAB_PATH = "Assets/MatchThemAllTemplate/Prefabs/UI/Shop/ShopProductCard.prefab";
 
         // ─────────────────────────────────────────────────────────────────────
         // 1. Default products + database
@@ -209,7 +209,7 @@ namespace MatchThemAll.Scripts.Editor
         // ─────────────────────────────────────────────────────────────────────
         // 2. Build the shop panel inside the Lobby scene's existing Canvas
         // ─────────────────────────────────────────────────────────────────────
-        private const string LOBBY_SCENE_PATH = "Assets/Match Them All/Scenes/Lobby.unity";
+        private const string LOBBY_SCENE_PATH = "Assets/MatchThemAllTemplate/Scenes/Lobby.unity";
 
         [MenuItem("Tools/Shop/Build Shop Panel")]
         public static void BuildPanel()
@@ -380,7 +380,7 @@ namespace MatchThemAll.Scripts.Editor
                       "Re-run to rebuild idempotently.");
         }
 
-        private const string TAB_BTN_PREFAB_PATH = "Assets/Match Them All/Prefabs/UI/Shop/ShopTabButton.prefab";
+        private const string TAB_BTN_PREFAB_PATH = "Assets/MatchThemAllTemplate/Prefabs/UI/Shop/ShopTabButton.prefab";
 
         private static Button BuildTabButtonPrefab()
         {
@@ -544,3 +544,4 @@ namespace MatchThemAll.Scripts.Editor
     }
 }
 #endif
+

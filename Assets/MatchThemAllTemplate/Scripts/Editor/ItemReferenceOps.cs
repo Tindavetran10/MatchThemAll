@@ -15,9 +15,9 @@ namespace MatchThemAll.Scripts.Editor
     internal static class ItemReferenceOps
     {
         // Single source of truth for the paths the editor relies on.
-        internal const string ItemPrefabFolder = "Assets/Match Them All/_START_HERE/Items";
+        internal const string ItemPrefabFolder = "Assets/MatchThemAllTemplate/_START_HERE/Items";
         internal const string ItemTrashFolder  = ItemPrefabFolder + "/Trash";
-        internal const string IconsFolder      = "Assets/Match Them All/Sprites/Icons";
+        internal const string IconsFolder      = "Assets/MatchThemAllTemplate/Art/Sprites/Icons";
         internal const string IconsTrashFolder = IconsFolder + "/Trash";
 
         /// <summary>Load every LevelDataSO asset in the project.</summary>
@@ -121,3 +121,4 @@ namespace MatchThemAll.Scripts.Editor
         }
     }
 }
+
