@@ -1,4 +1,49 @@
 {
+  "env": {
+    "ANTHROPIC_BASE_URL": "http://localhost:20128/v1",
+    "ANTHROPIC_API_KEY": "sk-7696c8f7ead5f3eb-1326c6-1d571dd4",
+    "ANTHROPIC_MODEL": "tingade-combo",
+    "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1"
+  },
+  "enabledPlugins": {
+    "ponytail@ponytail": true,
+    "andrej-karpathy-skills@karpathy-skills": true,
+    "superpowers@claude-plugins-official": true,
+    "obsidian@obsidian-skills": true
+  },
+  "extraKnownMarketplaces": {
+    "ponytail": {
+      "source": {
+        "source": "github",
+        "repo": "DietrichGebert/ponytail"
+      }
+    },
+    "karpathy-skills": {
+      "source": {
+        "source": "github",
+        "repo": "forrestchang/andrej-karpathy-skills"
+      }
+    },
+    "obsidian-skills": {
+      "source": {
+        "source": "git",
+        "url": "https://github.com/kepano/obsidian-skills.git"
+      }
+    }
+  },
+  "effortLevel": "high",
+  "skipWorkflowUsageWarning": true,
+  "theme": "dark",
+  "switchModelsOnFlag": false,
+  "permissions": {
+    "allow": [
+      "Read(//e/Unity Projects/MatchThemAll - Copy/**)"
+    ],
+    "additionalDirectories": [
+      "e:\\Unity Projects\\MatchThemAll - Copy\\Assets\\MatchThemAll",
+      "e:\\Unity Projects\\MatchThemAll - Copy\\Assets\\MatchThemAllTemplate"
+    ]
+  },
   "hooks": {
     "PreToolUse": [
       {
