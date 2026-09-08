@@ -72,6 +72,9 @@ For multi-step tasks, state a brief plan:
 
 Strong success criteria let you loop independently. Weak criteria ("make it work") require constant clarification.
 
+**Mandatory Verification Before Finalizing:**
+- ALWAYS check the Unity console (via the Unity MCP tool or any console reading tool) for compilation or runtime errors before telling the user the task is complete. If you spot common Unity errors (e.g., missing references, compiler errors, null references), fix them automatically and update this file with any new common mistakes you discover before finalizing your response.
+
 ---
 
 ## 5. graphify
