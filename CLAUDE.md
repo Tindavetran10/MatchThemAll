@@ -185,7 +185,7 @@ These nodes connect otherwise separate communities. Breaking them breaks multipl
 
 ## 10. Obsidian Second Brain
 
-The vault root is this folder. In Obsidian:
+The vault root is the project root (where `.obsidian/` lives). In Obsidian:
 - `graphify-out/GRAPH_REPORT.md` — clickable `[[community links]]` for navigation
 - `graphify-out/graph.html` — interactive visual graph explorer
 - `docs/` — architecture decision records, specs, plans
