@@ -20,6 +20,9 @@
       "e:\\Unity Projects\\MatchThemAll - Copy\\Assets\\MatchThemAllTemplate"
     ]
   },
+  "enabledMcpjsonServers": [
+    "ai-game-developer"
+  ],
   "hooks": {
     "PreToolUse": [
       {
@@ -41,5 +44,6 @@
         ]
       }
     ]
-  }
+  },
+  "enableAllProjectMcpServers": true
 }
