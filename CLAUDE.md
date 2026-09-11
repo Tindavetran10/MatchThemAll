@@ -185,7 +185,7 @@ These nodes connect otherwise separate communities. Breaking them breaks multipl
 
 ## 10. Obsidian Second Brain
 
-The vault root is this folder. In Obsidian:
+The vault root is the project root (where `.obsidian/` lives). In Obsidian:
 - `graphify-out/GRAPH_REPORT.md` — clickable `[[community links]]` for navigation
 - `graphify-out/graph.html` — interactive visual graph explorer
 - `docs/` — architecture decision records, specs, plans
@@ -194,7 +194,36 @@ When you make an architectural decision, log it in Obsidian under `docs/decision
 
 ---
 
-## 11. Quick Commands
+## 11. Unity Plugin Skills
+
+This project has the official Unity plugin for Claude Code installed with 29+ skills.
+
+**Use Unity MCP tools BEFORE writing custom code** — many common tasks are already covered:
+
+| Task | Skill/Command |
+|------|---------------|
+| Find GameObjects | `find_gameobjects`, `find_gameobjects_tag`, `find_gameobjects_by_name` |
+| Create/Modify objects | `gameobject-create`, `gameobject-modify` |
+| Add components | `gameobject-component-add`, `script-update-or-create` |
+| Asset operations | `assets-*` (find, copy, move, delete, material-create, prefab-*) |
+| Animation | `animation-*`, `animator-*` |
+| Scene ops | `scene-open`, `scene-save`, `scene-get-data` |
+| Package management | `package-add`, `package-list`, `package-search` |
+| Profiler | `profiler-*` (memory, rendering, script stats) |
+| Screenshots | `screenshot-scene-view`, `screenshot-game-view` |
+| Console logs | `console-get-logs`, `console-clear-logs` |
+| Run tests | `tests-run` |
+
+**Quick workflow:**
+1. Check editor state: `editor-application-get-state`
+2. Find existing assets/objects via Unity skills
+3. Only write custom code when no existing skill covers it
+
+**Full skill list:** Run `/skill-doctor` or check `.claude/settings.json` → `skills`.
+
+---
+
+## 12. Quick Commands
 
 ```powershell
 # Query the knowledge graph (use before browsing code)
