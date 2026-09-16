@@ -120,7 +120,7 @@ This template ships with placeholder assets for models that require separate lic
 
 ### Gem Models
 
-**Current:** Simple capsule with metallic material  
+**Current:** Placeholder gems (sphere, capsule, cube, cylinder, torus) with metallic materials  
 **Recommended:** BTM_Assets or your own models
 
 **Steps:**

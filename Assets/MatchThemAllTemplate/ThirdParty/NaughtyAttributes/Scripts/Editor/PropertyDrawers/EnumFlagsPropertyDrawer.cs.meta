@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 66f373c5dad12fa42a4161c600b2fd70
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 129996
+  packageName: NaughtyAttributes
+  packageVersion: 2.1.6
+  assetPath: Assets/NaughtyAttributes/Scripts/Editor/PropertyDrawers/EnumFlagsPropertyDrawer.cs
+  uploadId: 943610

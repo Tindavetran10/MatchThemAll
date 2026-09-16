@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: cdcd0774a8ff21c438d1fc26a8d71bd6
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 129996
+  packageName: NaughtyAttributes
+  packageVersion: 2.1.6
+  assetPath: Assets/NaughtyAttributes/Scripts/Editor/PropertyDrawers_SpecialCase/SpecialCasePropertyDrawerBase.cs
+  uploadId: 943610

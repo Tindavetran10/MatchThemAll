@@ -1,41 +1,88 @@
 # Third-Party Notices
 
-This package includes the following third-party assets:
+This package includes or references the following third-party software and assets:
 
-## NaughtyAttributes
+================================================================================
+NaughtyAttributes
+================================================================================
+Copyright (c) 2019 Denis Rizov
+License: MIT License
+Source: https://github.com/dbrizov/NaughtyAttributes
 
-Copyright (c) 2019 Martín San Martín
-MIT License
-https://github.com/vis2k/NaughtyAttributes
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-## ZLinq
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 
-MIT License
-https://github.com/Reptyr/ZLinq
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 
-## SimpleFX - Cartoon Particle Effects
+================================================================================
+ZLinq
+================================================================================
+Copyright (c) 2024 Cysharp, Inc. / Yoshifumi Kawai
+License: MIT License
+Source: https://github.com/Cysharp/ZLinq
 
-Free Asset
-https://assetstore.unity.com/packages/vfx/particles/simplefx-cartoon-particle-effects-143334
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-## UI Essential Pack
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 
-Free Asset
-https://assetstore.unity.com/packages/tools/gui/ui-essential-pack-132891
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 
----
+================================================================================
+SimpleFX - Cartoon Particle Effects
+================================================================================
+License: Unity Asset Store Free Asset
+Source: https://assetstore.unity.com/packages/vfx/particles/simplefx-cartoon-particle-effects-143334
 
-## Fonts
+================================================================================
+UI Essential Pack
+================================================================================
+License: Unity Asset Store Free Asset
+Source: https://assetstore.unity.com/packages/tools/gui/ui-essential-pack-132891
 
-### Roboto (UI Font)
+================================================================================
+Fonts: Roboto
+================================================================================
+License: Apache License, Version 2.0
+Source: https://fonts.google.com/specimen/Roboto
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
 
-Apache License 2.0
-https://fonts.google.com/specimen/Roboto
+    http://www.apache.org/licenses/LICENSE-2.0
 
----
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 
-## Credits
-
+--------------------------------------------------------------------------------
+Credits
+--------------------------------------------------------------------------------
 This template was created by TindaStudios.
-
-Thank you to the Unity community for the inspiration and assets that made this template possible.
+Thank you to the open source and Unity community for the tools and inspiration that made this template possible.

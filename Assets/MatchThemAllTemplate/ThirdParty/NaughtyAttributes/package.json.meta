@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: cea86e580f5e63448bd621d75c2f6581
+TextScriptImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 129996
+  packageName: NaughtyAttributes
+  packageVersion: 2.1.6
+  assetPath: Assets/NaughtyAttributes/package.json
+  uploadId: 943610
