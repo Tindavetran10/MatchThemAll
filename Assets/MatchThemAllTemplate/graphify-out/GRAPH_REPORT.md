@@ -1,525 +1,721 @@
-# Graph Report - MatchThemAllTemplate  (2026-09-07)
+# Graph Report - MatchThemAllTemplate  (2026-09-16)
 
 ## Corpus Check
-- 103 files · ~168,766 words
+- 104 files · ~168,807 words
 - Verdict: corpus is large enough that graph structure adds value.
+- Unclassified: 398 file(s) not represented in the graph (top: .meta 303, .asset 38, .prefab 30)
 
 ## Summary
-- 1397 nodes · 1903 edges · 96 communities (90 shown, 6 thin omitted)
-- Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS
+- 2418 nodes · 4267 edges · 147 communities (126 shown, 21 thin omitted)
+- Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 68 edges (avg confidence: 0.82)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `0d3303c0`
+- Built from commit: `509c47b6`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
-- [[_COMMUNITY_Community 0|Community 0]]
-- [[_COMMUNITY_Community 1|Community 1]]
-- [[_COMMUNITY_Community 2|Community 2]]
-- [[_COMMUNITY_Community 3|Community 3]]
-- [[_COMMUNITY_Community 4|Community 4]]
-- [[_COMMUNITY_Community 5|Community 5]]
-- [[_COMMUNITY_Community 6|Community 6]]
-- [[_COMMUNITY_Community 7|Community 7]]
-- [[_COMMUNITY_Community 8|Community 8]]
-- [[_COMMUNITY_Community 9|Community 9]]
-- [[_COMMUNITY_Community 10|Community 10]]
-- [[_COMMUNITY_Community 11|Community 11]]
-- [[_COMMUNITY_Community 12|Community 12]]
-- [[_COMMUNITY_Community 13|Community 13]]
-- [[_COMMUNITY_Community 14|Community 14]]
-- [[_COMMUNITY_Community 15|Community 15]]
-- [[_COMMUNITY_Community 16|Community 16]]
-- [[_COMMUNITY_Community 17|Community 17]]
-- [[_COMMUNITY_Community 18|Community 18]]
-- [[_COMMUNITY_Community 19|Community 19]]
-- [[_COMMUNITY_Community 20|Community 20]]
-- [[_COMMUNITY_Community 21|Community 21]]
-- [[_COMMUNITY_Community 22|Community 22]]
-- [[_COMMUNITY_Community 23|Community 23]]
-- [[_COMMUNITY_Community 24|Community 24]]
-- [[_COMMUNITY_Community 25|Community 25]]
-- [[_COMMUNITY_Community 26|Community 26]]
-- [[_COMMUNITY_Community 27|Community 27]]
-- [[_COMMUNITY_Community 28|Community 28]]
-- [[_COMMUNITY_Community 29|Community 29]]
-- [[_COMMUNITY_Community 30|Community 30]]
-- [[_COMMUNITY_Community 31|Community 31]]
-- [[_COMMUNITY_Community 32|Community 32]]
-- [[_COMMUNITY_Community 33|Community 33]]
-- [[_COMMUNITY_Community 34|Community 34]]
-- [[_COMMUNITY_Community 35|Community 35]]
-- [[_COMMUNITY_Community 36|Community 36]]
-- [[_COMMUNITY_Community 37|Community 37]]
-- [[_COMMUNITY_Community 38|Community 38]]
-- [[_COMMUNITY_Community 39|Community 39]]
-- [[_COMMUNITY_Community 40|Community 40]]
-- [[_COMMUNITY_Community 41|Community 41]]
-- [[_COMMUNITY_Community 42|Community 42]]
-- [[_COMMUNITY_Community 43|Community 43]]
-- [[_COMMUNITY_Community 44|Community 44]]
-- [[_COMMUNITY_Community 45|Community 45]]
-- [[_COMMUNITY_Community 46|Community 46]]
-- [[_COMMUNITY_Community 47|Community 47]]
-- [[_COMMUNITY_Community 48|Community 48]]
-- [[_COMMUNITY_Community 49|Community 49]]
-- [[_COMMUNITY_Community 50|Community 50]]
-- [[_COMMUNITY_Community 51|Community 51]]
-- [[_COMMUNITY_Community 52|Community 52]]
-- [[_COMMUNITY_Community 53|Community 53]]
-- [[_COMMUNITY_Community 54|Community 54]]
-- [[_COMMUNITY_Community 55|Community 55]]
-- [[_COMMUNITY_Community 56|Community 56]]
-- [[_COMMUNITY_Community 57|Community 57]]
-- [[_COMMUNITY_Community 58|Community 58]]
-- [[_COMMUNITY_Community 59|Community 59]]
-- [[_COMMUNITY_Community 60|Community 60]]
-- [[_COMMUNITY_Community 61|Community 61]]
-- [[_COMMUNITY_Community 62|Community 62]]
-- [[_COMMUNITY_Community 63|Community 63]]
-- [[_COMMUNITY_Community 64|Community 64]]
-- [[_COMMUNITY_Community 65|Community 65]]
-- [[_COMMUNITY_Community 66|Community 66]]
-- [[_COMMUNITY_Community 67|Community 67]]
-- [[_COMMUNITY_Community 68|Community 68]]
-- [[_COMMUNITY_Community 69|Community 69]]
-- [[_COMMUNITY_Community 70|Community 70]]
-- [[_COMMUNITY_Community 71|Community 71]]
-- [[_COMMUNITY_Community 72|Community 72]]
-- [[_COMMUNITY_Community 73|Community 73]]
-- [[_COMMUNITY_Community 74|Community 74]]
-- [[_COMMUNITY_Community 75|Community 75]]
-- [[_COMMUNITY_Community 76|Community 76]]
-- [[_COMMUNITY_Community 77|Community 77]]
-- [[_COMMUNITY_Community 78|Community 78]]
-- [[_COMMUNITY_Community 79|Community 79]]
-- [[_COMMUNITY_Community 80|Community 80]]
-- [[_COMMUNITY_Community 81|Community 81]]
-- [[_COMMUNITY_Community 82|Community 82]]
-- [[_COMMUNITY_Community 83|Community 83]]
-- [[_COMMUNITY_Community 84|Community 84]]
-- [[_COMMUNITY_Community 85|Community 85]]
-- [[_COMMUNITY_Community 86|Community 86]]
-- [[_COMMUNITY_Community 87|Community 87]]
-- [[_COMMUNITY_Community 88|Community 88]]
-- [[_COMMUNITY_Community 89|Community 89]]
-- [[_COMMUNITY_Community 90|Community 90]]
-- [[_COMMUNITY_Community 91|Community 91]]
-- [[_COMMUNITY_Community 92|Community 92]]
-- [[_COMMUNITY_Community 93|Community 93]]
-- [[_COMMUNITY_Community 94|Community 94]]
-- [[_COMMUNITY_Community 95|Community 95]]
+- LevelEditorWindow
+- ItemManagerWindow
+- SaveManager
+- ItemSpotManager
+- ShopEditorWindow
+- VacuumEffect
+- ShopSetup
+- LevelMapManager
+- TutorialManager
+- API Reference
+- @MTAInputSystem_Actions
+- PowerupManager
+- Item
+- TimerManager
+- ItemPlacer
+- InputManager
+- LevelManager
+- GoalManager
+- MergeManager
+- ShopPanel
+- ItemSpotLayout
+- .RemoveFromLevels
+- SoundManager
+- GameManager
+- ContinuePanelManager
+- PlayerData
+- Powerup
+- ShopProductCard
+- GoalCard
+- HintManager
+- Action
+- LoadingScreenManager
+- LevelMapBuilder
+- ComboManager
+- Level
+- VfxPool
+- FloatingText
+- LevelMapPath
+- PixelizeFeature
+- Scripts/Runtime/PowerUps/Fan.cs
+- DailyRewardPanel
+- Item
+- ItemSpotManager
+- DebugCheats
+- OpenSceneLoader
+- Customization Guide
+- EditorWindowStyles
+- ItemPoolManager
+- ShopProductSO
+- UIAnimator
+- LevelEditorWindow
+- LevelDataSO
+- SettingsManager
+- WinPanelManager
+- PowerupDataSO
+- DailyRewardManager
+- EventBus
+- TutorialStep
+- ItemSpot
+- ShopDatabaseSO
+- LevelButtonUI
+- PowerupDatabaseSetup
+- PrefabConsolidator
+- UIManager
+- Match Them All - Complete Game Template
+- MainMenuManager
+- GemDisplay
+- WatchAdForCoinsButton
+- CoinDisplay
+- SoundDataSO
+- SceneLoader
+- MonoBehaviour
+- LevelMapNode
+- PixelizeController
+- ScriptableObject
+- SaveManagerBootstrapper
+- ComboVFX
+- FloatingTextTester
+- .OwnsEntitlement
+- [1.0.0] - 2026-09-07
+- .DrawHighlight
+- Transform
+- PowerupEffect
+- DebugGrantCurrencyButton
+- ShopTabSO
+- PowerupManager
+- 👋 Start Here — Match Them All Customization Guide
+- ItemManagerWindow
+- EventBus
+- Scripts/Runtime/Shop/EntitlementIds.cs
+- Scripts/Runtime/LevelSystem/ItemLevelData.cs
+- Scripts/Runtime/Core/GameEvents.cs
+- Scripts/Runtime/Utilities/Enums/EGameState.cs
+- Scripts/Runtime/Utilities/Enums/EItemName.cs
+- Scripts/Runtime/PowerUps/ECurrency.cs
+- Scripts/Runtime/PowerUps/PowerupContext.cs
+- .BuildPanel
+- TutorialManager
+- TutorialStep
+- GameStateChangedEvent
+- LevelMapManager
+- SaveManager
+- MatchThemAll.Scripts
+- GoalManager
+- ShopPanel
+- .Load
+- ShopProductSO
+- GameManager
+- .Build
+- .Flush
+- ItemPlacer
+- PowerupContext
+- SoundManager
+- MatchThemAll.Scripts.Shop
+- .GenerateItemPrefab
+- .DrawLevelDetail
+- EItemName
+- List
+- ShopSetup
+- PlayerData
+- MergeStartedEvent
+- MatchThemAll.Scripts.UI
+- .CreateDefaultProducts
+- Level
+- LevelButtonUI
+- Scripts/Runtime/PowerUps/PowerupManager.cs
+- SpringEffect
+- .OnDisable
+- EGameState
+- .DrawDockPreview
+- FanEffect
+- .Publish
+- .AddCoins
+- Texture2D
+- FreezeEffect
+- SpringEffect
+- .Activate
+- VacuumEffect
+- EKind
+- WinPanelManager
+- .Start
+- .CreateDatabase
+- .ShowWindow
+- .ResetSessionStatics
+- Scripts/Runtime/PowerUps/FreezeGun.cs
+- Scripts/Runtime/PowerUps/Spring.cs
+- Scripts/Runtime/PowerUps/Vacuum.cs
 
 ## God Nodes (most connected - your core abstractions)
-1. `LevelEditorWindow` - 49 edges
-2. `ItemManagerWindow` - 47 edges
-3. `SaveManager` - 38 edges
-4. `ShopEditorWindow` - 37 edges
-5. `ItemSpotManager` - 34 edges
-6. `LevelMapManager` - 29 edges
-7. `TutorialManager` - 26 edges
-8. `Item` - 25 edges
-9. `ShopSetup` - 22 edges
-10. `TimerManager` - 20 edges
+1. `Item` - 76 edges
+2. `LevelEditorWindow` - 54 edges
+3. `LevelEditorWindow` - 49 edges
+4. `ItemManagerWindow` - 47 edges
+5. `ItemManagerWindow` - 42 edges
+6. `SaveManager` - 39 edges
+7. `SaveManager` - 38 edges
+8. `MatchThemAll.Scripts` - 37 edges
+9. `ShopEditorWindow` - 37 edges
+10. `ItemSpotManager` - 35 edges
 
 ## Surprising Connections (you probably didn't know these)
-- `ItemManagerWindow` --inherits--> `EditorWindow`  [EXTRACTED]
-  Scripts/Editor/ItemManagerWindow.cs →   _Bridges community 1 → community 4_
-- `LevelEditorWindow` --inherits--> `EditorWindow`  [EXTRACTED]
-  Scripts/Editor/LevelEditorWindow.cs →   _Bridges community 4 → community 0_
-- `DailyRewardManager` --inherits--> `MonoBehaviour`  [EXTRACTED]
-  Scripts/Runtime/Core/DailyRewardManager.cs →   _Bridges community 55 → community 44_
-- `DebugCheats` --inherits--> `MonoBehaviour`  [EXTRACTED]
-  Scripts/Runtime/Core/DebugCheats.cs →   _Bridges community 44 → community 43_
-- `GameManager` --inherits--> `MonoBehaviour`  [EXTRACTED]
-  Scripts/Runtime/Core/GameManager.cs →   _Bridges community 44 → community 23_
+- `Fan` --inherits--> `Powerup`  [EXTRACTED]
+  Assets/MatchThemAllTemplate/Scripts/Runtime/PowerUps/Fan.cs → Assets/MatchThemAllTemplate/Scripts/Runtime/PowerUps/Powerup.cs
+- `FreezeGun` --inherits--> `Powerup`  [EXTRACTED]
+  Assets/MatchThemAllTemplate/Scripts/Runtime/PowerUps/FreezeGun.cs → Assets/MatchThemAllTemplate/Scripts/Runtime/PowerUps/Powerup.cs
+- `Spring` --inherits--> `Powerup`  [EXTRACTED]
+  Assets/MatchThemAllTemplate/Scripts/Runtime/PowerUps/Spring.cs → Assets/MatchThemAllTemplate/Scripts/Runtime/PowerUps/Powerup.cs
+- `ItemManagerWindow` --references--> `EItemName`  [EXTRACTED]
+  Assets/MatchThemAllTemplate/Scripts/Editor/ItemManagerWindow.cs → Assets/MatchThemAllTemplate/Scripts/Runtime/Utilities/Enums/EItemName.cs
+- `ShopEditorWindow` --references--> `ShopDatabaseSO`  [EXTRACTED]
+  Assets/MatchThemAllTemplate/Scripts/Editor/ShopEditorWindow.cs → Assets/MatchThemAllTemplate/Scripts/Runtime/Shop/ShopDatabaseSO.cs
 
 ## Import Cycles
 - None detected.
 
-## Communities (96 total, 6 thin omitted)
+## Communities (147 total, 21 thin omitted)
 
-### Community 0 - "Community 0"
-Cohesion: 0.07
-Nodes (21): Editor, DeletedItemRecord, DeletedItemRecordList, LevelEditorWindow, MatchThemAll.Scripts.Editor, RemovedLevelEntry, bool, Color (+13 more)
-
-### Community 1 - "Community 1"
-Cohesion: 0.08
-Nodes (20): double, ItemManagerWindow, MatchThemAll.Scripts.Editor, PreviewRenderUtility, bool, Color, EItemName, float (+12 more)
-
-### Community 2 - "Community 2"
-Cohesion: 0.07
-Nodes (13): hapticsEnabled, lastPlayedDate, loginStreak, musicVolume, PlayerData, MatchThemAll.Scripts.SaveSystem, SaveManager, bool (+5 more)
-
-### Community 3 - "Community 3"
+### Community 0 - "LevelEditorWindow"
 Cohesion: 0.10
-Nodes (16): ItemSpotManager, MatchThemAll.Scripts, Action, Ease, EItemName, float, IEnumerable, int (+8 more)
+Nodes (8): Editor, LevelEditorWindow, float, GameSettingsSO, GUIStyle, MenuItem, Vector2, Texture
 
-### Community 4 - "Community 4"
-Cohesion: 0.09
-Nodes (16): MatchThemAll.Scripts.Editor, ShopEditorWindow, EditorWindow, bool, Color, float, GUIStyle, int (+8 more)
-
-### Community 5 - "Community 5"
-Cohesion: 0.07
-Nodes (22): PowerupEffect, FanEffect, MatchThemAll.Scripts.Power_Ups, FreezeEffect, MatchThemAll.Scripts.Power_Ups, DrawGizmos(), DrawTrajectoryGizmo(), MatchThemAll.Scripts.Power_Ups (+14 more)
-
-### Community 6 - "Community 6"
+### Community 1 - "ItemManagerWindow"
 Cohesion: 0.12
-Nodes (15): MatchThemAll.Scripts.Editor, ShopSetup, LayoutElement, Button, Color, ECurrency, EKind, GameObject (+7 more)
+Nodes (8): double, ItemManagerWindow, MatchThemAll.Scripts.Editor, bool, EItemName, float, int, string
 
-### Community 7 - "Community 7"
+### Community 2 - "SaveManager"
 Cohesion: 0.09
-Nodes (15): LevelMapPath, LevelMapManager, MatchThemAll.Scripts.UI, Button, float, IEnumerator, IReadOnlyList, LevelMapNode (+7 more)
+Nodes (7): PlayerData, MatchThemAll.Scripts.SaveSystem, SaveManager, bool, ECurrency, PowerupDatabaseSO, string
 
-### Community 8 - "Community 8"
+### Community 3 - "ItemSpotManager"
+Cohesion: 0.10
+Nodes (14): ItemSpotManager, MatchThemAll.Scripts, Ease, EItemName, float, IEnumerable, int, Item (+6 more)
+
+### Community 4 - "ShopEditorWindow"
+Cohesion: 0.06
+Nodes (17): MatchThemAll.Scripts.Editor, ShopEditorWindow, EditorWindow, bool, Color, float, GUIStyle, int (+9 more)
+
+### Community 5 - "VacuumEffect"
+Cohesion: 0.27
+Nodes (5): MatchThemAll.Scripts.Power_Ups, VacuumEffect, Item, ItemLevelData, PowerupContext
+
+### Community 6 - "ShopSetup"
+Cohesion: 0.19
+Nodes (5): MatchThemAll.Scripts.Editor, ShopSetup, Color, ShopProductCard, string
+
+### Community 7 - "LevelMapManager"
 Cohesion: 0.11
-Nodes (15): Coroutine, CanvasGroup, GameObject, IEnumerator, int, ItemClickedEvent, Level, List (+7 more)
+Nodes (12): LevelMapPath, LevelMapManager, MatchThemAll.Scripts.UI, Button, float, IEnumerator, IReadOnlyList, LevelMapNode (+4 more)
 
-### Community 9 - "Community 9"
+### Community 8 - "TutorialManager"
+Cohesion: 0.18
+Nodes (6): IEnumerator, int, List, TutorialStep, MatchThemAll.Scripts.Managers, TutorialManager
+
+### Community 9 - "API Reference"
 Cohesion: 0.07
 Nodes (29): AdManagerMock, API Reference, ComboManager, Configuration, Core Systems, Event System, EventBus<T>, Game Events (+21 more)
 
-### Community 10 - "Community 10"
-Cohesion: 0.12
-Nodes (18): CallbackContext, AddCallbacks(), Disable(), Enable(), Get(), IGameplayActions, @MTAInputSystem_Actions, RemoveCallbacks() (+10 more)
+### Community 10 - "@MTAInputSystem_Actions"
+Cohesion: 0.05
+Nodes (36): CallbackContext, AddCallbacks(), Disable(), Enable(), Get(), IGameplayActions, @MTAInputSystem_Actions, RemoveCallbacks() (+28 more)
 
-### Community 11 - "Community 11"
-Cohesion: 0.11
-Nodes (18): DebugActivateFan(), DebugActivateFreeze(), DebugActivateSpring(), DebugActivateVacuum(), ForceActivate(), MatchThemAll.Scripts, PowerupManager, bool (+10 more)
+### Community 11 - "PowerupManager"
+Cohesion: 0.13
+Nodes (11): PowerupManager, bool, GameSettingsSO, Item, Powerup, PowerupClickedEvent, PowerupContext, PowerupDatabaseSO (+3 more)
 
-### Community 12 - "Community 12"
-Cohesion: 0.09
+### Community 12 - "Item"
+Cohesion: 0.08
 Nodes (13): Bounds, Collider, Item, MatchThemAll.Scripts, Renderer, Rigidbody, bool, EItemName (+5 more)
 
-### Community 13 - "Community 13"
-Cohesion: 0.14
-Nodes (10): DebugRunOutOfTime(), MatchThemAll.Scripts, TimerManager, bool, Button, GameStateChangedEvent, IEnumerator, Level (+2 more)
+### Community 13 - "TimerManager"
+Cohesion: 0.09
+Nodes (13): DebugRunOutOfTime(), MatchThemAll.Scripts, TimerManager, bool, Button, GameStateChangedEvent, IEnumerator, Level (+5 more)
 
-### Community 14 - "Community 14"
+### Community 14 - "ItemPlacer"
 Cohesion: 0.16
-Nodes (12): BoxCollider, ItemPlacer, MatchThemAll.Scripts, PreviewSpawn(), PreviewSpawnFromEditor(), PreviewSpawnWithData(), Button, Item (+4 more)
+Nodes (11): BoxCollider, ItemPlacer, MatchThemAll.Scripts, PreviewSpawn(), PreviewSpawnFromEditor(), PreviewSpawnWithData(), Button, Item (+3 more)
 
-### Community 15 - "Community 15"
-Cohesion: 0.13
-Nodes (9): Camera, InputManager, MatchThemAll.Scripts, LayerMask, MTAInputSystem_Actions, bool, GameStateChangedEvent, Item (+1 more)
+### Community 15 - "InputManager"
+Cohesion: 0.08
+Nodes (16): Camera, InputManager, MatchThemAll.Scripts, LayerMask, MeshRenderer, MTAInputSystem_Actions, bool, Collider (+8 more)
 
-### Community 16 - "Community 16"
+### Community 16 - "LevelManager"
+Cohesion: 0.06
+Nodes (25): IReadOnlyList<string>, LevelManager, MatchThemAll.Scripts, List<string>, Action, bool, Button, GameStateChangedEvent (+17 more)
+
+### Community 17 - "GoalManager"
+Cohesion: 0.14
+Nodes (7): GoalManager, MatchThemAll.Scripts, GoalCard, int, Item, ItemLevelData, Level
+
+### Community 18 - "MergeManager"
 Cohesion: 0.11
-Nodes (12): IReadOnlyList<string>, LevelManager, MatchThemAll.Scripts, List<string>, Action, bool, Button, GameStateChangedEvent (+4 more)
+Nodes (12): MatchThemAll.Scripts, MergeManager, Ease, float, IEnumerator, int, IObjectPool, Item (+4 more)
 
-### Community 17 - "Community 17"
-Cohesion: 0.13
-Nodes (9): GoalManager, MatchThemAll.Scripts, GoalCard, int, Item, ItemLevelData, Level, List (+1 more)
-
-### Community 18 - "Community 18"
-Cohesion: 0.14
-Nodes (11): MatchThemAll.Scripts, MergeManager, Ease, float, IEnumerator, int, IObjectPool, Item (+3 more)
-
-### Community 19 - "Community 19"
-Cohesion: 0.13
-Nodes (10): Button, GameObject, List, ShopDatabaseSO, ShopProductCard, string, Transform, MatchThemAll.Scripts.Shop (+2 more)
-
-### Community 20 - "Community 20"
-Cohesion: 0.19
-Nodes (9): Axis, ContextMenu, ItemSpotLayout, MatchThemAll.Scripts, LayoutMode, bool, float, List (+1 more)
-
-### Community 21 - "Community 21"
-Cohesion: 0.19
-Nodes (12): ItemReferenceOps, MatchThemAll.Scripts.Editor, entry, IList, index, levelName, Item, ItemLevelData (+4 more)
-
-### Community 22 - "Community 22"
+### Community 19 - "ShopPanel"
 Cohesion: 0.16
-Nodes (7): AudioMixer, AudioSource, MatchThemAll.Scripts, SoundManager, int, string, SoundDataSO
+Nodes (7): Button, ShopDatabaseSO, ShopProductCard, string, MatchThemAll.Scripts.Shop, ShopPanel, UIAnimator
 
-### Community 23 - "Community 23"
+### Community 20 - "ItemSpotLayout"
+Cohesion: 0.09
+Nodes (19): Axis, ContextMenu, ItemSpotLayout, MatchThemAll.Scripts, LayoutMode, bool, float, List (+11 more)
+
+### Community 21 - ".RemoveFromLevels"
+Cohesion: 0.15
+Nodes (16): ItemReferenceOps, MatchThemAll.Scripts.Editor, entry, IList, index, levelName, GameObject, index (+8 more)
+
+### Community 22 - "SoundManager"
+Cohesion: 0.19
+Nodes (5): MatchThemAll.Scripts, SoundManager, int, string, SoundDataSO
+
+### Community 23 - "GameManager"
 Cohesion: 0.16
 Nodes (4): GameManager, MatchThemAll.Scripts, EGameState, SpotFilledEvent
 
-### Community 24 - "Community 24"
-Cohesion: 0.13
-Nodes (8): ContinuePanelManager, MatchThemAll.Scripts.UI, Button, float, GameObject, GameSettingsSO, GameStateChangedEvent, TextMeshProUGUI
+### Community 24 - "ContinuePanelManager"
+Cohesion: 0.10
+Nodes (9): ContinuePanelManager, MatchThemAll.Scripts.UI, Button, float, GameObject, GameSettingsSO, GameStateChangedEvent, TextMeshProUGUI (+1 more)
 
-### Community 25 - "Community 25"
-Cohesion: 0.14
+### Community 25 - "PlayerData"
+Cohesion: 0.13
 Nodes (10): LevelProgressEntry, MatchThemAll.Scripts.SaveSystem, PlayerData, PowerupSaveEntry, bool, float, int, IReadOnlyList (+2 more)
 
-### Community 26 - "Community 26"
-Cohesion: 0.13
-Nodes (10): MatchThemAll.Scripts.Power_Ups, Powerup, Action, Animator, GameObject, Image, PowerupDatabaseSO, PowerupDataSO (+2 more)
+### Community 26 - "Powerup"
+Cohesion: 0.11
+Nodes (14): MatchThemAll.Scripts.Power_Ups, Powerup, Action, Animator, Collider, GameObject, Image, PowerupDatabaseSO (+6 more)
 
-### Community 27 - "Community 27"
-Cohesion: 0.17
-Nodes (8): Button, GameObject, Image, ShopProductSO, TextMeshProUGUI, MatchThemAll.Scripts.Shop, ShopProductCard, ShopPurchaseSucceededEvent
-
-### Community 28 - "Community 28"
-Cohesion: 0.13
-Nodes (8): Animator, bool, GameObject, Image, Sprite, TextMeshProUGUI, GoalCard, MatchThemAll.Scripts.UI
-
-### Community 29 - "Community 29"
-Cohesion: 0.16
-Nodes (7): HintManager, MatchThemAll.Scripts.Managers, EItemName, float, GameStateChangedEvent, ItemClickedEvent, List
-
-### Community 30 - "Community 30"
-Cohesion: 0.18
-Nodes (8): HashSet, IIapService, Action, IReadOnlyList, ShopProductSO, MatchThemAll.Scripts.Shop, ShopManager, ShopReward
-
-### Community 31 - "Community 31"
-Cohesion: 0.16
-Nodes (10): AsyncOperation, LoadingScreenManager, MatchThemAll.Scripts, float, GameObject, IEnumerator, Image, Slider (+2 more)
-
-### Community 32 - "Community 32"
-Cohesion: 0.20
-Nodes (8): LevelMapBuilder, MatchThemAll.Scripts.Editor, GameObject, LevelMapNode, MenuItem, RectTransform, string, Transform
-
-### Community 33 - "Community 33"
-Cohesion: 0.16
-Nodes (7): ComboManager, MatchThemAll.Scripts, Action, float, int, Level, MergeStartedEvent
-
-### Community 34 - "Community 34"
-Cohesion: 0.16
-Nodes (8): ItemPlacer, Level, MatchThemAll.Scripts, ItemLevelData, LevelDataSO, List<Item>, Task, TutorialStep>
-
-### Community 35 - "Community 35"
-Cohesion: 0.19
-Nodes (8): Dictionary, GameObject, IEnumerator, IObjectPool, ParticleSystem, Vector3, MatchThemAll.Scripts, VfxPool
-
-### Community 36 - "Community 36"
-Cohesion: 0.18
-Nodes (8): Canvas, ObjectPool, Color, FloatingText, RectTransform, Vector3, FloatingTextSpawner, MatchThemAll.Scripts.UI
-
-### Community 37 - "Community 37"
+### Community 27 - "ShopProductCard"
 Cohesion: 0.15
-Nodes (8): Graphic, float, IEnumerable, List, Vector2, LevelMapPath, MatchThemAll.Scripts.UI, VertexHelper
+Nodes (9): Button, GameObject, Image, ShopProductSO, TextMeshProUGUI, ShopProductCard, MatchThemAll.Scripts.Shop, ShopProductCard (+1 more)
 
-### Community 38 - "Community 38"
-Cohesion: 0.17
-Nodes (9): CustomPassSettings, MatchThemAll.Scripts.Pixelate, PixelizeFeature, PixelizePass, RenderingData, RenderPassEvent, ScriptableRenderer, ScriptableRendererFeature (+1 more)
+### Community 28 - "GoalCard"
+Cohesion: 0.10
+Nodes (9): Animator, bool, GameObject, Image, Sprite, TextMeshProUGUI, GoalCard, GoalCard (+1 more)
 
-### Community 39 - "Community 39"
+### Community 29 - "HintManager"
+Cohesion: 0.13
+Nodes (9): HintManager, MatchThemAll.Scripts.Managers, EItemName, float, GameStateChangedEvent, Item, ItemClickedEvent, List (+1 more)
+
+### Community 30 - "Action"
+Cohesion: 0.08
+Nodes (16): HashSet, IIapService, MatchThemAll.Scripts.Shop, NullIapService, IIapService, Action, IIapService, IsInitialized (+8 more)
+
+### Community 31 - "LoadingScreenManager"
 Cohesion: 0.15
-Nodes (9): Powerup, Fan, MatchThemAll.Scripts.Power_Ups, FreezeGun, MatchThemAll.Scripts.Power_Ups, MatchThemAll.Scripts.Power_Ups, Spring, MatchThemAll.Scripts.Power_Ups (+1 more)
+Nodes (12): AsyncOperation, LoadingScreenManager, MatchThemAll.Scripts, Canvas, float, GameObject, IEnumerator, Image (+4 more)
 
-### Community 40 - "Community 40"
+### Community 32 - "LevelMapBuilder"
+Cohesion: 0.21
+Nodes (7): LevelMapBuilder, MatchThemAll.Scripts.Editor, GameObject, LevelMapNode, MenuItem, string, Transform
+
+### Community 33 - "ComboManager"
 Cohesion: 0.18
-Nodes (8): Action, Button, CanvasGroup, GameObject, TextMeshProUGUI, Transform, DailyRewardPanel, MatchThemAll.Scripts.UI
+Nodes (6): ComboManager, MatchThemAll.Scripts, float, int, Level, MergeStartedEvent
 
-### Community 41 - "Community 41"
-Cohesion: 0.23
-Nodes (7): Action, Color, float, RectTransform, TextMeshProUGUI, FloatingText, MatchThemAll.Scripts.UI
+### Community 34 - "Level"
+Cohesion: 0.18
+Nodes (7): ItemPlacer, Level, MatchThemAll.Scripts, ItemLevelData, LevelDataSO, List<Item>, TutorialStep>
 
-### Community 42 - "Community 42"
-Cohesion: 0.17
-Nodes (9): ContextContainer, CustomPassSettings, MatchThemAll.Scripts.Pixelate, PassData, PixelizePass, RenderGraph, ScriptableRenderPass, int (+1 more)
+### Community 35 - "VfxPool"
+Cohesion: 0.15
+Nodes (11): Dictionary, GameObject, IEnumerator, IObjectPool, ParticleSystem, Transform, Vector3, VfxPool (+3 more)
 
-### Community 43 - "Community 43"
-Cohesion: 0.26
-Nodes (5): DebugCheats, MatchThemAll.Scripts, Button, int, RuntimeInitializeOnLoadMethod
+### Community 36 - "FloatingText"
+Cohesion: 0.07
+Nodes (19): Canvas, ObjectPool, ComboVFX, Action, Color, float, RectTransform, TextMeshProUGUI (+11 more)
 
-### Community 44 - "Community 44"
-Cohesion: 0.17
-Nodes (7): MatchThemAll.Scripts, OpenSceneLoader, LosePanelManager, MatchThemAll.Scripts.UI, MonoBehaviour, float, IEnumerator
+### Community 37 - "LevelMapPath"
+Cohesion: 0.13
+Nodes (9): Graphic, float, IEnumerable, List, Vector2, LevelMapPath, LevelMapPath, MatchThemAll.Scripts.UI (+1 more)
 
-### Community 45 - "Community 45"
+### Community 38 - "PixelizeFeature"
+Cohesion: 0.06
+Nodes (27): ContextContainer, MatchThemAll.Scripts.Pixelate, CustomPassSettings, PassData, CustomPassSettings, MatchThemAll.Scripts.Pixelate, PixelizeFeature, MatchThemAll.Scripts.Pixelate (+19 more)
+
+### Community 40 - "DailyRewardPanel"
+Cohesion: 0.15
+Nodes (9): Action, Button, CanvasGroup, GameObject, TextMeshProUGUI, Transform, DailyRewardPanel, DailyRewardPanel (+1 more)
+
+### Community 41 - "Item"
+Cohesion: 0.08
+Nodes (21): ItemPickedUpEvent, LevelSpawnedEvent, PowerupItemBackToGameEvent, PowerupItemPickedUpEvent, Collider, Renderer, Rigidbody, Item (+13 more)
+
+### Community 42 - "ItemSpotManager"
+Cohesion: 0.11
+Nodes (6): ItemClickedEvent, ItemSpot, Item, Action, ItemSpotManager, Instance
+
+### Community 43 - "DebugCheats"
+Cohesion: 0.18
+Nodes (6): DebugCheats, MatchThemAll.Scripts, Button, int, RuntimeInitializeOnLoadMethod, DebugCheats
+
+### Community 44 - "OpenSceneLoader"
+Cohesion: 0.22
+Nodes (5): MatchThemAll.Scripts, OpenSceneLoader, float, IEnumerator, OpenSceneLoader
+
+### Community 45 - "Customization Guide"
 Cohesion: 0.17
 Nodes (11): Adding a New Item Type, Adding a New Power-Up, Changing Game Colors/Theme, Creating a New Level, Customization Guide, Gem Models, Getting Help, Replacing Placeholder Assets (+3 more)
 
-### Community 46 - "Community 46"
-Cohesion: 0.20
-Nodes (8): EditorWindowStyles, MatchThemAll.Scripts.Editor, InitializeOnLoadMethod, Color, Dictionary, GUIStyle, int, Texture2D
+### Community 46 - "EditorWindowStyles"
+Cohesion: 0.19
+Nodes (9): EditorWindowStyles, MatchThemAll.Scripts.Editor, InitializeOnLoadMethod, Color, Dictionary, GUIStyle, int, Texture2D (+1 more)
 
-### Community 47 - "Community 47"
-Cohesion: 0.26
-Nodes (4): ItemPoolManager, MatchThemAll.Scripts, Dictionary, Item
+### Community 47 - "ItemPoolManager"
+Cohesion: 0.29
+Nodes (3): ItemPoolManager, MatchThemAll.Scripts, Item
 
-### Community 48 - "Community 48"
+### Community 48 - "ShopProductSO"
 Cohesion: 0.20
 Nodes (10): bool, ECurrency, EKind, int, List, Sprite, string, MatchThemAll.Scripts.Shop (+2 more)
 
-### Community 49 - "Community 49"
-Cohesion: 0.17
-Nodes (8): CanvasGroup, Ease, float, Image, Transform, Vector3, MatchThemAll.Scripts.UI, UIAnimator
+### Community 49 - "UIAnimator"
+Cohesion: 0.14
+Nodes (9): CanvasGroup, Ease, float, Image, Transform, Vector3, UIAnimator, MatchThemAll.Scripts.UI (+1 more)
 
-### Community 50 - "Community 50"
-Cohesion: 0.29
-Nodes (4): IIapService, MatchThemAll.Scripts.Shop, NullIapService, Action
+### Community 50 - "LevelEditorWindow"
+Cohesion: 0.12
+Nodes (10): DeletedItemRecordList, Color, index, level, LevelDataSO, levelName, Texture2D, LevelEditorWindow (+2 more)
 
-### Community 51 - "Community 51"
-Cohesion: 0.18
-Nodes (8): LevelDataSO, MatchThemAll.Scripts, RewardCalculationMode, int, ItemLevelData, List, Sprite, string
+### Community 51 - "LevelDataSO"
+Cohesion: 0.10
+Nodes (16): LevelDataSO, MatchThemAll.Scripts, RewardCalculationMode, int, ItemLevelData, List, Sprite, string (+8 more)
 
-### Community 52 - "Community 52"
-Cohesion: 0.18
-Nodes (4): MatchThemAll.Scripts.UI, SettingsManager, Slider, Toggle
+### Community 52 - "SettingsManager"
+Cohesion: 0.11
+Nodes (8): hapticsEnabled, MatchThemAll.Scripts.UI, SettingsManager, musicVolume, Slider, SettingsManager, sfxVolume, Toggle
 
-### Community 53 - "Community 53"
+### Community 53 - "WinPanelManager"
 Cohesion: 0.24
 Nodes (4): MatchThemAll.Scripts.UI, WinPanelManager, float, GameObject
 
-### Community 54 - "Community 54"
-Cohesion: 0.18
-Nodes (9): MatchThemAll.Scripts.Power_Ups, PowerupDataSO, ECurrency, GameObject, int, ParticleSystem, PowerupEffect, Sprite (+1 more)
+### Community 54 - "PowerupDataSO"
+Cohesion: 0.12
+Nodes (16): MatchThemAll.Scripts.Power_Ups, PowerupDataSO, ECurrency, GameObject, int, ParticleSystem, PowerupEffect, Sprite (+8 more)
 
-### Community 55 - "Community 55"
+### Community 55 - "DailyRewardManager"
 Cohesion: 0.29
 Nodes (4): DailyRewardManager, MatchThemAll.Scripts.UI, DailyRewardPanel, Transform
 
-### Community 56 - "Community 56"
+### Community 56 - "EventBus"
 Cohesion: 0.27
 Nodes (5): EventBus, MatchThemAll.Scripts, Action, Dictionary, T
 
-### Community 57 - "Community 57"
-Cohesion: 0.20
-Nodes (9): ECompletionCondition, EHighlightTarget, bool, EItemName, float, List, string, MatchThemAll.Scripts.Tutorial (+1 more)
+### Community 57 - "TutorialStep"
+Cohesion: 0.22
+Nodes (8): ECompletionCondition, EHighlightTarget, bool, float, List, string, MatchThemAll.Scripts.Tutorial, TutorialStep
 
-### Community 58 - "Community 58"
+### Community 58 - "ItemSpot"
 Cohesion: 0.20
 Nodes (5): ItemSpot, MatchThemAll.Scripts, Animator, Item, Transform
 
-### Community 59 - "Community 59"
-Cohesion: 0.22
-Nodes (6): IEnumerable, List, ShopProductSO, MatchThemAll.Scripts.Shop, ShopDatabaseSO, ShopTabSO
+### Community 59 - "ShopDatabaseSO"
+Cohesion: 0.12
+Nodes (11): IEnumerable, IReadOnlyList, List, ShopProductSO, ShopDatabaseSO, OrderedTabs, ShopTabSO, DisplayName (+3 more)
 
-### Community 60 - "Community 60"
-Cohesion: 0.20
-Nodes (7): bool, Button, GameObject, int, TextMeshProUGUI, LevelButtonUI, MatchThemAll.Scripts.UI
+### Community 60 - "LevelButtonUI"
+Cohesion: 0.25
+Nodes (5): bool, Button, int, LevelButtonUI, MatchThemAll.Scripts.UI
 
-### Community 61 - "Community 61"
+### Community 61 - "PowerupDatabaseSetup"
 Cohesion: 0.25
 Nodes (6): MatchThemAll.Scripts.Editor, PowerupDatabaseSetup, MenuItem, PowerupDataSO, PowerupEffect, string
 
-### Community 62 - "Community 62"
-Cohesion: 0.31
-Nodes (4): MatchThemAll.Scripts.Editor, PrefabConsolidator, MenuItem, string
+### Community 62 - "PrefabConsolidator"
+Cohesion: 0.16
+Nodes (7): destFolder, MatchThemAll.Scripts.Editor, PrefabConsolidator, MenuItem, string, PrefabConsolidator, src
 
-### Community 63 - "Community 63"
+### Community 63 - "UIManager"
 Cohesion: 0.28
 Nodes (4): MatchThemAll.Scripts, UIManager, GameObject, GameStateChangedEvent
 
-### Community 64 - "Community 64"
+### Community 64 - "Match Them All - Complete Game Template"
 Cohesion: 0.22
 Nodes (8): License, Match Them All - Complete Game Template, Next Steps, Package Structure, Quick Start, Requirements, Support, What's Included
 
-### Community 65 - "Community 65"
-Cohesion: 0.25
-Nodes (3): MainMenuManager, MatchThemAll.Scripts.UI, GameObject
+### Community 65 - "MainMenuManager"
+Cohesion: 0.15
+Nodes (4): MainMenuManager, MatchThemAll.Scripts.UI, GameObject, MainMenuManager
 
-### Community 66 - "Community 66"
-Cohesion: 0.29
-Nodes (3): TextMeshProUGUI, GemDisplay, MatchThemAll.Scripts.Shop
+### Community 66 - "GemDisplay"
+Cohesion: 0.16
+Nodes (4): TextMeshProUGUI, GemDisplay, GemDisplay, MatchThemAll.Scripts.Shop
 
-### Community 67 - "Community 67"
+### Community 67 - "WatchAdForCoinsButton"
 Cohesion: 0.29
 Nodes (3): int, MatchThemAll.Scripts.Shop, WatchAdForCoinsButton
 
-### Community 68 - "Community 68"
-Cohesion: 0.29
-Nodes (3): TextMeshProUGUI, CoinDisplay, MatchThemAll.Scripts.UI
+### Community 68 - "CoinDisplay"
+Cohesion: 0.18
+Nodes (4): TextMeshProUGUI, CoinDisplay, CoinDisplay, MatchThemAll.Scripts.UI
 
-### Community 69 - "Community 69"
-Cohesion: 0.29
-Nodes (6): AudioClip, AudioMixerGroup, MatchThemAll.Scripts, SoundDataSO, bool, float
+### Community 69 - "SoundDataSO"
+Cohesion: 0.22
+Nodes (7): AudioClip, AudioMixerGroup, MatchThemAll.Scripts, SoundDataSO, bool, float, SoundDataSO
 
-### Community 70 - "Community 70"
+### Community 70 - "SceneLoader"
 Cohesion: 0.38
 Nodes (3): MatchThemAll.Scripts, SceneLoader, string
 
-### Community 71 - "Community 71"
-Cohesion: 0.29
-Nodes (3): MatchSystem, MatchThemAll.Scripts, ItemReachedSpotEvent
+### Community 71 - "MonoBehaviour"
+Cohesion: 0.11
+Nodes (9): MatchSystem, MatchThemAll.Scripts, ItemReachedSpotEvent, LosePanelManager, MatchThemAll.Scripts.UI, MonoBehaviour, MatchThemAll.Scripts.Shop, ShopOpener (+1 more)
 
-### Community 72 - "Community 72"
+### Community 72 - "LevelMapNode"
 Cohesion: 0.29
 Nodes (5): LevelButtonUI, Image, LevelDataSO, LevelMapNode, MatchThemAll.Scripts.UI
 
-### Community 73 - "Community 73"
+### Community 73 - "PixelizeController"
 Cohesion: 0.29
 Nodes (3): MatchThemAll.Scripts.Pixelate, PixelizeController, GameStateChangedEvent
 
-### Community 74 - "Community 74"
-Cohesion: 0.29
-Nodes (5): MatchThemAll.Scripts.Power_Ups, PowerupDatabaseSO, ScriptableObject, List, PowerupDataSO
+### Community 74 - "ScriptableObject"
+Cohesion: 0.17
+Nodes (9): MatchThemAll.Scripts.Power_Ups, PowerupDatabaseSO, ScriptableObject, List, PowerupDataSO, bool, int, GameSettingsSO (+1 more)
 
-### Community 75 - "Community 75"
-Cohesion: 0.29
+### Community 75 - "SaveManagerBootstrapper"
+Cohesion: 0.17
 Nodes (3): MatchThemAll.Scripts.SaveSystem, SaveManagerBootstrapper, RuntimeInitializeOnLoadMethod
 
-### Community 76 - "Community 76"
+### Community 76 - "ComboVFX"
 Cohesion: 0.29
 Nodes (3): FloatingText, ComboVFX, MatchThemAll.Scripts.UI
 
-### Community 77 - "Community 77"
-Cohesion: 0.29
-Nodes (4): Color, string, FloatingTextTester, MatchThemAll.Scripts.Testing
+### Community 77 - "FloatingTextTester"
+Cohesion: 0.18
+Nodes (6): MatchThemAll.Scripts.Testing, Color, string, FloatingTextTester, FloatingTextTester, MatchThemAll.Scripts.Testing
 
-### Community 78 - "Community 78"
-Cohesion: 0.29
-Nodes (3): Action, AdManagerMock, MatchThemAll.Scripts.Utilities
+### Community 78 - ".OwnsEntitlement"
+Cohesion: 0.11
+Nodes (6): WatchAdForCoinsButton, Action, AdManagerMock, Instance, AdManagerMock, MatchThemAll.Scripts.Utilities
 
-### Community 79 - "Community 79"
+### Community 79 - "[1.0.0] - 2026-09-07"
 Cohesion: 0.33
 Nodes (5): [1.0.0] - 2026-09-07, Added, Changelog, Features, Technical
 
-### Community 80 - "Community 80"
-Cohesion: 0.47
-Nodes (3): HierarchySectionHeader, GameObject, Rect
+### Community 80 - ".DrawHighlight"
+Cohesion: 0.31
+Nodes (4): HierarchySectionHeader, GameObject, Rect, HierarchySectionHeader
 
-### Community 81 - "Community 81"
-Cohesion: 0.40
-Nodes (3): MatchThemAll.Scripts.Extensions, TransformExtensions, Transform
+### Community 81 - "Transform"
+Cohesion: 0.22
+Nodes (5): MatchThemAll.Scripts.Extensions, MatchThemAll.Scripts.Extensions, TransformExtensions, Transform, TransformExtensions
 
-### Community 82 - "Community 82"
+### Community 82 - "PowerupEffect"
 Cohesion: 0.40
 Nodes (3): MatchThemAll.Scripts.Power_Ups, PowerupEffect, PowerupContext
 
-### Community 83 - "Community 83"
+### Community 83 - "DebugGrantCurrencyButton"
 Cohesion: 0.33
 Nodes (3): int, DebugGrantCurrencyButton, MatchThemAll.Scripts.Shop
 
-### Community 84 - "Community 84"
+### Community 84 - "ShopTabSO"
 Cohesion: 0.33
 Nodes (5): int, Sprite, string, MatchThemAll.Scripts.Shop, ShopTabSO
 
-### Community 85 - "Community 85"
-Cohesion: 0.33
-Nodes (3): MatchThemAll.Scripts.Shop, ShopOpener, ShopPanel
+### Community 85 - "PowerupManager"
+Cohesion: 0.11
+Nodes (7): PowerupClickedEvent, IEnumerable, PowerupDatabaseSO, Ordered, PowerupManager, Instance, Vacuum
 
-### Community 86 - "Community 86"
+### Community 86 - "👋 Start Here — Match Them All Customization Guide"
 Cohesion: 0.33
 Nodes (5): 🎮 How to add a new item type, 🛠 How to create or edit a level, 📐 Project Architecture (brief), 👋 Start Here — Match Them All Customization Guide, 📂 What's in this folder
 
-### Community 87 - "Community 87"
-Cohesion: 0.40
-Nodes (4): bool, int, GameSettingsSO, MatchThemAll.Scripts.Settings
+### Community 87 - "ItemManagerWindow"
+Cohesion: 0.14
+Nodes (7): PreviewRenderUtility, GUIStyle, List, Rect, Renderer, Vector2, ItemManagerWindow
 
-### Community 88 - "Community 88"
-Cohesion: 0.40
-Nodes (3): RuntimeInitializeOnLoadMethod, MatchThemAll.Scripts.Utilities, StaticEventCleaner
+### Community 88 - "EventBus"
+Cohesion: 0.14
+Nodes (8): Delegate, List, EventBus, RuntimeInitializeOnLoadMethod, StaticEventCleaner, Type, MatchThemAll.Scripts.Utilities, StaticEventCleaner
 
-### Community 89 - "Community 89"
+### Community 89 - "Scripts/Runtime/Shop/EntitlementIds.cs"
 Cohesion: 0.50
 Nodes (3): string, EntitlementIds, MatchThemAll.Scripts.Shop
 
+### Community 96 - ".BuildPanel"
+Cohesion: 0.18
+Nodes (12): ContentSizeFitter, HorizontalLayoutGroup, LayoutElement, Button, Canvas, GameObject, Image, RectMask2D (+4 more)
+
+### Community 97 - "TutorialManager"
+Cohesion: 0.15
+Nodes (11): Coroutine, CanvasGroup, GameObject, GoalCard, Item, Level, Powerup, TextMeshProUGUI (+3 more)
+
+### Community 98 - "TutorialStep"
+Cohesion: 0.10
+Nodes (16): MatchThemAll.Scripts.Managers, MatchThemAll.Scripts.Tutorial, EItemName, GameObject, ECompletionCondition, Manual, OnMerge, OnPowerupUsed (+8 more)
+
+### Community 99 - "GameStateChangedEvent"
+Cohesion: 0.15
+Nodes (4): GameStateChangedEvent, PixelizeController, UIAnimator, UIManager
+
+### Community 100 - "LevelMapManager"
+Cohesion: 0.19
+Nodes (5): Image, LevelDataSO, RectTransform, ScrollRect, LevelMapManager
+
+### Community 101 - "SaveManager"
+Cohesion: 0.18
+Nodes (4): IReadOnlyList, SaveManager, Data, LiveOrderedIds
+
+### Community 102 - "MatchThemAll.Scripts"
+Cohesion: 0.15
+Nodes (6): MatchThemAll.Scripts.Settings, MatchThemAll.Scripts, MatchThemAll.Scripts.Power_Ups, Fan, FreezeGun, Spring
+
+### Community 103 - "GoalManager"
+Cohesion: 0.15
+Nodes (5): List, Transform, GoalManager, Goals, ItemLevelData
+
+### Community 104 - "ShopPanel"
+Cohesion: 0.15
+Nodes (7): ShopOpener, GameObject, List, Transform, ShopPanel, IsOpen, TMP_Text
+
+### Community 105 - ".Load"
+Cohesion: 0.13
+Nodes (6): Canvas, Image, SceneLoader, RequestedLevelIndex, TargetScene, LosePanelManager
+
+### Community 106 - "ShopProductSO"
+Cohesion: 0.15
+Nodes (12): ShopPurchaseSucceededEvent, ECurrency, Coins, Gems, IReadOnlyList, ShopProductSO, DisplayName, FirstPurchaseBonus (+4 more)
+
+### Community 107 - "GameManager"
+Cohesion: 0.18
+Nodes (4): SpotFilledEvent, GameManager, PreviousState, State
+
+### Community 108 - ".Build"
+Cohesion: 0.19
+Nodes (11): CanvasScaler, GraphicRaycaster, Canvas, EventSystem, Image, InputSystemUIInputModule, RectMask2D, RectTransform (+3 more)
+
+### Community 109 - ".Flush"
+Cohesion: 0.19
+Nodes (4): lastPlayedDate, loginStreak, DailyRewardManager, SaveManagerBootstrapper
+
+### Community 110 - "ItemPlacer"
+Cohesion: 0.21
+Nodes (4): BoxCollider, List, Task, ItemPlacer
+
+### Community 111 - "PowerupContext"
+Cohesion: 0.17
+Nodes (8): FanEffect, FreezeEffect, Action, List, ParticleSystem, Transform, PowerupContext, PowerupEffect
+
+### Community 112 - "SoundManager"
+Cohesion: 0.20
+Nodes (4): AudioMixer, AudioSource, SoundManager, Instance
+
+### Community 113 - "MatchThemAll.Scripts.Shop"
+Cohesion: 0.14
+Nodes (4): MatchThemAll.Scripts.Shop, MatchThemAll.Scripts.Editor, DebugGrantCurrencyButton, EntitlementIds
+
+### Community 114 - ".GenerateItemPrefab"
+Cohesion: 0.19
+Nodes (7): MeshCollider, MeshFilter, BoxCollider, Collider, GameObject, Rigidbody, Sprite
+
+### Community 115 - ".DrawLevelDetail"
+Cohesion: 0.35
+Nodes (3): GameObject, Item, ItemPlacer
+
+### Community 116 - "EItemName"
+Cohesion: 0.15
+Nodes (10): List, EItemName, Battery, BluePotion, Bomb, Clock, Coin, Diamond (+2 more)
+
+### Community 117 - "List"
+Cohesion: 0.18
+Nodes (12): DeletedItemRecord, DeletedItemRecord, DeletedItemRecordList, MatchThemAll.Scripts.Editor, RemovedLevelEntry, RemovedLevelEntry, bool, int (+4 more)
+
+### Community 118 - "ShopSetup"
+Cohesion: 0.26
+Nodes (6): EKind, EventSystem, InputSystemUIInputModule, ShopSetup, TmpFont, TMP_FontAsset
+
+### Community 119 - "PlayerData"
+Cohesion: 0.24
+Nodes (3): LevelProgressEntry, PlayerData, PowerupSaveEntry
+
+### Community 120 - "MergeStartedEvent"
+Cohesion: 0.19
+Nodes (6): List, MergeStartedEvent, Action, ComboManager, CurrentCombo, Instance
+
+### Community 121 - "MatchThemAll.Scripts.UI"
+Cohesion: 0.25
+Nodes (3): MatchThemAll.Scripts.SaveSystem, MatchThemAll.Scripts.Utilities, MatchThemAll.Scripts.UI
+
+### Community 122 - ".CreateDefaultProducts"
+Cohesion: 0.36
+Nodes (4): ECurrency, EKind, MenuItem, ShopProductSO
+
+### Community 123 - "Level"
+Cohesion: 0.20
+Nodes (7): List, Task, Transform, Level, Duration, ItemParent, SpotCount
+
+### Community 124 - "LevelButtonUI"
+Cohesion: 0.24
+Nodes (5): GameObject, TextMeshProUGUI, LevelButtonUI, LevelMapNode, Button
+
+### Community 125 - "Scripts/Runtime/PowerUps/PowerupManager.cs"
+Cohesion: 0.42
+Nodes (7): DebugActivateFan(), DebugActivateFreeze(), DebugActivateSpring(), DebugActivateVacuum(), ForceActivate(), MatchThemAll.Scripts, Button
+
+### Community 126 - "SpringEffect"
+Cohesion: 0.33
+Nodes (5): DrawGizmos(), DrawTrajectoryGizmo(), MatchThemAll.Scripts.Power_Ups, Vector3, SpringEffect
+
+### Community 127 - ".OnDisable"
+Cohesion: 0.28
+Nodes (3): ItemClickedEvent, MergeStartedEvent, PowerupClickedEvent
+
+### Community 128 - "EGameState"
+Cohesion: 0.25
+Nodes (7): EGameState, GAME, GAMEOVER, LEVELCOMPLETE, MENU, OUTOFTIME, PAUSED
+
+### Community 130 - "FanEffect"
+Cohesion: 0.33
+Nodes (4): FanEffect, MatchThemAll.Scripts.Power_Ups, float, PowerupContext
+
+### Community 134 - "FreezeEffect"
+Cohesion: 0.40
+Nodes (3): FreezeEffect, MatchThemAll.Scripts.Power_Ups, PowerupContext
+
+### Community 135 - "SpringEffect"
+Cohesion: 0.40
+Nodes (4): SpringEffect, float, PowerupContext, Vector2
+
+### Community 138 - "EKind"
+Cohesion: 0.40
+Nodes (5): EKind, Coins, Entitlement, Gems, PowerupCharge
+
 ## Knowledge Gaps
-- **493 isolated node(s):** `MatchThemAll.Scripts.Editor`, `int`, `Dictionary`, `InitializeOnLoadMethod`, `Texture2D` (+488 more)
-  These have ≤1 connection - possible missing edges or undocumented components.
-- **6 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **424 isolated node(s):** `TmpFont`, `LevelSpawnedEvent`, `State`, `PreviousState`, `Instance` (+419 more)
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 690 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **21 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `Item` connect `Community 12` to `Community 44`?**
-  _High betweenness centrality (0.041) - this node is a cross-community bridge._
-- **Why does `ItemSpotManager` connect `Community 3` to `Community 44`?**
-  _High betweenness centrality (0.035) - this node is a cross-community bridge._
-- **Why does `HintManager` connect `Community 29` to `Community 44`?**
-  _High betweenness centrality (0.026) - this node is a cross-community bridge._
-- **What connects `MatchThemAll.Scripts.Editor`, `int`, `Dictionary` to the rest of the system?**
-  _493 weakly-connected nodes found - possible documentation gaps or missing edges._
-- **Should `Community 0` be split into smaller, more focused modules?**
-  _Cohesion score 0.07441016333938294 - nodes in this community are weakly interconnected._
-- **Should `Community 1` be split into smaller, more focused modules?**
-  _Cohesion score 0.07529411764705882 - nodes in this community are weakly interconnected._
-- **Should `Community 2` be split into smaller, more focused modules?**
-  _Cohesion score 0.07180851063829788 - nodes in this community are weakly interconnected._
+- **Why does `Item` connect `Item` to `.Publish`, `GoalManager`, `MonoBehaviour`, `.Activate`, `ItemSpotManager`, `VacuumEffect`, `Item`, `ItemPlacer`, `InputManager`, `LevelManager`, `PowerupContext`, `.GenerateItemPrefab`, `MergeManager`, `EItemName`, `PowerupManager`, `ItemManagerWindow`, `MergeStartedEvent`?**
+  _High betweenness centrality (0.097) - this node is a cross-community bridge._
+- **Why does `LevelEditorWindow` connect `LevelEditorWindow` to `LevelEditorWindow`, `TutorialStep`, `ShopEditorWindow`, `EditorWindowStyles`, `.DrawLevelDetail`, `List`, `.RemoveFromLevels`?**
+  _High betweenness centrality (0.081) - this node is a cross-community bridge._
+- **Why does `GameSettingsSO` connect `LevelEditorWindow` to `MatchThemAll.Scripts`, `ScriptableObject`, `PowerupContext`, `PowerupManager`, `ContinuePanelManager`?**
+  _High betweenness centrality (0.078) - this node is a cross-community bridge._
+- **What connects `TmpFont`, `LevelSpawnedEvent`, `State` to the rest of the system?**
+  _424 weakly-connected nodes found - possible documentation gaps or missing edges._
+- **Should `LevelEditorWindow` be split into smaller, more focused modules?**
+  _Cohesion score 0.10253699788583509 - nodes in this community are weakly interconnected._
+- **Should `ItemManagerWindow` be split into smaller, more focused modules?**
+  _Cohesion score 0.11827956989247312 - nodes in this community are weakly interconnected._
+- **Should `SaveManager` be split into smaller, more focused modules?**
+  _Cohesion score 0.09102564102564102 - nodes in this community are weakly interconnected._

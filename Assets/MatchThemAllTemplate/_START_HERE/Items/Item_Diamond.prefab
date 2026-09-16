@@ -11,6 +11,8 @@ GameObject:
   - component: {fileID: 4517768382869856636}
   - component: {fileID: 1089825427940925693}
   - component: {fileID: 8590173119831743083}
+  - component: {fileID: 4435746376199595569}
+  - component: {fileID: 2609641638317322909}
   m_Layer: 6
   m_Name: Item_Diamond
   m_TagString: Untagged
@@ -75,7 +77,65 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemNameKey: 4
   icon: {fileID: 21300000, guid: 8344713d123e12d4aae70d58c49e4070, type: 3}
+  useCustomDockRotation: 0
+  customDockRotation: {x: 0, y: 0, z: 0}
+  useCustomDockPositionOffset: 0
+  customDockPositionOffset: {x: 0, y: 0, z: 0}
+  maxSpeed: 12
   _renderer: {fileID: 9037013893777222118}
+--- !u!33 &4435746376199595569
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2556722892455589770}
+  m_Mesh: {fileID: 0}
+--- !u!23 &2609641638317322909
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2556722892455589770}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: 4bcbad82245bb7047b43d3b4e6789138, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1001 &319303818803553671
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 563e15e76fd2b7d4880055e617c8051b
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 129996
+  packageName: NaughtyAttributes
+  packageVersion: 2.1.6
+  assetPath: Assets/NaughtyAttributes/Scripts/Core/DrawerAttributes/TagAttribute.cs
+  uploadId: 943610

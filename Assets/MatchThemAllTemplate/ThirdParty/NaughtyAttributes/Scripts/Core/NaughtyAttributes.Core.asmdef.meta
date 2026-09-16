@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 6276672e22f210e4c9b794e3d63eca24
+AssemblyDefinitionImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 129996
+  packageName: NaughtyAttributes
+  packageVersion: 2.1.6
+  assetPath: Assets/NaughtyAttributes/Scripts/Core/NaughtyAttributes.Core.asmdef
+  uploadId: 943610

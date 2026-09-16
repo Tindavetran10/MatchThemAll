@@ -1,0 +1,10 @@
+fileFormatVersion: 2
+guid: df85bd2ca2a71024e9d86c2f40bb330c
+timeCreated: 1668082490
+AssetOrigin:
+  serializedVersion: 1
+  productId: 129996
+  packageName: NaughtyAttributes
+  packageVersion: 2.1.6
+  assetPath: Assets/NaughtyAttributes/Scripts/Test/RequiredTypeTestTestObject2InheritsAll.cs
+  uploadId: 943610
