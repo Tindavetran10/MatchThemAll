@@ -600,9 +600,9 @@
     "semantic_hash": ""
   },
   "Documentation/CUSTOMIZATION_GUIDE.md": {
-    "mtime": 1788781724.0505295,
-    "seen": 1789569584.530714,
-    "ast_hash": "bff814a51b623b9a9e4576985a70f04c",
+    "mtime": 1789573663.4229565,
+    "seen": 1789578235.6040976,
+    "ast_hash": "0c088cb3eef3421339442b232ad41a8f",
     "semantic_hash": ""
   },
   "LICENSE.txt": {
@@ -618,9 +618,9 @@
     "semantic_hash": ""
   },
   "THIRD_PARTY_NOTICES.txt": {
-    "mtime": 1788781554.7390463,
-    "seen": 1789569584.5307171,
-    "ast_hash": "43d48de21bd14b348b6b8240a4cdc676",
+    "mtime": 1789570849.0598042,
+    "seen": 1789578235.6041033,
+    "ast_hash": "4d6d7f16e68c65f4fe9a49b097e5976c",
     "semantic_hash": ""
   },
   "_START_HERE/README.md": {
@@ -843,6 +843,816 @@
     "mtime": 1788806396.9052367,
     "seen": 1789569584.5305958,
     "ast_hash": "f1464b1031231562a50242bab8c27cc9",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Core/DrawerAttributes/AllowNestingAttribute.cs": {
+    "mtime": 1789569850.3277128,
+    "seen": 1789578235.604011,
+    "ast_hash": "f756fd10758296628ee41046557484fd",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Core/DrawerAttributes/AnimatorParamAttribute.cs": {
+    "mtime": 1789569850.3277128,
+    "seen": 1789578235.6040123,
+    "ast_hash": "427677f0c96312ec711e7d3f3fc5fdb7",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Core/DrawerAttributes/CurveRangeAttribute.cs": {
+    "mtime": 1789569850.314229,
+    "seen": 1789578235.604013,
+    "ast_hash": "decb8c9f8db20ba112d115d78a1c421e",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Core/DrawerAttributes/DrawerAttribute.cs": {
+    "mtime": 1789569850.315229,
+    "seen": 1789578235.604014,
+    "ast_hash": "e614305f22ea8f5b553dd42734317557",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Core/DrawerAttributes/DropdownAttribute.cs": {
+    "mtime": 1789569850.3194575,
+    "seen": 1789578235.6040146,
+    "ast_hash": "a6a69b6f44254a620eea8a44a8d481a2",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Core/DrawerAttributes/EnumFlagsAttribute.cs": {
+    "mtime": 1789569850.3209631,
+    "seen": 1789578235.6040154,
+    "ast_hash": "8b5d5cc22b3f3cd9ce52c4b67ca70c05",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Core/DrawerAttributes/Expandable.cs": {
+    "mtime": 1789569850.315229,
+    "seen": 1789578235.6040158,
+    "ast_hash": "26d6c64724cb5752a5942b9015316d38",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Core/DrawerAttributes/FilePathAttribute.cs": {
+    "mtime": 1789569850.3304572,
+    "seen": 1789578235.6040163,
+    "ast_hash": "7b6ff4ff9d5a3b363c70c36dcbacb8a6",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Core/DrawerAttributes/FolderPathAttribute.cs": {
+    "mtime": 1789569850.3163316,
+    "seen": 1789578235.6040173,
+    "ast_hash": "0dd8e4eafe862b35d277f2dcd81e9867",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Core/DrawerAttributes/HorizontalLineAttribute.cs": {
+    "mtime": 1789569850.3173585,
+    "seen": 1789578235.604018,
+    "ast_hash": "d70bd0b227b17632440e78ebc39454b1",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Core/DrawerAttributes/InfoBoxAttribute.cs": {
+    "mtime": 1789569850.3173585,
+    "seen": 1789578235.6040187,
+    "ast_hash": "1964c7f61ed4ec5b6f719ff5d8b966d4",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Core/DrawerAttributes/InputAxisAttribute.cs": {
+    "mtime": 1789569850.3219647,
+    "seen": 1789578235.6040192,
+    "ast_hash": "a4f390c510bafae21bd8d3ba168627ea",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Core/DrawerAttributes/LayerAttribute.cs": {
+    "mtime": 1789569850.323094,
+    "seen": 1789578235.6040199,
+    "ast_hash": "c6071627e12beba12abc29c46c48bd80",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Core/DrawerAttributes/MinMaxSliderAttribute.cs": {
+    "mtime": 1789569850.3241088,
+    "seen": 1789578235.6040206,
+    "ast_hash": "491388f235f7264fb4d012f6e4134e12",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Core/DrawerAttributes/ProgressBarAttribute.cs": {
+    "mtime": 1789569850.3289516,
+    "seen": 1789578235.604021,
+    "ast_hash": "6af08e8c48f929864bb8de07e9ed8a5a",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Core/DrawerAttributes/ResizableTextAreaAttribute.cs": {
+    "mtime": 1789569850.3173585,
+    "seen": 1789578235.6040218,
+    "ast_hash": "a2102f1f774049155c9a5a304f678150",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Core/DrawerAttributes/SceneAttribute.cs": {
+    "mtime": 1789569850.3251092,
+    "seen": 1789578235.6040223,
+    "ast_hash": "f61b6127ba0fdd07f524af19137bfe54",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Core/DrawerAttributes/ShowAssetPreviewAttribute.cs": {
+    "mtime": 1789569850.3256142,
+    "seen": 1789578235.604023,
+    "ast_hash": "4033d159eeb5a8c914bbe18aeb1a1ddd",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Core/DrawerAttributes/SortingLayerAttribute.cs": {
+    "mtime": 1789569850.3267064,
+    "seen": 1789578235.6040237,
+    "ast_hash": "653b73e3c3c04d8d2efeab1671e13bcc",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Core/DrawerAttributes/TagAttribute.cs": {
+    "mtime": 1789569850.3183627,
+    "seen": 1789578235.6040244,
+    "ast_hash": "2f8319d0957723e010313cdffd768d19",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Core/DrawerAttributes_SpecialCase/ButtonAttribute.cs": {
+    "mtime": 1789569850.3093996,
+    "seen": 1789578235.604025,
+    "ast_hash": "66bd298253797ba23533d5ec8dd57361",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Core/DrawerAttributes_SpecialCase/ReorderableListAttribute.cs": {
+    "mtime": 1789569850.3106303,
+    "seen": 1789578235.6040256,
+    "ast_hash": "b64d34e5d4a39f7e8cb4aa934df2d546",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Core/DrawerAttributes_SpecialCase/ShowNativePropertyAttribute.cs": {
+    "mtime": 1789569850.31163,
+    "seen": 1789578235.6040263,
+    "ast_hash": "370860cc7cb80f448f7b4192446fc52f",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Core/DrawerAttributes_SpecialCase/ShowNonSerializedFieldAttribute.cs": {
+    "mtime": 1789569850.312135,
+    "seen": 1789578235.6040268,
+    "ast_hash": "b0b791bafa411d6d8a382558ac9b4006",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Core/DrawerAttributes_SpecialCase/SpecialCaseDrawerAttribute.cs": {
+    "mtime": 1789569850.3131566,
+    "seen": 1789578235.6040275,
+    "ast_hash": "65dd05d2125b6a49fabae17562b9d58e",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Core/INaughtyAttribute.cs": {
+    "mtime": 1789569850.2887874,
+    "seen": 1789578235.6040282,
+    "ast_hash": "581c2e5b5165da19f7c2bae2bcadbe12",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Core/MetaAttributes/BoxGroupAttribute.cs": {
+    "mtime": 1789569850.2920957,
+    "seen": 1789578235.6040287,
+    "ast_hash": "8c949cb968e2cac2afa9a0bc5eeca1f6",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Core/MetaAttributes/DisableIfAttribute.cs": {
+    "mtime": 1789569850.293105,
+    "seen": 1789578235.6040292,
+    "ast_hash": "a4390a504019a14b755c91d0ba6fcdd1",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Core/MetaAttributes/EnableIfAttribute.cs": {
+    "mtime": 1789569850.293105,
+    "seen": 1789578235.60403,
+    "ast_hash": "21a44e76cfbd52bdfef789bd3d2612ba",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Core/MetaAttributes/EnableIfAttributeBase.cs": {
+    "mtime": 1789569850.294609,
+    "seen": 1789578235.6040306,
+    "ast_hash": "3778fd9524763e790acd8318690da71d",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Core/MetaAttributes/FoldoutAttribute.cs": {
+    "mtime": 1789569850.294609,
+    "seen": 1789578235.6040325,
+    "ast_hash": "e091af6f4c22d7c3bcf322b3625c7ec4",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Core/MetaAttributes/HideIfAttribute.cs": {
+    "mtime": 1789569850.3019006,
+    "seen": 1789578235.6040332,
+    "ast_hash": "06506f8658c2d3071a2ecf05abdb57aa",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Core/MetaAttributes/IGroupAttribute.cs": {
+    "mtime": 1789569850.2999005,
+    "seen": 1789578235.6040337,
+    "ast_hash": "9965049b001228f7f2238ff0b67572f0",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Core/MetaAttributes/LabelAttribute.cs": {
+    "mtime": 1789569850.3009007,
+    "seen": 1789578235.6040347,
+    "ast_hash": "dc2e1511039c25d03bd0c7793615f427",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Core/MetaAttributes/MetaAttribute.cs": {
+    "mtime": 1789569850.3024058,
+    "seen": 1789578235.6040351,
+    "ast_hash": "f0d14dc61185b5929899896feb61165b",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Core/MetaAttributes/OnValueChangedAttribute.cs": {
+    "mtime": 1789569850.2966154,
+    "seen": 1789578235.6040359,
+    "ast_hash": "9936b240a1845e4d611e93782f100cde",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Core/MetaAttributes/ReadOnlyAttribute.cs": {
+    "mtime": 1789569850.3009007,
+    "seen": 1789578235.6040363,
+    "ast_hash": "1806eaf0f30a3ea7b8b30e0f6a58a477",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Core/MetaAttributes/ShowIfAttribute.cs": {
+    "mtime": 1789569850.2979012,
+    "seen": 1789578235.604037,
+    "ast_hash": "37d1cb15184e4671e4eb1695639d08b1",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Core/MetaAttributes/ShowIfAttributeBase.cs": {
+    "mtime": 1789569850.2989008,
+    "seen": 1789578235.604038,
+    "ast_hash": "c977734d049235a7f17f2994296d4ac3",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Core/Utility/EColor.cs": {
+    "mtime": 1789569850.3034067,
+    "seen": 1789578235.6040385,
+    "ast_hash": "247c5a1438460b233e1d0125c1163c65",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Core/Utility/EConditionOperator.cs": {
+    "mtime": 1789569850.3034067,
+    "seen": 1789578235.6040392,
+    "ast_hash": "faf8b4fbea7bb2baf92c053e4bbb7beb",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Core/ValidatorAttributes/MaxValueAttribute.cs": {
+    "mtime": 1789569850.3083932,
+    "seen": 1789578235.6040397,
+    "ast_hash": "8117db8647a1c05a5ce6d72f41640aa1",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Core/ValidatorAttributes/MinValueAttribute.cs": {
+    "mtime": 1789569850.3054066,
+    "seen": 1789578235.6040404,
+    "ast_hash": "e389ffe38ec8060e8e9004e20a5df2b5",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Core/ValidatorAttributes/RequiredAttribute.cs": {
+    "mtime": 1789569850.3069153,
+    "seen": 1789578235.604041,
+    "ast_hash": "33206b1dafc05c1494d52b5eda340c66",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Core/ValidatorAttributes/RequiredTypeAttribute.cs": {
+    "mtime": 1789569850.305911,
+    "seen": 1789578235.6040418,
+    "ast_hash": "fc63b39e7bf1354f7a40a3c015f5c100",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Core/ValidatorAttributes/ValidateInputAttribute.cs": {
+    "mtime": 1789569850.3069153,
+    "seen": 1789578235.6040423,
+    "ast_hash": "78f96b3036c0289dfc5c2ff94620c290",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Core/ValidatorAttributes/ValidatorAttribute.cs": {
+    "mtime": 1789569850.3069153,
+    "seen": 1789578235.604043,
+    "ast_hash": "fba4579e6399f1af2fc715d50634c398",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Editor/DecoratorDrawers/HorizontalLineDecoratorDrawer.cs": {
+    "mtime": 1789569850.3426201,
+    "seen": 1789578235.6040435,
+    "ast_hash": "0c442ce42226f1e1b96610e6ed51fe98",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Editor/DecoratorDrawers/InfoBoxDecoratorDrawer.cs": {
+    "mtime": 1789569850.3421159,
+    "seen": 1789578235.6040442,
+    "ast_hash": "18bb1779d3133ee61af502b24281e315",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Editor/NaughtyInspector.cs": {
+    "mtime": 1789569850.3319893,
+    "seen": 1789578235.604045,
+    "ast_hash": "b6f9c4ad868eb7f0e2494f3e09bdfd49",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Editor/PropertyDrawers/AllowNestingPropertyDrawer.cs": {
+    "mtime": 1789569850.3523028,
+    "seen": 1789578235.6040456,
+    "ast_hash": "5375d417283a84c439196c61ce639aae",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Editor/PropertyDrawers/AnimatorParamPropertyDrawer.cs": {
+    "mtime": 1789569850.3533056,
+    "seen": 1789578235.604046,
+    "ast_hash": "5e74ad97bcd83faf5ec18af1df9029e1",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Editor/PropertyDrawers/CurveRangePropertyDrawer.cs": {
+    "mtime": 1789569850.3533056,
+    "seen": 1789578235.6040466,
+    "ast_hash": "ed9033237ff386fb0322ad98928b2e0d",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Editor/PropertyDrawers/DropdownPropertyDrawer.cs": {
+    "mtime": 1789569850.3674028,
+    "seen": 1789578235.6040473,
+    "ast_hash": "b63ffce117848c262d0d5159130e1b9a",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Editor/PropertyDrawers/EnumFlagsPropertyDrawer.cs": {
+    "mtime": 1789569850.35481,
+    "seen": 1789578235.6040478,
+    "ast_hash": "40c18e0f7be6401982bc1f513feb283c",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Editor/PropertyDrawers/ExpandablePropertyDrawer.cs": {
+    "mtime": 1789569850.3603177,
+    "seen": 1789578235.6040487,
+    "ast_hash": "89d07ecc8c60f0308f6265f73526160c",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Editor/PropertyDrawers/FilePathPropertyDrawer.cs": {
+    "mtime": 1789569850.3689086,
+    "seen": 1789578235.6040494,
+    "ast_hash": "280071e6389215e14a0e37d7cea3a543",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Editor/PropertyDrawers/FolderPathPropertyDrawer.cs": {
+    "mtime": 1789569850.3603177,
+    "seen": 1789578235.6040502,
+    "ast_hash": "77a202f01461099e64eec07acb36b24c",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Editor/PropertyDrawers/InputAxisPropertyDrawer.cs": {
+    "mtime": 1789569850.3618221,
+    "seen": 1789578235.6040506,
+    "ast_hash": "35af431160f0dd886ece320978e17cd3",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Editor/PropertyDrawers/LayerPropertyDrawer.cs": {
+    "mtime": 1789569850.3630545,
+    "seen": 1789578235.604051,
+    "ast_hash": "6a9e4aa4c28c2ca5078cc52a5ed002fd",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Editor/PropertyDrawers/MinMaxSliderPropertyDrawer.cs": {
+    "mtime": 1789569850.3703322,
+    "seen": 1789578235.604052,
+    "ast_hash": "4ed3b078479bd08ad05d79e59f750b2b",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Editor/PropertyDrawers/ProgressBarPropertyDrawer.cs": {
+    "mtime": 1789569850.3653924,
+    "seen": 1789578235.6040525,
+    "ast_hash": "c70eebbfc1dfe6670a51029bb34e486e",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Editor/PropertyDrawers/PropertyDrawerBase.cs": {
+    "mtime": 1789569850.366395,
+    "seen": 1789578235.6040533,
+    "ast_hash": "a0c62e1a60f3e099e02642ee7308b930",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Editor/PropertyDrawers/ResizableTextAreaPropertyDrawer.cs": {
+    "mtime": 1789569850.366395,
+    "seen": 1789578235.6040537,
+    "ast_hash": "91b4d4c3dc98f9a7ea78d8543365c953",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Editor/PropertyDrawers/ScenePropertyDrawer.cs": {
+    "mtime": 1789569850.355811,
+    "seen": 1789578235.6040542,
+    "ast_hash": "a8f830bcb5813e00feaa6ae21e84976e",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Editor/PropertyDrawers/ShowAssetPreviewPropertyDrawer.cs": {
+    "mtime": 1789569850.3703322,
+    "seen": 1789578235.6040547,
+    "ast_hash": "d61c655cbfb7354b48f02e380f0d6afe",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Editor/PropertyDrawers/SortingLayerPropertyDrawer.cs": {
+    "mtime": 1789569850.3568106,
+    "seen": 1789578235.6040556,
+    "ast_hash": "8dbddd46e4743608ba76f9347dc3e377",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Editor/PropertyDrawers/TagPropertyDrawer.cs": {
+    "mtime": 1789569850.3578105,
+    "seen": 1789578235.6040564,
+    "ast_hash": "0811f46a0bd4a4ad9b707b05281c1e23",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Editor/PropertyDrawers_SpecialCase/ReorderableListPropertyDrawer.cs": {
+    "mtime": 1789569850.3507984,
+    "seen": 1789578235.6040568,
+    "ast_hash": "77a4a7923c1b32cd8ae410c20bf848df",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Editor/PropertyDrawers_SpecialCase/SpecialCasePropertyDrawerBase.cs": {
+    "mtime": 1789569850.3507984,
+    "seen": 1789578235.6040576,
+    "ast_hash": "cb59db4bcda1f88ce67781bcd1ae6608",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Editor/PropertyValidators/MaxValuePropertyValidator.cs": {
+    "mtime": 1789569850.347291,
+    "seen": 1789578235.604058,
+    "ast_hash": "20424842e2c785d35474f28baeb24eb8",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Editor/PropertyValidators/MinValuePropertyValidator.cs": {
+    "mtime": 1789569850.3441246,
+    "seen": 1789578235.604059,
+    "ast_hash": "710a9d3f0ba8ef12d71a23a56419acdb",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Editor/PropertyValidators/PropertyValidatorBase.cs": {
+    "mtime": 1789569850.3482907,
+    "seen": 1789578235.6040595,
+    "ast_hash": "8691f40ced31d5ff61044d113666315b",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Editor/PropertyValidators/RequiredPropertyValidator.cs": {
+    "mtime": 1789569850.3482907,
+    "seen": 1789578235.6040602,
+    "ast_hash": "85c13b32f74e89fe0662b1732f704e2a",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Editor/PropertyValidators/RequiredTypePropertyValidator.cs": {
+    "mtime": 1789569850.34514,
+    "seen": 1789578235.6040606,
+    "ast_hash": "23d47bc7038622ba2f00d419c45be28d",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Editor/PropertyValidators/ValidateInputPropertyValidator.cs": {
+    "mtime": 1789569850.3461516,
+    "seen": 1789578235.6040611,
+    "ast_hash": "e9d8eea08d11f4aa536979d24aeb5cb6",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Editor/Utility/ButtonUtility.cs": {
+    "mtime": 1789569850.3386075,
+    "seen": 1789578235.6040618,
+    "ast_hash": "d2457f670735863b1b964881ce7e866b",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Editor/Utility/NaughtyEditorGUI.cs": {
+    "mtime": 1789569850.3366077,
+    "seen": 1789578235.6040628,
+    "ast_hash": "0d3e0b967afc7fca76eef518d6bb55dc",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Editor/Utility/NaughtyPathUtility.cs": {
+    "mtime": 1789569850.3411157,
+    "seen": 1789578235.6040633,
+    "ast_hash": "3965a5bcae00f985444c7b7356ec7734",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Editor/Utility/PropertyUtility.cs": {
+    "mtime": 1789569850.3366077,
+    "seen": 1789578235.604064,
+    "ast_hash": "c61b3e11228dcb560ff8d5a5282cc560",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Editor/Utility/ReflectionUtility.cs": {
+    "mtime": 1789569850.3376074,
+    "seen": 1789578235.6040645,
+    "ast_hash": "4a3e6b70dd863ae4b8f5aca95348cb99",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Editor/Utility/SavedBool.cs": {
+    "mtime": 1789569850.3386075,
+    "seen": 1789578235.6040652,
+    "ast_hash": "8a01c400f7b34cc40c61117067a5cd5a",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Test/AnimatorParamTest.cs": {
+    "mtime": 1789569850.40533,
+    "seen": 1789578235.604066,
+    "ast_hash": "10d7f094cc08d4d76138289b5eb2ee10",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Test/BoxGroupTest.cs": {
+    "mtime": 1789569850.37387,
+    "seen": 1789578235.6040666,
+    "ast_hash": "4c75aa9f83e86fd911b54f797f43a729",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Test/ButtonTest.cs": {
+    "mtime": 1789569850.3749933,
+    "seen": 1789578235.6040673,
+    "ast_hash": "fa7a2efe6807f1f75cd1fdc0bcc419da",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Test/CurveRangeTest.cs": {
+    "mtime": 1789569850.3903673,
+    "seen": 1789578235.6040678,
+    "ast_hash": "9c821a56c4bb8e9008ed4ad3b327cd71",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Test/DisableIfTest.cs": {
+    "mtime": 1789569850.3903673,
+    "seen": 1789578235.6040685,
+    "ast_hash": "b84ccb25c04a34b3bbac910f620cc125",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Test/DropdownTest.cs": {
+    "mtime": 1789569850.3760297,
+    "seen": 1789578235.6040692,
+    "ast_hash": "6eb9168d7cdde38f9872ddb943de32bd",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Test/EnableIfTest.cs": {
+    "mtime": 1789569850.4031234,
+    "seen": 1789578235.6040697,
+    "ast_hash": "fb92740018f9358e41db2df1dadeb1c3",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Test/EnumFlagsTest.cs": {
+    "mtime": 1789569850.3771112,
+    "seen": 1789578235.6040704,
+    "ast_hash": "fbbcd12bc62fd4fe54698c3c0dba2a40",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Test/ExpandableTest.cs": {
+    "mtime": 1789569850.3771112,
+    "seen": 1789578235.604071,
+    "ast_hash": "aa052c7b906e93989e3d6e4d2ed8f3e6",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Test/FilePathTest.cs": {
+    "mtime": 1789569850.3786213,
+    "seen": 1789578235.6040716,
+    "ast_hash": "95f5be35bb662cc255a952416eb3b678",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Test/FolderPathTest.cs": {
+    "mtime": 1789569850.3918715,
+    "seen": 1789578235.604072,
+    "ast_hash": "7ff34b5af6586c81aad473c97822e1b9",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Test/FoldoutTest.cs": {
+    "mtime": 1789569850.3933785,
+    "seen": 1789578235.604073,
+    "ast_hash": "6e11d897f4cfa8435ec624f7163a21c6",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Test/HideIfTest.cs": {
+    "mtime": 1789569850.3797295,
+    "seen": 1789578235.6040735,
+    "ast_hash": "3a9cedc1188df3a56e984d459cfdfb8c",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Test/HorizontalLineTest.cs": {
+    "mtime": 1789569850.3807344,
+    "seen": 1789578235.604074,
+    "ast_hash": "b7b7233570319f439bb6bfb6f69537e4",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Test/InfoBoxTest.cs": {
+    "mtime": 1789569850.3807344,
+    "seen": 1789578235.6040747,
+    "ast_hash": "2846fca93981c30fb4db4dac99530acc",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Test/InputAxisTest.cs": {
+    "mtime": 1789569850.3807344,
+    "seen": 1789578235.6040754,
+    "ast_hash": "1a344d066351c72db356dfdacfda34cc",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Test/LabelTest.cs": {
+    "mtime": 1789569850.394884,
+    "seen": 1789578235.6040761,
+    "ast_hash": "f561f2138d4b5a06f867ceb77ac0b620",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Test/LayerTest.cs": {
+    "mtime": 1789569850.395885,
+    "seen": 1789578235.6040766,
+    "ast_hash": "ffcfef08c9e0386d00dda8b29c2b74e3",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Test/MinMaxSliderTest.cs": {
+    "mtime": 1789569850.395885,
+    "seen": 1789578235.6040773,
+    "ast_hash": "011544ba581d21402c7385ac8bde6944",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Test/MinMaxValueTest.cs": {
+    "mtime": 1789569850.396885,
+    "seen": 1789578235.604078,
+    "ast_hash": "659493d755cbd965e103c8a9e498c95e",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Test/OnValueChangedTest.cs": {
+    "mtime": 1789569850.396885,
+    "seen": 1789578235.6040785,
+    "ast_hash": "919685df3a726a817a6a29020ee13ea9",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Test/ProgressBarTest.cs": {
+    "mtime": 1789569850.399512,
+    "seen": 1789578235.604079,
+    "ast_hash": "844b3001cb13c12859bf85fcac02d0ac",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Test/ReadOnlyTest.cs": {
+    "mtime": 1789569850.399512,
+    "seen": 1789578235.60408,
+    "ast_hash": "b034a4a5dbc6c017b809feb8230be56a",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Test/ReorderableListTest.cs": {
+    "mtime": 1789569850.3833492,
+    "seen": 1789578235.6040804,
+    "ast_hash": "d20e5c9f803c5973e1b11a78b1b70393",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Test/RequiredTest.cs": {
+    "mtime": 1789569850.3838568,
+    "seen": 1789578235.6040812,
+    "ast_hash": "d517d9abbe2135eb033b3d6ae3612fa6",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Test/RequiredTypeTest.cs": {
+    "mtime": 1789569850.4079018,
+    "seen": 1789578235.6040816,
+    "ast_hash": "c61118dcc0e33ee08a4500c5fbb239bb",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Test/RequiredTypeTestTestObject.cs": {
+    "mtime": 1789569850.3848598,
+    "seen": 1789578235.6040823,
+    "ast_hash": "901e3a1dde6861e3ffc3cdd31595810f",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Test/RequiredTypeTestTestObject2InheritsAll.cs": {
+    "mtime": 1789569850.3858597,
+    "seen": 1789578235.604083,
+    "ast_hash": "29b1e4fc5c01275f9ecb82905bdc6676",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Test/ResizableTextAreaTest.cs": {
+    "mtime": 1789569850.4043138,
+    "seen": 1789578235.6040838,
+    "ast_hash": "5b8ca4153975941fb665836e4e7bfef0",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Test/SceneTest.cs": {
+    "mtime": 1789569850.3858597,
+    "seen": 1789578235.6040843,
+    "ast_hash": "d0eafc3e1bb0dae327df557dfe537f0f",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Test/ShowAssetPreviewTest.cs": {
+    "mtime": 1789569850.38686,
+    "seen": 1789578235.6040847,
+    "ast_hash": "507c581ea82fb2a4c5c151ca8e294c11",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Test/ShowIfTest.cs": {
+    "mtime": 1789569850.4063964,
+    "seen": 1789578235.6040854,
+    "ast_hash": "d4a273ad8880635ba826ef45f0c90441",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Test/ShowNativePropertyTest.cs": {
+    "mtime": 1789569850.4006164,
+    "seen": 1789578235.6040862,
+    "ast_hash": "9c40376d7bb001423e08a71b9d1f6147",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Test/ShowNonSerializedFieldTest.cs": {
+    "mtime": 1789569850.38686,
+    "seen": 1789578235.6040869,
+    "ast_hash": "29129234c17527e0ec84effd2abbc019",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Test/SortingLayerTest.cs": {
+    "mtime": 1789569850.388364,
+    "seen": 1789578235.6040876,
+    "ast_hash": "a4ef796954ec822a5043141c0a5e5561",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Test/TagTest.cs": {
+    "mtime": 1789569850.388364,
+    "seen": 1789578235.604088,
+    "ast_hash": "c63fbee2097c99e87b678fd7616290cc",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Test/ValidateInputTest.cs": {
+    "mtime": 1789569850.4021213,
+    "seen": 1789578235.6040885,
+    "ast_hash": "f88f440be6b92573e2326ae7f1388a8c",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Test/_NaughtyComponent.cs": {
+    "mtime": 1789569850.3703322,
+    "seen": 1789578235.6040893,
+    "ast_hash": "d37d1925a61856740806fed8d4f58691",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Test/_NaughtyScriptableObject.cs": {
+    "mtime": 1789569850.3718376,
+    "seen": 1789578235.6040902,
+    "ast_hash": "979298e04b2bad85e7feb379de17ee98",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Test/_TestScriptableObjectA.cs": {
+    "mtime": 1789569850.3728695,
+    "seen": 1789578235.6040907,
+    "ast_hash": "19ed15e655bd25b20d77032afc618730",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Scripts/Test/_TestScriptableObjectB.cs": {
+    "mtime": 1789569850.389367,
+    "seen": 1789578235.6040914,
+    "ast_hash": "c990df61660a65ec0de645de14529912",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/package.json": {
+    "mtime": 1789569850.285781,
+    "seen": 1789578235.604092,
+    "ast_hash": "9bc8dad55f9d88a3f56ea7d66f629bd3",
+    "semantic_hash": ""
+  },
+  "Documentation/ADDING_NEW_POWERUP.md": {
+    "mtime": 1789574952.9932642,
+    "seen": 1789578235.6040938,
+    "ast_hash": "a5586dd7a628333ec92daf29e3503a53",
+    "semantic_hash": ""
+  },
+  "Documentation/ARCHITECTURE_OVERVIEW.md": {
+    "mtime": 1789574597.7417793,
+    "seen": 1789578235.6040955,
+    "ast_hash": "805fdb6f3be192d46fec0418358842c6",
+    "semantic_hash": ""
+  },
+  "Documentation/CODE_STYLE_GUIDELINES.md": {
+    "mtime": 1789574629.5519927,
+    "seen": 1789578235.604096,
+    "ast_hash": "829d5bbc9e8ff03194575b58ec4f7683",
+    "semantic_hash": ""
+  },
+  "Documentation/COMMON_MISTAKES.md": {
+    "mtime": 1789574763.879517,
+    "seen": 1789578235.6040967,
+    "ast_hash": "b0aa79430254b3532661f6da5ade0843",
+    "semantic_hash": ""
+  },
+  "Documentation/LEVEL_CREATION_TUTORIAL.md": {
+    "mtime": 1789574872.970096,
+    "seen": 1789578235.6040983,
+    "ast_hash": "0417230d150d761c54be34a4b8cdd4ea",
+    "semantic_hash": ""
+  },
+  "Documentation/PUBLISHING_CHECKLIST.md": {
+    "mtime": 1789574974.341115,
+    "seen": 1789578235.6040988,
+    "ast_hash": "94842cf9bacbcb6696e7d961a982290c",
+    "semantic_hash": ""
+  },
+  "Documentation/QUICKSTART.md": {
+    "mtime": 1789574564.563935,
+    "seen": 1789578235.6040995,
+    "ast_hash": "6d76b9fe588e37cb4220a051e7e80bc1",
+    "semantic_hash": ""
+  },
+  "Documentation/REPLACING_PLACEHOLDERS.md": {
+    "mtime": 1789574771.5197668,
+    "seen": 1789578235.6041,
+    "ast_hash": "e13d1043b7717766a049ee1eeded30ca",
+    "semantic_hash": ""
+  },
+  "Documentation/SHOP_CONFIGURATION.md": {
+    "mtime": 1789574963.293646,
+    "seen": 1789578235.604101,
+    "ast_hash": "a7ffbc05d17a5a49b80a09dec7c69bf8",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/README.html": {
+    "mtime": 1789569850.4109514,
+    "seen": 1789578235.604104,
+    "ast_hash": "7021c94a927e1009d208269f6a229113",
+    "semantic_hash": ""
+  },
+  "ThirdParty/NaughtyAttributes/Samples/DemoScene/TestAssets/icon-github.png": {
+    "mtime": 1789569850.4203548,
+    "seen": 1789578235.6041305,
+    "ast_hash": "dd24e5cbdc77ae6eac2c09f96de0c293",
     "semantic_hash": ""
   }
 }

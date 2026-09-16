@@ -14,12 +14,15 @@
       "Read(//c/Users/gadet/**)",
       "Read(//e/Unity Projects/MatchThemAll - Copy/Packages/**)",
       "Read(//e/Unity Projects/MatchThemAll - Copy/Packages/com.dbrizov.naughtyattributes/**)",
-      "Read(//e/Unity Projects/MatchThemAll - Copy/Library/PackageCache//**)"
+      "Read(//e/Unity Projects/MatchThemAll - Copy/Library/PackageCache//**)",
+      "mcp__unity-mcp__Unity_ReadConsole",
+      "mcp__unity-mcp__Unity_ManageEditor"
     ],
     "additionalDirectories": [
       "e:\\Unity Projects\\MatchThemAll - Copy\\Assets\\MatchThemAllTemplate"
     ]
   },
+  "enableAllProjectMcpServers": true,
   "enabledMcpjsonServers": [
     "ai-game-developer"
   ],
@@ -44,6 +47,5 @@
         ]
       }
     ]
-  },
-  "enableAllProjectMcpServers": true
+  }
 }
