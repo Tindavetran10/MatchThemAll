@@ -18,7 +18,8 @@ Get up and running with **Match Them All Template** in under 5 minutes!
 2. In the Project window, navigate to:  
    `Assets/MatchThemAllTemplate/Scenes/`
 3. Open `Lobby.unity` or `MainScene.unity`.
-4. Press the **Play** button in the Unity Editor toolbar.
+4. Press **Play** button in the Unity Editor toolbar.
+   > **Note:** The Game view defaults to a wide resolution. Switch it to a phone aspect (e.g., 1440×3088 via the Game view aspect dropdown) to preview the game correctly — the background is anchored to fill the screen on device.
 
 ---
 

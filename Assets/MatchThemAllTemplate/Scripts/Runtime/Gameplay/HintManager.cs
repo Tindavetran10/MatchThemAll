@@ -96,10 +96,13 @@ namespace MatchThemAll.Scripts.Managers
             foreach (var item in _activeHintItems.AsValueEnumerable()
                          .Where(item => item && item.gameObject.activeInHierarchy))
             {
+                // Stop any existing highlight tween first to prevent compounding scale
+                Tween.StopAll(item.transform);
+
                 // Apply visual highlight
                 if (InputManager.Instance && InputManager.Instance.OutlineMaterial)
                     item.Select(InputManager.Instance.OutlineMaterial);
-                    
+
                 // Apply a persistent pulsing animation using a fixed absolute scale to prevent compounding
                 Tween.Scale(item.transform,
                     Vector3.one * 1.3f,

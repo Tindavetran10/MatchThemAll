@@ -16,7 +16,8 @@
       "Read(//e/Unity Projects/MatchThemAll - Copy/Packages/com.dbrizov.naughtyattributes/**)",
       "Read(//e/Unity Projects/MatchThemAll - Copy/Library/PackageCache//**)",
       "mcp__unity-mcp__Unity_ReadConsole",
-      "mcp__unity-mcp__Unity_ManageEditor"
+      "mcp__unity-mcp__Unity_ManageEditor",
+      "mcp__unity-mcp__Unity_RunCommand"
     ],
     "additionalDirectories": [
       "e:\\Unity Projects\\MatchThemAll - Copy\\Assets\\MatchThemAllTemplate"

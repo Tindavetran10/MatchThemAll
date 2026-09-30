@@ -24,9 +24,11 @@ A fully-featured, mobile-ready match-3 game template for Unity. Built for beginn
 
 ## Requirements
 
-- **Unity Version:** 2022.3 or later
-- **URP (Universal Render Pipeline):** Required (included in new Unity projects)
-- **Input System:** Required (included in new Unity projects)
+- **Unity Version:** 2021.3 LTS or later (recommended)
+- **URP (Universal Render Pipeline):** Required
+- **Input System:** Required
+- **TextMesh Pro:** Required
+- For detailed setup instructions, see `Documentation/SYSTEM_REQUIREMENTS.md`
 
 ## Package Structure
 
