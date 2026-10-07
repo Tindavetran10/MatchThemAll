@@ -7,6 +7,7 @@ namespace MatchThemAll.Scripts.UI
     /// <summary>
     /// Controls a single level button in the Level Select grid.
     /// Displays level number, best stars, and locked/unlocked state.
+    /// Optionally swaps the button art for completed / current / locked levels (saga-map style).
     /// </summary>
     public class LevelButtonUI : MonoBehaviour
     {
@@ -15,6 +16,17 @@ namespace MatchThemAll.Scripts.UI
         [SerializeField] private TextMeshProUGUI levelNumberText;
         [SerializeField] private GameObject  lockIcon;
         [SerializeField] private GameObject[] starIcons; // array of 3 star GameObjects
+
+        [Header("State Art (optional)")]
+        [Tooltip("Image whose sprite is swapped per state. Leave empty to keep a single look.")]
+        [SerializeField] private Image  stateImage;
+        [SerializeField] private Sprite completedSprite;
+        [SerializeField] private Sprite currentSprite;
+        [SerializeField] private Sprite lockedSprite;
+        [Tooltip("Shown only on the furthest unlocked level (e.g. a glow / shine).")]
+        [SerializeField] private GameObject currentHighlight;
+        [SerializeField] private Color unlockedTextColor = Color.white;
+        [SerializeField] private Color lockedTextColor   = new Color(0.55f, 0.6f, 0.7f, 1f);
 
         private int _levelIndex;
         private bool _isUnlocked;
@@ -29,10 +41,14 @@ namespace MatchThemAll.Scripts.UI
         {
             _levelIndex  = levelIndex;
             _isUnlocked  = levelIndex <= currentProgress;
+            bool isCurrent = levelIndex == currentProgress;
 
             // Level number label (1-based for display)
             if (levelNumberText)
+            {
                 levelNumberText.text = (levelIndex + 1).ToString();
+                levelNumberText.color = _isUnlocked ? unlockedTextColor : lockedTextColor;
+            }
 
             // Lock state
             if (lockIcon)
@@ -40,6 +56,16 @@ namespace MatchThemAll.Scripts.UI
 
             if (button)
                 button.interactable = _isUnlocked;
+
+            // State art
+            if (stateImage)
+            {
+                Sprite s = !_isUnlocked ? lockedSprite : isCurrent ? currentSprite : completedSprite;
+                if (s) stateImage.sprite = s;
+            }
+
+            if (currentHighlight)
+                currentHighlight.SetActive(isCurrent);
 
             // Stars
             for (int i = 0; i < starIcons.Length; i++)
