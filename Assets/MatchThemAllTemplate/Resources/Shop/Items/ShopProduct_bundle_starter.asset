@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: bundle_starter
   displayName: Starter Bundle
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: bcf0c64db1a7b4631b3d2c5f6c156b81, type: 3}
   tabId: bundles
   priceCurrency: 0
   priceAmount: 300

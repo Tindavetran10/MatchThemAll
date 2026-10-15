@@ -78,7 +78,8 @@ namespace MatchThemAll.Scripts.UI
         /// <summary>Called by the Button's OnClick event.</summary>
         public void OnClicked()
         {
-            if (!_isUnlocked) return;
+            if (!_isUnlocked) { SoundManager.Sfx(SoundEvent.Error); return; }
+            SoundManager.Sfx(SoundEvent.ButtonClick);
             SceneLoader.LoadLevel(_levelIndex);
         }
     }

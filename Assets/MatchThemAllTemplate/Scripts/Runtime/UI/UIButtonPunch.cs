@@ -13,6 +13,8 @@ namespace MatchThemAll.Scripts.UI
     {
         [SerializeField] private float pressedScale = 0.92f;
         [SerializeField] private float speed = 18f;
+        [Tooltip("Sound played when the button is pressed. Set to None for silent buttons.")]
+        [SerializeField] private SoundEvent clickSound = SoundEvent.ButtonClick;
 
         private Vector3 _baseScale = Vector3.one;
         private float _target = 1f;
@@ -35,6 +37,7 @@ namespace MatchThemAll.Scripts.UI
         {
             if (_selectable && !_selectable.IsInteractable()) return;
             _target = pressedScale;
+            SoundManager.Sfx(clickSound);
         }
 
         public void OnPointerUp(PointerEventData eventData) => _target = 1f;

@@ -1,5 +1,6 @@
 using MatchThemAll.Scripts.SaveSystem;
 using UnityEngine;
+using UnityEngine.UI;
 using PrimeTween;
 
 namespace MatchThemAll.Scripts.UI
@@ -18,11 +19,15 @@ namespace MatchThemAll.Scripts.UI
         [Header("Stars")]
         [Tooltip("Assign exactly 3 star GameObjects in order (star 1, 2, 3).")]
         [SerializeField] private GameObject[] starObjects;
+        [Tooltip("Optional. Sprite swapped onto stars that were not earned (e.g. a gray star).")]
+        [SerializeField] private Sprite unearnedStarSprite;
 
         [Header("Animation")]
         [SerializeField] private float starPopDuration = 0.3f;
         [SerializeField] private float starPopDelay    = 0.25f;
         [SerializeField] private float starOvershoot   = 1.25f;
+
+        private Sprite _earnedStarSprite;
 
         private void OnEnable()
         {
@@ -54,6 +59,7 @@ namespace MatchThemAll.Scripts.UI
             }
             
             SaveManager.AddCoins(coinsEarned);
+            Tween.Delay(starPopDelay * stars + 0.6f, () => SoundManager.Sfx(SoundEvent.CoinReward));
 
             // Save progress (advances level index if this was a new level)
             LevelManager.Instance?.SaveLevelComplete(stars);
@@ -100,6 +106,13 @@ namespace MatchThemAll.Scripts.UI
                 if (!star) continue;
                 star.SetActive(true);
                 star.transform.localScale = Vector3.zero;
+
+                // Restore the earned look first; AnimateStars swaps unearned stars afterwards.
+                if (unearnedStarSprite && star.TryGetComponent(out Image img))
+                {
+                    _earnedStarSprite ??= img.sprite;
+                    img.sprite = _earnedStarSprite;
+                }
             }
         }
 
@@ -113,6 +126,9 @@ namespace MatchThemAll.Scripts.UI
                 var earned = i < count;
                 if (!earned)
                 {
+                    if (unearnedStarSprite && star.TryGetComponent(out Image unearnedImg))
+                        unearnedImg.sprite = unearnedStarSprite;
+
                     // Unearned stars stay small / greyed out — just show them at scale 0.6
                     float delay = starPopDelay * i + 0.2f;
                     Tween.Scale(star.transform,
@@ -125,6 +141,7 @@ namespace MatchThemAll.Scripts.UI
 
                 // Earned star: pop in with overshoot bounce
                 var popDelay = starPopDelay * i + 0.2f;
+                Tween.Delay(popDelay, () => SoundManager.Sfx(SoundEvent.StarPop));
                 Tween.Scale(star.transform,
                         Vector3.one * starOvershoot,
                         starPopDuration,

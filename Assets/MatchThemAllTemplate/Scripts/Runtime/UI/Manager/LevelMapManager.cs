@@ -125,7 +125,11 @@ namespace MatchThemAll.Scripts.UI
                 scrollRect.onValueChanged.RemoveListener(OnScrollChanged);
         }
 
-        public void OnBackClicked() => SceneLoader.Load(SceneLoader.Lobby);
+        public void OnBackClicked()
+        {
+            SoundManager.Sfx(SoundEvent.ButtonClose);
+            SceneLoader.Load(SceneLoader.Lobby);
+        }
 
         // ── Viewport background ──────────────────────────────────────────────
 

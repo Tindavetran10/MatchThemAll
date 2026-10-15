@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: coins_500
   displayName: 500 Coins
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: 583f02b89cabe4bb8950b242bfabec48, type: 3}
   tabId: coins
   priceCurrency: 1
   priceAmount: 50

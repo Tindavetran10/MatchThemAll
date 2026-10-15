@@ -58,6 +58,8 @@ namespace MatchThemAll.Scripts.UI
             if (claimButton)
                 claimButton.interactable = false;
 
+            SoundManager.Sfx(SoundEvent.RewardClaim);
+
             _onClaimCallback?.Invoke();
             ClosePanel();
         }

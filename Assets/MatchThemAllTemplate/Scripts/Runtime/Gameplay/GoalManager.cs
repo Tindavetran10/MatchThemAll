@@ -127,6 +127,7 @@ namespace MatchThemAll.Scripts
         private void CompleteGoals(int goalIndex)
         {
             Debug.Log($"Goal {goalIndex} completed!");
+            SoundManager.Sfx(SoundEvent.GoalComplete);
             
             // Add time bonus!
             if (TimerManager.Instance)

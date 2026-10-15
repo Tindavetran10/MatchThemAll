@@ -1,5 +1,7 @@
 using UnityEngine;
 using UnityEngine.Audio;
+using UnityEngine.SceneManagement;
+using MatchThemAll.Scripts.Shop;
 
 namespace MatchThemAll.Scripts
 {
@@ -25,6 +27,10 @@ namespace MatchThemAll.Scripts
         [Tooltip("Assign your project's AudioMixer asset here.")]
         [SerializeField] private AudioMixer audioMixer;
 
+        [Header("Sound Library")]
+        [Tooltip("Event → clip map edited in Match Them All → Sound Manager. Loaded from Resources/Sound/SoundLibrary if empty.")]
+        [SerializeField] private SoundLibrarySO library;
+
         [Header("Pool")]
         [Tooltip("How many SFX can play simultaneously. 8 is sufficient for most mobile games.")]
         [SerializeField, Range(1, 16)] private int sfxPoolSize = 8;
@@ -48,8 +54,118 @@ namespace MatchThemAll.Scripts
                 transform.SetParent(null); // Detach from parent to ensure it's a root GameObject for DontDestroyOnLoad
                 DontDestroyOnLoad(gameObject);
                 BuildPool();
+
+                if (!library) library = Resources.Load<SoundLibrarySO>("Sound/SoundLibrary");
+                SubscribeToGameEvents();
+                UI.SettingsManager.ApplyFromSave();          // saved volumes, whichever scene we start in
+                SceneManager.sceneLoaded += OnSceneLoaded;
             }
             else Destroy(gameObject);
+        }
+
+        // Starting music inside Awake is unreliable (the source may not be ready yet), so wait for the first frame.
+        private void Start() { if (Instance == this) PlaySceneMusic(SceneManager.GetActiveScene().name); }
+
+        /// <summary>Makes sure a SoundManager exists in every scene (Lobby, Main, ...) by spawning the Resources prefab.</summary>
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
+        private static void AutoCreate()
+        {
+            if (Instance) return;
+            var prefab = Resources.Load<GameObject>("Sound/SoundManager");
+            if (prefab) Instantiate(prefab);
+            else new GameObject("[SoundManager]").AddComponent<SoundManager>();
+        }
+
+        private void OnDestroy()
+        {
+            if (Instance != this) return;
+            SceneManager.sceneLoaded -= OnSceneLoaded;
+            EventBus.Unsubscribe<ItemClickedEvent>(OnItemClicked);
+            EventBus.Unsubscribe<ItemReachedSpotEvent>(OnItemReachedSpot);
+            EventBus.Unsubscribe<MergeStartedEvent>(OnMergeStarted);
+            EventBus.Unsubscribe<GameStateChangedEvent>(OnGameStateChanged);
+            EventBus.Unsubscribe<ShopPurchaseSucceededEvent>(OnPurchase);
+            ComboManager.OnComboUpdated -= OnComboUpdated;
+        }
+
+        // ------------------------------------------------------------------ Game event → sound
+
+        private void SubscribeToGameEvents()
+        {
+            EventBus.Subscribe<ItemClickedEvent>(OnItemClicked);
+            EventBus.Subscribe<ItemReachedSpotEvent>(OnItemReachedSpot);
+            EventBus.Subscribe<MergeStartedEvent>(OnMergeStarted);
+            EventBus.Subscribe<GameStateChangedEvent>(OnGameStateChanged);
+            EventBus.Subscribe<ShopPurchaseSucceededEvent>(OnPurchase);
+            ComboManager.OnComboUpdated += OnComboUpdated;
+        }
+
+        private void OnItemClicked(ItemClickedEvent _) => Sfx(SoundEvent.ItemSelect);
+        private void OnItemReachedSpot(ItemReachedSpotEvent _) => Sfx(SoundEvent.ItemPlace);
+        private void OnMergeStarted(MergeStartedEvent _) => Sfx(SoundEvent.Merge);
+        private void OnPurchase(ShopPurchaseSucceededEvent _) => Sfx(SoundEvent.PurchaseSuccess);
+        private void OnComboUpdated(int combo) { if (combo > 1) Sfx(SoundEvent.Combo); }
+
+        private void OnGameStateChanged(GameStateChangedEvent evt)
+        {
+            switch (evt.NewState)
+            {
+                case EGameState.LEVELCOMPLETE: Sfx(SoundEvent.LevelComplete); break;
+                case EGameState.GAMEOVER:      Sfx(SoundEvent.GameOver); break;
+                case EGameState.OUTOFTIME:     Sfx(SoundEvent.OutOfTime); break;
+            }
+        }
+
+        private void OnSceneLoaded(Scene scene, LoadSceneMode _) => PlaySceneMusic(scene.name);
+
+        /// <summary>Gameplay music in the game scene, menu music in the menus. Loading/intro scenes keep whatever is playing.</summary>
+        private void PlaySceneMusic(string sceneName)
+        {
+            if (sceneName == SceneLoader.Game) PlayMusic(SoundEvent.MusicGame);
+            else if (sceneName == SceneLoader.Lobby || sceneName == SceneLoader.LevelSelect) PlayMusic(SoundEvent.MusicMenu);
+        }
+
+        // ------------------------------------------------------------------ Event API
+
+        private readonly System.Collections.Generic.Dictionary<SoundEvent, float> _lastPlayed = new();
+        private const float MinRepeatInterval = 0.04f; // collapses same-frame duplicates (e.g. a 3-item merge)
+
+        /// <summary>Plays the sound assigned to <paramref name="id"/> in the SoundLibrary. Safe to call when no manager/clip exists.</summary>
+        public static void Sfx(SoundEvent id)
+        {
+            if (Instance) Instance.PlayEvent(id);
+        }
+
+        private void PlayEvent(SoundEvent id)
+        {
+            if (!library || !library.TryGet(id, out var entry)) return;
+            var clip = entry.PickClip();
+            if (!clip) return;
+
+            if (_lastPlayed.TryGetValue(id, out var last) && Time.unscaledTime - last < MinRepeatInterval) return;
+            _lastPlayed[id] = Time.unscaledTime;
+
+            var source = GetFreeSource();
+            source.clip = clip;
+            source.volume = entry.volume;
+            source.pitch = Random.Range(entry.pitchMin, entry.pitchMax);
+            source.loop = false;
+            source.outputAudioMixerGroup = library.sfxGroup;
+            source.Play();
+        }
+
+        /// <summary>Starts a looping music event (MusicMenu / MusicGame). Keeps playing if the clip is unchanged.</summary>
+        public void PlayMusic(SoundEvent id)
+        {
+            if (!library || !library.TryGet(id, out var entry)) return;
+            var clip = entry.PickClip();
+            if (!clip || (_musicSource.clip == clip && _musicSource.isPlaying)) return;
+
+            _musicSource.clip = clip;
+            _musicSource.volume = entry.volume;
+            _musicSource.pitch = 1f;
+            _musicSource.outputAudioMixerGroup = library.musicGroup;
+            _musicSource.Play();
         }
 
         /// <summary>Creates the AudioSource components that act as the SFX pool.</summary>
