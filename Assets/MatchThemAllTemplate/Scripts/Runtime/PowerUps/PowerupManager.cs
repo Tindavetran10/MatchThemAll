@@ -97,10 +97,20 @@ namespace MatchThemAll.Scripts
             {
                 if (!SaveManager.Spend(so.buyCurrency, so.buyCost))
                 {
+                    SoundManager.Sfx(SoundEvent.Error);
                     Debug.Log($"Not enough {so.buyCurrency} to buy {so.id}! Needs {so.buyCost}.");
                     return;
                 }
             }
+
+            SoundManager.Sfx(so.id switch
+            {
+                "vacuum" => SoundEvent.PowerupVacuum,
+                "spring" => SoundEvent.PowerupSpring,
+                "fan"    => SoundEvent.PowerupFan,
+                "freeze" => SoundEvent.PowerupFreeze,
+                _        => SoundEvent.None
+            });
 
             // Vacuum waits for its suck animation; the others run immediately.
             if (so.id == "vacuum")

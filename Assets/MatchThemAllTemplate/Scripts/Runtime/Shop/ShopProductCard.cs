@@ -88,7 +88,10 @@ namespace MatchThemAll.Scripts.Shop
             ShopManager.Instance.TryPurchase(_product, success =>
             {
                 if (!success)
+                {
+                    SoundManager.Sfx(SoundEvent.Error);
                     Debug.Log($"[Shop] Could not complete '{_product.DisplayName}' (insufficient funds or IAP unavailable).");
+                }
                 else
                     RefreshOwnedState();
             });
