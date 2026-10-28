@@ -11739,7 +11739,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MatchThemAll.Scripts.PowerupManager
   database: {fileID: 11400000, guid: 76763b36fc1a0b7458ce51b439ba4316, type: 2}
   vacuum: {fileID: 1947967955}
-  vacuumSuckPosition: {fileID: 0}
+  vacuumSuckPosition: {fileID: 1947967957}
   fanOrigin: {fileID: 1236822294}
   freezeMuzzle: {fileID: 1864692037}
   gameSettings: {fileID: 11400000, guid: 8ead217f245550649be423e8e56e2bd3, type: 2}
@@ -18705,6 +18705,11 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 0.85
   m_Center: {x: 0, y: 0.8, z: 0}
+--- !u!4 &1947967957 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 674842797103000975, guid: 73fc18920915a614e9e350ade3a95b05, type: 3}
+  m_PrefabInstance: {fileID: 1947967952}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1956957420
 GameObject:
   m_ObjectHideFlags: 0

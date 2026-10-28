@@ -413,7 +413,17 @@ static class ModelGen
         }
         root.GetComponent<Animator>().avatar = null; // old avatar came from the course model; our clips are generic transform paths
         Part("Body", "Prop_VacuumBody", Vector3.zero);
-        Part("Nozzle", "Prop_VacuumNozzle", nozzlePivot);
+        var nozzle = Part("Nozzle", "Prop_VacuumNozzle", nozzlePivot);
+
+        // Suck point = centre of the nozzle mouth (its Glow cap), parented to the nozzle so it follows the animation
+        // like the old rig's end bone did. Reused by name so its fileID (and the scene reference) survives reruns.
+        var suck = nozzle.transform.Find("SuckPoint") ?? new GameObject("SuckPoint").transform;
+        suck.SetParent(nozzle.transform, false);
+        var nozzleMesh = MeshFor("Prop_VacuumNozzle");
+        var mouthTris = nozzleMesh.GetTriangles(Array.FindIndex(MaterialsFor("Prop_VacuumNozzle"), m => m.name.EndsWith("Glow")));
+        var mouth = Vector3.zero;
+        foreach (var i in mouthTris) mouth += nozzleMesh.vertices[i];
+        suck.localPosition = mouth / mouthTris.Length;
         PrefabUtility.SaveAsPrefabAsset(root, prefab);
         PrefabUtility.UnloadPrefabContents(root);
 
@@ -460,6 +470,29 @@ static class ModelGen
         EditorUtility.SetDirty(idle);
         EditorUtility.SetDirty(act);
         AssetDatabase.SaveAssets();
+        // PowerupManager.vacuumSuckPosition used to point at the old rig's end bone; point it at our SuckPoint.
+        const string scenePath = "Assets/MatchThemAllTemplate/Scenes/MainScene.unity";
+        var scene = UnityEditor.SceneManagement.EditorSceneManager.GetSceneByPath(scenePath);
+        bool openedHere = !scene.isLoaded;
+        if (openedHere) scene = UnityEditor.SceneManagement.EditorSceneManager.OpenScene(scenePath, UnityEditor.SceneManagement.OpenSceneMode.Additive);
+        Transform sceneSuck = null;
+        MonoBehaviour manager = null;
+        foreach (var go in scene.GetRootGameObjects())
+        foreach (var mb in go.GetComponentsInChildren<MonoBehaviour>(true))
+        {
+            if (!mb) continue;
+            if (mb.GetType().Name == "Vacuum") sceneSuck = mb.transform.Find("Nozzle/SuckPoint");
+            if (mb.GetType().Name == "PowerupManager") manager = mb;
+        }
+        if (!sceneSuck || !manager) Debug.LogError($"[ModelGen] Couldn't wire vacuumSuckPosition (suck point {sceneSuck}, manager {manager}).");
+        else
+        {
+            var so = new SerializedObject(manager);
+            so.FindProperty("vacuumSuckPosition").objectReferenceValue = sceneSuck;
+            so.ApplyModifiedPropertiesWithoutUndo();
+            UnityEditor.SceneManagement.EditorSceneManager.SaveScene(scene);
+        }
+        if (openedHere) UnityEditor.SceneManagement.EditorSceneManager.CloseScene(scene, true);
         Debug.Log("[ModelGen] Vacuum rewired + clips rewritten.");
     }
 
