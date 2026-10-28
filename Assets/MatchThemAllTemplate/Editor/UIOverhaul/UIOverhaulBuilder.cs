@@ -10,7 +10,7 @@ using UnityEngine.UI;
 namespace MatchThemAll.EditorTools
 {
     /// <summary>
-    /// Re-skins the five game scenes with the GUIPackCartoon art set.
+    /// Re-skins the five game scenes with the template's cartoon UI art set.
     /// Every step is idempotent (find-or-create by name) and restyles the EXISTING objects in place,
     /// so all serialized references and Button.onClick bindings keep working.
     /// Menu: Tools ▸ Match Them All ▸ UI Overhaul.
@@ -18,11 +18,11 @@ namespace MatchThemAll.EditorTools
     public static class UIOverhaulBuilder
     {
         // ───────────────────────────────── Paths ─────────────────────────────────
-        private const string Gui = "Assets/GUIPackCartoon/Demo/Sprites/";
+        private const string Gui = "Assets/MatchThemAllTemplate/Art/UI/Sprites/";
         private const string Art = "Assets/MatchThemAllTemplate/Art/UI/";
         private const string Scenes = "Assets/MatchThemAllTemplate/Scenes/";
         private const string NodePrefabPath = "Assets/MatchThemAllTemplate/Prefabs/UI/Level/LevelMapNode.prefab";
-        private const string FontPath = "Assets/GUIPackCartoon/Demo/Fonts/LilitaOne - Regular SDF.asset";
+        private const string FontPath = "Assets/MatchThemAllTemplate/Art/UI/Fonts/LilitaOne-Regular SDF.asset";
 
         // ──────────────────────────────── Palette ────────────────────────────────
         private static readonly Color Navy       = Hex("1B2A6B");
@@ -345,7 +345,7 @@ namespace MatchThemAll.EditorTools
             }
         }
 
-        /// <summary>Re-skins the level node prefab as glossy GUIPack circles with state art.</summary>
+        /// <summary>Re-skins the level node prefab as glossy circles with state art.</summary>
         public static void BuildNodePrefab()
         {
             var rootGo = PrefabUtility.LoadPrefabContents(NodePrefabPath);
@@ -564,7 +564,7 @@ namespace MatchThemAll.EditorTools
             Motion(rt, UISimpleMotion.Mode.Float, 10f, 0.4f, phase);
         }
 
-        /// <summary>Square GUIPack tile with an icon and a coloured label pill underneath (lobby side buttons).</summary>
+        /// <summary>Square tile with an icon and a coloured label pill underneath (lobby side buttons).</summary>
         private static void Tile(RectTransform btn, RectTransform parent, string labelName, string label, string icon, string pillSprite, Color outline, bool left)
         {
             if (!btn) return;
@@ -608,7 +608,7 @@ namespace MatchThemAll.EditorTools
             Img(c, Spr("Backgrounds/Level Scene/Clouds Bottom"), new Color(1, 1, 1, 0.95f));
         }
 
-        /// <summary>Glossy GUIPack circles scattered down the screen edges, gently floating (like gumballs).</summary>
+        /// <summary>Glossy circles scattered down the screen edges, gently floating (like gumballs).</summary>
         private static void Bubbles(RectTransform parent, int seed, int count, float alpha)
         {
             var holder = Node(parent, "Bubbles"); Stretch(holder);
@@ -892,7 +892,7 @@ namespace MatchThemAll.EditorTools
         }
 
         /// <summary>
-        /// Bakes the power-up tray: renders a small GUIPack UI composition (rounded panel + 4 slots)
+        /// Bakes the power-up tray: renders a small UI composition (rounded panel + 4 slots)
         /// to a transparent PNG which is shown on a quad under the 3D power-ups.
         /// </summary>
         private static Texture2D BakePowerupTray()
