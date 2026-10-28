@@ -16,7 +16,7 @@ Before implementing:
 - If multiple interpretations exist, present them — don't pick silently.
 - If a simpler approach exists, say so. Push back when warranted.
 - If something is unclear, stop. Name what's confusing. Ask.
-- For Unity-specific tasks, verify the API exists via `unity_reflect` or `unity_docs` before writing code — training data may be stale.
+- For Unity-specific tasks, verify the API exists (Unity docs, or reflection via `Unity_RunCommand`) before writing code — training data may be stale.
 
 ---
 
@@ -196,30 +196,27 @@ When you make an architectural decision, log it in Obsidian under `docs/decision
 
 ## 11. Unity Plugin Skills
 
-This project has the official Unity plugin for Claude Code installed with 29+ skills.
+Only Unity's official tooling is installed: the `unity@unity-agent-plugin` plugin (skills such as `unity:ui-ugui`, `unity:urp-postprocessing`) and the official `unity-mcp` server (relay from `com.unity.ai.assistant`).
 
 **Use Unity MCP tools BEFORE writing custom code** — many common tasks are already covered:
 
-| Task | Skill/Command |
+| Task | Tool (`mcp__unity-mcp__…`) |
 |------|---------------|
-| Find GameObjects | `find_gameobjects`, `find_gameobjects_tag`, `find_gameobjects_by_name` |
-| Create/Modify objects | `gameobject-create`, `gameobject-modify` |
-| Add components | `gameobject-component-add`, `script-update-or-create` |
-| Asset operations | `assets-*` (find, copy, move, delete, material-create, prefab-*) |
-| Animation | `animation-*`, `animator-*` |
-| Scene ops | `scene-open`, `scene-save`, `scene-get-data` |
-| Package management | `package-add`, `package-list`, `package-search` |
-| Profiler | `profiler-*` (memory, rendering, script stats) |
-| Screenshots | `screenshot-scene-view`, `screenshot-game-view` |
-| Console logs | `console-get-logs`, `console-clear-logs` |
-| Run tests | `tests-run` |
+| GameObjects | `Unity_ManageGameObject` |
+| Scenes | `Unity_ManageScene` |
+| Assets / prefabs | `Unity_ManageAsset`, `Unity_FindProjectAssets` |
+| Scripts | `Unity_CreateScript`, `Unity_ScriptApplyEdits`, `Unity_ValidateScript` |
+| Packages | `Unity_PackageManager_GetData`, `Unity_PackageManager_ExecuteAction` |
+| Profiler | `Unity_Profiler_*` |
+| Screenshots | `Unity_Camera_Capture`, `Unity_SceneView_Capture2DScene` |
+| Console logs | `Unity_ReadConsole`, `Unity_GetConsoleLogs` |
+| Editor state / play mode | `Unity_ManageEditor` |
+| Anything else (incl. API reflection) | `Unity_RunCommand` |
 
 **Quick workflow:**
-1. Check editor state: `editor-application-get-state`
-2. Find existing assets/objects via Unity skills
-3. Only write custom code when no existing skill covers it
-
-**Full skill list:** Run `/skill-doctor` or check `.claude/settings.json` → `skills`.
+1. Check editor state: `Unity_ManageEditor`
+2. Find existing assets/objects via the tools above
+3. Only write custom code when no existing tool covers it
 
 ---
 

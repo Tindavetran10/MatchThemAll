@@ -1,14 +1,8 @@
 {
   ".claude/settings.local.json": {
-    "mtime": 1790788344.069668,
-    "seen": 1792067873.7638333,
-    "ast_hash": "b2522307f0fb048cdcfe44c0ce7c36e3",
-    "semantic_hash": ""
-  },
-  ".mcp.json": {
-    "mtime": 1786739977.168432,
-    "seen": 1792067873.7638419,
-    "ast_hash": "9530153e306f07a5d31a88c21417912c",
+    "mtime": 1793187044.5297053,
+    "seen": 1793207759.81423,
+    "ast_hash": "110e20459394f12e755c388cce06f6f9",
     "semantic_hash": ""
   },
   ".vscode/tasks.json": {
@@ -1644,45 +1638,45 @@
     "semantic_hash": ""
   },
   "Assets/Plugins/PrimeTween/Demo/Scripts/Animatable.cs": {
-    "mtime": 1784882522.0,
-    "seen": 1792067873.7641914,
-    "ast_hash": "1ddf53d8173564ee2336302f4450a870",
+    "mtime": 1792606986.0,
+    "seen": 1793207759.8144612,
+    "ast_hash": "9de5c35e64a98a511b1352f50a88770a",
     "semantic_hash": ""
   },
   "Assets/Plugins/PrimeTween/Demo/Scripts/Baggage.cs": {
-    "mtime": 1784882508.0,
-    "seen": 1792067873.7641926,
-    "ast_hash": "64af6be670342a826eca8e574d4d3c53",
+    "mtime": 1792606970.0,
+    "seen": 1793207759.814462,
+    "ast_hash": "0719c60ef8127c82a2225d884ca9e3a5",
     "semantic_hash": ""
   },
   "Assets/Plugins/PrimeTween/Demo/Scripts/CameraController.cs": {
-    "mtime": 1784882508.0,
-    "seen": 1792067873.7641935,
-    "ast_hash": "55ac90892a7de52d7d984b3a8d8bc6aa",
+    "mtime": 1792606970.0,
+    "seen": 1793207759.8144627,
+    "ast_hash": "04c53f071db784f195010e5c73a98d3f",
     "semantic_hash": ""
   },
   "Assets/Plugins/PrimeTween/Demo/Scripts/CameraProjectionMatrixAnimation.cs": {
-    "mtime": 1784882514.0,
-    "seen": 1792067873.7641947,
-    "ast_hash": "b8211751181a2f5c59846fc339136858",
+    "mtime": 1792606976.0,
+    "seen": 1793207759.8144634,
+    "ast_hash": "5977e381fbc5b912084b6e9596a6f502",
     "semantic_hash": ""
   },
   "Assets/Plugins/PrimeTween/Demo/Scripts/Demo.cs": {
-    "mtime": 1784882514.0,
-    "seen": 1792067873.7641957,
-    "ast_hash": "48910b7db0ac19c7e45c1f0a0936cec6",
+    "mtime": 1792606977.0,
+    "seen": 1793207759.8144643,
+    "ast_hash": "1b8b2aa49c5417bf1513b5b1af44cb6f",
     "semantic_hash": ""
   },
   "Assets/Plugins/PrimeTween/Demo/Scripts/DirectionalLightController.cs": {
-    "mtime": 1784882521.0,
-    "seen": 1792067873.7641969,
-    "ast_hash": "3b441a884abb9d49faacc518db85c0d2",
+    "mtime": 1792606984.0,
+    "seen": 1793207759.814465,
+    "ast_hash": "73bab42383a9868fa58036f1faf1ce1f",
     "semantic_hash": ""
   },
   "Assets/Plugins/PrimeTween/Demo/Scripts/Door.cs": {
-    "mtime": 1784882510.0,
-    "seen": 1792067873.7641976,
-    "ast_hash": "e7a92dd11a53cce716272d3d83d53e6b",
+    "mtime": 1792606972.0,
+    "seen": 1793207759.8144655,
+    "ast_hash": "fc9022445b3e4f3b16a3080f2a34fe7c",
     "semantic_hash": ""
   },
   "Assets/Plugins/PrimeTween/Demo/Scripts/Headlights.cs": {
@@ -1692,27 +1686,27 @@
     "semantic_hash": ""
   },
   "Assets/Plugins/PrimeTween/Demo/Scripts/HighlightableElement.cs": {
-    "mtime": 1784882512.0,
-    "seen": 1792067873.7642,
-    "ast_hash": "4bc3310af64140453f731164ef549d58",
+    "mtime": 1792606973.0,
+    "seen": 1793207759.814467,
+    "ast_hash": "3b078a0196598e523d8a8d8f2822ef42",
     "semantic_hash": ""
   },
   "Assets/Plugins/PrimeTween/Demo/Scripts/HighlightedElementController.cs": {
-    "mtime": 1784882514.0,
-    "seen": 1792067873.7642012,
-    "ast_hash": "79ace9f0b60fb93dbc4e02a8d0c56502",
+    "mtime": 1792606977.0,
+    "seen": 1793207759.814468,
+    "ast_hash": "d1f611b8e32feccc542847de7576fb5e",
     "semantic_hash": ""
   },
   "Assets/Plugins/PrimeTween/Demo/Scripts/InputController.cs": {
-    "mtime": 1784882522.0,
-    "seen": 1792067873.7642019,
-    "ast_hash": "083e59fc3469452c3122506f24e370e9",
+    "mtime": 1792606985.0,
+    "seen": 1793207759.8144686,
+    "ast_hash": "bcbe494a43a454ab638a667c18d83c89",
     "semantic_hash": ""
   },
   "Assets/Plugins/PrimeTween/Demo/Scripts/JumpAnimation.cs": {
-    "mtime": 1784882509.0,
-    "seen": 1792067873.764203,
-    "ast_hash": "e999fb430af3805f3db2154396a46d6b",
+    "mtime": 1792606971.0,
+    "seen": 1793207759.814469,
+    "ast_hash": "a2e951e2c4d955dcad6749c19b7de7a2",
     "semantic_hash": ""
   },
   "Assets/Plugins/PrimeTween/Demo/Scripts/MeasureAllocations/DebugInfo.cs": {
@@ -1722,21 +1716,21 @@
     "semantic_hash": ""
   },
   "Assets/Plugins/PrimeTween/Demo/Scripts/MeasureAllocations/MeasureMemoryAllocations.cs": {
-    "mtime": 1784882513.0,
-    "seen": 1792067873.7642052,
-    "ast_hash": "424df3573f053e761a36741a932a5abd",
+    "mtime": 1792606975.0,
+    "seen": 1793207759.8144708,
+    "ast_hash": "d4bc4f8ee11fab72666f5f02e64ca5eb",
     "semantic_hash": ""
   },
   "Assets/Plugins/PrimeTween/Demo/Scripts/Road.cs": {
-    "mtime": 1784882515.0,
-    "seen": 1792067873.7642062,
-    "ast_hash": "ec26fe096e2c74f7e448e8b8602d7eaa",
+    "mtime": 1792606977.0,
+    "seen": 1793207759.8144712,
+    "ast_hash": "eb5dd98d4d605dc8e1a093a3007284fc",
     "semantic_hash": ""
   },
   "Assets/Plugins/PrimeTween/Demo/Scripts/SlidingDoor.cs": {
-    "mtime": 1784882518.0,
-    "seen": 1792067873.7642071,
-    "ast_hash": "6fd098e2b8530c09d8914c2b7b050d9d",
+    "mtime": 1792606981.0,
+    "seen": 1793207759.8144717,
+    "ast_hash": "3a69b08f79b9132db50a0360a7a1cd6b",
     "semantic_hash": ""
   },
   "Assets/Plugins/PrimeTween/Demo/Scripts/SqueezeAnimation.cs": {
@@ -1746,27 +1740,27 @@
     "semantic_hash": ""
   },
   "Assets/Plugins/PrimeTween/Demo/Scripts/SwipeTutorial.cs": {
-    "mtime": 1784882519.0,
-    "seen": 1792067873.7642095,
-    "ast_hash": "3aa517f50e2e754bebf9caaf9ce732c9",
+    "mtime": 1792606982.0,
+    "seen": 1793207759.8144732,
+    "ast_hash": "22474b849bcd3e14d57dd76206842fac",
     "semantic_hash": ""
   },
   "Assets/Plugins/PrimeTween/Demo/Scripts/TypewriterAnimatorExample.cs": {
-    "mtime": 1784882522.0,
-    "seen": 1792067873.7642105,
-    "ast_hash": "822a9bc456bf894de91dbe57bc33740b",
+    "mtime": 1792606986.0,
+    "seen": 1793207759.8144736,
+    "ast_hash": "3e8e3f07efce0f6057a9e2e36413b76f",
     "semantic_hash": ""
   },
   "Assets/Plugins/PrimeTween/Demo/Scripts/Wheels.cs": {
-    "mtime": 1784882512.0,
-    "seen": 1792067873.7642114,
-    "ast_hash": "eea90240a981452386c3095b7167736d",
+    "mtime": 1792606974.0,
+    "seen": 1793207759.8144746,
+    "ast_hash": "de2d19ede435a8cd9849303cebb3e8d2",
     "semantic_hash": ""
   },
   "Assets/Plugins/PrimeTween/internal/PrimeTweenInstaller.cs": {
-    "mtime": 1784882506.0,
-    "seen": 1792067873.7642124,
-    "ast_hash": "1db182ebd9c73fb145dfdfdd5ccca659",
+    "mtime": 1792606967.0,
+    "seen": 1793207759.814475,
+    "ast_hash": "8b44329927a746252f3a2ceca23530eb",
     "semantic_hash": ""
   },
   "Assets/ProPixelizer/ExampleAssets/Floating/ProPixelizerExampleFloating.cs": {
@@ -2160,15 +2154,15 @@
     "semantic_hash": ""
   },
   "Packages/manifest.json": {
-    "mtime": 1790797202.4223995,
-    "seen": 1792067873.7642972,
-    "ast_hash": "a7d9569e07498ba6e24374b8cf9360b9",
+    "mtime": 1793187135.0327668,
+    "seen": 1793207759.8145251,
+    "ast_hash": "39d59a0b652894be4dc39bb844dd7c9e",
     "semantic_hash": ""
   },
   "Packages/packages-lock.json": {
-    "mtime": 1791359659.603267,
-    "seen": 1792067873.764298,
-    "ast_hash": "ce1f1a7afb67c8cae3985943fd8e1c44",
+    "mtime": 1793187141.0800197,
+    "seen": 1793207759.8145258,
+    "ast_hash": "8116e564d24014709e3747b48f4dcb6c",
     "semantic_hash": ""
   },
   "ProjectSettings/Packages/com.unity.ai.assistant/Settings.json": {
@@ -2193,516 +2187,6 @@
     "mtime": 1782579927.2218385,
     "seen": 1792067873.7643025,
     "ast_hash": "4499d0efefbbb64353d6bec6a237209b",
-    "semantic_hash": ""
-  },
-  ".claude/skills/animation-create/SKILL.md": {
-    "mtime": 1789031070.479694,
-    "seen": 1792067873.7643037,
-    "ast_hash": "fcda76ee1c21e9fa97ef8a16326b81d9",
-    "semantic_hash": ""
-  },
-  ".claude/skills/animation-get-data/SKILL.md": {
-    "mtime": 1789031070.4808967,
-    "seen": 1792067873.7643046,
-    "ast_hash": "ee4c8ba2efd8b1d34e7b4eb6d500bf05",
-    "semantic_hash": ""
-  },
-  ".claude/skills/animation-modify/SKILL.md": {
-    "mtime": 1789031070.4808967,
-    "seen": 1792067873.7643056,
-    "ast_hash": "1d469bfe0320b6cb43fbf4d1d156bbca",
-    "semantic_hash": ""
-  },
-  ".claude/skills/animator-create/SKILL.md": {
-    "mtime": 1789031070.4808967,
-    "seen": 1792067873.7643068,
-    "ast_hash": "425a502185c0848ec06c695f15fd8368",
-    "semantic_hash": ""
-  },
-  ".claude/skills/animator-get-data/SKILL.md": {
-    "mtime": 1789031070.481899,
-    "seen": 1792067873.7643077,
-    "ast_hash": "3ead2699fb6599b973bc423154df5495",
-    "semantic_hash": ""
-  },
-  ".claude/skills/animator-modify/SKILL.md": {
-    "mtime": 1789031070.481899,
-    "seen": 1792067873.7643087,
-    "ast_hash": "a9f639745fb5740480f919c416dc39ec",
-    "semantic_hash": ""
-  },
-  ".claude/skills/assets-copy/SKILL.md": {
-    "mtime": 1789031070.481899,
-    "seen": 1792067873.7643096,
-    "ast_hash": "d1796763451ae63c5f7c5e49130669e5",
-    "semantic_hash": ""
-  },
-  ".claude/skills/assets-create-folder/SKILL.md": {
-    "mtime": 1789031070.4828985,
-    "seen": 1792067873.7643108,
-    "ast_hash": "9897fa7b28ef99d0a49e8f357aac7dd3",
-    "semantic_hash": ""
-  },
-  ".claude/skills/assets-delete/SKILL.md": {
-    "mtime": 1789031070.4828985,
-    "seen": 1792067873.7643118,
-    "ast_hash": "c8be5770a16dafcdb8cba7d303669493",
-    "semantic_hash": ""
-  },
-  ".claude/skills/assets-find-built-in/SKILL.md": {
-    "mtime": 1789031070.4828985,
-    "seen": 1792067873.7643127,
-    "ast_hash": "c34a6373bcbfb671884482f9daf93eca",
-    "semantic_hash": ""
-  },
-  ".claude/skills/assets-find/SKILL.md": {
-    "mtime": 1789031070.4828985,
-    "seen": 1792067873.764314,
-    "ast_hash": "6d82db036ca7b667471e13eb9c8cf7ec",
-    "semantic_hash": ""
-  },
-  ".claude/skills/assets-get-data/SKILL.md": {
-    "mtime": 1789031070.4839585,
-    "seen": 1792067873.764315,
-    "ast_hash": "1ac65e8021fd8616a00ee15c5a64922c",
-    "semantic_hash": ""
-  },
-  ".claude/skills/assets-material-create/SKILL.md": {
-    "mtime": 1789031070.4839585,
-    "seen": 1792067873.76432,
-    "ast_hash": "f9aed377c366147ed3582c48976c9b5f",
-    "semantic_hash": ""
-  },
-  ".claude/skills/assets-modify/SKILL.md": {
-    "mtime": 1789031070.4850264,
-    "seen": 1792067873.764321,
-    "ast_hash": "dce773171d75409305ffb576c63f6a7c",
-    "semantic_hash": ""
-  },
-  ".claude/skills/assets-move/SKILL.md": {
-    "mtime": 1789031070.4850264,
-    "seen": 1792067873.7643225,
-    "ast_hash": "66581cdce4f261ebc6993a72bd2c4905",
-    "semantic_hash": ""
-  },
-  ".claude/skills/assets-prefab-close/SKILL.md": {
-    "mtime": 1789031070.4850264,
-    "seen": 1792067873.7643235,
-    "ast_hash": "f5b0769b1065cd8bf315daf0f1fa410b",
-    "semantic_hash": ""
-  },
-  ".claude/skills/assets-prefab-create/SKILL.md": {
-    "mtime": 1789031070.4860368,
-    "seen": 1792067873.7643247,
-    "ast_hash": "644ba5787bb675dfb1eca7aff7a3b110",
-    "semantic_hash": ""
-  },
-  ".claude/skills/assets-prefab-instantiate/SKILL.md": {
-    "mtime": 1789031070.4860368,
-    "seen": 1792067873.7643259,
-    "ast_hash": "f5bae4b5e08c3840e57c89e8ff8facdb",
-    "semantic_hash": ""
-  },
-  ".claude/skills/assets-prefab-open/SKILL.md": {
-    "mtime": 1789031070.4860368,
-    "seen": 1792067873.7643268,
-    "ast_hash": "b13040acbd0d47a67ccf12acf7855e0d",
-    "semantic_hash": ""
-  },
-  ".claude/skills/assets-prefab-save/SKILL.md": {
-    "mtime": 1789031070.4860368,
-    "seen": 1792067873.7643282,
-    "ast_hash": "5d2be868887864e87eeeaf6a5522d4c5",
-    "semantic_hash": ""
-  },
-  ".claude/skills/assets-refresh/SKILL.md": {
-    "mtime": 1789031070.4850264,
-    "seen": 1792067873.7643292,
-    "ast_hash": "7dce0eab576acb544aa25f9c3b5587e1",
-    "semantic_hash": ""
-  },
-  ".claude/skills/assets-shader-get-data/SKILL.md": {
-    "mtime": 1789031070.4870389,
-    "seen": 1792067873.76433,
-    "ast_hash": "ce3f3e74dcb45e4cb3c010cbcd5d0932",
-    "semantic_hash": ""
-  },
-  ".claude/skills/assets-shader-list-all/SKILL.md": {
-    "mtime": 1789031070.4880407,
-    "seen": 1792067873.7643313,
-    "ast_hash": "08b7d39323a47d474266d1fbdc65f363",
-    "semantic_hash": ""
-  },
-  ".claude/skills/console-clear-logs/SKILL.md": {
-    "mtime": 1789031070.4880407,
-    "seen": 1792067873.7643323,
-    "ast_hash": "371eba2ae9510fe566b1668512f9b2c3",
-    "semantic_hash": ""
-  },
-  ".claude/skills/console-get-logs/SKILL.md": {
-    "mtime": 1789031070.4880407,
-    "seen": 1792067873.7643332,
-    "ast_hash": "7b82fb034a685e6eab9eff94280ceeb7",
-    "semantic_hash": ""
-  },
-  ".claude/skills/editor-application-get-state/SKILL.md": {
-    "mtime": 1789031070.4880407,
-    "seen": 1792067873.7643347,
-    "ast_hash": "4dcf5a0e1c4997df30198e746ecd14aa",
-    "semantic_hash": ""
-  },
-  ".claude/skills/editor-application-set-state/SKILL.md": {
-    "mtime": 1789031070.4880407,
-    "seen": 1792067873.7643356,
-    "ast_hash": "9819f0978d15ab509e99030740d8cd0e",
-    "semantic_hash": ""
-  },
-  ".claude/skills/editor-selection-get/SKILL.md": {
-    "mtime": 1789031070.4890437,
-    "seen": 1792067873.7643366,
-    "ast_hash": "e622bafbe11bb1456c12f942114f5285",
-    "semantic_hash": ""
-  },
-  ".claude/skills/editor-selection-set/SKILL.md": {
-    "mtime": 1789031070.4890437,
-    "seen": 1792067873.7643378,
-    "ast_hash": "e5098a2b533542bef9df5d570b20ae90",
-    "semantic_hash": ""
-  },
-  ".claude/skills/gameobject-component-add/SKILL.md": {
-    "mtime": 1789031070.4890437,
-    "seen": 1792067873.7643387,
-    "ast_hash": "e7d11ab64a9c3e3918ce361deefbb2bc",
-    "semantic_hash": ""
-  },
-  ".claude/skills/gameobject-component-destroy/SKILL.md": {
-    "mtime": 1789031070.4900455,
-    "seen": 1792067873.7643397,
-    "ast_hash": "7869d3da336cbe2a203ba9fca1956724",
-    "semantic_hash": ""
-  },
-  ".claude/skills/gameobject-component-get/SKILL.md": {
-    "mtime": 1789031070.4900455,
-    "seen": 1792067873.7643406,
-    "ast_hash": "af466b3c3620514e6df6734e4a25f26d",
-    "semantic_hash": ""
-  },
-  ".claude/skills/gameobject-component-list-all/SKILL.md": {
-    "mtime": 1789031070.4900455,
-    "seen": 1792067873.7643418,
-    "ast_hash": "94b1ad9bcc4aafc5870921dd7595d5c9",
-    "semantic_hash": ""
-  },
-  ".claude/skills/gameobject-component-modify/SKILL.md": {
-    "mtime": 1789031070.4910476,
-    "seen": 1792067873.7643428,
-    "ast_hash": "147beff8d22031ac57846adea3cf3dee",
-    "semantic_hash": ""
-  },
-  ".claude/skills/gameobject-create/SKILL.md": {
-    "mtime": 1789031070.4910476,
-    "seen": 1792067873.7643437,
-    "ast_hash": "be68fb269d81fa9533c801cd713c9934",
-    "semantic_hash": ""
-  },
-  ".claude/skills/gameobject-destroy/SKILL.md": {
-    "mtime": 1789031070.4910476,
-    "seen": 1792067873.764345,
-    "ast_hash": "64b6f00952c52d788bde6dee08686114",
-    "semantic_hash": ""
-  },
-  ".claude/skills/gameobject-duplicate/SKILL.md": {
-    "mtime": 1789031070.4910476,
-    "seen": 1792067873.764346,
-    "ast_hash": "f4e0d491ebe0418e2412e33d92687d28",
-    "semantic_hash": ""
-  },
-  ".claude/skills/gameobject-find/SKILL.md": {
-    "mtime": 1789031070.4925525,
-    "seen": 1792067873.764347,
-    "ast_hash": "976c8367c34c5a7e00304d69bd1b13b3",
-    "semantic_hash": ""
-  },
-  ".claude/skills/gameobject-modify/SKILL.md": {
-    "mtime": 1789031070.4925525,
-    "seen": 1792067873.7643483,
-    "ast_hash": "b232c06cac14a9c9ac5a80fdffc87a37",
-    "semantic_hash": ""
-  },
-  ".claude/skills/gameobject-set-parent/SKILL.md": {
-    "mtime": 1789031070.4936118,
-    "seen": 1792067873.7643492,
-    "ast_hash": "48812fbc8ffe484af9d4cea5b0616075",
-    "semantic_hash": ""
-  },
-  ".claude/skills/object-get-data/SKILL.md": {
-    "mtime": 1789031070.4936118,
-    "seen": 1792067873.7643502,
-    "ast_hash": "5e70b8c97310a03c8fa117083741b9e3",
-    "semantic_hash": ""
-  },
-  ".claude/skills/object-modify/SKILL.md": {
-    "mtime": 1789031070.494612,
-    "seen": 1792067873.7643511,
-    "ast_hash": "e95c20a63a25bd8acb60817c207e08d2",
-    "semantic_hash": ""
-  },
-  ".claude/skills/package-add/SKILL.md": {
-    "mtime": 1789031070.494612,
-    "seen": 1792067873.7643523,
-    "ast_hash": "3fb86ba7a4e68bea07e4d83912a8aff5",
-    "semantic_hash": ""
-  },
-  ".claude/skills/package-list/SKILL.md": {
-    "mtime": 1789031070.494612,
-    "seen": 1792067873.7643533,
-    "ast_hash": "aa6cb81514d3526bd6393edbbf906771",
-    "semantic_hash": ""
-  },
-  ".claude/skills/package-remove/SKILL.md": {
-    "mtime": 1789031070.494612,
-    "seen": 1792067873.7643542,
-    "ast_hash": "b16ac10fabd01aacf920a1de84f9d110",
-    "semantic_hash": ""
-  },
-  ".claude/skills/package-search/SKILL.md": {
-    "mtime": 1789031070.494612,
-    "seen": 1792067873.7643554,
-    "ast_hash": "f2cee6cb1da2cae75074a074febe12f8",
-    "semantic_hash": ""
-  },
-  ".claude/skills/particle-system-get/SKILL.md": {
-    "mtime": 1789031070.5041656,
-    "seen": 1792067873.7643566,
-    "ast_hash": "2e5e36c6c274f9a395062edcb9fd43dc",
-    "semantic_hash": ""
-  },
-  ".claude/skills/particle-system-modify/SKILL.md": {
-    "mtime": 1789031070.505165,
-    "seen": 1792067873.7643573,
-    "ast_hash": "6d5ef43dcec81c16559ca44bc8869045",
-    "semantic_hash": ""
-  },
-  ".claude/skills/ping/SKILL.md": {
-    "mtime": 1789031070.505165,
-    "seen": 1792067873.764359,
-    "ast_hash": "de3d2705c8eecdb93e542274995ebde5",
-    "semantic_hash": ""
-  },
-  ".claude/skills/profiler-capture-frame/SKILL.md": {
-    "mtime": 1789031070.495612,
-    "seen": 1792067873.76436,
-    "ast_hash": "37fce72be99f05b209204af2c5e1473b",
-    "semantic_hash": ""
-  },
-  ".claude/skills/profiler-clear-data/SKILL.md": {
-    "mtime": 1789031070.495612,
-    "seen": 1792067873.764361,
-    "ast_hash": "08431ee908a548b2111f72c08080e880",
-    "semantic_hash": ""
-  },
-  ".claude/skills/profiler-enable-module/SKILL.md": {
-    "mtime": 1789031070.495612,
-    "seen": 1792067873.764362,
-    "ast_hash": "27b6f1b0a63a0b2314a0d9bacbf59cd8",
-    "semantic_hash": ""
-  },
-  ".claude/skills/profiler-get-memory-stats/SKILL.md": {
-    "mtime": 1789031070.495612,
-    "seen": 1792067873.764363,
-    "ast_hash": "780a22cb5d33ea981bcba224e1fd2069",
-    "semantic_hash": ""
-  },
-  ".claude/skills/profiler-get-rendering-stats/SKILL.md": {
-    "mtime": 1789031070.4966118,
-    "seen": 1792067873.7643638,
-    "ast_hash": "7efdde59ef07a2ec7a82c172487fa082",
-    "semantic_hash": ""
-  },
-  ".claude/skills/profiler-get-script-stats/SKILL.md": {
-    "mtime": 1789031070.4966118,
-    "seen": 1792067873.7643647,
-    "ast_hash": "bdd5a93aaa88643e91b2e86133d935e7",
-    "semantic_hash": ""
-  },
-  ".claude/skills/profiler-get-status/SKILL.md": {
-    "mtime": 1789031070.4966118,
-    "seen": 1792067873.7643661,
-    "ast_hash": "29e461d7fa896830cd503a1391fec66f",
-    "semantic_hash": ""
-  },
-  ".claude/skills/profiler-list-modules/SKILL.md": {
-    "mtime": 1789031070.4966118,
-    "seen": 1792067873.7643669,
-    "ast_hash": "fc48c7eefab9a34d9fc34c1752b7ced6",
-    "semantic_hash": ""
-  },
-  ".claude/skills/profiler-load-data/SKILL.md": {
-    "mtime": 1789031070.4966118,
-    "seen": 1792067873.7643678,
-    "ast_hash": "7a40827cae5eea09b6157a2c1d51a238",
-    "semantic_hash": ""
-  },
-  ".claude/skills/profiler-save-data/SKILL.md": {
-    "mtime": 1789031070.4976118,
-    "seen": 1792067873.764369,
-    "ast_hash": "43b4496ec550005b57884b4d4889bc1a",
-    "semantic_hash": ""
-  },
-  ".claude/skills/profiler-start/SKILL.md": {
-    "mtime": 1789031070.4976118,
-    "seen": 1792067873.76437,
-    "ast_hash": "4b3b55dc34c29e6e1a7c40c0ec6b5dad",
-    "semantic_hash": ""
-  },
-  ".claude/skills/profiler-stop/SKILL.md": {
-    "mtime": 1789031070.4976118,
-    "seen": 1792067873.764371,
-    "ast_hash": "3f0cd573e40c581f8e2ee80f384c70bf",
-    "semantic_hash": ""
-  },
-  ".claude/skills/reflection-method-call/SKILL.md": {
-    "mtime": 1789031070.4976118,
-    "seen": 1792067873.7643719,
-    "ast_hash": "87c9c50929e530e593d31729d0614632",
-    "semantic_hash": ""
-  },
-  ".claude/skills/reflection-method-find/SKILL.md": {
-    "mtime": 1789031070.4986124,
-    "seen": 1792067873.764373,
-    "ast_hash": "f299edcd7c251b5b868bc7a810bdac83",
-    "semantic_hash": ""
-  },
-  ".claude/skills/scene-create/SKILL.md": {
-    "mtime": 1789031070.4986124,
-    "seen": 1792067873.764374,
-    "ast_hash": "20a5b5bccc40784ace7eeb774d4dee5e",
-    "semantic_hash": ""
-  },
-  ".claude/skills/scene-get-data/SKILL.md": {
-    "mtime": 1789031070.4986124,
-    "seen": 1792067873.764375,
-    "ast_hash": "f578d332fb4d41b89cd620f87f4c7958",
-    "semantic_hash": ""
-  },
-  ".claude/skills/scene-list-opened/SKILL.md": {
-    "mtime": 1789031070.4996119,
-    "seen": 1792067873.7643762,
-    "ast_hash": "bf3c007f69a4293fff1b3f4226d58c02",
-    "semantic_hash": ""
-  },
-  ".claude/skills/scene-open/SKILL.md": {
-    "mtime": 1789031070.4996119,
-    "seen": 1792067873.7643769,
-    "ast_hash": "127e941589a0544eb925d86f8dc3189d",
-    "semantic_hash": ""
-  },
-  ".claude/skills/scene-save/SKILL.md": {
-    "mtime": 1789031070.4996119,
-    "seen": 1792067873.7643778,
-    "ast_hash": "7dbe7f6eaa241a3782f3bc1a25164ff7",
-    "semantic_hash": ""
-  },
-  ".claude/skills/scene-set-active/SKILL.md": {
-    "mtime": 1789031070.4996119,
-    "seen": 1792067873.7643788,
-    "ast_hash": "404a1e2721b61c454be117df314fd336",
-    "semantic_hash": ""
-  },
-  ".claude/skills/scene-unload/SKILL.md": {
-    "mtime": 1789031070.5006118,
-    "seen": 1792067873.76438,
-    "ast_hash": "062fb54e1403b82f9e1827b8f7ac6f3d",
-    "semantic_hash": ""
-  },
-  ".claude/skills/screenshot-camera/SKILL.md": {
-    "mtime": 1789031070.5006118,
-    "seen": 1792067873.764381,
-    "ast_hash": "453469db9a31ec221d270ff90b78235d",
-    "semantic_hash": ""
-  },
-  ".claude/skills/screenshot-game-view/SKILL.md": {
-    "mtime": 1789031070.5006118,
-    "seen": 1792067873.764382,
-    "ast_hash": "73294d6878fcafe56516152b43635ac1",
-    "semantic_hash": ""
-  },
-  ".claude/skills/screenshot-isolated/SKILL.md": {
-    "mtime": 1789031070.5006118,
-    "seen": 1792067873.764383,
-    "ast_hash": "6b5bdb6a4c8245b7ae416fd7e90f45cc",
-    "semantic_hash": ""
-  },
-  ".claude/skills/screenshot-scene-view/SKILL.md": {
-    "mtime": 1789031070.5006118,
-    "seen": 1792067873.764384,
-    "ast_hash": "b4c180c66f6e1ec1535f5292be5c7806",
-    "semantic_hash": ""
-  },
-  ".claude/skills/script-delete/SKILL.md": {
-    "mtime": 1789031070.5006118,
-    "seen": 1792067873.7643852,
-    "ast_hash": "9d3a65fe34dee4d20d43fd56254ef179",
-    "semantic_hash": ""
-  },
-  ".claude/skills/script-execute/SKILL.md": {
-    "mtime": 1789031070.5021174,
-    "seen": 1792067873.7643864,
-    "ast_hash": "269242f67c00e763f2ee1642aa8f4782",
-    "semantic_hash": ""
-  },
-  ".claude/skills/script-read/SKILL.md": {
-    "mtime": 1789031070.5021174,
-    "seen": 1792067873.7643874,
-    "ast_hash": "0f8cefb59963a81e3ea4858e02a36f50",
-    "semantic_hash": ""
-  },
-  ".claude/skills/script-update-or-create/SKILL.md": {
-    "mtime": 1789031070.5021174,
-    "seen": 1792067873.7643883,
-    "ast_hash": "4b7b85b3d0ba4ae191654d84e461d6e1",
-    "semantic_hash": ""
-  },
-  ".claude/skills/tests-run/SKILL.md": {
-    "mtime": 1789031070.5021174,
-    "seen": 1792067873.7643893,
-    "ast_hash": "27fc96ffb9f344662d207816006570fb",
-    "semantic_hash": ""
-  },
-  ".claude/skills/tool-set-enabled-state/SKILL.md": {
-    "mtime": 1789031070.503165,
-    "seen": 1792067873.7643907,
-    "ast_hash": "e4f76bfa60ad6197753d9e2f1fd72dd5",
-    "semantic_hash": ""
-  },
-  ".claude/skills/type-get-json-schema/SKILL.md": {
-    "mtime": 1789031070.503165,
-    "seen": 1792067873.7643917,
-    "ast_hash": "7e3cbee6798da2b0944a6bd92e58389e",
-    "semantic_hash": ""
-  },
-  ".claude/skills/unity-initial-setup/SKILL.md": {
-    "mtime": 1789031070.5061653,
-    "seen": 1792067873.7643926,
-    "ast_hash": "57aff7ca5373eccc6b32889c1b8481dd",
-    "semantic_hash": ""
-  },
-  ".claude/skills/unity-skill-create/SKILL.md": {
-    "mtime": 1789031070.505165,
-    "seen": 1792067873.7643938,
-    "ast_hash": "63d58adf1cbdac4f259156882906f254",
-    "semantic_hash": ""
-  },
-  ".claude/skills/unity-skill-generate/SKILL.md": {
-    "mtime": 1789031070.505165,
-    "seen": 1792067873.7643948,
-    "ast_hash": "b80f51885783137308e559fb51892ec5",
-    "semantic_hash": ""
-  },
-  ".claude/skills/unity-tool-list/SKILL.md": {
-    "mtime": 1789031070.503165,
-    "seen": 1792067873.764396,
-    "ast_hash": "49e4f27d8fa83c559ac3aeec9db65f56",
     "semantic_hash": ""
   },
   "Assets/GUIPackCartoon/Demo/Fonts/BPreplay - OFL.txt": {
@@ -2856,15 +2340,15 @@
     "semantic_hash": ""
   },
   "Assets/Plugins/PrimeTween/Demo/Stylized Cartoon Van by Fero Andezo/CREDITS.txt": {
-    "mtime": 1784882506.0,
-    "seen": 1792067873.7644253,
-    "ast_hash": "78afc97cea7415dc22de431ed65c63e5",
+    "mtime": 1792606967.0,
+    "seen": 1793207759.8145483,
+    "ast_hash": "0bd48f5a1abce1326f363a9237dfc195",
     "semantic_hash": ""
   },
   "Assets/Plugins/PrimeTween/Demo/Stylized Sand by Joao Paulo/CREDITS.txt": {
-    "mtime": 1784882513.0,
-    "seen": 1792067873.7644262,
-    "ast_hash": "a5d1cfabacc3f5102f8a2a7d79a129dc",
+    "mtime": 1792606976.0,
+    "seen": 1793207759.814549,
+    "ast_hash": "93b9266d8d8609231eb12fbd1dc4b4ec",
     "semantic_hash": ""
   },
   "Assets/ProPixelizer/README.md": {
@@ -2904,9 +2388,9 @@
     "semantic_hash": ""
   },
   "CLAUDE.md": {
-    "mtime": 1789134936.7343712,
-    "seen": 1792067873.7644339,
-    "ast_hash": "d98726d2c5ca74c474cad97cf0b12f57",
+    "mtime": 1793187126.5515547,
+    "seen": 1793207759.814555,
+    "ast_hash": "bd656d2a1cda2bcba02de661bf8dc1a0",
     "semantic_hash": ""
   },
   "ProjectSettings/ProjectVersion.txt": {
