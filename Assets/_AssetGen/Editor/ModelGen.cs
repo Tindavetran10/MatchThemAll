@@ -21,7 +21,7 @@ static class ModelGen
         ["Ruby"] = ("F0384F", .9f, .1f, .1f), ["Bone"] = ("F2EBD9", .35f, 0, 0), ["Ink"] = ("1E1A2B", .2f, 0, 0),
         ["Tan"] = ("C8955A", .3f, 0, 0), ["Spark"] = ("FFD84A", .5f, 0, 1.5f), ["Glow"] = ("3FE0FF", .7f, 0, 1.2f),
         ["Steel"] = ("566173", .6f, .5f, 0), ["Orange"] = ("FF8A2A", .5f, 0, 0), ["Teal"] = ("1FB5A8", .6f, .1f, 0),
-        ["Blue"] = ("2F7BFF", .7f, .1f, .3f), ["Cork"] = ("A0683A", .25f, 0, 0),
+        ["Blue"] = ("2F7BFF", .7f, .1f, .3f), ["Cork"] = ("A0683A", .25f, 0, 0), ["Pink"] = ("FF6F91", .55f, .05f, 0),
     };
 
     static Material Mat(string name)
@@ -175,6 +175,7 @@ static class ModelGen
             var b = new Bounds(v[0], Vector3.zero);
             foreach (var p in v) b.Encapsulate(p);
             var s = new Vector3(fitSize.x / b.size.x, fitSize.y / b.size.y, fitSize.z / b.size.z);
+            if (fitSize == Vector3.zero) { s = Vector3.one; b.center = Vector3.zero; fitCenter = Vector3.zero; } // keep authored size + pivot
             var verts = new Vector3[v.Count];
             var norms = new Vector3[v.Count];
             for (int i = 0; i < v.Count; i++)
@@ -262,6 +263,26 @@ static class ModelGen
             foreach (var x in new[] { -.34f, .34f }) b.Sphere(TRS(new Vector3(x, .12f, .72f), Vector3.zero, new Vector3(.24f, .26f, .22f)), "Ink", 10, 6);
             b.Lathe(TRS(new Vector3(0, -.2f, .86f), new Vector3(90, 0, 0), new Vector3(1, 1, 1)), 3, (0, 0, "Ink"), (.12f, 0, "Ink"), (0, .1f, "Ink"));
             for (int i = -1; i <= 1; i++) b.Box(TRS(new Vector3(i * .2f, -.6f, .72f), Vector3.zero, new Vector3(.05f, .24f, .06f)), "Ink");
+        });
+
+        // Vacuum power-up (Prefabs/PowerUps/Vacuum.prefab): two rigid parts animated by Idle/Activate. Authored size, pivot at the base.
+        yield return ("Prop_VacuumBody", Vector3.zero, Vector3.zero, b =>
+        {
+            b.Lathe(Matrix4x4.identity, 18, (0, 0, "Black"), (.62f, 0, "Black"), (.66f, .12f, "Black"), (.66f, .2f, "Pink"), (.62f, 1.55f, "Pink"),
+                (.5f, 1.75f, "Pink"), (.3f, 1.85f, "Steel"), (0, 1.85f, "Steel"));
+            b.Torus(T(0, .9f, 0), "Teal", .645f, .05f, 24, 6);
+            b.Torus(TRS(new Vector3(0, 1.95f, -.3f), new Vector3(90, 0, 0), Vector3.one), "Steel", .3f, .06f, 18, 6);
+        });
+        yield return ("Prop_VacuumNozzle", Vector3.zero, Vector3.zero, b =>
+        {
+            for (int i = 0; i <= 10; i++) // corrugated hose curving up and forward
+            {
+                float t = i / 10f;
+                var p = new Vector3(0, t * 1.2f, Mathf.Sin(t * Mathf.PI * .5f) * .35f);
+                b.Torus(TRS(p, new Vector3(t * 25, 0, 0), Vector3.one), "Teal", .15f, .06f, 14, 6);
+            }
+            b.Lathe(TRS(new Vector3(0, 1.22f, .38f), new Vector3(25, 0, 0), Vector3.one), 16, (0, 0, "Steel"), (.17f, 0, "Steel"), (.19f, .22f, "Teal"),
+                (.44f, .52f, "Teal"), (.44f, .6f, "Glow"), (0, .6f, "Glow"));
         });
 
         yield return ("FX_ShieldDome", Vector3.one, Vector3.zero, b => b.Sphere(Matrix4x4.identity, "Glow", 14, 9)); // replaces the 4Tudio shield mesh
@@ -366,6 +387,80 @@ static class ModelGen
         UnityEditor.SceneManagement.EditorSceneManager.SaveScene(scene);
         UnityEditor.SceneManagement.EditorSceneManager.CloseScene(scene, true);
         AssetDatabase.SaveAssets();
+    }
+
+    // Swaps the course's skinned vacuum for our two rigid parts and rewrites its two clips in place
+    // (same .anim GUIDs, so Vacuum.controller is untouched). Keeps the TriggerPowerupStart event timing.
+    [MenuItem("Tools/AssetGen/Wire Vacuum")]
+    static void WireVacuum()
+    {
+        const string prefab = "Assets/MatchThemAllTemplate/Prefabs/PowerUps/Vacuum.prefab";
+        const string anims = "Assets/MatchThemAllTemplate/Art/Animations/Powerups/";
+        var nozzlePivot = new Vector3(0, 1.8f, .25f);
+
+        var root = PrefabUtility.LoadPrefabContents(prefab);
+        foreach (var old in new[] { "Armature", "Vacuum Complete" })
+            if (root.transform.Find(old)) UnityEngine.Object.DestroyImmediate(root.transform.Find(old).gameObject);
+        GameObject Part(string name, string model, Vector3 pos)
+        {
+            var t = root.transform.Find(name);
+            var go = t ? t.gameObject : new GameObject(name, typeof(MeshFilter), typeof(MeshRenderer));
+            go.transform.SetParent(root.transform, false);
+            go.transform.localPosition = pos;
+            go.layer = root.layer;
+            Apply(go, model);
+            return go;
+        }
+        root.GetComponent<Animator>().avatar = null; // old avatar came from the course model; our clips are generic transform paths
+        Part("Body", "Prop_VacuumBody", Vector3.zero);
+        Part("Nozzle", "Prop_VacuumNozzle", nozzlePivot);
+        PrefabUtility.SaveAsPrefabAsset(root, prefab);
+        PrefabUtility.UnloadPrefabContents(root);
+
+        void Key(AnimationClip clip, string path, string prop, params (float t, float v)[] keys)
+        {
+            var curve = new AnimationCurve();
+            foreach (var (t, v) in keys) curve.AddKey(t, v);
+            clip.SetCurve(path, typeof(Transform), prop, curve);
+        }
+
+        var idle = AssetDatabase.LoadAssetAtPath<AnimationClip>(anims + "Idle.anim");
+        idle.ClearCurves();
+        Key(idle, "Body", "m_LocalScale.y", (0, 1), (1, 1.025f), (2, 1));
+        Key(idle, "Body", "m_LocalScale.x", (0, 1), (1, .99f), (2, 1));
+        Key(idle, "Body", "m_LocalScale.z", (0, 1), (1, .99f), (2, 1));
+        Key(idle, "Nozzle", "localEulerAnglesRaw.x", (0, 0), (1, -4), (2, 0));
+        Key(idle, "Nozzle", "m_LocalPosition.y", (0, nozzlePivot.y), (1, nozzlePivot.y * 1.025f), (2, nozzlePivot.y)); // rides the body squash
+        var idleSettings = AnimationUtility.GetAnimationClipSettings(idle);
+        idleSettings.loopTime = true;
+        AnimationUtility.SetAnimationClipSettings(idle, idleSettings);
+        AnimationUtility.SetAnimationEvents(idle, new AnimationEvent[0]);
+
+        var act = AssetDatabase.LoadAssetAtPath<AnimationClip>(anims + "Activate.anim");
+        act.ClearCurves();
+        // Wind-up squash, snap forward at the event, suction shake, settle.
+        var bodyY = new List<(float, float)> { (0, 1), (.45f, .86f), (.62f, 1.12f), (.7f, 1) };
+        var bodyXZ = new List<(float, float)> { (0, 1), (.45f, 1.09f), (.62f, .95f), (.7f, 1) };
+        var noz = new List<(float, float)> { (0, 0), (.45f, -22), (.62f, 14), (.7f, 10) };
+        for (float t = .8f; t < 1.8f; t += .1f)
+        {
+            bool odd = Mathf.RoundToInt(t * 10) % 2 == 1;
+            bodyY.Add((t, odd ? 1.025f : .985f));
+            noz.Add((t, odd ? 12 : 7));
+        }
+        bodyY.Add((1.95f, 1)); bodyY.Add((2.167f, 1));
+        bodyXZ.Add((1.95f, 1)); bodyXZ.Add((2.167f, 1));
+        noz.Add((1.95f, 0)); noz.Add((2.167f, 0));
+        Key(act, "Body", "m_LocalScale.y", bodyY.ToArray());
+        Key(act, "Body", "m_LocalScale.x", bodyXZ.ToArray());
+        Key(act, "Body", "m_LocalScale.z", bodyXZ.ToArray());
+        Key(act, "Nozzle", "localEulerAnglesRaw.x", noz.ToArray());
+        Key(act, "Nozzle", "m_LocalPosition.y", bodyY.ConvertAll(k => (k.Item1, k.Item2 * nozzlePivot.y)).ToArray()); // rides the body squash
+        AnimationUtility.SetAnimationEvents(act, new[] { new AnimationEvent { functionName = "TriggerPowerupStart", time = .667f } });
+        EditorUtility.SetDirty(idle);
+        EditorUtility.SetDirty(act);
+        AssetDatabase.SaveAssets();
+        Debug.Log("[ModelGen] Vacuum rewired + clips rewritten.");
     }
 
     static void Apply(GameObject go, string model)

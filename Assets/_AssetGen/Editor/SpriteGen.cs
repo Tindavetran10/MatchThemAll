@@ -329,6 +329,26 @@ static class SpriteGen
             c.Paint(Star(128, 128, 120, 14, 4, 2), White);
         });
 
+        // Goal card (Art/Sprites, overwritten in place so the Goal Card prefab keeps its references)
+        yield return ("../../Sprites/Goal_Card.png", 193, 258, c =>
+        {
+            Glossy(c, Box(96.5f, 129, 90, 125, 22), Hex("6B5CD8"), 4, 4, 254, 40, false);
+            Glossy(c, Box(96.5f, 157, 82, 87, 18), Hex("43388F"), 0, 70, 244, 0, false);
+            c.Paint(Sub(Box(96.5f, 157, 82, 87, 18), Move(Box(96.5f, 157, 82, 87, 18), 0, -5)), A(Ink, .35f)); // inner top shadow
+        });
+        yield return ("../../Sprites/Goal_Card_Back.png", 193, 258, c =>
+        {
+            Glossy(c, Box(96.5f, 129, 90, 125, 22), Hex("6B5CD8"), 4, 4, 254, 40, false);
+            c.Paint(Box(96.5f, 129, 74, 109, 14), A(Hex("43388F"), .55f));
+            c.Paint(Star(96.5f, 129, 64, 26, 8, 4), A(White, .12f));
+            Glossy(c, Circle(96.5f, 150, 24), Yellow, 4, 126, 174, 10, false);
+            Glossy(c, Circle(72, 110, 24), Teal, 4, 86, 134, 10, false);
+            Glossy(c, Circle(121, 110, 24), Pink, 4, 86, 134, 10, false);
+        });
+        yield return ("../../Sprites/UI/Checkmark.png", 128, 128, c => GlyphColored(c, "checkmark", Green, 8));
+        // Loaded by path in LevelMapBuilder (tint mask, rotated there to point left).
+        yield return ("../../Sprites/UI/Up Arrow.png", 128, 128, c => Mask(c, Grow(Poly(64, 116, 112, 66, 84, 66, 84, 14, 44, 14, 44, 66, 16, 66), -4)));
+
         // Icons — Kenney glyphs, recolored
         yield return ("Icons/Icons Colored/Basic/Settings.png", 256, 256, c => GlyphColored(c, "gear", Hex("7C8BA6")));
         yield return ("Icons/Icons Colored/Commerce/Shop.png", 256, 256, c => GlyphColored(c, "shoppingCart", Teal));
