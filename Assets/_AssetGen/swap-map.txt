@@ -86,3 +86,16 @@ Assets/Design Toolbox/Fonts/OldeTome SDF.asset => Assets/MatchThemAllTemplate/Ar
 Assets/Design Toolbox/Fonts/Spellbinding-Demo SDF.asset => Assets/MatchThemAllTemplate/Art/UI/Fonts/LilitaOne-Regular SDF.asset
 Assets/Design Toolbox/Fonts/ka1 SDF.asset => Assets/MatchThemAllTemplate/Art/UI/Fonts/LilitaOne-Regular SDF.asset
 Assets/Design Toolbox/Fonts/COOLVETICA RG Outline.mat => Assets/MatchThemAllTemplate/Art/UI/Fonts/LilitaOne SDF - Outline.mat
+# VFX (4Tudio -> own)
+Assets/4Tudio/ShallotStudio/Assets/Materials/Mat_FX_Snow.mat => Assets/MatchThemAllTemplate/Art/VFX/Materials/M_FX_Snow.mat
+Assets/4Tudio/ShallotStudio/Assets/Materials/Mat_FX_TopParticleAdditive_Glow01.mat => Assets/MatchThemAllTemplate/Art/VFX/Materials/M_FX_Glow.mat
+Assets/4Tudio/ShallotStudio/Assets/Materials/Mat_FX_TopParticleAdditive_Ring01.mat => Assets/MatchThemAllTemplate/Art/VFX/Materials/M_FX_Ring.mat
+Assets/4Tudio/ShallotStudio/Assets/Materials/Mat_FX_ToParticleAdditive_Dash01.mat => Assets/MatchThemAllTemplate/Art/VFX/Materials/M_FX_Dash.mat
+Assets/4Tudio/ShallotStudio/Assets/Materials/Mat_FX_Item_Shield.mat => Assets/MatchThemAllTemplate/Art/VFX/Materials/M_FX_Shield.mat
+Assets/4Tudio/ShallotStudio/Assets/Materials/Mat_FX_TopParticleAdditive_Ring03.mat => Assets/MatchThemAllTemplate/Art/VFX/Materials/M_FX_RingThick.mat
+Assets/4Tudio/ShallotStudio/Assets/Materials/Mat_FX_TopParticleSoft_Star.mat => Assets/MatchThemAllTemplate/Art/VFX/Materials/M_FX_Star.mat
+Assets/4Tudio/ShallotStudio/Assets/Materials/Mat_FX_TopParticleAdditive_Pixel.mat => Assets/MatchThemAllTemplate/Art/VFX/Materials/M_FX_Pixel.mat
+Assets/4Tudio/ShallotStudio/Assets/Materials/Mat_FX_SmokeA.mat => Assets/MatchThemAllTemplate/Art/VFX/Materials/M_FX_Smoke.mat
+Assets/4Tudio/ShallotStudio/Assets/Materials/Mat_FX_TopParticleSoft_Ring02.mat => Assets/MatchThemAllTemplate/Art/VFX/Materials/M_FX_Ring.mat
+Assets/4Tudio/ShallotStudio/Assets/Model/Misc/Mod_FX_Itme_Shield.fbx => Assets/MatchThemAllTemplate/Art/Models/Meshes/FX_ShieldDome.asset
+Assets/4Tudio/ShallotStudio/Assets/Animator/UI/FX_Item_Shield.controller => Assets/MatchThemAllTemplate/Art/VFX/Animations/FX_Shield.controller
