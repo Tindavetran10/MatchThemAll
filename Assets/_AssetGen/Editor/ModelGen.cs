@@ -16,7 +16,7 @@ static class ModelGen
     // name -> (color, smoothness, metallic, emission)
     static readonly Dictionary<string, (string hex, float smooth, float metal, float emit)> Mats = new()
     {
-        ["Gold"] = ("FFC23A", .75f, .6f, 0), ["Copper"] = ("E07A35", .6f, .4f, 0), ["Black"] = ("2A2D3A", .55f, 0, 0),
+        ["Gold"] = ("FFC23A", .5f, .5f, 0), ["Copper"] = ("E07A35", .6f, .4f, 0), ["Black"] = ("2A2D3A", .55f, 0, 0),
         ["Silver"] = ("D5DCE6", .8f, .7f, 0), ["Glass"] = ("E3F4FF", .95f, 0, 0), ["Liquid"] = ("3D6BFF", .85f, 0, .25f),
         ["Ruby"] = ("F0384F", .9f, .1f, .1f), ["Bone"] = ("F2EBD9", .35f, 0, 0), ["Ink"] = ("1E1A2B", .2f, 0, 0),
         ["Tan"] = ("C8955A", .3f, 0, 0), ["Spark"] = ("FFD84A", .5f, 0, 1.5f), ["Glow"] = ("3FE0FF", .7f, 0, 1.2f),
@@ -82,18 +82,22 @@ static class ModelGen
         }
 
         // Revolve a (radius, height, material) profile around local Y, then place it with `m`.
+        // Profiles run counter-clockwise in (r, y) (bottom axis -> out -> up -> top axis), so the outward
+        // normal of each segment is exact even in concave spots (coin groove, potion neck).
         public void Lathe(Matrix4x4 m, int segs, params (float r, float y, string mat)[] prof)
         {
-            float midY = 0;
-            foreach (var p in prof) midY += p.y;
-            var inside = m.MultiplyPoint3x4(new Vector3(0, midY / prof.Length, 0));
             for (int i = 0; i < prof.Length - 1; i++)
-            for (int k = 0; k < segs; k++)
             {
-                float a0 = k * Mathf.PI * 2 / segs, a1 = (k + 1) * Mathf.PI * 2 / segs;
-                Vector3 P(int j, float a) => m.MultiplyPoint3x4(new Vector3(prof[j].r * Mathf.Cos(a), prof[j].y, prof[j].r * Mathf.Sin(a)));
-                // Faces get the material of the upper profile point.
-                Quad(prof[i + 1].mat, P(i, a0), P(i, a1), P(i + 1, a1), P(i + 1, a0), inside);
+                var n2 = new Vector2(prof[i + 1].y - prof[i].y, -(prof[i + 1].r - prof[i].r)).normalized;
+                for (int k = 0; k < segs; k++)
+                {
+                    float a0 = k * Mathf.PI * 2 / segs, a1 = (k + 1) * Mathf.PI * 2 / segs, am = (a0 + a1) / 2;
+                    Vector3 P(int j, float a) => m.MultiplyPoint3x4(new Vector3(prof[j].r * Mathf.Cos(a), prof[j].y, prof[j].r * Mathf.Sin(a)));
+                    Vector3 a = P(i, a0), b = P(i, a1), c = P(i + 1, a1), d = P(i + 1, a0);
+                    var outward = m.MultiplyVector(new Vector3(n2.x * Mathf.Cos(am), n2.y, n2.x * Mathf.Sin(am)));
+                    // Faces get the material of the upper profile point.
+                    Quad(prof[i + 1].mat, a, b, c, d, (a + b + c + d) / 4 - outward);
+                }
             }
         }
 
@@ -141,18 +145,27 @@ static class ModelGen
         public void Gem2D(string mat, Vector2[] outline, float inset, float z1, float z2)
         {
             Vector2 c = Vector2.zero;
-            foreach (var p in outline) c += p;
+            float area = 0;
+            for (int i = 0; i < outline.Length; i++)
+            {
+                c += outline[i];
+                var q = outline[(i + 1) % outline.Length];
+                area += outline[i].x * q.y - q.x * outline[i].y;
+            }
             c /= outline.Length;
-            var center = new Vector3(c.x, c.y, 0);
             for (int side = -1; side <= 1; side += 2)
             for (int i = 0; i < outline.Length; i++)
             {
-                Vector2 p0 = outline[i], p1 = outline[(i + 1) % outline.Length];
+                Vector2 p0 = outline[i], p1 = outline[(i + 1) % outline.Length], e = p1 - p0;
+                // Outward from the edge itself (not from the centre), so concave spots like the heart's notch stay correct.
+                var n2 = (area > 0 ? new Vector2(e.y, -e.x) : new Vector2(-e.y, e.x)).normalized;
                 Vector3 o0 = p0, o1 = p1;
                 Vector3 i0 = (Vector3)Vector2.Lerp(c, p0, inset) + Vector3.forward * z1 * side;
                 Vector3 i1 = (Vector3)Vector2.Lerp(c, p1, inset) + Vector3.forward * z1 * side;
-                Quad(mat, o0, o1, i1, i0, center);
-                Tri(mat, i0, i1, new Vector3(c.x, c.y, z2 * side), center);
+                var outward = new Vector3(n2.x, n2.y, side * .5f);
+                Quad(mat, o0, o1, i1, i0, (o0 + o1 + i0 + i1) / 4 - outward);
+                var apex = new Vector3(c.x, c.y, z2 * side);
+                Tri(mat, i0, i1, apex, (i0 + i1 + apex) / 3 - Vector3.forward * side);
             }
         }
 
@@ -293,7 +306,20 @@ static class ModelGen
             var mesh = b.Build(name, size, center);
             var path = MeshDir + name + ".asset";
             var existing = AssetDatabase.LoadAssetAtPath<Mesh>(path);
-            if (existing) { EditorUtility.CopySerialized(mesh, existing); EditorUtility.SetDirty(existing); } // keep GUID stable on reruns
+            if (existing)
+            {
+                // Rewrite in place via the Mesh API (keeps the GUID; CopySerialized left the live/GPU mesh stale).
+                existing.Clear();
+                existing.indexFormat = mesh.indexFormat;
+                existing.vertices = mesh.vertices;
+                existing.normals = mesh.normals;
+                existing.subMeshCount = mesh.subMeshCount;
+                for (int i = 0; i < mesh.subMeshCount; i++) existing.SetTriangles(mesh.GetTriangles(i), i);
+                existing.RecalculateBounds();
+                existing.RecalculateTangents();
+                EditorUtility.SetDirty(existing);
+                UnityEngine.Object.DestroyImmediate(mesh);
+            }
             else AssetDatabase.CreateAsset(mesh, path);
         }
         AssetDatabase.SaveAssets();
@@ -369,7 +395,7 @@ static class ModelGen
         pru.ambientColor = new Color(.45f, .45f, .5f);
         for (int i = 0; i < names.Count; i++)
         {
-            var mesh = MeshFor(names[i]);
+            var mesh = UnityEngine.Object.Instantiate(MeshFor(names[i])); // fresh copy: never draw a stale GPU buffer
             var mats = MaterialsFor(names[i]);
             var b = mesh.bounds;
             float r = b.extents.magnitude;
@@ -388,6 +414,73 @@ static class ModelGen
         System.IO.File.WriteAllBytes(path, sheet.EncodeToPNG());
         Debug.Log("[ModelGen] preview: " + path);
     }
+
+    // Goal-card icons: rendered from our meshes into the existing icon files (same GUIDs, so every reference keeps working).
+    [MenuItem("Tools/AssetGen/Render Item Icons")]
+    static void RenderIcons()
+    {
+        const string icons = "Assets/MatchThemAllTemplate/Art/Sprites/Icons/";
+        var jobs = new (string file, string model, int size)[]
+        {
+            ("icon_item_battery", "Item_Battery", 768), ("icon_item_bluepotion", "Item_BluePotion", 768), ("Trash/icon_item_bluepotion", "Item_BluePotion", 768),
+            ("icon_potion", "Item_BluePotion", 256), ("icon_item_bomb", "Item_Bomb", 768), ("icon_item_coin", "Item_Coin", 768),
+            ("icon_item_diamond", "Item_Diamond", 768), ("icon_item_heartgem", "Item_HeartGem", 768), ("icon_heartgem", "Item_HeartGem", 256),
+            ("icon_item_skull", "Item_Skull", 768),
+        };
+        var pru = new PreviewRenderUtility();
+        pru.camera.orthographic = true;
+        pru.camera.clearFlags = CameraClearFlags.SolidColor;
+        pru.lights[0].intensity = 1.25f;
+        pru.lights[0].transform.rotation = Quaternion.Euler(40, -35, 0);
+        pru.lights[1].intensity = .55f;
+        pru.ambientColor = new Color(.5f, .5f, .55f);
+        foreach (var (file, model, size) in jobs)
+        {
+            var mesh = UnityEngine.Object.Instantiate(MeshFor(model)); // fresh copy: never draw a stale GPU buffer
+            var mats = MaterialsFor(model);
+            // Yaw 180 so the model's +Z face (skull face, coin star) looks at the camera; small tilt for depth.
+            var rot = Quaternion.Euler(12, 200, model == "Item_Battery" ? -28 : -8);
+            var m = Matrix4x4.TRS(Vector3.zero, rot, Vector3.one) * Matrix4x4.Translate(-mesh.bounds.center);
+            var b = GeometryUtility.CalculateBounds(mesh.vertices, m);
+            pru.camera.orthographicSize = Mathf.Max(b.extents.x, b.extents.y) * 1.12f;
+            pru.camera.transform.SetPositionAndRotation(b.center + new Vector3(0, 0, -10), Quaternion.identity);
+            pru.camera.nearClipPlane = .1f;
+            pru.camera.farClipPlane = 30;
+            Texture2D Shot(Color bg, Material only)
+            {
+                pru.camera.backgroundColor = bg;
+                pru.BeginStaticPreview(new Rect(0, 0, size, size));
+                for (int s = 0; s < mesh.subMeshCount; s++) pru.DrawMesh(mesh, m, only ? only : mats[s], s);
+                pru.camera.Render();
+                return pru.EndStaticPreview();
+            }
+            // Alpha from a flat silhouette (glossy materials reflect the background, so a black/white
+            // difference would read reflections as transparency). Colour from a neutral-grey render, un-blended.
+            var grey = new Color(.5f, .5f, .5f);
+            var colour = Shot(grey, null).GetPixels();
+            var mask = Shot(Color.black, Silhouette).GetPixels();
+            var px = new Color[colour.Length];
+            for (int i = 0; i < px.Length; i++)
+            {
+                float a = mask[i].r;
+                if (a < .002f) { px[i] = Color.clear; continue; }
+                var c = (colour[i] - grey * (1 - a)) / a;
+                px[i] = new Color(Mathf.Clamp01(c.r), Mathf.Clamp01(c.g), Mathf.Clamp01(c.b), a);
+            }
+            var tex = new Texture2D(size, size, TextureFormat.RGBA32, false);
+            tex.SetPixels(px);
+            System.IO.File.WriteAllBytes(icons + file + ".png", tex.EncodeToPNG());
+            UnityEngine.Object.DestroyImmediate(tex);
+        }
+        pru.Cleanup();
+        UnityEngine.Object.DestroyImmediate(silhouette);
+        silhouette = null;
+        AssetDatabase.Refresh();
+        Debug.Log($"[ModelGen] Rendered {jobs.Length} item icons.");
+    }
+
+    static Material silhouette;
+    static Material Silhouette => silhouette ??= new Material(Shader.Find("Universal Render Pipeline/Unlit")) { color = Color.white };
 
     public static Mesh MeshFor(string name) => AssetDatabase.LoadAssetAtPath<Mesh>(MeshDir + name + ".asset");
 
