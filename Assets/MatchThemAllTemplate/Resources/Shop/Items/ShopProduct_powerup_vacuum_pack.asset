@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: powerup_vacuum_pack
   displayName: Vacuum Pack
-  icon: {fileID: 21300000, guid: d6241aa98460349b7a68071c0f609b2d, type: 3}
+  icon: {fileID: 21300000, guid: 7a87e389aa77e164fad0118051dbcddf, type: 3}
   tabId: powerups
   priceCurrency: 0
   priceAmount: 120

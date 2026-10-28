@@ -15,7 +15,7 @@ using UnityEngine.UI;
 namespace MatchThemAll.Scripts.Editor
 {
     /// <summary>
-    /// Builds the GUIPackCartoon-styled panels (popup frame, headline flag, X close button, colored
+    /// Builds the cartoon-styled panels (popup frame, headline flag, X close button, colored
     /// rectangle buttons, rounded cards) for the Lobby and Main scenes. Existing root components and
     /// script references are kept; only the visual children are rebuilt. Re-runnable.
     ///
@@ -25,8 +25,8 @@ namespace MatchThemAll.Scripts.Editor
     public static class CartoonUIBuilder
     {
         // ── Paths ────────────────────────────────────────────────────────────
-        private const string PACK_SPRITES = "Assets/GUIPackCartoon/Demo/Sprites";
-        private const string FONT_PATH = "Assets/GUIPackCartoon/Demo/Fonts/LilitaOne - Regular SDF.asset";
+        private const string PACK_SPRITES = "Assets/MatchThemAllTemplate/Art/UI/Sprites";
+        private const string FONT_PATH = "Assets/MatchThemAllTemplate/Art/UI/Fonts/LilitaOne-Regular SDF.asset";
         private const string FONT_MAT_DIR = "Assets/MatchThemAllTemplate/Art/UI/Fonts";
         private const string PREFAB_DIR = "Assets/MatchThemAllTemplate/Prefabs/UI";
         private const string DAILY_PREFAB = PREFAB_DIR + "/DailyRewardPanel.prefab";
@@ -57,7 +57,7 @@ namespace MatchThemAll.Scripts.Editor
         private static string[] _spritePaths;
         private static readonly Dictionary<string, Sprite> SpriteCache = new();
 
-        /// <summary>Loads a GUIPack sprite by file name; <paramref name="hint"/> disambiguates same-named files by folder.</summary>
+        /// <summary>Loads a UI sprite by file name; <paramref name="hint"/> disambiguates same-named files by folder.</summary>
         private static Sprite Sp(string name, string hint = null)
         {
             string key = name + "|" + hint;
@@ -75,7 +75,7 @@ namespace MatchThemAll.Scripts.Editor
                 SpriteCache[key] = s;
                 return s;
             }
-            throw new Exception($"[CartoonUI] GUIPack sprite '{name}' (hint '{hint}') not found.");
+            throw new Exception($"[CartoonUI] UI sprite '{name}' (hint '{hint}') not found.");
         }
 
         private static RectTransform Rt(Transform parent, string name)
@@ -800,7 +800,7 @@ namespace MatchThemAll.Scripts.Editor
             SavePrefab(root, SHOP_PREFAB);
         }
 
-        /// <summary>The shop products ship without icons; fill empty ones with matching GUIPack art so cards aren't blank.</summary>
+        /// <summary>The shop products ship without icons; fill empty ones with matching art so cards aren't blank.</summary>
         private static void AssignShopProductIcons()
         {
             var map = new Dictionary<string, Sprite>
@@ -909,7 +909,8 @@ namespace MatchThemAll.Scripts.Editor
             try
             {
                 Clear(video.transform);
-                var clapper = video.GetComponent<SpriteRenderer>().sprite;
+                // Load by name: reading it back off the root broke re-runs (the root already holds the ring after the first run).
+                var clapper = Sp("Video", "Icons Colored/Media");
                 var sr = video.GetComponent<SpriteRenderer>();
                 sr.sprite = ring;
                 sr.color = Color.white;
