@@ -354,6 +354,18 @@ static class SpriteGen
         yield return ("Icons/Icons Colored/Commerce/Shop.png", 256, 256, c => GlyphColored(c, "shoppingCart", Teal));
         yield return ("Icons/Icons Colored/Lock - Key/Lock - Gold.png", 256, 256, c => GlyphColored(c, "locked", Gold));
         yield return ("Icons/Icons Colored/Media/Mobile.png", 256, 256, c => GlyphColored(c, "phone", Hex("4A63D8")));
+        // "Watch a video" clapperboard for the power-up badge (Prefabs/UI/Power Up/Video Icon.prefab).
+        yield return ("Icons/Icons Colored/Media/Video.png", 256, 256, c =>
+        {
+            var slate = Hex("2E3350");
+            Glossy(c, Box(128, 98, 100, 66, 14), slate, 10, 32, 164);
+            foreach (var y in new[] { 84f, 112f }) c.Paint(Box(128, y, 78, 4, 2), A(White, .35f));
+            var bar = Rot(Box(124, 194, 102, 20, 6), 12, 26, 172);
+            Glossy(c, bar, slate, 9, 172, 216, 8, false);
+            for (int i = 0; i < 5; i++)
+                c.Paint(I(Grow(bar, -1), Rot(Poly(40 + i * 40, 160, 62 + i * 40, 160, 42 + i * 40, 230, 20 + i * 40, 230), 12, 26, 172)), White);
+            Glossy(c, Circle(30, 172, 14), Gray, 5, 158, 186, 6, false);
+        });
         yield return ("Icons/Kawaii/Lock 512.png", 512, 512, c => GlyphColored(c, "locked", Gold, 28));
         yield return ("Icons/Kawaii/Lock 1536.png", 1536, 1536, c => GlyphColored(c, "locked", Gold, 84));
         foreach (var (file, glyph) in new[] { ("Arrows/Arrow - Left", "arrowLeft"), ("Basic/Checkmark Cartoon", "checkmark"), ("Basic/Settings", "gear"),

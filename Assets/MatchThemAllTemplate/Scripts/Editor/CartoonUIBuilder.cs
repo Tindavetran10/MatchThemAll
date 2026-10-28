@@ -909,7 +909,8 @@ namespace MatchThemAll.Scripts.Editor
             try
             {
                 Clear(video.transform);
-                var clapper = video.GetComponent<SpriteRenderer>().sprite;
+                // Load by name: reading it back off the root broke re-runs (the root already holds the ring after the first run).
+                var clapper = Sp("Video", "Icons Colored/Media");
                 var sr = video.GetComponent<SpriteRenderer>();
                 sr.sprite = ring;
                 sr.color = Color.white;
