@@ -6,13 +6,15 @@ using UnityEngine.Rendering;
 
 // Dev-only (not exported): builds the stylized low-poly item/prop meshes we ship, as Mesh assets.
 // Each mesh is fitted to the bounds of the model it replaces, so transforms, colliders and tray layout stay identical.
-// Flat-shaded on purpose (low-poly look); one submesh per material.
+// Flat-shaded on purpose (low-poly look); one submesh, one shared palette material for every model.
 static class ModelGen
 {
     const string MeshDir = "Assets/MatchThemAllTemplate/Art/Models/Meshes/";
     const string MatDir = "Assets/MatchThemAllTemplate/Art/Models/Materials/";
 
-    // ---------- materials ----------
+    // ---------- palette material ----------
+    // Each entry is one pixel of three 1-row textures (colour, metallic+smoothness, emission) on a single URP/Lit
+    // material; faces point their UVs at their pixel. One draw per model, and Item.Select's base+outline pair works.
     // name -> (color, smoothness, metallic, emission)
     static readonly Dictionary<string, (string hex, float smooth, float metal, float emit)> Mats = new()
     {
@@ -24,45 +26,79 @@ static class ModelGen
         ["Blue"] = ("2F7BFF", .7f, .1f, .3f), ["Cork"] = ("A0683A", .25f, 0, 0), ["Pink"] = ("FF6F91", .55f, .05f, 0),
     };
 
-    static Material Mat(string name)
+    static readonly List<string> Cells = new(Mats.Keys);
+
+    static Vector2 Cell(string mat)
     {
-        var path = MatDir + "M_Item_" + name + ".mat";
-        var m = AssetDatabase.LoadAssetAtPath<Material>(path);
+        int i = Cells.IndexOf(mat);
+        if (i < 0) throw new ArgumentException("Unknown palette entry: " + mat);
+        return new Vector2((i + .5f) / Cells.Count, .5f);
+    }
+
+    static Material palette;
+    static Material Palette => palette ? palette : palette = AssetDatabase.LoadAssetAtPath<Material>(MatDir + "M_Palette.mat");
+
+    static void BuildPalette()
+    {
+        int count = Cells.Count;
+        float maxEmit = 0;
+        foreach (var e in Mats.Values) maxEmit = Mathf.Max(maxEmit, e.emit);
+        Color[] albedo = new Color[count], metalSmooth = new Color[count], emission = new Color[count];
+        for (int i = 0; i < count; i++)
+        {
+            var (hex, smooth, metal, emit) = Mats[Cells[i]];
+            ColorUtility.TryParseHtmlString("#" + hex, out var c);
+            albedo[i] = c;
+            metalSmooth[i] = new Color(metal, 0, 0, smooth); // URP Lit: metallic in R, smoothness in A
+            emission[i] = c * (emit / maxEmit);              // scaled back up by _EmissionColor (HDR)
+            emission[i].a = 1;
+        }
+
+        Texture2D Tex(string name, Color[] px, bool srgb)
+        {
+            var path = MatDir + name + ".png";
+            var t = new Texture2D(count, 1, TextureFormat.RGBA32, false);
+            t.SetPixels(px);
+            System.IO.File.WriteAllBytes(path, t.EncodeToPNG());
+            UnityEngine.Object.DestroyImmediate(t);
+            AssetDatabase.ImportAsset(path);
+            var ti = (TextureImporter)AssetImporter.GetAtPath(path);
+            ti.sRGBTexture = srgb;
+            ti.mipmapEnabled = false;                       // mips would blend neighbouring cells
+            ti.filterMode = FilterMode.Point;
+            ti.wrapMode = TextureWrapMode.Clamp;
+            ti.npotScale = TextureImporterNPOTScale.None;   // resizing to a power of two would blur cells
+            ti.textureCompression = TextureImporterCompression.Uncompressed; // block compression would bleed too
+            ti.SaveAndReimport();
+            return AssetDatabase.LoadAssetAtPath<Texture2D>(path);
+        }
+
+        var m = Palette;
         if (!m)
         {
             m = new Material(Shader.Find("Universal Render Pipeline/Lit"));
-            AssetDatabase.CreateAsset(m, path);
+            AssetDatabase.CreateAsset(m, MatDir + "M_Palette.mat");
+            palette = m;
         }
-        var (hex, smooth, metal, emit) = Mats[name];
-        ColorUtility.TryParseHtmlString("#" + hex, out var c);
-        m.SetColor("_BaseColor", c);
-        m.SetFloat("_Smoothness", smooth);
-        m.SetFloat("_Metallic", metal);
-        if (emit > 0)
-        {
-            m.EnableKeyword("_EMISSION");
-            m.SetColor("_EmissionColor", c * emit);
-            m.globalIlluminationFlags = MaterialGlobalIlluminationFlags.RealtimeEmissive;
-        }
+        m.SetColor("_BaseColor", Color.white);
+        m.SetTexture("_BaseMap", Tex("T_Palette_Albedo", albedo, true));
+        m.SetTexture("_MetallicGlossMap", Tex("T_Palette_MetalSmooth", metalSmooth, false));
+        m.EnableKeyword("_METALLICSPECGLOSSMAP");
+        m.SetFloat("_SmoothnessTextureChannel", 0);
+        m.SetFloat("_Smoothness", 1);
+        m.SetTexture("_EmissionMap", Tex("T_Palette_Emission", emission, true));
+        m.SetColor("_EmissionColor", Color.white * maxEmit);
+        m.EnableKeyword("_EMISSION");
+        m.globalIlluminationFlags = MaterialGlobalIlluminationFlags.RealtimeEmissive;
         EditorUtility.SetDirty(m);
-        return m;
     }
 
     // ---------- mesh builder ----------
     class MB
     {
         readonly List<Vector3> v = new(), n = new();
-        readonly List<List<int>> subs = new();
-        public readonly List<string> Materials = new();
-
-        int Sub(string mat)
-        {
-            int i = Materials.IndexOf(mat);
-            if (i >= 0) return i;
-            Materials.Add(mat);
-            subs.Add(new List<int>());
-            return subs.Count - 1;
-        }
+        readonly List<Vector2> uv = new();
+        readonly List<int> tris = new();
 
         // Flat triangle; winding flipped if needed so the face points away from `inside`.
         public void Tri(string mat, Vector3 a, Vector3 b, Vector3 c, Vector3 inside)
@@ -71,8 +107,8 @@ static class ModelGen
             if (nn.sqrMagnitude < 1e-12f) return;
             if (Vector3.Dot(nn, (a + b + c) / 3 - inside) < 0) { (b, c) = (c, b); nn = -nn; }
             nn.Normalize();
-            var s = subs[Sub(mat)];
-            foreach (var p in new[] { a, b, c }) { s.Add(v.Count); v.Add(p); n.Add(nn); }
+            var cell = Cell(mat);
+            foreach (var p in new[] { a, b, c }) { tris.Add(v.Count); v.Add(p); n.Add(nn); uv.Add(cell); }
         }
 
         public void Quad(string mat, Vector3 a, Vector3 b, Vector3 c, Vector3 d, Vector3 inside)
@@ -185,8 +221,8 @@ static class ModelGen
             }
             mesh.vertices = verts;
             mesh.normals = norms;
-            mesh.subMeshCount = subs.Count;
-            for (int i = 0; i < subs.Count; i++) mesh.SetTriangles(subs[i], i);
+            mesh.SetUVs(0, uv);
+            mesh.SetTriangles(tris, 0);
             mesh.RecalculateBounds();
             mesh.RecalculateTangents();
             return mesh;
@@ -285,8 +321,6 @@ static class ModelGen
                 (.44f, .52f, "Teal"), (.44f, .6f, "Glow"), (0, .6f, "Glow"));
         });
 
-        yield return ("FX_ShieldDome", Vector3.one, Vector3.zero, b => b.Sphere(Matrix4x4.identity, "Glow", 14, 9)); // replaces the 4Tudio shield mesh
-
         // Power-up props (MainScene)
         yield return ("Prop_SpringPad", new(28, 18.4f, 28), new(0, 9.2f, 0), b =>
         {
@@ -319,7 +353,7 @@ static class ModelGen
     {
         System.IO.Directory.CreateDirectory(MeshDir);
         System.IO.Directory.CreateDirectory(MatDir);
-        foreach (var name in Mats.Keys) Mat(name);
+        BuildPalette();
         foreach (var (name, size, center, build) in Models())
         {
             var b = new MB();
@@ -334,8 +368,9 @@ static class ModelGen
                 existing.indexFormat = mesh.indexFormat;
                 existing.vertices = mesh.vertices;
                 existing.normals = mesh.normals;
-                existing.subMeshCount = mesh.subMeshCount;
-                for (int i = 0; i < mesh.subMeshCount; i++) existing.SetTriangles(mesh.GetTriangles(i), i);
+                existing.uv = mesh.uv;
+                existing.subMeshCount = 1;
+                existing.SetTriangles(mesh.triangles, 0);
                 existing.RecalculateBounds();
                 existing.RecalculateTangents();
                 EditorUtility.SetDirty(existing);
@@ -344,7 +379,7 @@ static class ModelGen
             else AssetDatabase.CreateAsset(mesh, path);
         }
         AssetDatabase.SaveAssets();
-        Debug.Log("[ModelGen] Generated meshes + materials.");
+        Debug.Log("[ModelGen] Generated meshes + palette material.");
     }
 
     [MenuItem("Tools/AssetGen/Wire Models")]
@@ -420,10 +455,14 @@ static class ModelGen
         var suck = nozzle.transform.Find("SuckPoint") ?? new GameObject("SuckPoint").transform;
         suck.SetParent(nozzle.transform, false);
         var nozzleMesh = MeshFor("Prop_VacuumNozzle");
-        var mouthTris = nozzleMesh.GetTriangles(Array.FindIndex(MaterialsFor("Prop_VacuumNozzle"), m => m.name.EndsWith("Glow")));
+        Vector3[] nv = nozzleMesh.vertices;
+        Vector2[] nuv = nozzleMesh.uv;
+        var glow = Cell("Glow");
         var mouth = Vector3.zero;
-        foreach (var i in mouthTris) mouth += nozzleMesh.vertices[i];
-        suck.localPosition = mouth / mouthTris.Length;
+        int mouthVerts = 0;
+        for (int i = 0; i < nv.Length; i++)
+            if (nuv[i] == glow) { mouth += nv[i]; mouthVerts++; }
+        suck.localPosition = mouth / mouthVerts;
         PrefabUtility.SaveAsPrefabAsset(root, prefab);
         PrefabUtility.UnloadPrefabContents(root);
 
@@ -500,8 +539,46 @@ static class ModelGen
     {
         var mesh = MeshFor(model);
         go.GetComponent<MeshFilter>().sharedMesh = mesh;
-        go.GetComponent<MeshRenderer>().sharedMaterials = MaterialsFor(model);
+        go.GetComponent<MeshRenderer>().sharedMaterials = new[] { Palette };
         if (go.TryGetComponent<MeshCollider>(out var mc)) mc.sharedMesh = mesh;
+    }
+
+    // Points every renderer that draws one of our meshes (template prefabs + MainScene) at the palette material.
+    [MenuItem("Tools/AssetGen/Wire Palette Material")]
+    static void WirePalette()
+    {
+        bool Fix(GameObject root)
+        {
+            bool changed = false;
+            foreach (var mr in root.GetComponentsInChildren<MeshRenderer>(true))
+            {
+                if (PrefabUtility.IsPartOfPrefabInstance(mr)) continue; // fixed in its own prefab instead
+                var mf = mr.GetComponent<MeshFilter>();
+                if (!mf || !mf.sharedMesh || !AssetDatabase.GetAssetPath(mf.sharedMesh).StartsWith(MeshDir)) continue;
+                if (mr.sharedMaterials.Length == 1 && mr.sharedMaterial == Palette) continue;
+                mr.sharedMaterials = new[] { Palette };
+                changed = true;
+            }
+            return changed;
+        }
+
+        foreach (var guid in AssetDatabase.FindAssets("t:Prefab", new[] { "Assets/MatchThemAllTemplate" }))
+        {
+            var path = AssetDatabase.GUIDToAssetPath(guid);
+            var root = PrefabUtility.LoadPrefabContents(path);
+            if (Fix(root)) { PrefabUtility.SaveAsPrefabAsset(root, path); Debug.Log("[ModelGen] palette -> " + path); }
+            PrefabUtility.UnloadPrefabContents(root);
+        }
+
+        const string scenePath = "Assets/MatchThemAllTemplate/Scenes/MainScene.unity";
+        var scene = UnityEditor.SceneManagement.EditorSceneManager.GetSceneByPath(scenePath);
+        bool openedHere = !scene.isLoaded;
+        if (openedHere) scene = UnityEditor.SceneManagement.EditorSceneManager.OpenScene(scenePath, UnityEditor.SceneManagement.OpenSceneMode.Additive);
+        bool sceneChanged = false;
+        foreach (var go in scene.GetRootGameObjects())
+            if (Fix(go)) sceneChanged = true;
+        if (sceneChanged) { UnityEditor.SceneManagement.EditorSceneManager.SaveScene(scene); Debug.Log("[ModelGen] palette -> " + scenePath); }
+        if (openedHere) UnityEditor.SceneManagement.EditorSceneManager.CloseScene(scene, true);
     }
 
     // Contact sheet of every model for a quick visual check (written next to the project, not into Assets).
@@ -524,7 +601,6 @@ static class ModelGen
         for (int i = 0; i < names.Count; i++)
         {
             var mesh = UnityEngine.Object.Instantiate(MeshFor(names[i])); // fresh copy: never draw a stale GPU buffer
-            var mats = MaterialsFor(names[i]);
             var b = mesh.bounds;
             float r = b.extents.magnitude;
             var rot = Quaternion.Euler(20, -35, 0);
@@ -532,7 +608,7 @@ static class ModelGen
             pru.camera.transform.SetPositionAndRotation(rot * new Vector3(0, 0, -r * 4f), rot);
             pru.camera.nearClipPlane = r * .1f;
             pru.camera.farClipPlane = r * 10;
-            for (int s = 0; s < mesh.subMeshCount; s++) pru.DrawMesh(mesh, Matrix4x4.Translate(-b.center), mats[s], s);
+            pru.DrawMesh(mesh, Matrix4x4.Translate(-b.center), Palette, 0);
             pru.camera.Render();
             var tex = pru.EndStaticPreview();
             sheet.SetPixels((i % cols) * cell, (rows - 1 - i / cols) * cell, cell, cell, tex.GetPixels());
@@ -565,7 +641,6 @@ static class ModelGen
         foreach (var (file, model, size) in jobs)
         {
             var mesh = UnityEngine.Object.Instantiate(MeshFor(model)); // fresh copy: never draw a stale GPU buffer
-            var mats = MaterialsFor(model);
             // Yaw 180 so the model's +Z face (skull face, coin star) looks at the camera; small tilt for depth.
             var rot = Quaternion.Euler(12, 200, model == "Item_Battery" ? -28 : -8);
             var m = Matrix4x4.TRS(Vector3.zero, rot, Vector3.one) * Matrix4x4.Translate(-mesh.bounds.center);
@@ -578,7 +653,7 @@ static class ModelGen
             {
                 pru.camera.backgroundColor = bg;
                 pru.BeginStaticPreview(new Rect(0, 0, size, size));
-                for (int s = 0; s < mesh.subMeshCount; s++) pru.DrawMesh(mesh, m, only ? only : mats[s], s);
+                pru.DrawMesh(mesh, m, only ? only : Palette, 0);
                 pru.camera.Render();
                 return pru.EndStaticPreview();
             }
@@ -611,12 +686,4 @@ static class ModelGen
     static Material Silhouette => silhouette ??= new Material(Shader.Find("Universal Render Pipeline/Unlit")) { color = Color.white };
 
     public static Mesh MeshFor(string name) => AssetDatabase.LoadAssetAtPath<Mesh>(MeshDir + name + ".asset");
-
-    // Renderer material array in submesh order (rebuilt from the model definition; cheap).
-    public static Material[] MaterialsFor(string name)
-    {
-        foreach (var (n, _, _, build) in Models())
-            if (n == name) { var b = new MB(); build(b); return b.Materials.ConvertAll(Mat).ToArray(); }
-        throw new ArgumentException(name);
-    }
 }

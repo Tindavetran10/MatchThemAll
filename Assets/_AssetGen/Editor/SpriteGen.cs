@@ -52,6 +52,25 @@ static class SpriteGen
         public void Paint(Sdf s, Color c) => Fill(Edge(s), (_, _) => c);
         public void Paint(Sdf s, Func<float, float, Color> col) => Fill(Edge(s), col);
 
+        // Composites `src` on top, scaled by k and centred at (cx, cy) (bilinear, premultiplied).
+        public void Blit(Canvas src, float k, float cx, float cy)
+        {
+            Color At(int x, int y)
+            {
+                if (x < 0 || y < 0 || x >= src.W || y >= src.H) return new Color(0, 0, 0, 0);
+                var p = src.px[y * src.W + x];
+                return new Color(p.r * p.a, p.g * p.a, p.b * p.a, p.a);
+            }
+            Color Sample(float x, float y)
+            {
+                float u = (x - cx) / k + src.W / 2f - .5f, v = (y - cy) / k + src.H / 2f - .5f;
+                int x0 = Mathf.FloorToInt(u), y0 = Mathf.FloorToInt(v);
+                float fx = u - x0, fy = v - y0;
+                return Color.Lerp(Color.Lerp(At(x0, y0), At(x0 + 1, y0), fx), Color.Lerp(At(x0, y0 + 1), At(x0 + 1, y0 + 1), fx), fy);
+            }
+            Fill((x, y) => Sample(x, y).a, (x, y) => { var s = Sample(x, y); return new Color(s.r / s.a, s.g / s.a, s.b / s.a, 1); });
+        }
+
         public byte[] Png()
         {
             var t = new Texture2D(W, H, TextureFormat.RGBA32, false);
@@ -200,6 +219,19 @@ static class SpriteGen
     }
 
     // ---------- reusable icon parts ----------
+    // Clapperboard on a 256x256 canvas.
+    static void Clapper(Canvas c)
+    {
+        var slate = Hex("2E3350");
+        Glossy(c, Box(128, 98, 100, 66, 14), slate, 10, 32, 164);
+        foreach (var y in new[] { 84f, 112f }) c.Paint(Box(128, y, 78, 4, 2), A(White, .35f));
+        var bar = Rot(Box(124, 194, 102, 20, 6), 12, 26, 172);
+        Glossy(c, bar, slate, 9, 172, 216, 8, false);
+        for (int i = 0; i < 5; i++)
+            c.Paint(I(Grow(bar, -1), Rot(Poly(40 + i * 40, 160, 62 + i * 40, 160, 42 + i * 40, 230, 20 + i * 40, 230), 12, 26, 172)), White);
+        Glossy(c, Circle(30, 172, 14), Gray, 5, 158, 186, 6, false);
+    }
+
     static void Coin(Canvas c, float cx, float cy, float r)
     {
         Glossy(c, Circle(cx, cy, r), Gold, r * .1f, cy - r, cy + r);
@@ -314,7 +346,27 @@ static class SpriteGen
         // Shapes & effects (tint masks)
         yield return ("Shapes/Shapes/Circle/Circle - 256px.png", 256, 256, c => Mask(c, Circle(128, 128, 127.5f)));
         yield return ("Shapes/Shapes/Circle/Circle - Cartoon.png", 256, 256, c => Mask(c, Circle(128, 128, 120)));
-        yield return ("Shapes/Shapes/Circle/Circle Cartoon - With Border.png", 256, 256, c => Mask(c, Ring(128, 128, 114, 8))); // used by the tray bake
+        // Per-power-up tray card ("Slot Background" in each MainScene power-up spot): the old 4-slot tray's look,
+        // one slot per sprite so PowerupTrayLayout can lay out any count. 200 PPU.
+        yield return ("Power Up/Powerup Slot.png", 224, 240, c =>
+        {
+            var card = Box(112, 120, 104, 106, 34);
+            c.Paint(Move(card, 0, -7), new Color(0.05f, 0.08f, 0.25f, 0.35f));
+            c.Paint(card, White);
+            var fill = Grow(card, -9);
+            c.Paint(fill, Hex("3558C8"));
+            c.Paint(I(fill, Below(72)), new Color(0.15f, 0.25f, 0.7f, 0.35f));
+            c.Paint(I(Grow(fill, -6), Above(176)), A(White, .16f));
+            c.Paint(Circle(112, 119, 88), new Color(0.75f, 0.88f, 1f, 0.28f));
+            c.Paint(Ring(112, 119, 85, 3), A(White, .3f));
+        });
+        // Power-up count badge (Prefabs/UI/Power Up/Container.prefab), one sprite: drop shadow, white rim, red disc. 100 PPU.
+        yield return ("Shapes/Badges/Amount Badge.png", 288, 288, c =>
+        {
+            c.Paint(Circle(144, 130, 120), A(Color.black, .2f));
+            c.Paint(Circle(144, 144, 120), White);
+            c.Paint(Circle(144, 144, 98.4f), Hex("FF5169"));
+        });
         yield return ("Shapes/Shapes/Rectangle/Rounded Rectangle - 256px.png", 256, 256, c => Mask(c, Circle(128, 128, 127.5f)));
         yield return ("Shapes/Shapes/Rectangle/Square - Cartoon.png", 256, 256, c => Mask(c, Box(128, 128, 126, 126, 99)));
         yield return ("Shapes/Effects/Inner Glow - Rounded Rectangle.png", 256, 256, c =>
@@ -354,17 +406,16 @@ static class SpriteGen
         yield return ("Icons/Icons Colored/Commerce/Shop.png", 256, 256, c => GlyphColored(c, "shoppingCart", Teal));
         yield return ("Icons/Icons Colored/Lock - Key/Lock - Gold.png", 256, 256, c => GlyphColored(c, "locked", Gold));
         yield return ("Icons/Icons Colored/Media/Mobile.png", 256, 256, c => GlyphColored(c, "phone", Hex("4A63D8")));
-        // "Watch a video" clapperboard for the power-up badge (Prefabs/UI/Power Up/Video Icon.prefab).
-        yield return ("Icons/Icons Colored/Media/Video.png", 256, 256, c =>
+        // "Watch a video" badge for the power-ups (Prefabs/UI/Power Up/Video Icon.prefab), baked into one sprite
+        // so the badge is a single SpriteRenderer: drop shadow, white rim, light-cyan disc, clapperboard. 200 PPU.
+        yield return ("Icons/Icons Colored/Media/Video.png", 576, 576, c =>
         {
-            var slate = Hex("2E3350");
-            Glossy(c, Box(128, 98, 100, 66, 14), slate, 10, 32, 164);
-            foreach (var y in new[] { 84f, 112f }) c.Paint(Box(128, y, 78, 4, 2), A(White, .35f));
-            var bar = Rot(Box(124, 194, 102, 20, 6), 12, 26, 172);
-            Glossy(c, bar, slate, 9, 172, 216, 8, false);
-            for (int i = 0; i < 5; i++)
-                c.Paint(I(Grow(bar, -1), Rot(Poly(40 + i * 40, 160, 62 + i * 40, 160, 42 + i * 40, 230, 20 + i * 40, 230), 12, 26, 172)), White);
-            Glossy(c, Circle(30, 172, 14), Gray, 5, 158, 186, 6, false);
+            c.Paint(Circle(288, 260, 240), A(Color.black, .2f));
+            c.Paint(Circle(288, 288, 240), White);
+            c.Paint(Circle(288, 288, 196.8f), Hex("E3FAFC"));
+            var clapper = new Canvas(256, 256);
+            Clapper(clapper);
+            c.Blit(clapper, 1.1f, 288, 288);
         });
         yield return ("Icons/Kawaii/Lock 512.png", 512, 512, c => GlyphColored(c, "locked", Gold, 28));
         yield return ("Icons/Kawaii/Lock 1536.png", 1536, 1536, c => GlyphColored(c, "locked", Gold, 84));
@@ -542,13 +593,6 @@ static class SpriteGen
             Glossy(e, U(Circle(206, 182, 14), Poly(194, 186, 218, 186, 206, 214)), Hex("6CC6FF"), 3, 168, 214, 6, false);
         }));
     }
-
-    // The tray texture is baked from UI sprites by UIOverhaulBuilder; rerun after regenerating sprites.
-    [MenuItem("Tools/AssetGen/Rebake Powerup Tray")]
-    static void RebakeTray() =>
-        typeof(MatchThemAll.EditorTools.UIOverhaulBuilder)
-            .GetMethod("BakePowerupTray", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)!
-            .Invoke(null, null);
 
     [MenuItem("Tools/AssetGen/Generate UI Sprites")]
     static void Generate()

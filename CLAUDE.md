@@ -142,6 +142,11 @@ These classes have the most edges in the graph. Changes here have wide ripple ef
 - LINQ is replaced with ZLinq (`AsValueEnumerable()`) in hot paths — maintain this pattern in new code inside managers
 - Avoid allocations in `Update()` / per-frame callbacks
 
+### Known Pitfalls
+- Item/prop models must stay **one submesh + one material** (`M_Palette`, built by `Tools ▸ AssetGen ▸ Generate Models`). `Item.Select` swaps in `[baseMaterial, outline]`, so a multi-material renderer loses its colours when tapped/hinted.
+- Unity MCP `RunCommand` refuses `AssetDatabase.DeleteAsset(s)` ("user interaction"). Delete with `git rm` (file + `.meta`), then `AssetDatabase.Refresh()`.
+- **Repeated scene objects must be prefab instances.** When the same object goes into several places (e.g. one `Slot Background` per power-up spot), save it once as a prefab (`PrefabUtility.SaveAsPrefabAsset`) and place instances (`PrefabUtility.InstantiatePrefab`) — never `new GameObject` copies per place. Copies drift and must be edited one by one.
+
 ---
 
 ## 8. Community Map (key communities)

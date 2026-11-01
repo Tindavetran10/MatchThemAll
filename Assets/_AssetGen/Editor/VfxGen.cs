@@ -1,7 +1,6 @@
 using System;
 using System.IO;
 using UnityEditor;
-using UnityEditor.Animations;
 using UnityEditor.Rendering.Universal.ShaderGUI;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -55,7 +54,6 @@ static class VfxGen
         ("M_FX_Glow", "FX_SoftDot", true, Color.white), ("M_FX_Ring", "FX_Ring", true, Color.white), ("M_FX_RingThick", "FX_RingThick", true, Color.white),
         ("M_FX_Dash", "FX_Dash", true, Color.white), ("M_FX_Star", "FX_Star", true, Color.white), ("M_FX_Pixel", "FX_Pixel", true, Color.white),
         ("M_FX_Smoke", "FX_Smoke", false, Color.white), ("M_FX_Snow", "FX_Snow", false, Color.white),
-        ("M_FX_Shield", null, true, new Color(.35f, .85f, 1f, .45f)),
     };
 
     [MenuItem("Tools/AssetGen/Generate VFX")]
@@ -63,7 +61,6 @@ static class VfxGen
     {
         Directory.CreateDirectory(Dir + "Textures");
         Directory.CreateDirectory(Dir + "Materials");
-        Directory.CreateDirectory(Dir + "Animations");
         const int size = 256;
         foreach (var (name, alpha) in Textures)
         {
@@ -100,30 +97,9 @@ static class VfxGen
             EditorUtility.SetDirty(m);
         }
 
-        BuildShieldController();
         BuildMergeBurst();
         AssetDatabase.SaveAssets();
-        Debug.Log("[VfxGen] Generated textures, materials, shield controller, merge burst.");
-    }
-
-    // Pop-in + soft pulse for the shield dome. Bound to the child named like the old shield object so the prefab keeps working.
-    static void BuildShieldController()
-    {
-        const string path = Dir + "Animations/FX_Shield.controller";
-        var clipPath = Dir + "Animations/FX_Shield_Pop.anim";
-        var clip = AssetDatabase.LoadAssetAtPath<AnimationClip>(clipPath);
-        if (!clip) { clip = new AnimationClip(); AssetDatabase.CreateAsset(clip, clipPath); }
-        clip.ClearCurves();
-        const string target = "Mod_FX_Itme_Shield";
-        var scale = new AnimationCurve(new Keyframe(0, 0), new Keyframe(.18f, 1.15f), new Keyframe(.3f, 1f), new Keyframe(1.2f, 1.04f), new Keyframe(1.6f, 0));
-        foreach (var axis in new[] { "x", "y", "z" }) clip.SetCurve(target, typeof(Transform), "m_LocalScale." + axis, scale);
-        clip.SetCurve(target, typeof(MeshRenderer), "material._BaseColor.a",
-            new AnimationCurve(new Keyframe(0, 0), new Keyframe(.15f, .55f), new Keyframe(.7f, .35f), new Keyframe(1.6f, 0)));
-        EditorUtility.SetDirty(clip);
-
-        var ctrl = AssetDatabase.LoadAssetAtPath<AnimatorController>(path) ?? AnimatorController.CreateAnimatorControllerAtPathWithClip(path, clip);
-        ctrl.layers[0].stateMachine.defaultState.motion = clip;
-        EditorUtility.SetDirty(ctrl);
+        Debug.Log("[VfxGen] Generated textures, materials, merge burst.");
     }
 
     static void BuildMergeBurst()
