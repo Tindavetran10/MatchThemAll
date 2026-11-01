@@ -6,8 +6,9 @@ using MatchThemAll.Scripts;
 namespace MatchThemAll.Scripts.Power_Ups
 {
     /// <summary>
-    /// Applies a random force to all active items. Owns fanMagnitude.
-    /// Logic extracted verbatim from PowerupManager.FanPowerup().
+    /// The "bomb": the canister jiggles and swells for a moment, then explodes over the board
+    /// (fireball + smoke + embers VFX, camera shake) and blasts every active item with a random force.
+    /// Owns fanMagnitude.
     /// </summary>
     [System.Serializable]
     public class FanEffect : PowerupEffect
@@ -19,6 +20,8 @@ namespace MatchThemAll.Scripts.Power_Ups
         public float shakeDuration = 0.4f;
         [Tooltip("Minimum seconds between activations. Spam clicks are rejected for free (no charge spent).")]
         public float cooldown = 0.4f;
+        [Tooltip("Seconds the canister jiggles before it blows (the explosion sound is timed to this).")]
+        public float fuseTime = 0.2f;
 
         private float _nextAllowedTime = -999f;
 
@@ -29,7 +32,19 @@ namespace MatchThemAll.Scripts.Power_Ups
         {
             _nextAllowedTime = Time.time + cooldown;
             if (ctx.Items == null) return;
-            // Shockwave ring at the fan's origin.
+            // Fuse: the canister swells and rattles, then it blows.
+            if (ctx.Source)
+            {
+                Tween.PunchScale(ctx.Source, ctx.Source.localScale * .25f, fuseTime + .1f, frequency: 18);
+                Tween.ShakeLocalPosition(ctx.Source, new Vector3(.06f, .06f, 0f), fuseTime, frequency: 30);
+            }
+            Tween.Delay(fuseTime, () => Blast(ctx));
+        }
+
+        private void Blast(PowerupContext ctx)
+        {
+            if (!GameManager.Instance || !GameManager.Instance.IsGame()) return;
+            // Explosion over the board, at the blast origin.
             if (ctx.ActivateVfx != null && ctx.FanOrigin != null && VfxPool.Instance != null)
                 VfxPool.Instance.Play(ctx.ActivateVfx, ctx.FanOrigin.position);
             // Camera punch to sell the blast. Restores the camera transform when done.

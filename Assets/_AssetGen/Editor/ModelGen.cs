@@ -24,6 +24,7 @@ static class ModelGen
         ["Tan"] = ("C8955A", .3f, 0, 0), ["Spark"] = ("FFD84A", .5f, 0, 1.5f), ["Glow"] = ("3FE0FF", .7f, 0, 1.2f),
         ["Steel"] = ("566173", .6f, .5f, 0), ["Orange"] = ("FF8A2A", .5f, 0, 0), ["Teal"] = ("1FB5A8", .6f, .1f, 0),
         ["Blue"] = ("2F7BFF", .7f, .1f, .3f), ["Cork"] = ("A0683A", .25f, 0, 0), ["Pink"] = ("FF6F91", .55f, .05f, 0),
+        ["Ice"] = ("BDEBFF", .95f, .05f, .35f),
     };
 
     static readonly List<string> Cells = new(Mats.Keys);
@@ -319,6 +320,18 @@ static class ModelGen
             }
             b.Lathe(TRS(new Vector3(0, 1.22f, .38f), new Vector3(25, 0, 0), Vector3.one), 16, (0, 0, "Steel"), (.17f, 0, "Steel"), (.19f, .22f, "Teal"),
                 (.44f, .52f, "Teal"), (.44f, .6f, "Glow"), (0, .6f, "Glow"));
+        });
+
+        // Freeze power-up: faceted ice ball with crystal spikes (authored size, radius ~1; IceSphere prefab scales it).
+        yield return ("Prop_IceSphere", Vector3.zero, Vector3.zero, b =>
+        {
+            b.Sphere(Matrix4x4.identity, "Ice", 9, 6);
+            foreach (var d in new[] { new Vector3(1, 1, .4f), new Vector3(-1, .8f, -.5f), new Vector3(.3f, -1, 1), new Vector3(-.6f, -.9f, -.8f),
+                         new Vector3(.9f, -.2f, -1), new Vector3(-1, .1f, .9f) })
+            {
+                var dir = d.normalized;
+                b.Box(TRS(dir * .95f, Quaternion.LookRotation(dir).eulerAngles, new Vector3(.28f, .28f, .7f)), "Glass");
+            }
         });
 
         // Power-up props (MainScene)

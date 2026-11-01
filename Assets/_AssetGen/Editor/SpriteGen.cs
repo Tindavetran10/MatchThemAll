@@ -360,6 +360,36 @@ static class SpriteGen
             c.Paint(Circle(112, 119, 88), new Color(0.75f, 0.88f, 1f, 0.28f));
             c.Paint(Ring(112, 119, 85, 3), A(White, .3f));
         });
+        // Freeze power-up: full-screen frost that creeps in from the edges (FreezeOverlay prefab, stretched to the screen).
+        yield return ("Power Up/Frost Overlay.png", 512, 1024, c =>
+        {
+            c.Fill((x, y) =>
+            {
+                float edge = Mathf.Min(Mathf.Min(x, 512 - x), Mathf.Min(y, 1024 - y));
+                float n = Mathf.PerlinNoise(x * .018f + 3, y * .018f + 9) * .65f + Mathf.PerlinNoise(x * .06f, y * .06f) * .35f;
+                // Thin band (~9% of the width) so the board, the tray and the edge ice spheres stay readable.
+                float frost = 1 - Mathf.Clamp01((edge - n * 28) / 22f);
+                float crystals = Mathf.PerlinNoise(x * .11f + 40, y * .11f + 40) > .62f ? .2f : 0; // sparkly clumps
+                return Mathf.Clamp01(frost * .75f + frost * crystals);
+            }, (x, y) => Color.Lerp(new Color(.72f, .93f, 1f), Color.white, Mathf.PerlinNoise(x * .05f + 7, y * .05f + 1)));
+        });
+        // Freeze bar icon.
+        yield return ("Power Up/Snowflake.png", 128, 128, c =>
+        {
+            Sdf flake = Circle(64, 64, 9);
+            for (int k = 0; k < 6; k++)
+            {
+                float a = k * Mathf.PI / 3, ca = Mathf.Cos(a), sa = Mathf.Sin(a);
+                flake = U(flake, Capsule(64, 64, 64 + ca * 52, 64 + sa * 52, 6));
+                foreach (var side in new[] { -.6f, .6f })
+                {
+                    float bx = 64 + ca * 32, by = 64 + sa * 32;
+                    flake = U(flake, Capsule(bx, by, bx + Mathf.Cos(a + side) * 18, by + Mathf.Sin(a + side) * 18, 4.5f));
+                }
+            }
+            c.Paint(Grow(flake, 4), Hex("2E6FB8"));
+            c.Paint(flake, Hex("E8FAFF"));
+        });
         // Power-up count badge (Prefabs/UI/Power Up/Container.prefab), one sprite: drop shadow, white rim, red disc. 100 PPU.
         yield return ("Shapes/Badges/Amount Badge.png", 288, 288, c =>
         {

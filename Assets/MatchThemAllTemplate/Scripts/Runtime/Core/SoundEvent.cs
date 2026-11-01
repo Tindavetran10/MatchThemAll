@@ -30,6 +30,7 @@ namespace MatchThemAll.Scripts
         PowerupFreeze = 18,
         StarPop = 19,
         CoinReward = 20,
+        SpringLand = 21,
 
         // Results
         LevelComplete = 30,

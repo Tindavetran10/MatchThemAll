@@ -17,7 +17,7 @@ namespace MatchThemAll.Scripts
         {
             var gameState = evt.NewState;
             // Keep the game HUD (goals, timer) visible while paused or out of time.
-            SetPanelActive(gamePanel, gameState is EGameState.GAME or EGameState.PAUSED or EGameState.OUTOFTIME);
+            SetPanelActive(gamePanel, gameState is EGameState.GAME or EGameState.PAUSED or EGameState.OUTOFTIME or EGameState.POWERUPOFFER);
 
             // Pause overlay sits on top of the game panel.
             SetPanelActive(pausePanel, gameState == EGameState.PAUSED);

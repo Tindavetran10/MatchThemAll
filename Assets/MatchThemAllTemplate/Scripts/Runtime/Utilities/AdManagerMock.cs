@@ -27,6 +27,15 @@ namespace MatchThemAll.Scripts.Utilities
             else Destroy(gameObject);
         }
 
+        // No scene places this mock, so create it on startup; otherwise every "Watch Ad" button is a silent no-op.
+        // A real ad manager placed in a scene can replace this bootstrap.
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
+        private static void Bootstrap()
+        {
+            if (Instance || FindAnyObjectByType<AdManagerMock>()) return;
+            new GameObject(nameof(AdManagerMock)).AddComponent<AdManagerMock>();
+        }
+
         /// <summary>
         /// Simulates showing a Rewarded Video Ad.
         /// Replace this with your SDK's ShowRewardedAd method.

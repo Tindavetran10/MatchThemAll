@@ -46,6 +46,16 @@ static class VfxGen
             }
             return Mathf.Max(best, 1 - Smooth(.1f, .14f, r));
         }),
+        // Beam / trail: soft across the width (v), constant along the length (u).
+        ("FX_Beam", (x, y) => Mathf.Pow(1 - Mathf.Clamp01(Mathf.Abs(y)), 2.5f)),
+        // Flame puff: soft blob with a noisy, licking edge.
+        ("FX_Flame", (x, y) =>
+        {
+            float n = Mathf.PerlinNoise(x * 4 + 20, y * 4 + 7);
+            return Mathf.Clamp01((1 - Smooth(.25f, .95f, Len(x, y * 1.15f) + (n - .5f) * .35f)) * (.75f + n * .5f));
+        }),
+        // Ice shard: thin diamond, brighter core.
+        ("FX_Shard", (x, y) => Mathf.Clamp01(1 - (Mathf.Abs(x) / .28f + Mathf.Abs(y))) * (.6f + .4f * (1 - Mathf.Abs(y)))),
     };
 
     // name -> (texture or null, additive, tint)
@@ -54,10 +64,31 @@ static class VfxGen
         ("M_FX_Glow", "FX_SoftDot", true, Color.white), ("M_FX_Ring", "FX_Ring", true, Color.white), ("M_FX_RingThick", "FX_RingThick", true, Color.white),
         ("M_FX_Dash", "FX_Dash", true, Color.white), ("M_FX_Star", "FX_Star", true, Color.white), ("M_FX_Pixel", "FX_Pixel", true, Color.white),
         ("M_FX_Smoke", "FX_Smoke", false, Color.white), ("M_FX_Snow", "FX_Snow", false, Color.white),
+        ("M_FX_Beam", "FX_Beam", true, Color.white), ("M_FX_Flame", "FX_Flame", true, Color.white), ("M_FX_Shard", "FX_Shard", true, Color.white),
     };
 
     [MenuItem("Tools/AssetGen/Generate VFX")]
     static void Generate()
+    {
+        BuildTexturesAndMaterials();
+        BuildMergeBurst();
+        BuildPowerupFx();
+        AssetDatabase.SaveAssets();
+        Debug.Log("[VfxGen] Generated textures, materials, merge burst, power-up FX.");
+    }
+
+    // Rebuilds only the power-up FX (leaves FX_MergeBurst and its MergeManager reference alone).
+    // Rebuilt prefabs can get new internal IDs: re-point the power-up assets / scene afterwards.
+    [MenuItem("Tools/AssetGen/Generate Powerup FX")]
+    static void GeneratePowerupFx()
+    {
+        BuildTexturesAndMaterials();
+        BuildPowerupFx();
+        AssetDatabase.SaveAssets();
+        Debug.Log("[VfxGen] Generated power-up FX.");
+    }
+
+    static void BuildTexturesAndMaterials()
     {
         Directory.CreateDirectory(Dir + "Textures");
         Directory.CreateDirectory(Dir + "Materials");
@@ -96,10 +127,216 @@ static class VfxGen
             BaseShaderGUI.SetupMaterialBlendMode(m);
             EditorUtility.SetDirty(m);
         }
+    }
 
-        BuildMergeBurst();
-        AssetDatabase.SaveAssets();
-        Debug.Log("[VfxGen] Generated textures, materials, merge burst.");
+    // ---------- power-up FX (Prefabs/VFX/Powerups) ----------
+    // The game camera looks straight down (screen up = world -Z), so "flat" systems emit in the XZ plane.
+    const string PowerupFx = VfxPrefabs + "Powerups/";
+
+    static Material Mat(string name) => AssetDatabase.LoadAssetAtPath<Material>($"{Dir}Materials/{name}.mat");
+
+    static ParticleSystem Sys(GameObject go, string mat, float duration, int burst, Vector2 life, Vector2 speed, Vector2 size, Color color)
+    {
+        var ps = go.AddComponent<ParticleSystem>();
+        ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+        var main = ps.main;
+        main.duration = duration;
+        main.loop = false;
+        main.startLifetime = new ParticleSystem.MinMaxCurve(life.x, life.y);
+        main.startSpeed = new ParticleSystem.MinMaxCurve(speed.x, speed.y);
+        main.startSize = new ParticleSystem.MinMaxCurve(size.x, size.y);
+        main.startColor = color;
+        main.startRotation = new ParticleSystem.MinMaxCurve(0, Mathf.PI * 2);
+        main.simulationSpace = ParticleSystemSimulationSpace.World;
+        main.maxParticles = 200;
+        var em = ps.emission;
+        em.rateOverTime = 0;
+        if (burst > 0) em.SetBursts(new[] { new ParticleSystem.Burst(0, burst) });
+        var sh = ps.shape;
+        sh.shapeType = ParticleSystemShapeType.Circle; // flat, radial
+        sh.radius = .15f;
+        sh.rotation = new Vector3(90, 0, 0);
+        var r = go.GetComponent<ParticleSystemRenderer>();
+        r.sharedMaterial = Mat(mat);
+        r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+        r.receiveShadows = false;
+        Fade(ps);
+        return ps;
+    }
+
+    static ParticleSystem Child(GameObject root, string name, string mat, float duration, int burst, Vector2 life, Vector2 speed, Vector2 size, Color color)
+    {
+        var go = new GameObject(name);
+        go.transform.SetParent(root.transform, false);
+        return Sys(go, mat, duration, burst, life, speed, size, color);
+    }
+
+    // Alpha: in fast, hold, out. Optional colour ramp over life (multiplies startColor).
+    static void Fade(ParticleSystem ps, params Color[] ramp)
+    {
+        var col = ps.colorOverLifetime;
+        col.enabled = true;
+        var g = new Gradient();
+        var keys = ramp.Length == 0 ? new[] { new GradientColorKey(Color.white, 0), new GradientColorKey(Color.white, 1) }
+            : System.Linq.Enumerable.ToArray(System.Linq.Enumerable.Select(ramp, (c, i) => new GradientColorKey(c, i / (float)(ramp.Length - 1))));
+        g.SetKeys(keys, new[] { new GradientAlphaKey(0, 0), new GradientAlphaKey(1, .08f), new GradientAlphaKey(1, .45f), new GradientAlphaKey(0, 1) });
+        col.color = g;
+    }
+
+    static void Grow(ParticleSystem ps, float from, float to)
+    {
+        var sol = ps.sizeOverLifetime;
+        sol.enabled = true;
+        sol.size = new ParticleSystem.MinMaxCurve(1, new AnimationCurve(new Keyframe(0, from), new Keyframe(1, to)));
+    }
+
+    static void Drag(ParticleSystem ps, float dampen)
+    {
+        var limit = ps.limitVelocityOverLifetime;
+        limit.enabled = true;
+        limit.dampen = dampen;
+        limit.limit = .3f;
+    }
+
+    static void Streak(ParticleSystem ps, float velocityScale)
+    {
+        var r = ps.GetComponent<ParticleSystemRenderer>();
+        r.renderMode = ParticleSystemRenderMode.Stretch;
+        r.velocityScale = velocityScale;
+        r.lengthScale = 1f;
+    }
+
+    static void Save(GameObject root, string name)
+    {
+        PrefabUtility.SaveAsPrefabAsset(root, PowerupFx + name + ".prefab");
+        UnityEngine.Object.DestroyImmediate(root);
+    }
+
+    static void BuildPowerupFx()
+    {
+        Color ice = new(.62f, .92f, 1f), iceSoft = new(.85f, .97f, 1f, .55f);
+        Color fireYellow = new(1f, .88f, .35f), fireOrange = new(1f, .55f, .15f), fireRed = new(.85f, .18f, .05f);
+
+        // Freeze: hit burst where the laser lands.
+        var fb = new GameObject("FX_FreezeBurst");
+        var flash = Sys(fb, "M_FX_Glow", .1f, 1, new(.3f, .3f), Vector2.zero, new(3f, 3f), new Color(.7f, .95f, 1f, .9f));
+        Grow(flash, .6f, 1.4f);
+        var fRing = Child(fb, "Ring", "M_FX_RingThick", .1f, 1, new(.5f, .5f), Vector2.zero, new(.5f, .5f), new Color(.6f, .92f, 1f, .8f));
+        Grow(fRing, 1f, 9f);
+        var shards = Child(fb, "Shards", "M_FX_Shard", .1f, 18, new(.5f, .8f), new(4f, 8f), new(.25f, .45f), ice);
+        Streak(shards, .06f); Drag(shards, .15f);
+        var snow = Child(fb, "Snow", "M_FX_Snow", .1f, 26, new(1f, 1.6f), new(1.5f, 4f), new(.15f, .35f), Color.white);
+        Drag(snow, .12f);
+        var mist = Child(fb, "Mist", "M_FX_Smoke", .1f, 8, new(1f, 1.4f), new(.5f, 1.2f), new(1.2f, 2f), iceSoft);
+        Grow(mist, .6f, 1.3f);
+        Save(fb, "FX_FreezeBurst");
+
+        // Freeze: an ice sphere cracking when the freeze ends.
+        var sh = new GameObject("FX_IceShatter");
+        var sShards = Sys(sh, "M_FX_Shard", .1f, 10, new(.4f, .6f), new(2f, 4f), new(.15f, .3f), ice);
+        Streak(sShards, .06f); Drag(sShards, .2f);
+        Drag(Child(sh, "Snow", "M_FX_Snow", .1f, 12, new(.6f, 1f), new(1f, 2.5f), new(.1f, .22f), Color.white), .15f);
+        Save(sh, "FX_IceShatter");
+
+        // Freeze: laser beam (positions set by FreezeEffect).
+        var laser = new GameObject("FX_FreezeLaser");
+        var lr = laser.AddComponent<LineRenderer>();
+        lr.positionCount = 2;
+        lr.useWorldSpace = true;
+        lr.widthMultiplier = .45f;
+        lr.textureMode = LineTextureMode.Stretch;
+        lr.alignment = LineAlignment.View;
+        lr.numCapVertices = 4;
+        lr.sharedMaterial = Mat("M_FX_Beam");
+        lr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+        lr.receiveShadows = false;
+        var lg = new Gradient();
+        lg.SetKeys(new[] { new GradientColorKey(Color.white, 0), new GradientColorKey(ice, 1) }, new[] { new GradientAlphaKey(1, 0), new GradientAlphaKey(1, 1) });
+        lr.colorGradient = lg;
+        lr.enabled = false;
+        Save(laser, "FX_FreezeLaser");
+
+        // Freeze: ice sphere placed on the board's edges/corners (mesh from ModelGen, shared palette material).
+        var sphere = new GameObject("IceSphere");
+        sphere.AddComponent<MeshFilter>().sharedMesh = AssetDatabase.LoadAssetAtPath<Mesh>("Assets/MatchThemAllTemplate/Art/Models/Meshes/Prop_IceSphere.asset");
+        var smr = sphere.AddComponent<MeshRenderer>();
+        smr.sharedMaterial = AssetDatabase.LoadAssetAtPath<Material>("Assets/MatchThemAllTemplate/Art/Models/Materials/M_Palette.mat");
+        smr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+        smr.receiveShadows = false;
+        sphere.transform.localScale = Vector3.one * .5f;
+        var sparkle = Child(sphere, "Sparkle", "M_FX_Star", 1f, 0, new(.5f, .8f), Vector2.zero, new(.25f, .5f), Color.white);
+        var spm = sparkle.main; spm.loop = true; spm.scalingMode = ParticleSystemScalingMode.Hierarchy;
+        var spe = sparkle.emission; spe.rateOverTime = 4;
+        var sps = sparkle.shape; sps.shapeType = ParticleSystemShapeType.Sphere; sps.radius = 1f;
+        Save(sphere, "IceSphere");
+
+        // Bomb (Fan power-up): explosion at the board centre.
+        var ex = new GameObject("FX_Explosion");
+        var exFlash = Sys(ex, "M_FX_Glow", .1f, 1, new(.18f, .18f), Vector2.zero, new(4.5f, 4.5f), new Color(1f, .95f, .75f));
+        Grow(exFlash, .7f, 1.3f);
+        var fire = Child(ex, "Fireball", "M_FX_Flame", .1f, 16, new(.35f, .6f), new(1.5f, 4f), new(.9f, 1.6f), Color.white);
+        Fade(fire, fireYellow, fireOrange, fireRed); Grow(fire, .7f, 1.3f); Drag(fire, .2f);
+        var flames = Child(ex, "Flames", "M_FX_Flame", .1f, 10, new(.5f, .8f), new(.5f, 1.5f), new(1.2f, 2f), Color.white);
+        Fade(flames, fireOrange, fireRed); Grow(flames, .8f, 1.2f);
+        var smoke = Child(ex, "Smoke", "M_FX_Smoke", .1f, 12, new(.9f, 1.5f), new(.8f, 2.2f), new(1.4f, 2.4f), new Color(.2f, .18f, .17f, .8f));
+        var smm = smoke.main; smm.startDelay = .1f;
+        Grow(smoke, .6f, 1.5f); Drag(smoke, .1f);
+        var embers = Child(ex, "Embers", "M_FX_Star", .1f, 28, new(.5f, .9f), new(4f, 9f), new(.08f, .2f), new Color(1f, .7f, .25f));
+        Streak(embers, .05f); Drag(embers, .1f);
+        var exRing = Child(ex, "Ring", "M_FX_RingThick", .1f, 1, new(.4f, .4f), Vector2.zero, new(.6f, .6f), new Color(1f, .7f, .3f, .8f));
+        Grow(exRing, 1f, 10f);
+        Save(ex, "FX_Explosion");
+
+        // Spring: landing puff.
+        var puff = new GameObject("FX_LandPuff");
+        var pSmoke = Sys(puff, "M_FX_Smoke", .1f, 7, new(.45f, .6f), new(.8f, 1.8f), new(.35f, .6f), new Color(.97f, .97f, .97f, .75f));
+        Grow(pSmoke, .7f, 1.4f); Drag(pSmoke, .2f);
+        Grow(Child(puff, "Ring", "M_FX_Ring", .1f, 1, new(.3f, .3f), Vector2.zero, new(.3f, .3f), new Color(1f, 1f, 1f, .6f)), 1f, 4f);
+        Save(puff, "FX_LandPuff");
+
+        // Spring: flight trail (TrailRenderer, attached to the item by SpringEffect).
+        var trail = new GameObject("FX_SpringTrail");
+        var tr = trail.AddComponent<TrailRenderer>();
+        tr.time = .35f;
+        tr.minVertexDistance = .05f;
+        tr.widthCurve = new AnimationCurve(new Keyframe(0, .7f), new Keyframe(1, 0));
+        tr.sharedMaterial = Mat("M_FX_Beam");
+        tr.alignment = LineAlignment.View;
+        tr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+        tr.receiveShadows = false;
+        var tg = new Gradient();
+        tg.SetKeys(new[] { new GradientColorKey(new Color(1f, .97f, .7f), 0), new GradientColorKey(fireOrange, 1) },
+            new[] { new GradientAlphaKey(.9f, 0), new GradientAlphaKey(0, 1) });
+        tr.colorGradient = tg;
+        tr.emitting = false;
+        Save(trail, "FX_SpringTrail");
+
+        // Vacuum: tornado funnel from the nozzle into the board (screen up = world -Z).
+        var tor = new GameObject("FX_Tornado");
+        var core = Sys(tor, "M_FX_Glow", 2.3f, 0, new(.4f, .6f), Vector2.zero, new(.7f, 1f), new Color(.8f, .9f, 1f, .5f));
+        var ce = core.emission; ce.rateOverTime = 14;
+        var csh = core.shape; csh.shapeType = ParticleSystemShapeType.Sphere; csh.radius = .05f;
+        var funnelGo = new GameObject("Funnel");
+        funnelGo.transform.SetParent(tor.transform, false);
+        funnelGo.transform.localRotation = Quaternion.Euler(0, 180, 0);
+        var funnel = Sys(funnelGo, "M_FX_Dash", 2.3f, 0, new(.7f, 1f), new(-2.6f, -1.8f), new(.2f, .38f), new Color(.92f, .97f, 1f, 1f));
+        var fm = funnel.main; fm.simulationSpace = ParticleSystemSimulationSpace.Local;
+        var fe = funnel.emission; fe.rateOverTime = 170;
+        var fsh = funnel.shape; fsh.shapeType = ParticleSystemShapeType.ConeVolume; fsh.angle = 24; fsh.radius = .12f; fsh.length = 3.4f; fsh.rotation = Vector3.zero;
+        var vel = funnel.velocityOverLifetime; vel.enabled = true; vel.space = ParticleSystemSimulationSpace.Local;
+        vel.orbitalZ = 7f; vel.radial = -.4f;
+        Streak(funnel, .18f);
+        Grow(funnel, 1f, .4f);
+        var dustGo = new GameObject("Dust");
+        dustGo.transform.SetParent(tor.transform, false);
+        dustGo.transform.localPosition = new Vector3(0, 0, -3.2f);
+        dustGo.transform.localRotation = Quaternion.Euler(0, 180, 0);
+        var dust = Sys(dustGo, "M_FX_Smoke", 2.3f, 0, new(.8f, 1.2f), new(0f, .2f), new(.8f, 1.4f), new Color(.92f, .94f, 1f, .65f));
+        var dm = dust.main; dm.simulationSpace = ParticleSystemSimulationSpace.Local;
+        var de = dust.emission; de.rateOverTime = 32;
+        var dsh = dust.shape; dsh.shapeType = ParticleSystemShapeType.Circle; dsh.radius = 1.3f; dsh.rotation = Vector3.zero;
+        var dv = dust.velocityOverLifetime; dv.enabled = true; dv.space = ParticleSystemSimulationSpace.Local; dv.orbitalZ = 4f;
+        Save(tor, "FX_Tornado");
     }
 
     static void BuildMergeBurst()

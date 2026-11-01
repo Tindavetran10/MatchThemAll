@@ -42,6 +42,26 @@ static class SfxSynth
 
     static Note[] Cat(params Note[][] parts) { var l = new List<Note>(); foreach (var p in parts) l.AddRange(p); return l.ToArray(); }
 
+    // Shift a sound later, to line up with an animation (PowerupManager plays the clip on the tap).
+    static Note[] At(float delay, Note[] notes)
+    {
+        var l = (Note[])notes.Clone();
+        for (int i = 0; i < l.Length; i++) l[i].at += delay;
+        return l;
+    }
+
+    // Crackle: short bright noise ticks spread (deterministically, golden-ratio jitter) between from and to, fading out.
+    static Note[] Ticks(float from, float to, int count, float vol, float lp)
+    {
+        var l = new Note[count];
+        for (int i = 0; i < count; i++)
+        {
+            float t = (i + Mathf.Repeat(i * .618f, 1f) * .8f) / count;
+            l[i] = N(Mathf.Lerp(from, to, t), .025f, 0, 0, Wave.Noise, vol * (1 - t * .7f), .001f, lp: lp);
+        }
+        return l;
+    }
+
     static readonly (SoundEvent id, string file, Note[] notes)[] Presets =
     {
         (SoundEvent.ButtonClick, "UI Click", new[] { N(0, .06f, 900, 1300, Wave.Triangle, .6f) }),
@@ -57,11 +77,19 @@ static class SfxSynth
             Arp(.03f, .3f, Wave.Triangle, .35f, "C6", "G6", "C7"))),
         (SoundEvent.Combo, "Combo", Arp(.05f, .12f, Wave.Square, .2f, "E6", "G6", "B6")),
         (SoundEvent.GoalComplete, "Goal Complete", new[] { N(0, .5f, Hz("E6"), -1, Wave.Sine, .45f), N(.1f, .6f, Hz("B6"), -1, Wave.Sine, .4f) }),
-        (SoundEvent.PowerupVacuum, "Powerup Vacuum", new[] { N(0, .55f, 0, 0, Wave.Noise, .3f, .08f, lp: .25f), N(0, .55f, 900, 180, Wave.Sine, .35f, .05f) }),
-        (SoundEvent.PowerupSpring, "Powerup Spring", new[] { N(0, .45f, 220, 620, Wave.Sine, .55f, vib: .12f, vibHz: 14) }),
-        (SoundEvent.PowerupFan, "Powerup Fan", new[] { N(0, .6f, 0, 0, Wave.Noise, .35f, .15f, lp: .12f), N(0, .6f, 140, 160, Wave.Triangle, .15f, .1f, vib: .05f, vibHz: 30) }),
-        (SoundEvent.PowerupFreeze, "Powerup Freeze", Cat(Arp(.04f, .45f, Wave.Sine, .25f, "B6", "F#7", "D#7", "A#7"),
-            new[] { N(0, .6f, 0, 0, Wave.Noise, .05f, .02f, lp: .9f) })),
+        // Tornado: long swelling wind (two low-passed noise layers) + a rising, wobbling hum.
+        (SoundEvent.PowerupVacuum, "Powerup Vacuum", new[] { N(0, 2.4f, 0, 0, Wave.Noise, .5f, .7f, lp: .1f), N(.3f, 2.0f, 0, 0, Wave.Noise, .22f, .5f, lp: .3f),
+            N(0, 2.4f, 110, 420, Wave.Triangle, .16f, .6f, vib: .08f, vibHz: 6) }),
+        // (.22s after the tap: when the pad springs.)
+        (SoundEvent.PowerupSpring, "Powerup Spring", At(.22f, new[] { N(0, .45f, 220, 620, Wave.Sine, .55f, vib: .12f, vibHz: 14) })),
+        (SoundEvent.SpringLand, "Spring Land", new[] { N(0, .14f, 190, 70, Wave.Sine, .75f), N(0, .06f, 0, 0, Wave.Noise, .25f, lp: .3f) }),
+        // Bomb (Fan power-up): deep boom + noise blast + rumble, then fire crackle.
+        // (.2s after the tap: the canister jiggles first.)
+        (SoundEvent.PowerupFan, "Powerup Fan", At(.2f, Cat(new[] { N(0, .9f, 95, 32, Wave.Sine, .9f, .002f), N(0, .7f, 0, 0, Wave.Noise, .75f, .001f, lp: .35f),
+            N(0, 1.3f, 0, 0, Wave.Noise, .4f, .01f, lp: .05f) }, Ticks(.25f, 1.3f, 22, .35f, .8f)))),
+        // Freeze gun: laser zap (when the gun fires, .22s after the tap), then ice crackling, then a glassy shimmer.
+        (SoundEvent.PowerupFreeze, "Powerup Freeze", At(.22f, Cat(new[] { N(0, .2f, 2600, 300, Wave.Saw, .25f), N(0, .2f, 1900, 240, Wave.Square, .1f) },
+            Ticks(.15f, .8f, 26, .3f, .95f), Arp(.05f, .6f, Wave.Sine, .16f, "B6", "F#7", "D#7", "A#7")))),
         (SoundEvent.StarPop, "Star Pop", new[] { N(0, .05f, 1200, 1900, Wave.Sine, .6f) }),
         (SoundEvent.CoinReward, "Coin", new[] { N(0, .07f, Hz("B5"), -1, Wave.Square, .25f), N(.07f, .3f, Hz("E6"), -1, Wave.Square, .25f) }),
 

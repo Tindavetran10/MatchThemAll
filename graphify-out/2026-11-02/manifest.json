@@ -264,15 +264,15 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Editor/UIOverhaul/UIOverhaulBuilder.cs": {
-    "mtime": 1793209387.816134,
-    "seen": 1793562749.6961477,
-    "ast_hash": "b83bea4da47229347a0fe979982141a8",
+    "mtime": 1793567487.263285,
+    "seen": 1793567762.8358498,
+    "ast_hash": "126369a23adf4d5589640f7c2311404c",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Editor/CartoonUIBuilder.cs": {
-    "mtime": 1793565846.0085125,
-    "seen": 1793566026.5293748,
-    "ast_hash": "a55fc467fb4508b6278d2f13d44cfb76",
+    "mtime": 1793569549.6132514,
+    "seen": 1793570250.9434338,
+    "ast_hash": "b6178913ac63faab179cd50e44d473b9",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Editor/EditorWindowStyles.cs": {
@@ -354,9 +354,9 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/Core/GameEvents.cs": {
-    "mtime": 1788780859.8509455,
-    "seen": 1792067873.7639298,
-    "ast_hash": "cb66a37587a6f6157c387f1afc345f06",
+    "mtime": 1793572653.7193751,
+    "seen": 1793573574.51497,
+    "ast_hash": "ff6a910c5f7715851c6a40a41055eb66",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/Core/GameManager.cs": {
@@ -462,9 +462,9 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/Gameplay/TimerManager.cs": {
-    "mtime": 1788780859.896756,
-    "seen": 1792067873.7639527,
-    "ast_hash": "d7aad265f5f9c5beb615afedd41eb4af",
+    "mtime": 1793572653.6751919,
+    "seen": 1793573574.5150044,
+    "ast_hash": "21dcc93493643122e3e689f2ff1e170c",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/LevelSystem/ItemLevelData.cs": {
@@ -492,9 +492,9 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/LevelSystem/LevelManager.cs": {
-    "mtime": 1788780859.9326084,
-    "seen": 1792067873.7639587,
-    "ast_hash": "9afa3492cd67bbd1103d1783de338ea7",
+    "mtime": 1793569576.3410614,
+    "seen": 1793570250.943518,
+    "ast_hash": "073a9dbf8155711fbe56654123e4a4e3",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/Pixelate/PixelizeController.cs": {
@@ -534,9 +534,9 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/PowerUps/FreezeEffect.cs": {
-    "mtime": 1788780860.003481,
-    "seen": 1792067873.7639694,
-    "ast_hash": "9e609fdd8292af13adc1ef4c7b6bbf83",
+    "mtime": 1793575446.8991838,
+    "seen": 1793575762.0284927,
+    "ast_hash": "28122dba7ba3562d1c29d24e2da0bd87",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/PowerUps/FreezeGun.cs": {
@@ -552,9 +552,9 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/PowerUps/PowerupContext.cs": {
-    "mtime": 1788780860.004093,
-    "seen": 1792067873.7639728,
-    "ast_hash": "063269e320ed6e7842c9d1e94e5c4249",
+    "mtime": 1793572664.6133618,
+    "seen": 1793573574.5150266,
+    "ast_hash": "faac5128f4514838ebab277d115bcacd",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/PowerUps/PowerupDataSO.cs": {
@@ -576,9 +576,9 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/PowerUps/PowerupManager.cs": {
-    "mtime": 1792075151.267411,
-    "seen": 1792075412.3196974,
-    "ast_hash": "91b532ba318f8746b19ba952171d0b16",
+    "mtime": 1793572664.7161674,
+    "seen": 1793573574.5150325,
+    "ast_hash": "a8a6df44fcd305dd90da6967daddee67",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/PowerUps/Spring.cs": {
@@ -804,9 +804,9 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/UI/Manager/UIManager.cs": {
-    "mtime": 1788780928.295534,
-    "seen": 1792067873.7640238,
-    "ast_hash": "827ff48d4ea9c3c3e42af3eb1d6adcee",
+    "mtime": 1793569576.4224224,
+    "seen": 1793570250.9436285,
+    "ast_hash": "9f7b7ac6bfeefe6457fc7f72d7ebcef4",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/UI/Manager/WinPanelManager.cs": {
@@ -834,15 +834,15 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/Utilities/AdManagerMock.cs": {
-    "mtime": 1788780860.187611,
-    "seen": 1792067873.7640295,
-    "ast_hash": "45c07dab57cff04cd2bff392a4956465",
+    "mtime": 1793569853.7377658,
+    "seen": 1793570250.9436376,
+    "ast_hash": "421e829ac3f4a3a864f7151533c7dc5c",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/Utilities/Enums/EGameState.cs": {
-    "mtime": 1788780928.3730812,
-    "seen": 1792067873.7640307,
-    "ast_hash": "c251c31624c24410fd6250ab6ba99f85",
+    "mtime": 1793569576.0898964,
+    "seen": 1793570250.9436398,
+    "ast_hash": "fa93930a1e05f44a838e10ed5c75f5a5",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/Utilities/Enums/EItemName.cs": {
@@ -2388,9 +2388,9 @@
     "semantic_hash": ""
   },
   "CLAUDE.md": {
-    "mtime": 1793563767.1347702,
-    "seen": 1793566026.5299525,
-    "ast_hash": "e548516a89782d97c092ef5afd1643fb",
+    "mtime": 1793575728.7424703,
+    "seen": 1793575762.028769,
+    "ast_hash": "e14a6e7a3ebc31cef6653c0621aebe2f",
     "semantic_hash": ""
   },
   "ProjectSettings/ProjectVersion.txt": {
@@ -9840,14 +9840,14 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/Sprites/Goal_Card.png": {
-    "mtime": 1793565896.2533214,
-    "seen": 1793566026.531913,
+    "mtime": 1793574576.372362,
+    "seen": 1793574842.67415,
     "ast_hash": "bfa10541a20cd14cb65e8db892167a3f",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/Sprites/Goal_Card_Back.png": {
-    "mtime": 1793565896.390359,
-    "seen": 1793566026.531915,
+    "mtime": 1793574576.5186245,
+    "seen": 1793574842.6741524,
     "ast_hash": "5d8ace812fb3a88bd99a0e92e80c5eae",
     "semantic_hash": ""
   },
@@ -9912,21 +9912,15 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/Sprites/UI/Checkmark.png": {
-    "mtime": 1793565896.5072849,
-    "seen": 1793566026.531932,
+    "mtime": 1793574576.638438,
+    "seen": 1793574842.6741805,
     "ast_hash": "c05a6282a7947c32fe6ff4235c465b2d",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/Sprites/UI/Up Arrow.png": {
-    "mtime": 1793565896.5179186,
-    "seen": 1793566026.5319335,
+    "mtime": 1793574576.6489298,
+    "seen": 1793574842.6741827,
     "ast_hash": "379384f67a890b8104693e2500c0dcd2",
-    "semantic_hash": ""
-  },
-  "Assets/MatchThemAllTemplate/Art/UI/Baked/PowerupTray.png": {
-    "mtime": 1793209639.787906,
-    "seen": 1793562749.6988335,
-    "ast_hash": "871060147c635e20b5ded27e9aae3b2f",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/UI/Gradients/BG_Game.png": {
@@ -23946,8 +23940,8 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Audio/Audio Clip/Merge.wav": {
-    "mtime": 1793208494.8298576,
-    "seen": 1793562749.7031171,
+    "mtime": 1793573205.7932377,
+    "seen": 1793573574.5212753,
     "ast_hash": "fe8ec4afa4d2ccf2b454d2c1e8f9d8ca",
     "semantic_hash": ""
   },
@@ -23958,9 +23952,9 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/Core/SoundEvent.cs": {
-    "mtime": 1792075054.3370316,
-    "seen": 1792075412.3196478,
-    "ast_hash": "4cd0f224341873260f822724ddab3a12",
+    "mtime": 1793572693.9386556,
+    "seen": 1793573574.514982,
+    "ast_hash": "29be6e60ae70a1f274215e784de491d1",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/Core/SoundLibrarySO.cs": {
@@ -23976,27 +23970,27 @@
     "semantic_hash": ""
   },
   "Assets/_AssetGen/Editor/ModelGen.cs": {
-    "mtime": 1793563589.5246654,
-    "seen": 1793563756.9879107,
-    "ast_hash": "a3966c0677e1d4cc866012e59700addb",
+    "mtime": 1793572965.3467772,
+    "seen": 1793573574.5154345,
+    "ast_hash": "b31e40061f127d1219363e6a2c57574b",
     "semantic_hash": ""
   },
   "Assets/_AssetGen/Editor/SfxSynth.cs": {
-    "mtime": 1793208430.7968316,
-    "seen": 1793562749.6966288,
-    "ast_hash": "8dfba38073e7f96d9f59643804b8c293",
+    "mtime": 1793573062.0827193,
+    "seen": 1793573574.5154366,
+    "ast_hash": "f3d8b4da5c0794226665514ddbc4e552",
     "semantic_hash": ""
   },
   "Assets/_AssetGen/Editor/SpriteGen.cs": {
-    "mtime": 1793565831.8382628,
-    "seen": 1793566026.5298862,
-    "ast_hash": "d6a7e286c5c1b6cd7eb16a212fca9071",
+    "mtime": 1793574512.835917,
+    "seen": 1793574842.6713583,
+    "ast_hash": "cff8d2b25cf8beb0fc2dba2bba183b94",
     "semantic_hash": ""
   },
   "Assets/_AssetGen/Editor/VfxGen.cs": {
-    "mtime": 1793562602.6385186,
-    "seen": 1793562749.6966321,
-    "ast_hash": "fb4bfe294c8382b2fe3522e7feb51ebb",
+    "mtime": 1793573367.924566,
+    "seen": 1793573574.5154395,
+    "ast_hash": "c4d824f5641defd2cf6e651be2265140",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/UI/Fonts/OFL.txt": {
@@ -24024,530 +24018,524 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/UI/Sprites/Backgrounds/Level Scene/Clouds Bottom.png": {
-    "mtime": 1793565895.2843788,
-    "seen": 1793566026.5319455,
+    "mtime": 1793574575.1471264,
+    "seen": 1793574842.674194,
     "ast_hash": "a7354225879f79d2d6d4765dd7a8963c",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/UI/Sprites/Backgrounds/Popup/Blue.png": {
-    "mtime": 1793565892.31828,
-    "seen": 1793566026.5319479,
+    "mtime": 1793574572.0261047,
+    "seen": 1793574842.6741967,
     "ast_hash": "204647730ce5a398abffaa3c307e949c",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/UI/Sprites/Backgrounds/Popup/Clouds.png": {
-    "mtime": 1793565892.506168,
-    "seen": 1793566026.5319495,
+    "mtime": 1793574572.2186427,
+    "seen": 1793574842.674199,
     "ast_hash": "e3b17146af544f19bd168032d3f87aa0",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/UI/Sprites/Backgrounds/Popup/Headline - Flag.png": {
-    "mtime": 1793565893.3778193,
-    "seen": 1793566026.5319512,
+    "mtime": 1793574573.1265736,
+    "seen": 1793574842.6742008,
     "ast_hash": "5eb0e7dd3d3aa86baacfea8d7d48e72b",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/UI/Sprites/Backgrounds/Popup/White.png": {
-    "mtime": 1793565892.4036887,
-    "seen": 1793566026.5319524,
+    "mtime": 1793574572.1126938,
+    "seen": 1793574842.6742032,
     "ast_hash": "3b766c4fdba8ada42c1822ae3748bc9c",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/UI/Sprites/Backgrounds/Spin Wheel/Shine.png": {
-    "mtime": 1793565895.488858,
-    "seen": 1793566026.5319543,
+    "mtime": 1793574575.3424306,
+    "seen": 1793574842.6742053,
     "ast_hash": "03e2f06aef2148103453cf6d9b68402f",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/UI/Sprites/Buttons/Circles/Blue (Teal).png": {
-    "mtime": 1793565895.5160234,
-    "seen": 1793566026.5319562,
+    "mtime": 1793574575.3693428,
+    "seen": 1793574842.6742065,
     "ast_hash": "4be5bb2f96b22d4f09cfd66d7bb09c96",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/UI/Sprites/Buttons/Circles/Blue.png": {
-    "mtime": 1793565895.54218,
-    "seen": 1793566026.5319586,
+    "mtime": 1793574575.3961112,
+    "seen": 1793574842.6742082,
     "ast_hash": "83c0a4ffaf40f235bd357fde53dcab48",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/UI/Sprites/Buttons/Circles/Green.png": {
-    "mtime": 1793565895.567904,
-    "seen": 1793566026.5319602,
+    "mtime": 1793574575.4243023,
+    "seen": 1793574842.67421,
     "ast_hash": "27659069978027b2df34a3c44679a7b0",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/UI/Sprites/Buttons/Circles/Light.png": {
-    "mtime": 1793565895.5936189,
-    "seen": 1793566026.531962,
+    "mtime": 1793574575.4536996,
+    "seen": 1793574842.6742117,
     "ast_hash": "b3fe36e05cb18dd2d1d7c4d89e164d07",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/UI/Sprites/Buttons/Circles/Orange.png": {
-    "mtime": 1793565895.6202092,
-    "seen": 1793566026.5319633,
+    "mtime": 1793574575.4795535,
+    "seen": 1793574842.6742134,
     "ast_hash": "be1e8e0e2ee41b94f5a8ea9f4afe5c57",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/UI/Sprites/Buttons/Circles/Pink.png": {
-    "mtime": 1793565895.6464396,
-    "seen": 1793566026.531965,
+    "mtime": 1793574575.50692,
+    "seen": 1793574842.6742153,
     "ast_hash": "1de5015830455b17b7a74f985bed7cb7",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/UI/Sprites/Buttons/Circles/Purple.png": {
-    "mtime": 1793565895.6725836,
-    "seen": 1793566026.531967,
+    "mtime": 1793574575.5326095,
+    "seen": 1793574842.674217,
     "ast_hash": "3783da67da9edf02e28371ebeec302e2",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/UI/Sprites/Buttons/Circles/Red.png": {
-    "mtime": 1793565895.6987042,
-    "seen": 1793566026.5319688,
+    "mtime": 1793574575.5588825,
+    "seen": 1793574842.674219,
     "ast_hash": "16742ccf085d2a10e32e37be59601e3c",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/UI/Sprites/Buttons/Circles/Teal.png": {
-    "mtime": 1793565895.7249112,
-    "seen": 1793566026.5319707,
+    "mtime": 1793574575.5849266,
+    "seen": 1793574842.6742208,
     "ast_hash": "e6a7c853258a78bde49c4d51bb817e20",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/UI/Sprites/Buttons/Circles/Yellow.png": {
-    "mtime": 1793565895.7517266,
-    "seen": 1793566026.5319726,
+    "mtime": 1793574575.612451,
+    "seen": 1793574842.6742222,
     "ast_hash": "65a36667fcdc112c393e9674de9467e2",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/UI/Sprites/Buttons/Rectangles/Blue (Teal).png": {
-    "mtime": 1793565895.7755651,
-    "seen": 1793566026.5319753,
+    "mtime": 1793574575.6346383,
+    "seen": 1793574842.674224,
     "ast_hash": "dc73bb36df049fc33fde676c90cb3087",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/UI/Sprites/Buttons/Rectangles/Green.png": {
-    "mtime": 1793565895.7986798,
-    "seen": 1793566026.5319772,
+    "mtime": 1793574575.657519,
+    "seen": 1793574842.6742256,
     "ast_hash": "50b1fcca61665d5f35e54736cd099550",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/UI/Sprites/Buttons/Rectangles/Orange.png": {
-    "mtime": 1793565895.8216085,
-    "seen": 1793566026.531979,
+    "mtime": 1793574575.6878216,
+    "seen": 1793574842.6742277,
     "ast_hash": "c7437b46a8829896046dc30991c0ca4d",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/UI/Sprites/Buttons/Rectangles/Pink.png": {
-    "mtime": 1793565895.8453588,
-    "seen": 1793566026.5319805,
+    "mtime": 1793574575.7135427,
+    "seen": 1793574842.6742296,
     "ast_hash": "b50a78f122c133e34c849af0efdd1ea6",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/UI/Sprites/Buttons/Rectangles/Shape.png": {
-    "mtime": 1793565895.873021,
-    "seen": 1793566026.5319822,
+    "mtime": 1793574575.742253,
+    "seen": 1793574842.6742313,
     "ast_hash": "a758cabe6749bf811257027be4e342f8",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/UI/Sprites/Buttons/Rectangles/Yellow.png": {
-    "mtime": 1793565895.8680024,
-    "seen": 1793566026.5319834,
+    "mtime": 1793574575.7376745,
+    "seen": 1793574842.674234,
     "ast_hash": "418ef380afa7a68cc1a91bf625d5ed9e",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/UI/Sprites/Buttons/Square/Blue.png": {
-    "mtime": 1793565895.9303553,
-    "seen": 1793566026.5319848,
+    "mtime": 1793574575.797388,
+    "seen": 1793574842.6742356,
     "ast_hash": "34d1193a764430d58197d9d1bd86292c",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/UI/Sprites/Buttons/Square/Gray.png": {
-    "mtime": 1793565895.98784,
-    "seen": 1793566026.5319865,
+    "mtime": 1793574575.855079,
+    "seen": 1793574842.674238,
     "ast_hash": "b39f21e952ef8d34f0e90d9005ed5f80",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/UI/Sprites/Buttons/Square/Light.png": {
-    "mtime": 1793565896.044884,
-    "seen": 1793566026.531988,
+    "mtime": 1793574575.9107313,
+    "seen": 1793574842.67424,
     "ast_hash": "3525618459ea7bf6d925bd20a635febd",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/UI/Sprites/Icons/Icons Colored/Badges/Crown (Border).png": {
-    "mtime": 1793565922.2558498,
-    "seen": 1793566026.5319898,
+    "mtime": 1793574604.0663443,
+    "seen": 1793574842.674242,
     "ast_hash": "4aba6779db18aef9997beb618ec6cbd8",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/UI/Sprites/Icons/Icons Colored/Basic/Settings.png": {
-    "mtime": 1793565896.914142,
-    "seen": 1793566026.531992,
+    "mtime": 1793574577.0833936,
+    "seen": 1793574842.674244,
     "ast_hash": "8e253be469b101871341170791fcc91b",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/UI/Sprites/Icons/Icons Colored/Bolt/Bolt - Blue (Border).png": {
-    "mtime": 1793565922.4825535,
-    "seen": 1793566026.5319939,
+    "mtime": 1793574604.31175,
+    "seen": 1793574842.6742456,
     "ast_hash": "caffd28cca1d0792844be09e6daf4080",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/UI/Sprites/Icons/Icons Colored/Candies/Candy - Multicolor Spiral.png": {
-    "mtime": 1793565914.7587178,
-    "seen": 1793566026.5319953,
+    "mtime": 1793574596.1584039,
+    "seen": 1793574842.6742473,
     "ast_hash": "3d4ba8fd178e46ae7315079561779424",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/UI/Sprites/Icons/Icons Colored/Coins/Coin.png": {
-    "mtime": 1793565913.2988186,
-    "seen": 1793566026.531997,
+    "mtime": 1793574594.6444273,
+    "seen": 1793574842.6742487,
     "ast_hash": "6589d40ad31ec024a8962dadddfbadd0",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/UI/Sprites/Icons/Icons Colored/Coins/Coins - Bag.png": {
-    "mtime": 1793565914.175517,
-    "seen": 1793566026.5319984,
+    "mtime": 1793574595.5779817,
+    "seen": 1793574842.6742506,
     "ast_hash": "80a010b242fdf8a0658b0ca69da3a344",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/UI/Sprites/Icons/Icons Colored/Coins/Coins - Chest.png": {
-    "mtime": 1793565914.4858701,
-    "seen": 1793566026.532,
+    "mtime": 1793574595.8866663,
+    "seen": 1793574842.6742527,
     "ast_hash": "d4a805dae782e77067bec997b159a168",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/UI/Sprites/Icons/Icons Colored/Coins/Coins x2.png": {
-    "mtime": 1793565913.4516563,
-    "seen": 1793566026.5320013,
+    "mtime": 1793574594.815668,
+    "seen": 1793574842.6742544,
     "ast_hash": "4aaa6ebaa36830ca3468bd0afdb3df1e",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/UI/Sprites/Icons/Icons Colored/Coins/Coins x3.png": {
-    "mtime": 1793565913.676008,
-    "seen": 1793566026.5320032,
+    "mtime": 1793574595.0560522,
+    "seen": 1793574842.6742563,
     "ast_hash": "a1829618d611bd0e3423395de48efcb3",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/UI/Sprites/Icons/Icons Colored/Coins/Coins x4.png": {
-    "mtime": 1793565913.9702878,
-    "seen": 1793566026.5320044,
+    "mtime": 1793574595.367212,
+    "seen": 1793574842.6742585,
     "ast_hash": "d047e1ab64e07a6c7756cbd6e4e262d5",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/UI/Sprites/Icons/Icons Colored/Commerce/Shop.png": {
-    "mtime": 1793565897.3155403,
-    "seen": 1793566026.532006,
+    "mtime": 1793574577.5131283,
+    "seen": 1793574842.67426,
     "ast_hash": "c4bcf0cf8a878e7a775ce664b2a97509",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/UI/Sprites/Icons/Icons Colored/Donuts/Donut - Blue.png": {
-    "mtime": 1793565914.681047,
-    "seen": 1793566026.5320077,
+    "mtime": 1793574596.0824063,
+    "seen": 1793574842.6742616,
     "ast_hash": "a7942b359a6653725102125ca22a1891",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/UI/Sprites/Icons/Icons Colored/Emojis/Cartoon/Big Smile - Cartoon.png": {
-    "mtime": 1793565922.5252728,
-    "seen": 1793566026.532009,
+    "mtime": 1793574604.356361,
+    "seen": 1793574842.674264,
     "ast_hash": "4652961bde6d32a6a29b3bed1f486e91",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/UI/Sprites/Icons/Icons Colored/Emojis/Cartoon/Fear - Cartoon.png": {
-    "mtime": 1793565922.8560688,
-    "seen": 1793566026.5320103,
+    "mtime": 1793574604.7160635,
+    "seen": 1793574842.6742666,
     "ast_hash": "cd8936dc1396dc8fc10e128138405760",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/UI/Sprites/Icons/Icons Colored/Emojis/Cartoon/Sad - Cartoon.png": {
-    "mtime": 1793565922.6896684,
-    "seen": 1793566026.5320117,
+    "mtime": 1793574604.5277784,
+    "seen": 1793574842.674269,
     "ast_hash": "9881a5e989adaf0c9dbbd4576e734e39",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/UI/Sprites/Icons/Icons Colored/Food/Apple.png": {
-    "mtime": 1793565914.8542607,
-    "seen": 1793566026.5320134,
+    "mtime": 1793574596.2492702,
+    "seen": 1793574842.6742706,
     "ast_hash": "db5ddd181898f7084f5151ed1082ac7e",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/UI/Sprites/Icons/Icons Colored/Food/Ice Cream.png": {
-    "mtime": 1793565915.0989585,
-    "seen": 1793566026.5320148,
+    "mtime": 1793574596.4923697,
+    "seen": 1793574842.6742725,
     "ast_hash": "4676ec344e2e43b40755fc87b23aa1ba",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/UI/Sprites/Icons/Icons Colored/Gems/Gem - Blue.png": {
-    "mtime": 1793565915.3930826,
-    "seen": 1793566026.532017,
+    "mtime": 1793574596.7907414,
+    "seen": 1793574842.6742742,
     "ast_hash": "ecdb26af0c95c7ff17db73b37f51bc93",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/UI/Sprites/Icons/Icons Colored/Gifts/Gift - Pink (Border).png": {
-    "mtime": 1793565915.7366328,
-    "seen": 1793566026.5320182,
+    "mtime": 1793574597.1404645,
+    "seen": 1793574842.674276,
     "ast_hash": "fa989db93443156046c0ae54c6f00dc8",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/UI/Sprites/Icons/Icons Colored/Gifts/Gift - Yellow (Border).png": {
-    "mtime": 1793565915.9111373,
-    "seen": 1793566026.5320199,
+    "mtime": 1793574597.3134828,
+    "seen": 1793574842.6742775,
     "ast_hash": "aeb32c0f71a94fb3e7ea119ad1a819ff",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/UI/Sprites/Icons/Icons Colored/Gifts/Gift.png": {
-    "mtime": 1793565915.5656466,
-    "seen": 1793566026.532021,
+    "mtime": 1793574596.9664133,
+    "seen": 1793574842.6742795,
     "ast_hash": "59eebd7267422d33ee7f3fbab8106d42",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/UI/Sprites/Icons/Icons Colored/Loading Spinner/Loading Spinner.png": {
-    "mtime": 1793565916.0449162,
-    "seen": 1793566026.5320225,
+    "mtime": 1793574597.4469645,
+    "seen": 1793574842.6742811,
     "ast_hash": "568b631f871e216996b161be6d516c81",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/UI/Sprites/Icons/Icons Colored/Lock - Key/Lock - Gold.png": {
-    "mtime": 1793565897.6831796,
-    "seen": 1793566026.5320244,
+    "mtime": 1793574577.886218,
+    "seen": 1793574842.6742835,
     "ast_hash": "f6ec758f5df7e7b7e8d771f9cae01a4d",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/UI/Sprites/Icons/Icons Colored/Media/Mobile.png": {
-    "mtime": 1793565898.097373,
-    "seen": 1793566026.532026,
+    "mtime": 1793574578.303521,
+    "seen": 1793574842.6742852,
     "ast_hash": "3e2e89f65091e4f0195f994d3d130133",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/UI/Sprites/Icons/Icons Colored/Media/Video.png": {
-    "mtime": 1793565898.4971502,
-    "seen": 1793566026.5320277,
+    "mtime": 1793574578.7093704,
+    "seen": 1793574842.6742868,
     "ast_hash": "e4a54a0340ef04b67bc69826803906a7",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/UI/Sprites/Icons/Icons Colored/Other/Rocket (Border).png": {
-    "mtime": 1793565916.5967708,
-    "seen": 1793566026.5320296,
+    "mtime": 1793574598.0095673,
+    "seen": 1793574842.6742887,
     "ast_hash": "5c0b1b292242c8fd1be9b593c205e598",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/UI/Sprites/Icons/Icons Colored/Potion/Potion - Blue (Border).png": {
-    "mtime": 1793565916.7437277,
-    "seen": 1793566026.5320318,
+    "mtime": 1793574598.1621082,
+    "seen": 1793574842.6742902,
     "ast_hash": "e9d627f1cf8de8b84e87310e4c140c83",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/UI/Sprites/Icons/Icons Colored/Skull/Skull (Border).png": {
-    "mtime": 1793565916.8604379,
-    "seen": 1793566026.5320337,
+    "mtime": 1793574598.290112,
+    "seen": 1793574842.6742916,
     "ast_hash": "0369b8f2a9b11aff2a762ae7fbf46883",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/UI/Sprites/Icons/Icons Colored/Speech Bubble/Speech Bubble - Right.png": {
-    "mtime": 1793565917.043629,
-    "seen": 1793566026.5320354,
+    "mtime": 1793574598.4917586,
+    "seen": 1793574842.6742935,
     "ast_hash": "2d731cd18aca66cff845f81d917aedbd",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/UI/Sprites/Icons/Icons Colored/Stars/Star Gray.png": {
-    "mtime": 1793565917.7433488,
-    "seen": 1793566026.532037,
+    "mtime": 1793574599.2503347,
+    "seen": 1793574842.6742957,
     "ast_hash": "98ae590206525e155e8338c6c1a06006",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/UI/Sprites/Icons/Icons Colored/Stars/Star Yellow.png": {
-    "mtime": 1793565917.3949523,
-    "seen": 1793566026.5320385,
+    "mtime": 1793574598.8660257,
+    "seen": 1793574842.6742976,
     "ast_hash": "6851b655c37020b8a63cf5fb29cb34d4",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/UI/Sprites/Icons/Icons Colored/Storage/Box - Brown.png": {
-    "mtime": 1793565921.0185504,
-    "seen": 1793566026.5320399,
+    "mtime": 1793574602.7339094,
+    "seen": 1793574842.6742997,
     "ast_hash": "538a25e25eec9393d9fcf60ae39a358d",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/UI/Sprites/Icons/Icons Colored/Time/Calendar.png": {
-    "mtime": 1793565921.2197075,
-    "seen": 1793566026.5320415,
+    "mtime": 1793574602.9519129,
+    "seen": 1793574842.6743011,
     "ast_hash": "ab6b8f05f4c5d0c26f6cfb6d10f1adb3",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/UI/Sprites/Icons/Icons Colored/Time/Clock - Indigo.png": {
-    "mtime": 1793565921.3318746,
-    "seen": 1793566026.5320432,
+    "mtime": 1793574603.0800543,
+    "seen": 1793574842.6743028,
     "ast_hash": "61ca54452b08bcca24e9c7e2a9a5fe8d",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/UI/Sprites/Icons/Icons Colored/Time/Clock - Yellow.png": {
-    "mtime": 1793565921.4478564,
-    "seen": 1793566026.5320446,
+    "mtime": 1793574603.1961105,
+    "seen": 1793574842.6743047,
     "ast_hash": "e9f4f8b4b47a1aacc9f892d783a359b4",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/UI/Sprites/Icons/Icons Colored/Time/Timer.png": {
-    "mtime": 1793565921.6312535,
-    "seen": 1793566026.532046,
+    "mtime": 1793574603.3907504,
+    "seen": 1793574842.6743066,
     "ast_hash": "be9b956318e54e38375e74ee7f677f25",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/UI/Sprites/Icons/Icons Colored/Tools/Magnet.png": {
-    "mtime": 1793565921.8464475,
-    "seen": 1793566026.5320475,
+    "mtime": 1793574603.6235683,
+    "seen": 1793574842.674308,
     "ast_hash": "0b76ac6042107274106594c8f011616b",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/UI/Sprites/Icons/Icons White/Arrows/Arrow - Left.png": {
-    "mtime": 1793565913.0852013,
-    "seen": 1793566026.532049,
+    "mtime": 1793574594.430692,
+    "seen": 1793574842.6743097,
     "ast_hash": "85fe51ac1fd5819d269a13b3896744ba",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/UI/Sprites/Icons/Icons White/Basic/Checkmark Cartoon.png": {
-    "mtime": 1793565913.105234,
-    "seen": 1793566026.5320506,
+    "mtime": 1793574594.4550078,
+    "seen": 1793574842.6743112,
     "ast_hash": "67d899f9f0598b08a4b2c3b852e39e71",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/UI/Sprites/Icons/Icons White/Basic/Settings.png": {
-    "mtime": 1793565913.1251385,
-    "seen": 1793566026.5320525,
+    "mtime": 1793574594.47486,
+    "seen": 1793574842.674313,
     "ast_hash": "5ef91af6b95443a7435538a5d7e28976",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/UI/Sprites/Icons/Icons White/Basic/X Icon.png": {
-    "mtime": 1793565913.1466217,
-    "seen": 1793566026.5320544,
+    "mtime": 1793574594.4952083,
+    "seen": 1793574842.6743145,
     "ast_hash": "2aff9181d15eb07c5681348a168d2df9",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/UI/Sprites/Icons/Icons White/Media/Music.png": {
-    "mtime": 1793565913.1677065,
-    "seen": 1793566026.5320559,
+    "mtime": 1793574594.5168295,
+    "seen": 1793574842.6743164,
     "ast_hash": "02c807e61ff235dba911d98973110fe2",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/UI/Sprites/Icons/Icons White/Media/Sound On.png": {
-    "mtime": 1793565913.1910174,
-    "seen": 1793566026.5320573,
+    "mtime": 1793574594.5390487,
+    "seen": 1793574842.6743176,
     "ast_hash": "ce239d4c406fdc4e0d659eafbe127501",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/UI/Sprites/Icons/Icons White/Navigation/Pause.png": {
-    "mtime": 1793565913.2150116,
-    "seen": 1793566026.5320587,
+    "mtime": 1793574594.559808,
+    "seen": 1793574842.6743188,
     "ast_hash": "6fa26f81d8dff02ce86b8395935f24a0",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/UI/Sprites/Icons/Kawaii/Lock 1536.png": {
-    "mtime": 1793565913.0602036,
-    "seen": 1793566026.5320604,
+    "mtime": 1793574594.4084942,
+    "seen": 1793574842.674321,
     "ast_hash": "a7b9c737b919b04db8e326c0530ff516",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/UI/Sprites/Icons/Kawaii/Lock 512.png": {
-    "mtime": 1793565899.9492168,
-    "seen": 1793566026.5320623,
+    "mtime": 1793574580.2663884,
+    "seen": 1793574842.6743226,
     "ast_hash": "029a33b86faa00836215defc81da9f1f",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/UI/Sprites/Icons/Kawaii/Star Currency.png": {
-    "mtime": 1793565920.9105532,
-    "seen": 1793566026.532064,
+    "mtime": 1793574602.6476722,
+    "seen": 1793574842.6743245,
     "ast_hash": "d63f9efb5e3c90e0d1e5ae9834960f6a",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/UI/Sprites/Shapes/Effects/Inner Glow - Rounded Rectangle.png": {
-    "mtime": 1793565896.0891373,
-    "seen": 1793566026.5320656,
+    "mtime": 1793574576.1741662,
+    "seen": 1793574842.6743345,
     "ast_hash": "c06f7952b69a4842b094f92627d9aef6",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/UI/Sprites/Shapes/Effects/Radial Shine.png": {
-    "mtime": 1793565896.123426,
-    "seen": 1793566026.5320675,
+    "mtime": 1793574576.2386825,
+    "seen": 1793574842.6743362,
     "ast_hash": "1e43afa74316efb75d5607e39f69c6a4",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/UI/Sprites/Shapes/Effects/Shine.png": {
-    "mtime": 1793565896.174929,
-    "seen": 1793566026.5320692,
+    "mtime": 1793574576.2916646,
+    "seen": 1793574842.6743379,
     "ast_hash": "33aea29d779268a989e039149bc46df6",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/UI/Sprites/Shapes/Shapes/Circle/Circle - 256px.png": {
-    "mtime": 1793565896.0509243,
-    "seen": 1793566026.5320709,
+    "mtime": 1793574575.9227111,
+    "seen": 1793574842.6743393,
     "ast_hash": "f6a861a44cc91e0de32b26bec35d4bc5",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/UI/Sprites/Shapes/Shapes/Circle/Circle - Cartoon.png": {
-    "mtime": 1793565896.0575354,
-    "seen": 1793566026.5320725,
+    "mtime": 1793574575.933448,
+    "seen": 1793574842.6743412,
     "ast_hash": "d51e7c1766e04ba4a443ca4bbd85351c",
     "semantic_hash": ""
   },
-  "Assets/MatchThemAllTemplate/Art/UI/Sprites/Shapes/Shapes/Circle/Circle Cartoon - With Border.png": {
-    "mtime": 1793565896.0638244,
-    "seen": 1793566026.532074,
-    "ast_hash": "d05e9437c2a47320fa2cd3a13e5b1cef",
-    "semantic_hash": ""
-  },
   "Assets/MatchThemAllTemplate/Art/UI/Sprites/Shapes/Shapes/Rectangle/Rounded Rectangle - 256px.png": {
-    "mtime": 1793565896.0704887,
-    "seen": 1793566026.532076,
+    "mtime": 1793574576.152969,
+    "seen": 1793574842.6743433,
     "ast_hash": "f6a861a44cc91e0de32b26bec35d4bc5",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/UI/Sprites/Shapes/Shapes/Rectangle/Square - Cartoon.png": {
-    "mtime": 1793565896.08082,
-    "seen": 1793566026.5320776,
+    "mtime": 1793574576.1649055,
+    "seen": 1793574842.6743453,
     "ast_hash": "16db802cf7473b36cf60ae11813025b4",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/VFX/Textures/FX_Dash.png": {
-    "mtime": 1793210311.1966438,
-    "seen": 1793562749.698951,
+    "mtime": 1793573431.657769,
+    "seen": 1793573574.5174851,
     "ast_hash": "65cf14621f7d7953698bfaffb94a7aff",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/VFX/Textures/FX_Pixel.png": {
-    "mtime": 1793210311.212387,
-    "seen": 1793562749.6989522,
+    "mtime": 1793573431.6744013,
+    "seen": 1793573574.5174885,
     "ast_hash": "0a7c44c89e94d5cfde0fba4402a7911b",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/VFX/Textures/FX_Ring.png": {
-    "mtime": 1793210311.1793272,
-    "seen": 1793562749.6989534,
+    "mtime": 1793573431.6351333,
+    "seen": 1793573574.5174897,
     "ast_hash": "81138adc082ec861cd30de8d3e8c3d50",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/VFX/Textures/FX_RingThick.png": {
-    "mtime": 1793210311.1880693,
-    "seen": 1793562749.6989546,
+    "mtime": 1793573431.6471052,
+    "seen": 1793573574.5174909,
     "ast_hash": "7949786e40e5cad52131d05e595d9de2",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/VFX/Textures/FX_Smoke.png": {
-    "mtime": 1793210311.222409,
-    "seen": 1793562749.698956,
+    "mtime": 1793573431.6839476,
+    "seen": 1793573574.5174937,
     "ast_hash": "917a729d9225392d46abd2b9b4458e4a",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/VFX/Textures/FX_Snow.png": {
-    "mtime": 1793210311.2618804,
-    "seen": 1793562749.6989572,
+    "mtime": 1793573431.7238905,
+    "seen": 1793573574.5174952,
     "ast_hash": "595278f2a8da9b5268b0d570478f5f80",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/VFX/Textures/FX_SoftDot.png": {
-    "mtime": 1793210311.1707816,
-    "seen": 1793562749.6989586,
+    "mtime": 1793573431.6276057,
+    "seen": 1793573574.5174966,
     "ast_hash": "2d063096293cfe5aace83bd9f5548bb4",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/VFX/Textures/FX_Star.png": {
-    "mtime": 1793210311.2073314,
-    "seen": 1793562749.69896,
+    "mtime": 1793573431.667936,
+    "seen": 1793573574.5174978,
     "ast_hash": "2d3d1562ee91a32d2c3f96cd34d4e463",
     "semantic_hash": ""
   },
@@ -24612,110 +24600,110 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Audio/Audio Clip/Coin.wav": {
-    "mtime": 1793208494.8893943,
-    "seen": 1793562749.7031069,
+    "mtime": 1793573206.00353,
+    "seen": 1793573574.5212643,
     "ast_hash": "047b6c4baffa1b2c0b74fb915bc32544",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Audio/Audio Clip/Combo.wav": {
-    "mtime": 1793208494.8328812,
-    "seen": 1793562749.7031083,
+    "mtime": 1793573205.7968488,
+    "seen": 1793573574.5212662,
     "ast_hash": "9d6800d31e002e1f752dda0b971cb9aa",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Audio/Audio Clip/Game Over.wav": {
-    "mtime": 1793208494.9188476,
-    "seen": 1793562749.7031097,
+    "mtime": 1793573206.0488493,
+    "seen": 1793573574.5212677,
     "ast_hash": "7d2955e7faebb67214b2ebcf6fe260a4",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Audio/Audio Clip/Goal Complete.wav": {
-    "mtime": 1793208494.840922,
-    "seen": 1793562749.7031112,
+    "mtime": 1793573205.808736,
+    "seen": 1793573574.5212693,
     "ast_hash": "c1ef575f83f678a382e9659f6ea3fb6f",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Audio/Audio Clip/Item Place.wav": {
-    "mtime": 1793208494.822304,
-    "seen": 1793562749.7031126,
+    "mtime": 1793573205.7816336,
+    "seen": 1793573574.5212705,
     "ast_hash": "9753c39c37d714a986a24974e35d8ee8",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Audio/Audio Clip/Item Select.wav": {
-    "mtime": 1793208494.8197756,
-    "seen": 1793562749.7031143,
+    "mtime": 1793573205.7785954,
+    "seen": 1793573574.5212722,
     "ast_hash": "a21289da38b6c41d88d6f60097e3cc1e",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Audio/Audio Clip/Level Complete.wav": {
-    "mtime": 1793208494.9056156,
-    "seen": 1793562749.7031152,
+    "mtime": 1793573206.0292437,
+    "seen": 1793573574.5212736,
     "ast_hash": "914c25386565ea54709f4841dd8207b1",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Audio/Audio Clip/Out Of Time.wav": {
-    "mtime": 1793208494.9243865,
-    "seen": 1793562749.7031188,
+    "mtime": 1793573206.0587955,
+    "seen": 1793573574.521277,
     "ast_hash": "9bd5bf00a79eb1e4d794d0d4db2da758",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Audio/Audio Clip/Powerup Fan.wav": {
-    "mtime": 1793208494.8701653,
-    "seen": 1793562749.7031198,
-    "ast_hash": "bdb8a92901ae9b599fb2b6a170924fe8",
+    "mtime": 1793573205.9603634,
+    "seen": 1793573574.5212781,
+    "ast_hash": "c7f438bd81fd58751d81adc7e042d562",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Audio/Audio Clip/Powerup Freeze.wav": {
-    "mtime": 1793208494.8868396,
-    "seen": 1793562749.7031214,
-    "ast_hash": "0d6c68f67719ae9938298ed0e3f77eb0",
+    "mtime": 1793573205.9980993,
+    "seen": 1793573574.5212798,
+    "ast_hash": "c49523a1dff46b0d93156308e51b1b38",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Audio/Audio Clip/Powerup Spring.wav": {
-    "mtime": 1793208494.8585145,
-    "seen": 1793562749.7031224,
-    "ast_hash": "46d1ba13d5cc66cc8a986de0df5db27a",
+    "mtime": 1793573205.9136658,
+    "seen": 1793573574.5212812,
+    "ast_hash": "963f4371fb8da0fbe45cb693ac1188f8",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Audio/Audio Clip/Powerup Vacuum.wav": {
-    "mtime": 1793208494.8539917,
-    "seen": 1793562749.7031238,
-    "ast_hash": "025ac083844e3e721790bfedf2b8c524",
+    "mtime": 1793573205.9064977,
+    "seen": 1793573574.521283,
+    "ast_hash": "01d7d89d08ea9d50f228d42ec17d6fd2",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Audio/Audio Clip/Star Pop.wav": {
-    "mtime": 1793208494.8873758,
-    "seen": 1793562749.7031252,
+    "mtime": 1793573205.9991944,
+    "seen": 1793573574.5212858,
     "ast_hash": "a23ae1092b1b6a94a678271a88da4e82",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Audio/Audio Clip/UI Click.wav": {
-    "mtime": 1793208494.7951627,
-    "seen": 1793562749.7031264,
+    "mtime": 1793573205.7423735,
+    "seen": 1793573574.5212877,
     "ast_hash": "161e6826c1113e67aba58d2e490bd51c",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Audio/Audio Clip/UI Close.wav": {
-    "mtime": 1793208494.7966752,
-    "seen": 1793562749.7031276,
+    "mtime": 1793573205.7464392,
+    "seen": 1793573574.5212889,
     "ast_hash": "70d110aeea505096ba43f5dcd64dc5b4",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Audio/Audio Clip/UI Error.wav": {
-    "mtime": 1793208494.7996898,
-    "seen": 1793562749.703129,
+    "mtime": 1793573205.7505846,
+    "seen": 1793573574.5212905,
     "ast_hash": "80f0c910d0e99e12811fd50fb5cbbd74",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Audio/Audio Clip/UI Purchase.wav": {
-    "mtime": 1793208494.805713,
-    "seen": 1793562749.7031305,
+    "mtime": 1793573205.7594767,
+    "seen": 1793573574.5212917,
     "ast_hash": "9fecd18c4afc7097e86ab962b04c0464",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Audio/Audio Clip/UI Reward.wav": {
-    "mtime": 1793208494.8197756,
-    "seen": 1793562749.7031317,
+    "mtime": 1793573205.7775362,
+    "seen": 1793573574.5212934,
     "ast_hash": "1357df6f2d95f1b3f49c171c70de18e7",
     "semantic_hash": ""
   },
@@ -24732,21 +24720,93 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/Models/Materials/T_Palette_Albedo.png": {
-    "mtime": 1793563656.978599,
-    "seen": 1793563756.988895,
-    "ast_hash": "184a9792aad189180d65cd268a527521",
+    "mtime": 1793573154.7517805,
+    "seen": 1793573574.517312,
+    "ast_hash": "f0d3549ef7c865c7568dc72add6b31b8",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/Models/Materials/T_Palette_Emission.png": {
-    "mtime": 1793563657.2096663,
-    "seen": 1793563756.9888966,
-    "ast_hash": "e3f20b5bd78de6aa467304f7ed75ca30",
+    "mtime": 1793573154.9917278,
+    "seen": 1793573574.5173142,
+    "ast_hash": "06953cea61d60ca9ea92963a8160b196",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/Models/Materials/T_Palette_MetalSmooth.png": {
-    "mtime": 1793563657.1037316,
-    "seen": 1793563756.9888973,
-    "ast_hash": "335735c0063f193c6ca61ec99348d9b5",
+    "mtime": 1793573154.9030628,
+    "seen": 1793573574.517316,
+    "ast_hash": "352bc3d1e77a8367fb518e2b74c7e405",
+    "semantic_hash": ""
+  },
+  "Assets/MatchThemAllTemplate/Scripts/Runtime/PowerUps/PowerupTrayLayout.cs": {
+    "mtime": 1793567627.0228338,
+    "seen": 1793567762.835948,
+    "ast_hash": "b525c45d2c490d18d20bd2477ba9222f",
+    "semantic_hash": ""
+  },
+  "Assets/MatchThemAllTemplate/Art/UI/Sprites/Power Up/Powerup Slot.png": {
+    "mtime": 1793574575.9819112,
+    "seen": 1793574842.6743283,
+    "ast_hash": "1929c86fec8197e4eeb9970b8d78b05e",
+    "semantic_hash": ""
+  },
+  "Assets/MatchThemAllTemplate/Art/UI/Sprites/Shapes/Badges/Amount Badge.png": {
+    "mtime": 1793574576.1442072,
+    "seen": 1793574842.6743326,
+    "ast_hash": "c2ec25dca99e3a0fab8d56ad0752e015",
+    "semantic_hash": ""
+  },
+  "Assets/MatchThemAllTemplate/Scripts/Runtime/UI/Manager/PowerupOfferPanel.cs": {
+    "mtime": 1793569630.1454053,
+    "seen": 1793570250.9436202,
+    "ast_hash": "d441c23d1ba9b931ea666c4136eaad13",
+    "semantic_hash": ""
+  },
+  "docs/decisions/2026-11-02-powerup-tray-layout.md": {
+    "mtime": 1793568103.5627158,
+    "seen": 1793570250.9441595,
+    "ast_hash": "45fab7845ae70d8875203eb5dd4d58a8",
+    "semantic_hash": ""
+  },
+  "Assets/MatchThemAllTemplate/Scripts/Runtime/VFX/FreezeFx.cs": {
+    "mtime": 1793574688.5558672,
+    "seen": 1793574842.669917,
+    "ast_hash": "b990805955c27a4a1b2bac8b174955c0",
+    "semantic_hash": ""
+  },
+  "Assets/MatchThemAllTemplate/Art/UI/Sprites/Power Up/Frost Overlay.png": {
+    "mtime": 1793574576.0629957,
+    "seen": 1793574842.674327,
+    "ast_hash": "d68eb729447874d9d1e790ca2c53d2ed",
+    "semantic_hash": ""
+  },
+  "Assets/MatchThemAllTemplate/Art/UI/Sprites/Power Up/Snowflake.png": {
+    "mtime": 1793574576.1249125,
+    "seen": 1793574842.6743305,
+    "ast_hash": "58f09fe616f63ec5a7015a775f8f66b4",
+    "semantic_hash": ""
+  },
+  "Assets/MatchThemAllTemplate/Art/VFX/Textures/FX_Beam.png": {
+    "mtime": 1793573431.731927,
+    "seen": 1793573574.5174835,
+    "ast_hash": "1be2c8d3021e72007c2bd52169709ee1",
+    "semantic_hash": ""
+  },
+  "Assets/MatchThemAllTemplate/Art/VFX/Textures/FX_Flame.png": {
+    "mtime": 1793573431.739817,
+    "seen": 1793573574.5174868,
+    "ast_hash": "4cbc054decef3f45839c604d77121093",
+    "semantic_hash": ""
+  },
+  "Assets/MatchThemAllTemplate/Art/VFX/Textures/FX_Shard.png": {
+    "mtime": 1793573431.74536,
+    "seen": 1793573574.5174923,
+    "ast_hash": "9ba0a71a8c67a35f56a811ef8ec63888",
+    "semantic_hash": ""
+  },
+  "Assets/MatchThemAllTemplate/Audio/Audio Clip/Spring Land.wav": {
+    "mtime": 1793573205.9162147,
+    "seen": 1793573574.5212843,
+    "ast_hash": "6b039c5cb3dadad2a2e1deb8c648eafe",
     "semantic_hash": ""
   }
 }

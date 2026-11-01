@@ -897,7 +897,7 @@ namespace MatchThemAll.Scripts.Editor
                 var sr = video.GetComponent<SpriteRenderer>();
                 sr.sprite = Sp("Video", "Icons Colored/Media");
                 sr.color = Color.white;
-                sr.sortingOrder = 0;
+                sr.sortingOrder = 1; // above the number badge disc (Container, order 0), which stays visible at 0 charges
                 video.transform.localScale = Vector3.one * 0.18f;
             }
             finally
