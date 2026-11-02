@@ -10,7 +10,7 @@ using UnityEngine.UI;
 namespace MatchThemAll.EditorTools
 {
     /// <summary>
-    /// Re-skins the five game scenes with the GUIPackCartoon art set.
+    /// Re-skins the five game scenes with the template's cartoon UI art set.
     /// Every step is idempotent (find-or-create by name) and restyles the EXISTING objects in place,
     /// so all serialized references and Button.onClick bindings keep working.
     /// Menu: Tools ▸ Match Them All ▸ UI Overhaul.
@@ -18,11 +18,11 @@ namespace MatchThemAll.EditorTools
     public static class UIOverhaulBuilder
     {
         // ───────────────────────────────── Paths ─────────────────────────────────
-        private const string Gui = "Assets/GUIPackCartoon/Demo/Sprites/";
+        private const string Gui = "Assets/MatchThemAllTemplate/Art/UI/Sprites/";
         private const string Art = "Assets/MatchThemAllTemplate/Art/UI/";
         private const string Scenes = "Assets/MatchThemAllTemplate/Scenes/";
         private const string NodePrefabPath = "Assets/MatchThemAllTemplate/Prefabs/UI/Level/LevelMapNode.prefab";
-        private const string FontPath = "Assets/GUIPackCartoon/Demo/Fonts/LilitaOne - Regular SDF.asset";
+        private const string FontPath = "Assets/MatchThemAllTemplate/Art/UI/Fonts/LilitaOne-Regular SDF.asset";
 
         // ──────────────────────────────── Palette ────────────────────────────────
         private static readonly Color Navy       = Hex("1B2A6B");
@@ -345,7 +345,7 @@ namespace MatchThemAll.EditorTools
             }
         }
 
-        /// <summary>Re-skins the level node prefab as glossy GUIPack circles with state art.</summary>
+        /// <summary>Re-skins the level node prefab as glossy circles with state art.</summary>
         public static void BuildNodePrefab()
         {
             var rootGo = PrefabUtility.LoadPrefabContents(NodePrefabPath);
@@ -448,35 +448,14 @@ namespace MatchThemAll.EditorTools
             fmr.receiveShadows = true;
 
             // ── Power-up tray background ──
+            // Each power-up spot carries its own "Slot Background" card and PowerupTrayLayout lays the row out,
+            // so only the old container mesh is hidden here.
             var cam = FindDeep(env.transform, "Main Camera");
             var zone = cam ? cam.Find("Powerup Zone") : null;
             if (zone)
             {
                 var old = zone.Find("Renderer");
                 if (old && old.TryGetComponent(out MeshRenderer omr)) omr.enabled = false;
-
-                // NOTE: Powerup Zone runs ItemSpotLayout over its children, so the tray lives on the camera instead.
-                var stray = zone.Find("PowerupBackground");
-                if (stray) stray.SetParent(cam, true);
-                var tray = cam.Find("PowerupBackground");
-                if (!tray)
-                {
-                    var q = GameObject.CreatePrimitive(PrimitiveType.Quad);
-                    q.name = "PowerupBackground";
-                    Object.DestroyImmediate(q.GetComponent<Collider>());
-                    q.transform.SetParent(cam, false);
-                    tray = q.transform;
-                }
-                tray.SetSiblingIndex(zone.GetSiblingIndex() + 1);
-                // Old container top face: centre (0, 8.95, 3.65), 4.65 x 1.0 on XZ.
-                tray.position = new Vector3(0f, 8.6f, 3.93f);
-                tray.rotation = Quaternion.Euler(90, 180, 0);
-                tray.localScale = new Vector3(5.3f, 1.15f, 1f);
-                var trayTex = BakePowerupTray();
-                var tmr = tray.GetComponent<MeshRenderer>();
-                tmr.sharedMaterial = UnlitTransparent("M_PowerupTray", trayTex);
-                tmr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
-                tmr.receiveShadows = false;
             }
 
             // ── HUD ──
@@ -564,7 +543,7 @@ namespace MatchThemAll.EditorTools
             Motion(rt, UISimpleMotion.Mode.Float, 10f, 0.4f, phase);
         }
 
-        /// <summary>Square GUIPack tile with an icon and a coloured label pill underneath (lobby side buttons).</summary>
+        /// <summary>Square tile with an icon and a coloured label pill underneath (lobby side buttons).</summary>
         private static void Tile(RectTransform btn, RectTransform parent, string labelName, string label, string icon, string pillSprite, Color outline, bool left)
         {
             if (!btn) return;
@@ -608,7 +587,7 @@ namespace MatchThemAll.EditorTools
             Img(c, Spr("Backgrounds/Level Scene/Clouds Bottom"), new Color(1, 1, 1, 0.95f));
         }
 
-        /// <summary>Glossy GUIPack circles scattered down the screen edges, gently floating (like gumballs).</summary>
+        /// <summary>Glossy circles scattered down the screen edges, gently floating (like gumballs).</summary>
         private static void Bubbles(RectTransform parent, int seed, int count, float alpha)
         {
             var holder = Node(parent, "Bubbles"); Stretch(holder);
@@ -869,98 +848,6 @@ namespace MatchThemAll.EditorTools
             m.globalIlluminationFlags = MaterialGlobalIlluminationFlags.None;
             EditorUtility.SetDirty(m);
             return m;
-        }
-
-        private static Material UnlitTransparent(string name, Texture2D tex)
-        {
-            EnsureFolder(Art + "Materials");
-            string p = Art + "Materials/" + name + ".mat";
-            var m = AssetDatabase.LoadAssetAtPath<Material>(p);
-            if (!m) { m = new Material(Shader.Find("Universal Render Pipeline/Unlit")); AssetDatabase.CreateAsset(m, p); }
-            m.SetTexture("_BaseMap", tex);
-            m.SetColor("_BaseColor", Color.white);
-            m.SetFloat("_Surface", 1f);   // Transparent
-            m.SetFloat("_Blend", 0f);     // Alpha
-            m.SetFloat("_SrcBlend", (float)UnityEngine.Rendering.BlendMode.SrcAlpha);
-            m.SetFloat("_DstBlend", (float)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
-            m.SetFloat("_ZWrite", 0f);
-            m.SetOverrideTag("RenderType", "Transparent");
-            m.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
-            m.renderQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent - 10;
-            EditorUtility.SetDirty(m);
-            return m;
-        }
-
-        /// <summary>
-        /// Bakes the power-up tray: renders a small GUIPack UI composition (rounded panel + 4 slots)
-        /// to a transparent PNG which is shown on a quad under the 3D power-ups.
-        /// </summary>
-        private static Texture2D BakePowerupTray()
-        {
-            EnsureFolder(Art + "Baked");
-            string p = Art + "Baked/PowerupTray.png";
-            const int W = 1060, H = 230;
-
-            var holder = new GameObject("__TrayBake");
-            holder.hideFlags = HideFlags.HideAndDontSave;
-            var camGo = new GameObject("__TrayCam"); camGo.hideFlags = HideFlags.HideAndDontSave;
-            camGo.transform.SetParent(holder.transform);
-            camGo.transform.position = new Vector3(5000, 5000, -10);
-            var cam = camGo.AddComponent<Camera>();
-            cam.orthographic = true; cam.clearFlags = CameraClearFlags.SolidColor; cam.backgroundColor = new Color(0, 0, 0, 0);
-            cam.cullingMask = 1 << 31; cam.nearClipPlane = 0.1f; cam.farClipPlane = 100f; cam.enabled = false;
-            var rtx = new RenderTexture(W, H, 24, RenderTextureFormat.ARGB32);
-            cam.targetTexture = rtx;
-
-            var cgo = new GameObject("__TrayCanvas", typeof(RectTransform)); cgo.hideFlags = HideFlags.HideAndDontSave;
-            cgo.transform.SetParent(holder.transform);
-            cgo.layer = 31;
-            var canvas = cgo.AddComponent<Canvas>();
-            canvas.renderMode = RenderMode.ScreenSpaceCamera; canvas.worldCamera = cam; canvas.planeDistance = 5;
-            var root = (RectTransform)cgo.transform;
-
-            void SetLayer(Transform t) { t.gameObject.layer = 31; foreach (Transform c in t) SetLayer(c); }
-
-            var rr = Spr("Shapes/Shapes/Rectangle/Rounded Rectangle - 256px");
-            var shadow = Node(root, "Shadow"); Stretch(shadow, 6, 6, 14, 0);
-            Img(shadow, rr, new Color(0.05f, 0.08f, 0.25f, 0.35f), type: Image.Type.Sliced, ppum: 1.15f);
-            var rim = Node(root, "Rim"); Stretch(rim, 6, 6, 6, 12);
-            Img(rim, rr, Color.white, type: Image.Type.Sliced, ppum: 1.15f);
-            var fill = Node(rim, "Fill"); Stretch(fill, 10, 10, 10, 10);
-            Img(fill, rr, Hex("3558C8"), type: Image.Type.Sliced, ppum: 1.25f);
-            var lower = Node(fill, "LowerShade"); Stretch(lower, 0, 0, 110, 0);
-            Img(lower, rr, new Color(0.15f, 0.25f, 0.7f, 0.35f), type: Image.Type.Sliced, ppum: 1.25f);
-            var gloss = Node(fill, "Gloss"); Stretch(gloss, 22, 22, 10, 120);
-            Img(gloss, rr, new Color(1, 1, 1, 0.16f), type: Image.Type.Sliced, ppum: 2.2f);
-            // Four slots centred under the power-ups (spot X = ±0.58, ±1.73 on a 5.3-wide tray).
-            float[] xs = { -1.73f, -0.58f, 0.58f, 1.73f };
-            for (int i = 0; i < xs.Length; i++)
-            {
-                var slot = Node(fill, "Slot" + i);
-                float nx = 0.5f + xs[i] / 5.3f * (W / (W - 32f));
-                Place(slot, new Vector2(nx, 0.5f), Center, new Vector2(0, -2), new Vector2(180, 180));
-                Img(slot, Spr("Shapes/Shapes/Circle/Circle - 256px"), new Color(0.75f, 0.88f, 1f, 0.28f), preserve: true);
-                var ring = Node(slot, "Ring"); Stretch(ring, -6, -6, -6, -6);
-                Img(ring, Spr("Shapes/Shapes/Circle/Circle Cartoon - With Border"), new Color(1, 1, 1, 0.3f), preserve: true);
-            }
-            SetLayer(root);
-            Canvas.ForceUpdateCanvases();
-            cam.Render();
-            var prev = RenderTexture.active; RenderTexture.active = rtx;
-            var tex = new Texture2D(W, H, TextureFormat.RGBA32, false);
-            tex.ReadPixels(new Rect(0, 0, W, H), 0, 0); tex.Apply();
-            RenderTexture.active = prev;
-            File.WriteAllBytes(p, tex.EncodeToPNG());
-            Object.DestroyImmediate(tex);
-            cam.targetTexture = null; rtx.Release(); Object.DestroyImmediate(rtx);
-            Object.DestroyImmediate(holder);
-
-            AssetDatabase.ImportAsset(p, ImportAssetOptions.ForceUpdate);
-            var imp = (TextureImporter)AssetImporter.GetAtPath(p);
-            imp.textureType = TextureImporterType.Default; imp.alphaIsTransparency = true; imp.mipmapEnabled = true; imp.npotScale = TextureImporterNPOTScale.None;
-            imp.wrapMode = TextureWrapMode.Clamp; imp.textureCompression = TextureImporterCompression.CompressedHQ;
-            imp.SaveAndReimport();
-            return AssetDatabase.LoadAssetAtPath<Texture2D>(p);
         }
     }
 }

@@ -551,7 +551,7 @@ namespace MatchThemAll.Scripts.Editor
         // ═════════════════════════════════════════════════════════════════════
 
         private const string Tpl = "Assets/MatchThemAllTemplate/Audio/Audio Clip/";
-        private const string Gui = "Assets/GUIPackCartoon/Demo/Sounds/";
+        private const string Music = "Assets/MatchThemAllTemplate/Audio/Music/";
 
         /// <summary>Creates Resources/Sound/SoundLibrary.asset (pre-filled from the bundled clips) and the SoundManager prefab.</summary>
         public static void CreateDefaultLibrary()
@@ -574,27 +574,27 @@ namespace MatchThemAll.Scripts.Editor
             // event → (clip, volume, pitchMin, pitchMax)
             var defaults = new Dictionary<SoundEvent, (string clip, float vol, float p0, float p1)>
             {
-                [SoundEvent.ButtonClick] = (Gui + "Button.wav", 0.8f, 0.95f, 1.05f),
-                [SoundEvent.ButtonClose] = (Gui + "Close.wav", 0.8f, 1f, 1f),
-                [SoundEvent.Error] = (Gui + "Button - Low.wav", 0.8f, 1f, 1f),
-                [SoundEvent.PurchaseSuccess] = (Gui + "Coins.wav", 1f, 1f, 1f),
-                [SoundEvent.RewardClaim] = (Gui + "Magical.wav", 1f, 1f, 1f),
-                [SoundEvent.ItemSelect] = (Tpl + "Item Selected.wav", 0.7f, 0.95f, 1.1f),
-                [SoundEvent.ItemPlace] = (Tpl + "Item Placed.wav", 0.8f, 0.95f, 1.05f),
+                [SoundEvent.ButtonClick] = (Tpl + "UI Click.wav", 0.8f, 0.95f, 1.05f),
+                [SoundEvent.ButtonClose] = (Tpl + "UI Close.wav", 0.8f, 1f, 1f),
+                [SoundEvent.Error] = (Tpl + "UI Error.wav", 0.8f, 1f, 1f),
+                [SoundEvent.PurchaseSuccess] = (Tpl + "UI Purchase.wav", 1f, 1f, 1f),
+                [SoundEvent.RewardClaim] = (Tpl + "UI Reward.wav", 1f, 1f, 1f),
+                [SoundEvent.ItemSelect] = (Tpl + "Item Select.wav", 0.7f, 0.95f, 1.1f),
+                [SoundEvent.ItemPlace] = (Tpl + "Item Place.wav", 0.8f, 0.95f, 1.05f),
                 [SoundEvent.Merge] = (Tpl + "Merge.wav", 1f, 1f, 1f),
-                [SoundEvent.Combo] = (Gui + "Magical.wav", 0.8f, 1.15f, 1.35f),
-                [SoundEvent.GoalComplete] = (Tpl + "Item Complete.wav", 1f, 1f, 1f),
-                [SoundEvent.PowerupVacuum] = (Gui + "Magical.wav", 0.9f, 0.9f, 0.9f),
-                [SoundEvent.PowerupSpring] = (Gui + "Button - High.wav", 1f, 1.1f, 1.1f),
-                [SoundEvent.PowerupFan] = (Gui + "Close.wav", 1f, 0.7f, 0.7f),
-                [SoundEvent.PowerupFreeze] = (Gui + "Magical.wav", 1f, 0.75f, 0.75f),
-                [SoundEvent.StarPop] = (Gui + "Button - High.wav", 0.9f, 1.1f, 1.4f),
-                [SoundEvent.CoinReward] = (Gui + "Coins.wav", 1f, 1f, 1f),
-                [SoundEvent.LevelComplete] = (Gui + "Win.wav", 1f, 1f, 1f),
-                [SoundEvent.GameOver] = (Gui + "Lose - Thunder.wav", 1f, 1f, 1f),
-                [SoundEvent.OutOfTime] = (Gui + "Button - Low.wav", 1f, 0.8f, 0.8f),
-                [SoundEvent.MusicMenu] = (Gui + "Background Music.wav", 0.5f, 1f, 1f),
-                [SoundEvent.MusicGame] = (Gui + "Background Music.wav", 0.5f, 1f, 1f),
+                [SoundEvent.Combo] = (Tpl + "Combo.wav", 0.8f, 1.15f, 1.35f),
+                [SoundEvent.GoalComplete] = (Tpl + "Goal Complete.wav", 1f, 1f, 1f),
+                [SoundEvent.PowerupVacuum] = (Tpl + "Powerup Vacuum.wav", 0.9f, 0.9f, 0.9f),
+                [SoundEvent.PowerupSpring] = (Tpl + "Powerup Spring.wav", 1f, 1.1f, 1.1f),
+                [SoundEvent.PowerupFan] = (Tpl + "Powerup Fan.wav", 1f, 0.7f, 0.7f),
+                [SoundEvent.PowerupFreeze] = (Tpl + "Powerup Freeze.wav", 1f, 0.75f, 0.75f),
+                [SoundEvent.StarPop] = (Tpl + "Star Pop.wav", 0.9f, 1.1f, 1.4f),
+                [SoundEvent.CoinReward] = (Tpl + "Coin.wav", 1f, 1f, 1f),
+                [SoundEvent.LevelComplete] = (Tpl + "Level Complete.wav", 1f, 1f, 1f),
+                [SoundEvent.GameOver] = (Tpl + "Game Over.wav", 1f, 1f, 1f),
+                [SoundEvent.OutOfTime] = (Tpl + "Out Of Time.wav", 1f, 0.8f, 0.8f),
+                [SoundEvent.MusicMenu] = (Music + "Music Menu - Flowerbed Fields.ogg", 0.5f, 1f, 1f),
+                [SoundEvent.MusicGame] = (Music + "Music Game - Loop Town.ogg", 0.5f, 1f, 1f),
             };
 
             lib.entries ??= new List<SoundLibrarySO.Entry>();

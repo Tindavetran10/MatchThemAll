@@ -53,33 +53,37 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 ================================================================================
-SimpleFX - Cartoon Particle Effects
+LilitaOne font
+  Assets/MatchThemAllTemplate/Art/UI/Fonts/LilitaOne-Regular.ttf (+ generated SDF asset)
 ================================================================================
-License: Unity Asset Store Free Asset
-Source: https://assetstore.unity.com/packages/vfx/particles/simplefx-cartoon-particle-effects-143334
+Copyright (c) 2011 Juan Montoreano, with Reserved Font Name Lilita.
+License: SIL Open Font License, Version 1.1 (full text in Art/UI/Fonts/OFL.txt)
+Source: https://github.com/google/fonts/tree/main/ofl/lilitaone
 
 ================================================================================
-UI Essential Pack
+Kenney Game Icons (glyph shapes used for a few UI icons)
 ================================================================================
-License: Unity Asset Store Free Asset
-Source: https://assetstore.unity.com/packages/tools/gui/ui-essential-pack-132891
+Author: Kenney (www.kenney.nl)
+License: Creative Commons Zero (CC0 1.0) - public domain, credit not required
+Source: https://kenney.nl/assets/game-icons
 
 ================================================================================
-Fonts: Roboto
+Music
+  Audio/Music/Music Menu - Flowerbed Fields.ogg
+  Audio/Music/Music Game - Loop Town.ogg
 ================================================================================
-License: Apache License, Version 2.0
-Source: https://fonts.google.com/specimen/Roboto
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+"Flowerbed Fields [Loop]" by Zane Little Music - https://opengameart.org/content/flowerbed-fields-loop
+"Loop Town" by fupi - https://opengameart.org/content/loop-town
+License: Creative Commons Zero (CC0 1.0) - public domain, credit not required
 
-    http://www.apache.org/licenses/LICENSE-2.0
+================================================================================
+External dependencies (NOT included in this package - install separately)
+================================================================================
+PrimeTween by Kyrylo Kuzyk - free on the Unity Asset Store (search "PrimeTween")
+ZLinq by Cysharp - installed via the Package Manager from https://github.com/Cysharp/ZLinq (MIT, see above)
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+All other art (UI sprites, icons, 3D models, particle textures, VFX) and all sound effects were
+created for this template by TindaStudios.
 
 --------------------------------------------------------------------------------
 Credits

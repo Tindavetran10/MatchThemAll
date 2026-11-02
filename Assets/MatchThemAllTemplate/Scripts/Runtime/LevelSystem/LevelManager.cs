@@ -221,10 +221,12 @@ namespace MatchThemAll.Scripts
             {
                 // Only spawn a fresh level when transitioning from a non-pause and non-continue state.
                 // Resuming from PAUSED or TIMEOUT should never re-spawn the current level.
-                case EGameState.GAME when GameManager.Instance.PreviousState != EGameState.PAUSED && GameManager.Instance.PreviousState != EGameState.OUTOFTIME:
+                case EGameState.GAME when GameManager.Instance.PreviousState != EGameState.PAUSED
+                                          && GameManager.Instance.PreviousState != EGameState.OUTOFTIME
+                                          && GameManager.Instance.PreviousState != EGameState.POWERUPOFFER:
                     SpawnLevel();
                     break;
-                case EGameState.GAME: // resuming from pause/out of time — do nothing, level already exists
+                case EGameState.GAME: // resuming from pause/out of time/power-up popup — do nothing, level already exists
                     break;
                 case EGameState.LEVELCOMPLETE:
                     // Stars are saved by WinPanelManager after calculating time remaining
@@ -233,6 +235,7 @@ namespace MatchThemAll.Scripts
                 case EGameState.GAMEOVER:
                 case EGameState.PAUSED:
                 case EGameState.OUTOFTIME:
+                case EGameState.POWERUPOFFER:
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(evt.NewState), evt.NewState, null);

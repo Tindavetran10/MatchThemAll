@@ -23,6 +23,7 @@ namespace MatchThemAll.Scripts.Power_Ups
         public ParticleSystem EndVfx;          // from the activating SO (optional)
         public Transform FanOrigin;            // fan object's transform (nullable)
         public Transform FreezeMuzzle;          // freeze gun muzzle transform (nullable)
+        public Transform Source;                // the tapped power-up's prop in the tray (gun, pad, canister…; nullable)
 
         public Action<Item> OnItemPickup;
         public Action<Item> OnItemBackToGame;

@@ -16,7 +16,7 @@ Before implementing:
 - If multiple interpretations exist, present them — don't pick silently.
 - If a simpler approach exists, say so. Push back when warranted.
 - If something is unclear, stop. Name what's confusing. Ask.
-- For Unity-specific tasks, verify the API exists via `unity_reflect` or `unity_docs` before writing code — training data may be stale.
+- For Unity-specific tasks, verify the API exists (Unity docs, or reflection via `Unity_RunCommand`) before writing code — training data may be stale.
 
 ---
 
@@ -142,6 +142,23 @@ These classes have the most edges in the graph. Changes here have wide ripple ef
 - LINQ is replaced with ZLinq (`AsValueEnumerable()`) in hot paths — maintain this pattern in new code inside managers
 - Avoid allocations in `Update()` / per-frame callbacks
 
+### Known Pitfalls
+- Item/prop models must stay **one submesh + one material** (`M_Palette`, built by `Tools ▸ AssetGen ▸ Generate Models`). `Item.Select` swaps in `[baseMaterial, outline]`, so a multi-material renderer loses its colours when tapped/hinted.
+- Unity MCP `RunCommand` refuses `AssetDatabase.DeleteAsset(s)` ("user interaction"). Delete with `git rm` (file + `.meta`), then `AssetDatabase.Refresh()`.
+- **Verify the real state path, never a forced one.** For anything that depends on game state (e.g. the video icon at 0 charges), reproduce the state through gameplay/`SaveManager` (drain charges with `UsePowerupCharge`) and tap through `PowerupClickedEvent` — don't just `SetActive(true)` the object. If something looks hidden or wrong during a check, it is a bug until proven otherwise; never write it off as "expected". Record and restore any save data a test changes, then call `SaveManager.Flush()` — stopping Play mode from a tool does not reliably write the save, so an unflushed restore is silently lost.
+- **Merging stacked sprites keeps the top layer's sorting order.** When collapsing several SpriteRenderers into one baked sprite, give it the highest order of the old stack, and check every sibling at the same position. `Video Icon` (order 1) must stay above `Container` (order 0), which is never hidden at 0 charges.
+- **No silent spending.** Anything that costs currency must be an explicit player choice (`PowerupOfferPanel` popup), never an automatic fallback inside a click handler.
+- **Adding an `EGameState`:** audit every `GameStateChangedEvent` subscriber. `LevelManager` throws on unknown states and only skips the level re-spawn for the states it lists; `TimerManager` must only resume a timer that was actually running (frozen / tutorial-paused / level not started).
+- **`AdManagerMock` bootstraps itself** (`RuntimeInitializeOnLoadMethod`) — no scene contains it. Never assume a manager exists because a script references it; grep scenes/prefabs for its script GUID.
+- **Capturing Play-mode checks:** `ScreenCapture.CaptureScreenshot` silently writes nothing unless the Game view is the visible tab, and `EditorApplication.update` timers can stall while Unity is unfocused. Time captures with a coroutine on a scene object (`VfxPool.Instance.StartCoroutine`), render `Camera.main` into a RenderTexture for images, and prefer numeric checks (e.g. barrel-vs-laser angle). `RunCommand` scripts can't reference PrimeTween. Make sure the level isn't OUTOFTIME (60 s levels) before tapping.
+- In Unity MCP `RunCommand` scripts, `Image` resolves to the AI Assistant's `Unity.AI.Image` namespace — alias it: `using UiImage = UnityEngine.UI.Image;`.
+- Power-up VFX are generated (`Tools ▸ AssetGen ▸ Generate Powerup FX`) and the `Powerup_*.asset` / `FreezeOverlay` references point into them. Regenerating keeps the prefab GUIDs and internal IDs (checked), but use *Generate Powerup FX*, not *Generate VFX*, unless you also mean to rebuild `FX_MergeBurst`.
+- **No leftover objects after a model swap.** When replacing a model, delete the old model's empty children (e.g. `Cylinder.074` under the freeze blaster) unless something references them — and if a point is needed (gun tip), name it for its job (`Muzzle`). Grep for references before deleting.
+- **Layering: overlay UI always draws over 3D.** Anything full-screen that must sit *behind* some 3D objects (e.g. the freeze frost behind the ice spheres and tray) needs its own Screen Space - Camera canvas with a `planeDistance` between them (`FreezeOverlay`: 10.6). Animated tray props must move toward the camera (tray-local -Z) to clear the item spots (camera-local z 4) — see `FreezeEffect.shootLift`.
+- Don't use `??` / `?.` on `UnityEngine.Object`s (`GetComponent<T>() ?? AddComponent<T>()` never adds — Unity's fake null isn't C# null). Use `TryGetComponent`.
+- **Asset references belong on the prefab, scene references on the instance.** After `SaveAsPrefabAssetAndConnect`, references you set on the scene object are only instance overrides — new copies of the prefab come without them. Set asset references (other prefabs, sprites, VFX) on the prefab asset itself (`FreezeOverlay` once shipped with null ice-sphere/shatter refs this way); only scene objects (e.g. the HUD bar) stay as instance overrides.
+- **Repeated scene objects must be prefab instances.** When the same object goes into several places (e.g. one `Slot Background` per power-up spot), save it once as a prefab (`PrefabUtility.SaveAsPrefabAsset`) and place instances (`PrefabUtility.InstantiatePrefab`) — never `new GameObject` copies per place. Copies drift and must be edited one by one.
+
 ---
 
 ## 8. Community Map (key communities)
@@ -196,30 +213,27 @@ When you make an architectural decision, log it in Obsidian under `docs/decision
 
 ## 11. Unity Plugin Skills
 
-This project has the official Unity plugin for Claude Code installed with 29+ skills.
+Only Unity's official tooling is installed: the `unity@unity-agent-plugin` plugin (skills such as `unity:ui-ugui`, `unity:urp-postprocessing`) and the official `unity-mcp` server (relay from `com.unity.ai.assistant`).
 
 **Use Unity MCP tools BEFORE writing custom code** — many common tasks are already covered:
 
-| Task | Skill/Command |
+| Task | Tool (`mcp__unity-mcp__…`) |
 |------|---------------|
-| Find GameObjects | `find_gameobjects`, `find_gameobjects_tag`, `find_gameobjects_by_name` |
-| Create/Modify objects | `gameobject-create`, `gameobject-modify` |
-| Add components | `gameobject-component-add`, `script-update-or-create` |
-| Asset operations | `assets-*` (find, copy, move, delete, material-create, prefab-*) |
-| Animation | `animation-*`, `animator-*` |
-| Scene ops | `scene-open`, `scene-save`, `scene-get-data` |
-| Package management | `package-add`, `package-list`, `package-search` |
-| Profiler | `profiler-*` (memory, rendering, script stats) |
-| Screenshots | `screenshot-scene-view`, `screenshot-game-view` |
-| Console logs | `console-get-logs`, `console-clear-logs` |
-| Run tests | `tests-run` |
+| GameObjects | `Unity_ManageGameObject` |
+| Scenes | `Unity_ManageScene` |
+| Assets / prefabs | `Unity_ManageAsset`, `Unity_FindProjectAssets` |
+| Scripts | `Unity_CreateScript`, `Unity_ScriptApplyEdits`, `Unity_ValidateScript` |
+| Packages | `Unity_PackageManager_GetData`, `Unity_PackageManager_ExecuteAction` |
+| Profiler | `Unity_Profiler_*` |
+| Screenshots | `Unity_Camera_Capture`, `Unity_SceneView_Capture2DScene` |
+| Console logs | `Unity_ReadConsole`, `Unity_GetConsoleLogs` |
+| Editor state / play mode | `Unity_ManageEditor` |
+| Anything else (incl. API reflection) | `Unity_RunCommand` |
 
 **Quick workflow:**
-1. Check editor state: `editor-application-get-state`
-2. Find existing assets/objects via Unity skills
-3. Only write custom code when no existing skill covers it
-
-**Full skill list:** Run `/skill-doctor` or check `.claude/settings.json` → `skills`.
+1. Check editor state: `Unity_ManageEditor`
+2. Find existing assets/objects via the tools above
+3. Only write custom code when no existing tool covers it
 
 ---
 

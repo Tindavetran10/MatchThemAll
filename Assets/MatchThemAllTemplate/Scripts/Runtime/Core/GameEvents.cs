@@ -56,6 +56,23 @@ namespace MatchThemAll.Scripts
         public PowerupClickedEvent(PowerupDataSO powerup) => Powerup = powerup;
     }
 
+    /// <summary>The Freeze power-up stopped the clock for Duration seconds of play time.</summary>
+    public struct TimerFrozenEvent
+    {
+        public float Duration;
+        public TimerFrozenEvent(float duration) => Duration = duration;
+    }
+
+    /// <summary>The freeze ended (ran out, or the level ended/restarted).</summary>
+    public struct TimerUnfrozenEvent { }
+
+    /// <summary>A power-up with 0 charges was tapped: ask the player to pay coins or watch an ad for one.</summary>
+    public struct PowerupOfferRequestedEvent
+    {
+        public PowerupDataSO Powerup;
+        public PowerupOfferRequestedEvent(PowerupDataSO powerup) => Powerup = powerup;
+    }
+
     public struct PowerupItemPickedUpEvent
     {
         public Item PickedItem;

@@ -28,7 +28,10 @@ A fully-featured, mobile-ready match-3 game template for Unity. Built for beginn
 - **URP (Universal Render Pipeline):** Required
 - **Input System:** Required
 - **TextMesh Pro:** Required
+- **PrimeTween:** Required, not included (free on the Unity Asset Store)
+- **ZLinq:** Required, not included (Package Manager → Add package from git URL: `https://github.com/Cysharp/ZLinq.git?path=src/ZLinq.Unity/Assets/ZLinq.Unity`)
 - For detailed setup instructions, see `Documentation/SYSTEM_REQUIREMENTS.md`
+- Third-party licenses and credits: `THIRD_PARTY_NOTICES.txt`
 
 ## Package Structure
 

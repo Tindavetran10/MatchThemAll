@@ -92,15 +92,11 @@ namespace MatchThemAll.Scripts
             var ctx = BuildContext(so);
             if (!so.Effect.CanActivate(ctx)) return;
 
-            // Use a charge; if none, buy one with the SO's currency/cost.
+            // Use a charge; if none, let the player choose coins or an ad (PowerupOfferPanel) — never spend silently.
             if (!SaveManager.UsePowerupCharge(so.id))
             {
-                if (!SaveManager.Spend(so.buyCurrency, so.buyCost))
-                {
-                    SoundManager.Sfx(SoundEvent.Error);
-                    Debug.Log($"Not enough {so.buyCurrency} to buy {so.id}! Needs {so.buyCost}.");
-                    return;
-                }
+                EventBus.Publish(new PowerupOfferRequestedEvent(so));
+                return;
             }
 
             SoundManager.Sfx(so.id switch
@@ -163,10 +159,20 @@ namespace MatchThemAll.Scripts
                 EndVfx = so.EndVfx,
                 FanOrigin = fanOrigin,
                 FreezeMuzzle = freezeMuzzle,
+                Source = FindSource(so),
                 OnItemPickup = InvokeItemPickup,
                 OnItemBackToGame = InvokeItemBackToGame,
                 SetBusy = busy => _isBusy = busy,
             };
+        }
+
+        /// <summary>The tray prop (the Powerup's own transform) for this power-up, so effects can animate it.</summary>
+        private Transform FindSource(PowerupDataSO so)
+        {
+            if (_powerupUIElements == null) return null;
+            foreach (var pu in _powerupUIElements)
+                if (pu && pu.Data == so) return pu.transform;
+            return null;
         }
 
         private void InvokeItemPickup(Item item) => OnItemPickup?.Invoke(item);
@@ -184,20 +190,6 @@ namespace MatchThemAll.Scripts
                 pu.UpdateVisuals(count, locked);
             }
         }
-
-#if UNITY_EDITOR
-        private void OnDrawGizmosSelected()
-        {
-            // Spring trajectory preview, read from the SpringEffect on the spring SO.
-            if (database == null) return;
-            PowerupDataSO springSo = database.FindById("spring");
-            if (springSo == null || !(springSo.Effect is SpringEffect spring)) return;
-
-            ItemSpot spot = FindAnyObjectByType<ItemSpot>();
-            Vector3 startPos = spot != null ? spot.transform.position : transform.position;
-            spring.DrawGizmos(startPos);
-        }
-#endif
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
         // ── Debug: force-activate (bypasses unlock level + cost) ──────────

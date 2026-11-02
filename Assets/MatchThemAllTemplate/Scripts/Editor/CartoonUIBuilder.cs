@@ -15,7 +15,7 @@ using UnityEngine.UI;
 namespace MatchThemAll.Scripts.Editor
 {
     /// <summary>
-    /// Builds the GUIPackCartoon-styled panels (popup frame, headline flag, X close button, colored
+    /// Builds the cartoon-styled panels (popup frame, headline flag, X close button, colored
     /// rectangle buttons, rounded cards) for the Lobby and Main scenes. Existing root components and
     /// script references are kept; only the visual children are rebuilt. Re-runnable.
     ///
@@ -25,8 +25,8 @@ namespace MatchThemAll.Scripts.Editor
     public static class CartoonUIBuilder
     {
         // ── Paths ────────────────────────────────────────────────────────────
-        private const string PACK_SPRITES = "Assets/GUIPackCartoon/Demo/Sprites";
-        private const string FONT_PATH = "Assets/GUIPackCartoon/Demo/Fonts/LilitaOne - Regular SDF.asset";
+        private const string PACK_SPRITES = "Assets/MatchThemAllTemplate/Art/UI/Sprites";
+        private const string FONT_PATH = "Assets/MatchThemAllTemplate/Art/UI/Fonts/LilitaOne-Regular SDF.asset";
         private const string FONT_MAT_DIR = "Assets/MatchThemAllTemplate/Art/UI/Fonts";
         private const string PREFAB_DIR = "Assets/MatchThemAllTemplate/Prefabs/UI";
         private const string DAILY_PREFAB = PREFAB_DIR + "/DailyRewardPanel.prefab";
@@ -57,7 +57,7 @@ namespace MatchThemAll.Scripts.Editor
         private static string[] _spritePaths;
         private static readonly Dictionary<string, Sprite> SpriteCache = new();
 
-        /// <summary>Loads a GUIPack sprite by file name; <paramref name="hint"/> disambiguates same-named files by folder.</summary>
+        /// <summary>Loads a UI sprite by file name; <paramref name="hint"/> disambiguates same-named files by folder.</summary>
         private static Sprite Sp(string name, string hint = null)
         {
             string key = name + "|" + hint;
@@ -75,7 +75,7 @@ namespace MatchThemAll.Scripts.Editor
                 SpriteCache[key] = s;
                 return s;
             }
-            throw new Exception($"[CartoonUI] GUIPack sprite '{name}' (hint '{hint}') not found.");
+            throw new Exception($"[CartoonUI] UI sprite '{name}' (hint '{hint}') not found.");
         }
 
         private static RectTransform Rt(Transform parent, string name)
@@ -800,7 +800,7 @@ namespace MatchThemAll.Scripts.Editor
             SavePrefab(root, SHOP_PREFAB);
         }
 
-        /// <summary>The shop products ship without icons; fill empty ones with matching GUIPack art so cards aren't blank.</summary>
+        /// <summary>The shop products ship without icons; fill empty ones with matching art so cards aren't blank.</summary>
         private static void AssignShopProductIcons()
         {
             var map = new Dictionary<string, Sprite>
@@ -849,38 +849,22 @@ namespace MatchThemAll.Scripts.Editor
 
         private const string POWERUP_PREFAB_DIR = PREFAB_DIR + "/Power Up";
 
-        private static SpriteRenderer WorldSprite(Transform parent, string name, Sprite s, Color c, int order, Vector3 pos, float scale)
-        {
-            var go = new GameObject(name);
-            go.transform.SetParent(parent, false);
-            go.transform.localPosition = pos;
-            go.transform.localScale = Vector3.one * scale;
-            var sr = go.AddComponent<SpriteRenderer>();
-            sr.sprite = s;
-            sr.color = c;
-            sr.sortingOrder = order;
-            return sr;
-        }
-
         /// <summary>
         /// Restyles the three prefabs behind each power-up's counter: the badge disc (Container), the number
         /// (Amount Text) and the "watch a video" badge (Video Icon). Positions/scales on the scene instances are untouched.
         /// </summary>
         public static void BuildPowerupBadges()
         {
-            var ring = Sp("Circle - Cartoon");
 
-            // Number badge: white ring + red disc + soft shadow (the pack's "Amount Circle - Red").
+            // Number badge: white ring + red disc + soft shadow, baked into one sprite (single SpriteRenderer).
             var container = PrefabUtility.LoadPrefabContents(POWERUP_PREFAB_DIR + "/Container.prefab");
             try
             {
                 Clear(container.transform);
                 var sr = container.GetComponent<SpriteRenderer>();
-                sr.sprite = ring;
+                sr.sprite = Sp("Amount Badge", "Shapes/Badges");
                 sr.color = Color.white;
                 sr.sortingOrder = 0;
-                WorldSprite(container.transform, "Shadow", ring, new Color(0, 0, 0, 0.2f), -1, new Vector3(0, -0.14f, 0), 1f);
-                WorldSprite(container.transform, "Fill", ring, new Color32(0xFF, 0x51, 0x69, 255), 1, Vector3.zero, 0.82f);
             }
             finally
             {
@@ -904,20 +888,17 @@ namespace MatchThemAll.Scripts.Editor
                 PrefabUtility.UnloadPrefabContents(amount);
             }
 
-            // Shown instead of the number when the player has none: the project's video icon on a light badge.
+            // Shown instead of the number when the player has none: the video badge (shadow, rim, disc and
+            // clapperboard baked into one sprite, so it is a single SpriteRenderer).
             var video = PrefabUtility.LoadPrefabContents(POWERUP_PREFAB_DIR + "/Video Icon.prefab");
             try
             {
                 Clear(video.transform);
-                var clapper = video.GetComponent<SpriteRenderer>().sprite;
                 var sr = video.GetComponent<SpriteRenderer>();
-                sr.sprite = ring;
+                sr.sprite = Sp("Video", "Icons Colored/Media");
                 sr.color = Color.white;
-                sr.sortingOrder = 0;
+                sr.sortingOrder = 1; // above the number badge disc (Container, order 0), which stays visible at 0 charges
                 video.transform.localScale = Vector3.one * 0.18f;
-                WorldSprite(video.transform, "Shadow", ring, new Color(0, 0, 0, 0.2f), -1, new Vector3(0, -0.14f, 0), 1f);
-                WorldSprite(video.transform, "Fill", ring, CardBg, 1, Vector3.zero, 0.82f);
-                WorldSprite(video.transform, "Clapper", clapper, Color.white, 2, Vector3.zero, 1.1f);
             }
             finally
             {

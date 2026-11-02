@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: remove_ads
   displayName: Remove Ads
-  icon: {fileID: 21300000, guid: 246c2111de92f40a094db1d7ec912f2e, type: 3}
+  icon: {fileID: 21300000, guid: 73664879dccb2094292c6a133edcdfa5, type: 3}
   tabId: offers
   priceCurrency: 1
   priceAmount: 200
