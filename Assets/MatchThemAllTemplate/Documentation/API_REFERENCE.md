@@ -329,31 +329,37 @@ public class GameSettingsSO : ScriptableObject
 
 ## Utilities
 
-### AdManagerMock
+### AdManager
 
-Handles ad mediation (mock for testing).
+The single entry point for ads. It creates itself on startup. It uses LevelPlay when the Ads Mediation
+package is installed and mock ads otherwise. Setup: `Documentation/MONETIZATION_SETUP.md`.
 
 ```csharp
-public class AdManagerMock : MonoBehaviour
+public class AdManager : MonoBehaviour
 {
-    public static AdManagerMock Instance { get; }
-    
-    public void ShowRewardAd(Action onComplete);
-    public void ShowInterstitialAd();
+    public static AdManager Instance { get; }
+    public bool IsReady { get; }               // SDK started (after consent / tracking prompts)
+    public bool IsRewardedAvailable { get; }
+
+    // onRewardEarned only after the video was watched to the end.
+    public void ShowRewardedAd(Action onRewardEarned, Action onFailed = null, string placement = "default");
+    // Paced interstitial on a level transition; always runs `next`, with or without an ad.
+    public void ShowInterstitialThen(Action next, string placement = "level_transition");
 }
 ```
 
 ### SoundManager
 
-Audio playback manager.
+Plays sounds by `SoundEvent` id (clips are assigned in **Match Them All ▸ Sound Manager**).
 
 ```csharp
 public class SoundManager : MonoBehaviour
 {
     public static SoundManager Instance { get; }
-    
-    public void PlaySFX(AudioClip clip);
-    public void PlayMusic(AudioClip clip);
-    public void SetVolume(float volume);
+
+    public static void Sfx(SoundEvent id);      // safe when no manager or clip exists
+    public void PlayMusic(SoundEvent id);
+    public void SetSFXVolume(float volume01);
+    public void SetMusicVolume(float volume01);
 }
 ```

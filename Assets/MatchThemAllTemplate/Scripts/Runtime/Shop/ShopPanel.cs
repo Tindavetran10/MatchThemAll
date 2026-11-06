@@ -31,6 +31,8 @@ namespace MatchThemAll.Scripts.Shop
         [Header("Chrome")]
         [SerializeField] private Button closeButton;
         [SerializeField] private GameObject root; // the panel root GO toggled for show/hide; defaults to this GO.
+        [Tooltip("Restore Purchases. Apple requires it when the shop sells one-time real-money products. Shown on iOS only (stores elsewhere restore automatically).")]
+        [SerializeField] private Button restoreButton;
 
         private readonly List<ShopProductCard> _cards = new();
         private readonly List<Button> _tabButtons = new();
@@ -42,11 +44,29 @@ namespace MatchThemAll.Scripts.Shop
             if (!root) root = gameObject;
             _animator = root.GetComponent<UIAnimator>();
             if (closeButton) closeButton.onClick.AddListener(Close);
+            if (restoreButton)
+            {
+                restoreButton.gameObject.SetActive(Application.platform == RuntimePlatform.IPhonePlayer);
+                restoreButton.onClick.AddListener(Restore);
+            }
         }
 
         private void OnDestroy()
         {
             if (closeButton) closeButton.onClick.RemoveListener(Close);
+            if (restoreButton) restoreButton.onClick.RemoveListener(Restore);
+        }
+
+        private void Restore()
+        {
+            if (!ShopManager.Instance) return;
+            restoreButton.interactable = false;
+            ShopManager.Instance.RestorePurchases(ok =>
+            {
+                if (restoreButton) restoreButton.interactable = true;
+                if (!ok) SoundManager.Sfx(SoundEvent.Error);
+                Refresh(); // restored items show as Owned
+            });
         }
 
         public void Open()

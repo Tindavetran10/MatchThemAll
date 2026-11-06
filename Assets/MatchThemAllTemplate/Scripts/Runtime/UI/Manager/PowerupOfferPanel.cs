@@ -92,22 +92,17 @@ namespace MatchThemAll.Scripts.UI
             var so = _offer;
             if (so == null) return;
 
-            // Using our AdManagerMock. Template users will replace the mock logic with their real SDK.
-            if (!AdManagerMock.Instance)
-            {
-                Debug.LogWarning("[PowerupOffer] AdManagerMock not found in scene! " +
-                    "Place it (or your real Ad SDK) in the bootstrap scene.");
-                return; // no ad, no reward
-            }
+            if (!AdManager.Instance) return; // no ad, no reward
 
             SetButtonsInteractable(false);
-            AdManagerMock.Instance.ShowRewardedAd(
+            AdManager.Instance.ShowRewardedAd(
                 onRewardEarned: () => { if (_offer == so) GrantAndUse(so); },
                 onFailed: () =>
                 {
                     Debug.LogWarning("[PowerupOffer] Ad failed or skipped.");
                     if (_offer == so) RefreshButtons();
-                });
+                },
+                placement: "powerup_" + so.id);
         }
 
         private void OnCloseClicked()

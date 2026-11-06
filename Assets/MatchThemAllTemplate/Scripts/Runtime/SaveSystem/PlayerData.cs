@@ -54,6 +54,12 @@ namespace MatchThemAll.Scripts.SaveSystem
         /// <summary>Entitlement keys the player owns (one-time unlocks granted by shop products).</summary>
         public List<string> ownedEntitlements = new();
 
+        // ── Monetization ────────────────────────────────────────────────────
+        /// <summary>Store transaction ids already granted, so a re-delivered purchase is never granted twice.</summary>
+        public List<string> processedIapTransactions = new();
+        /// <summary>GDPR answer: -1 not asked yet, 0 declined, 1 accepted.</summary>
+        public int gdprConsent = -1;
+
         /// <summary>True if the player owns the given entitlement key.</summary>
         public bool OwnsEntitlement(string id)
             => !string.IsNullOrEmpty(id) && ownedEntitlements != null && ownedEntitlements.Contains(id);

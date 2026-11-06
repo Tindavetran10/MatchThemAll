@@ -600,15 +600,15 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/SaveSystem/PlayerData.cs": {
-    "mtime": 1788780860.051056,
-    "seen": 1792067873.7639852,
-    "ast_hash": "6b4f96a1c10b4f1af66a8f731a54bcdc",
+    "mtime": 1793957538.869875,
+    "seen": 1793958928.894406,
+    "ast_hash": "d168a9def1b0bae9968c9588f14a47cb",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/SaveSystem/SaveManager.cs": {
-    "mtime": 1788780860.052056,
-    "seen": 1792067873.763986,
-    "ast_hash": "6c286937ec17fb1ab00d22f8c7211f93",
+    "mtime": 1793958586.854983,
+    "seen": 1793958928.8944075,
+    "ast_hash": "96113b01e0e3b93e25e3ac98d15480b3",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/SaveSystem/SaveManagerBootstrapper.cs": {
@@ -635,12 +635,6 @@
     "ast_hash": "896c11f07266478d32ed04569ca9a98e",
     "semantic_hash": ""
   },
-  "Assets/MatchThemAllTemplate/Scripts/Runtime/Shop/IAP/IIapService.cs": {
-    "mtime": 1788780928.212742,
-    "seen": 1792067873.7639918,
-    "ast_hash": "dd12df2aa94aa52eae7f76b036cb309b",
-    "semantic_hash": ""
-  },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/Shop/ShopDatabaseSO.cs": {
     "mtime": 1788780860.083869,
     "seen": 1792067873.7639928,
@@ -648,9 +642,9 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/Shop/ShopManager.cs": {
-    "mtime": 1788780860.083869,
-    "seen": 1792067873.7639942,
-    "ast_hash": "bfb86e3ed26a4dec21c061e9a579f1ca",
+    "mtime": 1793957582.4088917,
+    "seen": 1793958928.8944151,
+    "ast_hash": "f6f89212a4c2835008657f7e65631f1c",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/Shop/ShopOpener.cs": {
@@ -660,15 +654,15 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/Shop/ShopPanel.cs": {
-    "mtime": 1788780860.0848687,
-    "seen": 1792067873.7639983,
-    "ast_hash": "c8f3be7ebe78539416500982e7ffd38b",
+    "mtime": 1793958587.0798397,
+    "seen": 1793958928.8944175,
+    "ast_hash": "f3ceba65b640e5840803b0d525ca8cd5",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/Shop/ShopProductCard.cs": {
-    "mtime": 1792075139.0863626,
-    "seen": 1792075412.319724,
-    "ast_hash": "05776b572b28cc705363b8147c5c1683",
+    "mtime": 1793957605.6142845,
+    "seen": 1793958928.8944187,
+    "ast_hash": "edecf50b05b5c79c48a44609fafb489d",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/Shop/ShopProductSO.cs": {
@@ -684,9 +678,9 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/Shop/WatchAdForCoinsButton.cs": {
-    "mtime": 1788780860.0888922,
-    "seen": 1792067873.7640028,
-    "ast_hash": "b66bb2dc30ff3cf8e46fd45753ca6c05",
+    "mtime": 1793957689.3346682,
+    "seen": 1793958928.8944225,
+    "ast_hash": "b12d315df55dc9f9f08134e0aee7c9c1",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/Tutorial/TutorialManager.cs": {
@@ -762,9 +756,9 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/UI/Manager/ContinuePanelManager.cs": {
-    "mtime": 1788780928.284944,
-    "seen": 1792067873.7640173,
-    "ast_hash": "9cdd5fcb91d7f2e6a1e4198a2512cfaa",
+    "mtime": 1793957675.3552537,
+    "seen": 1793958928.8944392,
+    "ast_hash": "ce9d560cb2f940e4650266c032d83361",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/UI/Manager/LevelMapManager.cs": {
@@ -780,9 +774,9 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/UI/Manager/LosePanelManager.cs": {
-    "mtime": 1788780928.2896378,
-    "seen": 1792067873.7640204,
-    "ast_hash": "fb83fd5bbb708fb03214d490c3a6cc1d",
+    "mtime": 1793957675.649076,
+    "seen": 1793958928.8944428,
+    "ast_hash": "a901cc0a08d200ea03633906b9527457",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/UI/Manager/MainMenuManager.cs": {
@@ -804,9 +798,9 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/UI/Manager/WinPanelManager.cs": {
-    "mtime": 1792075146.6201034,
-    "seen": 1792075412.3197558,
-    "ast_hash": "8f897fbe3e0f4338f10fecc465b94448",
+    "mtime": 1793957675.5809755,
+    "seen": 1793958928.894449,
+    "ast_hash": "2b4826ae4a00ef66329762d3843e9e71",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/UI/UIAnimator.cs": {
@@ -825,12 +819,6 @@
     "mtime": 1791370033.34,
     "seen": 1792067873.764028,
     "ast_hash": "2b7bd72a74044535865188f70eaf22af",
-    "semantic_hash": ""
-  },
-  "Assets/MatchThemAllTemplate/Scripts/Runtime/Utilities/AdManagerMock.cs": {
-    "mtime": 1793569853.7377658,
-    "seen": 1793570250.9436376,
-    "ast_hash": "421e829ac3f4a3a864f7151533c7dc5c",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/Utilities/Enums/EGameState.cs": {
@@ -2148,15 +2136,15 @@
     "semantic_hash": ""
   },
   "Packages/manifest.json": {
-    "mtime": 1793187135.0327668,
-    "seen": 1793207759.8145251,
-    "ast_hash": "39d59a0b652894be4dc39bb844dd7c9e",
+    "mtime": 1793958160.7882261,
+    "seen": 1793958928.8947475,
+    "ast_hash": "160fe1481d7bb0507091e1ca7a386f12",
     "semantic_hash": ""
   },
   "Packages/packages-lock.json": {
-    "mtime": 1793187141.0800197,
-    "seen": 1793207759.8145258,
-    "ast_hash": "8116e564d24014709e3747b48f4dcb6c",
+    "mtime": 1793958160.8597074,
+    "seen": 1793958928.8947487,
+    "ast_hash": "d1ee1f3172ed495d0a0d8a3e67e8c543",
     "semantic_hash": ""
   },
   "ProjectSettings/Packages/com.unity.ai.assistant/Settings.json": {
@@ -2226,9 +2214,9 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Documentation/API_REFERENCE.md": {
-    "mtime": 1788781725.0852,
-    "seen": 1792067873.764405,
-    "ast_hash": "15cc50960f8763000816f1e7c5707ac6",
+    "mtime": 1793958878.7728417,
+    "seen": 1793958928.8947656,
+    "ast_hash": "0181088f6bd6ae588b01885301bdb2c2",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Documentation/ARCHITECTURE_OVERVIEW.md": {
@@ -2376,9 +2364,9 @@
     "semantic_hash": ""
   },
   "CLAUDE.md": {
-    "mtime": 1793954418.194648,
-    "seen": 1793954457.966875,
-    "ast_hash": "e59a170297e9a4033e1c82024106dc39",
+    "mtime": 1793958886.9314914,
+    "seen": 1793958928.8948114,
+    "ast_hash": "351d14e089c66e8f81422b9975b02967",
     "semantic_hash": ""
   },
   "ProjectSettings/ProjectVersion.txt": {
@@ -24738,9 +24726,9 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/UI/Manager/PowerupOfferPanel.cs": {
-    "mtime": 1793569630.1454053,
-    "seen": 1793570250.9436202,
-    "ast_hash": "d441c23d1ba9b931ea666c4136eaad13",
+    "mtime": 1793957675.5073216,
+    "seen": 1793958928.8944454,
+    "ast_hash": "e0bf040c6f1d0d6001c9df5374c2b7b5",
     "semantic_hash": ""
   },
   "docs/decisions/2026-11-02-powerup-tray-layout.md": {
@@ -24819,6 +24807,102 @@
     "mtime": 1793951258.1980827,
     "seen": 1793954067.2961855,
     "ast_hash": "88eab0cdcbf42ed1590b668ad0bdd172",
+    "semantic_hash": ""
+  },
+  "Assets/LevelPlay/Editor/LevelPlayVersions.json": {
+    "mtime": 1793958140.1038535,
+    "seen": 1793958928.8943038,
+    "ast_hash": "19eaa589edb7c04804dace49b41b582f",
+    "semantic_hash": ""
+  },
+  "Assets/MatchThemAllTemplate/Plugins/iOS/ATTRequester.mm": {
+    "mtime": 1793957030.2624872,
+    "seen": 1793958928.8943126,
+    "ast_hash": "c18bb18d379886322f0534b3dbf6f085",
+    "semantic_hash": ""
+  },
+  "Assets/MatchThemAllTemplate/Scripts/Editor/IosTrackingPostBuild.cs": {
+    "mtime": 1793957037.0954638,
+    "seen": 1793958928.8943186,
+    "ast_hash": "57aaa4818a053754d5adc3ce38442d4a",
+    "semantic_hash": ""
+  },
+  "Assets/MatchThemAllTemplate/Scripts/Runtime/Monetization/IAdService.cs": {
+    "mtime": 1793957018.3126154,
+    "seen": 1793958928.8943703,
+    "ast_hash": "3ab0175818449ce413aca769fb8c4f2f",
+    "semantic_hash": ""
+  },
+  "Assets/MatchThemAllTemplate/Scripts/Runtime/Monetization/IIapService.cs": {
+    "mtime": 1793957018.3853436,
+    "seen": 1793958928.894372,
+    "ast_hash": "993b8e5f3e5298bbfd8ba8c311386604",
+    "semantic_hash": ""
+  },
+  "Assets/MatchThemAllTemplate/Scripts/Runtime/Monetization/LevelPlay/LevelPlayAdService.cs": {
+    "mtime": 1793957078.1184628,
+    "seen": 1793958928.894374,
+    "ast_hash": "469119f8eff8f5a74684377fc7e3e6fe",
+    "semantic_hash": ""
+  },
+  "Assets/MatchThemAllTemplate/Scripts/Runtime/Monetization/MonetizationServices.cs": {
+    "mtime": 1793957018.4319046,
+    "seen": 1793958928.8943748,
+    "ast_hash": "e34152f226b1cd97ffb855bfc0baaa9d",
+    "semantic_hash": ""
+  },
+  "Assets/MatchThemAllTemplate/Scripts/Runtime/Monetization/MonetizationSettingsSO.cs": {
+    "mtime": 1793957018.2646666,
+    "seen": 1793958928.8943763,
+    "ast_hash": "8a0f3139723abfa098f700b432d99e93",
+    "semantic_hash": ""
+  },
+  "Assets/MatchThemAllTemplate/Scripts/Runtime/Monetization/TrackingConsent.cs": {
+    "mtime": 1793957030.210868,
+    "seen": 1793958928.8943775,
+    "ast_hash": "06bc6954e70c3687d3ea852d9d37c92b",
+    "semantic_hash": ""
+  },
+  "Assets/MatchThemAllTemplate/Scripts/Runtime/Monetization/UnityIAP/UnityIapService.cs": {
+    "mtime": 1793957113.6312337,
+    "seen": 1793958928.894379,
+    "ast_hash": "68f1c597371769140b19d13a75ee4293",
+    "semantic_hash": ""
+  },
+  "Assets/MatchThemAllTemplate/Scripts/Runtime/Utilities/AdManager.cs": {
+    "mtime": 1793958586.901198,
+    "seen": 1793958928.8944538,
+    "ast_hash": "bf79052a90b60b0606fa2798ee12dfc1",
+    "semantic_hash": ""
+  },
+  "Assets/MatchThemAllTemplate/Scripts/Runtime/Utilities/ConsentPopup.cs": {
+    "mtime": 1793957657.5902963,
+    "seen": 1793958928.8944554,
+    "ast_hash": "0db9b908abf8aad87c1af1e824b5cdc9",
+    "semantic_hash": ""
+  },
+  "Assets/MatchThemAllTemplate/Documentation/MONETIZATION_SETUP.md": {
+    "mtime": 1793958599.0938764,
+    "seen": 1793958928.894777,
+    "ast_hash": "1b7984cc57cc3f9139bfcb56b552c49c",
+    "semantic_hash": ""
+  },
+  "Assets/MobileDependencyResolver/Editor/CHANGELOG.md": {
+    "mtime": 1749582610.0,
+    "seen": 1793958928.8947916,
+    "ast_hash": "b6834836c242c294b1af612bd37b732e",
+    "semantic_hash": ""
+  },
+  "Assets/MobileDependencyResolver/Editor/README.md": {
+    "mtime": 1749582610.0,
+    "seen": 1793958928.8947933,
+    "ast_hash": "ba0939edb31b38e327ee73a94d92c747",
+    "semantic_hash": ""
+  },
+  "Assets/MobileDependencyResolver/Editor/mobile-dependency-resolver_version-1.2.185_manifest.txt": {
+    "mtime": 1749582610.0,
+    "seen": 1793958928.8947942,
+    "ast_hash": "6199e76d1ee685d7e1d2e3b455c72e20",
     "semantic_hash": ""
   }
 }

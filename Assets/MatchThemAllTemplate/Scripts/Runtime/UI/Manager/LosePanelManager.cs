@@ -14,7 +14,8 @@ namespace MatchThemAll.Scripts.UI
             int currentLevel = LevelManager.Instance != null
                 ? LevelManager.Instance.CurrentLevelIndex
                 : -1;
-            SceneLoader.LoadLevel(currentLevel);
+            if (Utilities.AdManager.Instance) Utilities.AdManager.Instance.ShowInterstitialThen(() => SceneLoader.LoadLevel(currentLevel));
+            else SceneLoader.LoadLevel(currentLevel);
         }
 
         /// <summary>Called by the Level Select button.</summary>

@@ -81,20 +81,11 @@ namespace MatchThemAll.Scripts.UI
 
         private void OnWatchAdClicked()
         {
-            // Using our AdManagerMock. Template users will replace the mock logic with their real SDK.
-            if (AdManagerMock.Instance)
-            {
-                AdManagerMock.Instance.ShowRewardedAd(
-                    onRewardEarned: ContinueGame,
-                    onFailed: () => Debug.LogWarning("[ContinuePanel] Ad failed or skipped.")
-                );
-            }
-            else
-            {
-                Debug.LogWarning("[ContinuePanel] AdManagerMock not found in scene! " +
-                    "Place it (or your real Ad SDK) in the bootstrap scene.");
-                // Do NOT grant a free continue — no SDK found means no ad, means no reward.
-            }
+            if (!AdManager.Instance) return; // no ad, no reward
+            AdManager.Instance.ShowRewardedAd(
+                onRewardEarned: ContinueGame,
+                onFailed: () => Debug.LogWarning("[ContinuePanel] Ad failed or skipped."),
+                placement: "continue");
         }
 
         private void OnPayCoinsClicked()

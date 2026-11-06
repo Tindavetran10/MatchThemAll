@@ -163,7 +163,8 @@ namespace MatchThemAll.Scripts.UI
         public void OnNextLevelClicked()
         {
             // -1 = use saved progress (which was already advanced by SaveLevelComplete)
-            SceneLoader.LoadLevel(-1);
+            if (Utilities.AdManager.Instance) Utilities.AdManager.Instance.ShowInterstitialThen(() => SceneLoader.LoadLevel(-1));
+            else SceneLoader.LoadLevel(-1);
         }
 
         /// <summary>Called by the Level Select button.</summary>

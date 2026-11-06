@@ -149,6 +149,36 @@ namespace MatchThemAll.Scripts.SaveSystem
             return true;
         }
 
+        // ── Monetization: store purchases + privacy ─────────────────────────
+
+        /// <summary>True if this store transaction was already granted (the store may deliver one twice).</summary>
+        public static bool IsIapTransactionProcessed(string transactionId)
+            => !string.IsNullOrEmpty(transactionId)
+               && Data.processedIapTransactions != null
+               && Data.processedIapTransactions.Contains(transactionId);
+
+        /// <summary>Records a granted store transaction (written to disk by the caller's <see cref="TryFlush"/>).</summary>
+        public static void MarkIapTransactionProcessed(string transactionId)
+        {
+            if (string.IsNullOrEmpty(transactionId) || IsIapTransactionProcessed(transactionId)) return;
+            Data.processedIapTransactions ??= new List<string>();
+            Data.processedIapTransactions.Add(transactionId);
+            MarkDirty();
+        }
+
+        /// <summary>How many levels the player has completed. Works in every scene (no level list needed).</summary>
+        public static int GetCompletedLevelCount() => Data.levelProgress?.Count ?? 0;
+
+        /// <summary>GDPR answer: null = not asked yet.</summary>
+        public static bool? GetGdprConsent() => Data.gdprConsent < 0 ? null : Data.gdprConsent == 1;
+
+        public static void SetGdprConsent(bool accepted)
+        {
+            Data.gdprConsent = accepted ? 1 : 0;
+            MarkDirty();
+            Flush();
+        }
+
         // ── Entitlements (permanent unlocks) ────────────────────────────────
 
         /// <summary>True if the player owns the given entitlement key (e.g. EntitlementIds.RemoveAds).</summary>
@@ -318,6 +348,17 @@ namespace MatchThemAll.Scripts.SaveSystem
 #if UNITY_EDITOR
             Debug.Log($"[SaveManager] Flushed to: {SavePath}");
 #endif
+        }
+
+        /// <summary>Like <see cref="Flush"/>, but reports whether the data really reached the disk.</summary>
+        public static bool TryFlush()
+        {
+            try { Flush(); return true; }
+            catch (System.Exception e)
+            {
+                Debug.LogError($"[SaveManager] Save failed: {e.Message}");
+                return false;
+            }
         }
 
         /// <summary>
