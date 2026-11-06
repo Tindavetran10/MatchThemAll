@@ -191,6 +191,17 @@ namespace MatchThemAll.Scripts
 
             if (_newcomers.Remove(item))
                 EventBus.Publish(new ItemReachedSpotEvent(item));
+            else if (!AnyItemMoving())
+                // A pushed-aside item was the last to settle; a newcomer that landed before it
+                // skipped the checks because this one was still moving, so run them now.
+                MatchSystem.CheckSettledTray();
+        }
+
+        private bool AnyItemMoving()
+        {
+            for (int i = 0; i < _activeSpotCount; i++)
+                if (_spots[i].Item && _spots[i].Item.IsMovingToSpot) return true;
+            return false;
         }
 
         private void EmptyTray()
