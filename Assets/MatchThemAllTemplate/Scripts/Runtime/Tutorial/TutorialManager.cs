@@ -316,7 +316,7 @@ namespace MatchThemAll.Scripts.Managers
         /// Completes the current step and advances to the next.
         /// Call this when using <see cref="ECompletionCondition.Manual"/>.
         /// </summary>
-        private void CompleteCurrentStep()
+        public void CompleteCurrentStep()
         {
             if (_currentStep == null) return;
 

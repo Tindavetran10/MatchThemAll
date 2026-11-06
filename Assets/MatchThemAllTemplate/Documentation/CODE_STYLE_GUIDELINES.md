@@ -6,34 +6,38 @@ This document outlines the coding standards, conventions, and patterns used thro
 
 ## 1. C# Naming Conventions
 
-- **PascalCase**: Classes, Structs, Enums, Interfaces, Public Properties, Methods, Serialized Events.
-- **camelCase**: Local variables, method arguments, private non-serialized fields (prefixed with `_`).
-- **_camelCase**: Private serialized/inspector fields or cached private references.
-- **k_PascalCase** or **UPPER_SNAKE_CASE**: Constants and read-only static fields.
+- **PascalCase**: classes, structs, enums, interfaces, public properties, methods, constants and
+  `static readonly` fields.
+- **camelCase**: local variables, method arguments, and `[SerializeField]` fields (no prefix, so the
+  Inspector label reads cleanly).
+- **_camelCase**: private fields that are not serialized (runtime state, cached references).
+- **E** prefix for enums used as ids (`EItemName`, `EGameState`).
 
 ```csharp
-public class GoalManager : MonoBehaviour
+public class TimerManager : MonoBehaviour
 {
-    private const float k_DefaultAnimDuration = 0.5f;
+    private const float WarningSeconds = 10f;              // constant: PascalCase
 
-    [SerializeField] private List<GoalCard> _goalCards;
-    
-    private int _remainingGoalCount;
+    [SerializeField] private float freezeDuration = 10f;   // serialized: camelCase
 
-    public int RemainingGoalCount => _remainingGoalCount;
+    private float _freezeLeft;                             // runtime state: _camelCase
 
-    public void TrackProgress(EItemName itemName, int amount)
-    {
-        // Method body
-    }
+    public bool IsFrozen { get; private set; }
+
+    public void AddTime(int seconds) { /* … */ }
 }
 ```
+
+Never rename a serialized field without `[FormerlySerializedAs]`: the rename breaks Inspector values and
+prefab overrides.
 
 ---
 
 ## 2. Event Handling & Subscriptions
-- Always unsubscribe from `EventBus<T>` in `OnDestroy()` or `OnDisable()` to prevent memory leaks and dangling delegates.
-- Ensure event struct payloads are lightweight and pass read-only data.
+- Systems talk through `EventBus.Subscribe<T>` / `EventBus.Publish(...)` with `struct` events from
+  `GameEvents.cs`. Don't add direct references between unrelated managers.
+- Always unsubscribe (`EventBus.Unsubscribe<T>`) in `OnDestroy()` or `OnDisable()` to avoid dangling delegates.
+- Keep event payloads small: pass the data, not the manager.
 
 ---
 

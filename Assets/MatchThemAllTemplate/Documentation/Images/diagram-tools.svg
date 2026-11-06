@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 400" font-family="Segoe UI, Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#555"/></marker>
+  </defs>
+  <rect width="900" height="400" fill="#ffffff"/>
+  <text x="450" y="30" text-anchor="middle" font-size="18" font-weight="600" fill="#222">Which tool edits what  (menu: Match Them All ▸ …)</text>
+
+  <g font-size="14">
+    <g text-anchor="middle">
+      <rect x="30" y="60" width="230" height="56" rx="10" fill="#e8f1ff" stroke="#3b78d8" stroke-width="2"/>
+      <text x="145" y="94" font-weight="600" fill="#1d3f7a">Template Editor</text>
+      <rect x="30" y="140" width="230" height="56" rx="10" fill="#e8f1ff" stroke="#3b78d8" stroke-width="2"/>
+      <text x="145" y="174" font-weight="600" fill="#1d3f7a">Item Manager</text>
+      <rect x="30" y="220" width="230" height="56" rx="10" fill="#e8f1ff" stroke="#3b78d8" stroke-width="2"/>
+      <text x="145" y="254" font-weight="600" fill="#1d3f7a">Shop Manager</text>
+      <rect x="30" y="300" width="230" height="56" rx="10" fill="#e8f1ff" stroke="#3b78d8" stroke-width="2"/>
+      <text x="145" y="334" font-weight="600" fill="#1d3f7a">Sound Manager</text>
+    </g>
+
+    <g fill="#333">
+      <rect x="330" y="60" width="540" height="56" rx="10" fill="#fafafa" stroke="#999"/>
+      <text x="345" y="84" font-weight="600">_START_HERE/Levels/LevelDataNN.asset</text>
+      <text x="345" y="104" font-size="12" fill="#555">items, goals, timer, tray size, stars, coins, tutorial · Settings tab: Resources/GameSettings</text>
+      <rect x="330" y="140" width="540" height="56" rx="10" fill="#fafafa" stroke="#999"/>
+      <text x="345" y="164" font-weight="600">_START_HERE/Items/Item_*.prefab</text>
+      <text x="345" y="184" font-size="12" fill="#555">new item types, icons, how an item sits in the tray</text>
+      <rect x="330" y="220" width="540" height="56" rx="10" fill="#fafafa" stroke="#999"/>
+      <text x="345" y="244" font-weight="600">Resources/Shop/…  (tabs + products)</text>
+      <text x="345" y="264" font-size="12" fill="#555">prices in coins or real money (IAP id), rewards, badges, one-time packs</text>
+      <rect x="330" y="300" width="540" height="56" rx="10" fill="#fafafa" stroke="#999"/>
+      <text x="345" y="324" font-weight="600">Resources/Sound/SoundLibrary.asset</text>
+      <text x="345" y="344" font-size="12" fill="#555">a clip list, volume and pitch range for every game sound and music track</text>
+    </g>
+  </g>
+  <g stroke="#555" stroke-width="2" marker-end="url(#a)">
+    <line x1="260" y1="88" x2="328" y2="88"/>
+    <line x1="260" y1="168" x2="328" y2="168"/>
+    <line x1="260" y1="248" x2="328" y2="248"/>
+    <line x1="260" y1="328" x2="328" y2="328"/>
+  </g>
+  <text x="450" y="388" text-anchor="middle" font-size="12" fill="#666">Ads, IAP and privacy: select Resources/Monetization/MonetizationSettings in the Project window (Inspector)</text>
+</svg>
