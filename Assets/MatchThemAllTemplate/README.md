@@ -60,7 +60,7 @@ For issues, questions, or feature requests, please contact the developer.
 
 ## License
 
-This template is provided under the MIT License. See `LICENSE.txt` for details.
+This template is licensed under the Unity Asset Store EULA. See `LICENSE.txt` for details and `THIRD_PARTY_NOTICES.txt` for bundled third-party components.
 
 ---
 

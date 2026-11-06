@@ -1,151 +1,125 @@
 using System.Collections.Generic;
 using MatchThemAll.Scripts.UI;
 using UnityEngine;
-using ZLinq;
 
 namespace MatchThemAll.Scripts
 {
+    /// <summary>
+    /// Tracks the level's collection goals and their cards. A goal counts down when an item of its
+    /// kind is picked up (tap or Vacuum) and counts back up when a power-up returns one to the board.
+    /// When every goal reaches zero the level is complete.
+    /// </summary>
     public class GoalManager : MonoBehaviour
     {
         public static GoalManager Instance;
-        
-        [Header(" References ")]
+
+        private const int TimeBonusSeconds = 5;
+
+        [Header("Cards")]
         [SerializeField] private Transform goalCardParent;
         [SerializeField] private GoalCard goalCardPrefab;
 
-        private readonly List<GoalCard> _goalCards = new();
-        
-        [field: Header(" Data ")]
+        /// <summary>Remaining amount per goal (a per-level copy; the level asset is never modified).</summary>
         public ItemLevelData[] Goals { get; private set; }
 
-        private int[] _initialGoalAmounts;
+        private int[] _targets;
+        private readonly List<GoalCard> _cards = new();
+
+        #region Lifecycle
 
         private void Awake()
         {
-            if (!Instance)
-                Instance = this;
-            else Destroy(gameObject);
-            
+            if (Instance && Instance != this) { Destroy(gameObject); return; }
+            Instance = this;
+
             LevelManager.LevelSpawned += OnLevelSpawned;
             ItemSpotManager.ItemPickedUp += OnItemPickedUp;
         }
 
         private void Start()
         {
-            if (PowerupManager.Instance)
-            {
-                PowerupManager.Instance.OnItemPickup += OnItemPickedUp;
-                PowerupManager.Instance.OnItemBackToGame += OnItemBackToGame;
-            }
+            if (!PowerupManager.Instance) return;
+            PowerupManager.Instance.OnItemPickup += OnItemPickedUp;
+            PowerupManager.Instance.OnItemBackToGame += OnItemBackToGame;
         }
 
         private void OnDestroy()
         {
             LevelManager.LevelSpawned -= OnLevelSpawned;
             ItemSpotManager.ItemPickedUp -= OnItemPickedUp;
-            
-            if (PowerupManager.Instance)
-            {
-                PowerupManager.Instance.OnItemPickup -= OnItemPickedUp;
-                PowerupManager.Instance.OnItemBackToGame -= OnItemBackToGame;
-            }
+            if (!PowerupManager.Instance) return;
+            PowerupManager.Instance.OnItemPickup -= OnItemPickedUp;
+            PowerupManager.Instance.OnItemBackToGame -= OnItemBackToGame;
         }
 
-        private void OnItemBackToGame(Item releasedItem)
-        {
-            // Find the LAST goal of this type that is not full
-            // (i.e. we fill the latest partially-completed or fully-completed goal)
-            for (int i = Goals.Length - 1; i >= 0; i--)
-            {
-                if (Goals[i].itemPrefab.ItemNameKey == releasedItem.ItemNameKey && 
-                    Goals[i].amount < _initialGoalAmounts[i])
-                {
-                    bool wasCompleted = Goals[i].amount <= 0;
-                    
-                    Goals[i].amount++;
-                    
-                    if (wasCompleted)
-                    {
-                        _goalCards[i].Uncomplete();
-                    }
-                    
-                    _goalCards[i].UpdateAmount(Goals[i].amount);
-                    return; // Only restore one item
-                }
-            }
-        }
+        #endregion
 
         private void OnLevelSpawned(Level level)
         {
             Goals = level.GetGoals();
-
-            _initialGoalAmounts = new int[Goals.Length];
-            for (int i = 0; i < Goals.Length; i++)
-            {
-                _initialGoalAmounts[i] = Goals[i].amount;
-            }
-
-            GenerateGoalCards();
+            _targets = new int[Goals.Length];
+            for (int i = 0; i < Goals.Length; i++) _targets[i] = Goals[i].amount;
+            RebuildCards();
         }
 
-        private void GenerateGoalCards()
+        private void RebuildCards()
         {
-            foreach (var card in _goalCards.AsValueEnumerable().Where(card => card)) 
-                Destroy(card.gameObject);
-            _goalCards.Clear();
+            foreach (var card in _cards)
+                if (card) Destroy(card.gameObject);
+            _cards.Clear();
 
             foreach (var goal in Goals)
-                GenerateGoalCard(goal);
-        }
-
-        private void GenerateGoalCard(ItemLevelData goal)
-        {
-            var cardInstance = Instantiate(goalCardPrefab, goalCardParent);
-            cardInstance.Configure(goal.amount, goal.itemPrefab.Icon);
-            _goalCards.Add(cardInstance);
-        }
-
-        private void OnItemPickedUp(Item item)
-        {
-            // Find the FIRST incomplete goal for this item type
-            for (int i = 0; i < Goals.Length; i++)
             {
-                if (Goals[i].itemPrefab.ItemNameKey == item.ItemNameKey && Goals[i].amount > 0)
-                {
-                    Goals[i].amount--;
-
-                    if (Goals[i].amount <= 0)
-                        CompleteGoals(i);
-                    else
-                        _goalCards[i].UpdateAmount(Goals[i].amount);
-                        
-                    return; // We decreased one goal, we shouldn't decrease others
-                }
+                var card = Instantiate(goalCardPrefab, goalCardParent);
+                card.Configure(goal.amount, goal.itemPrefab.Icon);
+                _cards.Add(card);
             }
         }
 
-        private void CompleteGoals(int goalIndex)
+        // Earliest unfinished goal of this kind takes the pickup.
+        private void OnItemPickedUp(Item item)
         {
-            Debug.Log($"Goal {goalIndex} completed!");
-            SoundManager.Sfx(SoundEvent.GoalComplete);
-            
-            // Add time bonus!
-            if (TimerManager.Instance)
-                TimerManager.Instance.AddTime(5);
+            int g = FindGoal(item.ItemNameKey, earliest: true, i => Goals[i].amount > 0);
+            if (g < 0) return;
 
-            // Spawn floating text
-            if (FloatingTextSpawner.Instance && _goalCards[goalIndex]) 
-                FloatingTextSpawner.Instance.Spawn("+5s", _goalCards[goalIndex].transform.position, Color.yellow);
-
-            _goalCards[goalIndex].Complete();
-            CheckForLevelComplete();
+            int left = --Goals[g].amount;
+            if (left > 0) _cards[g].UpdateAmount(left);
+            else OnGoalReached(g);
         }
 
-        private void CheckForLevelComplete()
+        // Latest goal of this kind that has room takes the item back (undoing the most recent progress).
+        private void OnItemBackToGame(Item item)
         {
-            for (var i = 0; i < Goals.Length; i++)
-                if (Goals[i].amount > 0) return;
+            int g = FindGoal(item.ItemNameKey, earliest: false, i => Goals[i].amount < _targets[i]);
+            if (g < 0) return;
 
+            if (Goals[g].amount == 0) _cards[g].Uncomplete();
+            _cards[g].UpdateAmount(++Goals[g].amount);
+        }
+
+        private int FindGoal(EItemName kind, bool earliest, System.Predicate<int> accept)
+        {
+            if (Goals == null) return -1;
+            int n = Goals.Length;
+            for (int k = 0; k < n; k++)
+            {
+                int i = earliest ? k : n - 1 - k;
+                if (Goals[i].itemPrefab.ItemNameKey == kind && accept(i)) return i;
+            }
+            return -1;
+        }
+
+        private void OnGoalReached(int g)
+        {
+            SoundManager.Sfx(SoundEvent.GoalComplete);
+            _cards[g].Complete();
+
+            if (TimerManager.Instance) TimerManager.Instance.AddTime(TimeBonusSeconds);
+            if (FloatingTextSpawner.Instance && _cards[g])
+                FloatingTextSpawner.Instance.Spawn($"+{TimeBonusSeconds}s", _cards[g].transform.position, Color.yellow);
+
+            foreach (var goal in Goals)
+                if (goal.amount > 0) return;
             GameManager.Instance.SetGameState(EGameState.LEVELCOMPLETE);
         }
     }

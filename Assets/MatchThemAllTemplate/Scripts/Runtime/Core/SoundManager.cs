@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Audio;
 using UnityEngine.SceneManagement;
@@ -6,65 +7,40 @@ using MatchThemAll.Scripts.Shop;
 namespace MatchThemAll.Scripts
 {
     /// <summary>
-    /// Global singleton that plays all game audio.
-    /// Persists across scene loads (DontDestroyOnLoad).
+    /// Plays every game sound, driven by <see cref="SoundEvent"/> ids mapped to clips in the
+    /// SoundLibrary (edit it in Match Them All ▸ Sound Manager). One instance lives across scenes.
     ///
-    /// Playing a sound from any script:
-    ///   SoundManager.Instance.Play(mySoundDataSO);
-    ///
-    /// Playing background music:
-    ///   SoundManager.Instance.PlayMusic(myMusicDataSO);
-    ///
-    /// Adjusting volume (e.g. from a Settings screen):
-    ///   SoundManager.Instance.SetSFXVolume(0.8f);   // 0-1 normalized
-    ///   SoundManager.Instance.SetMusicVolume(0.5f);
+    ///   SoundManager.Sfx(SoundEvent.Merge);                 // one-shot, safe even with no manager
+    ///   SoundManager.Instance.PlayMusic(SoundEvent.MusicGame);
+    ///   SoundManager.Instance.SetSFXVolume(0.8f);           // 0..1, used by the Settings screen
     /// </summary>
     public class SoundManager : MonoBehaviour
     {
         public static SoundManager Instance { get; private set; }
 
         [Header("Mixer")]
-        [Tooltip("Assign your project's AudioMixer asset here.")]
+        [Tooltip("AudioMixer exposing the SFXVolume and MusicVolume parameters.")]
         [SerializeField] private AudioMixer audioMixer;
 
         [Header("Sound Library")]
         [Tooltip("Event → clip map edited in Match Them All → Sound Manager. Loaded from Resources/Sound/SoundLibrary if empty.")]
         [SerializeField] private SoundLibrarySO library;
 
-        [Header("Pool")]
-        [Tooltip("How many SFX can play simultaneously. 8 is sufficient for most mobile games.")]
+        [Header("Voices")]
+        [Tooltip("How many one-shots can overlap. When all are busy the longest-running one is cut.")]
         [SerializeField, Range(1, 16)] private int sfxPoolSize = 8;
 
-        // Exposed parameter names — must match what you expose in the AudioMixer asset.
-        private const string MasterVolumeParam = "MasterVolume";
-        private const string SfxVolumeParam    = "SFXVolume";
-        private const string MusicVolumeParam   = "MusicVolume";
+        private const string SfxVolumeParam = "SFXVolume";
+        private const string MusicVolumeParam = "MusicVolume";
+        private const float MinRepeatInterval = 0.04f; // collapses same-frame duplicates (e.g. a 3-item merge)
+        private const float SilentDb = -80f;
 
-        private AudioSource[] _sfxPool;
-        private AudioSource   _musicSource;
-        private int           _poolCursor; // round-robin index for stealing busy sources
+        private AudioSource[] _voices;
+        private float[] _voiceStartedAt;
+        private AudioSource _music;
+        private readonly Dictionary<SoundEvent, float> _lastPlayed = new();
 
-        // ------------------------------------------------------------------ Lifecycle
-
-        private void Awake()
-        {
-            if (!Instance)
-            {
-                Instance = this;
-                transform.SetParent(null); // Detach from parent to ensure it's a root GameObject for DontDestroyOnLoad
-                DontDestroyOnLoad(gameObject);
-                BuildPool();
-
-                if (!library) library = Resources.Load<SoundLibrarySO>("Sound/SoundLibrary");
-                SubscribeToGameEvents();
-                UI.SettingsManager.ApplyFromSave();          // saved volumes, whichever scene we start in
-                SceneManager.sceneLoaded += OnSceneLoaded;
-            }
-            else Destroy(gameObject);
-        }
-
-        // Starting music inside Awake is unreliable (the source may not be ready yet), so wait for the first frame.
-        private void Start() { if (Instance == this) PlaySceneMusic(SceneManager.GetActiveScene().name); }
+        #region Lifecycle
 
         /// <summary>Makes sure a SoundManager exists in every scene (Lobby, Main, ...) by spawning the Resources prefab.</summary>
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
@@ -75,6 +51,30 @@ namespace MatchThemAll.Scripts
             if (prefab) Instantiate(prefab);
             else new GameObject("[SoundManager]").AddComponent<SoundManager>();
         }
+
+        private void Awake()
+        {
+            if (Instance && Instance != this) { Destroy(gameObject); return; }
+            Instance = this;
+            transform.SetParent(null); // DontDestroyOnLoad needs a root object
+            DontDestroyOnLoad(gameObject);
+
+            if (!library) library = Resources.Load<SoundLibrarySO>("Sound/SoundLibrary");
+            CreateSources();
+
+            EventBus.Subscribe<ItemClickedEvent>(OnItemClicked);
+            EventBus.Subscribe<ItemReachedSpotEvent>(OnItemReachedSpot);
+            EventBus.Subscribe<MergeStartedEvent>(OnMergeStarted);
+            EventBus.Subscribe<GameStateChangedEvent>(OnGameStateChanged);
+            EventBus.Subscribe<ShopPurchaseSucceededEvent>(OnPurchase);
+            ComboManager.OnComboUpdated += OnComboUpdated;
+            SceneManager.sceneLoaded += OnSceneLoaded;
+
+            UI.SettingsManager.ApplyFromSave(); // saved volumes, whichever scene we start in
+        }
+
+        // Starting music inside Awake is unreliable (the source may not be ready yet), so wait for the first frame.
+        private void Start() { if (Instance == this) PlaySceneMusic(SceneManager.GetActiveScene().name); }
 
         private void OnDestroy()
         {
@@ -88,17 +88,25 @@ namespace MatchThemAll.Scripts
             ComboManager.OnComboUpdated -= OnComboUpdated;
         }
 
-        // ------------------------------------------------------------------ Game event → sound
-
-        private void SubscribeToGameEvents()
+        private void CreateSources()
         {
-            EventBus.Subscribe<ItemClickedEvent>(OnItemClicked);
-            EventBus.Subscribe<ItemReachedSpotEvent>(OnItemReachedSpot);
-            EventBus.Subscribe<MergeStartedEvent>(OnMergeStarted);
-            EventBus.Subscribe<GameStateChangedEvent>(OnGameStateChanged);
-            EventBus.Subscribe<ShopPurchaseSucceededEvent>(OnPurchase);
-            ComboManager.OnComboUpdated += OnComboUpdated;
+            _voices = new AudioSource[sfxPoolSize];
+            _voiceStartedAt = new float[sfxPoolSize];
+            for (int i = 0; i < _voices.Length; i++) _voices[i] = NewSource(loop: false);
+            _music = NewSource(loop: true);
         }
+
+        private AudioSource NewSource(bool loop)
+        {
+            var source = gameObject.AddComponent<AudioSource>();
+            source.playOnAwake = false;
+            source.loop = loop;
+            return source;
+        }
+
+        #endregion
+
+        #region Game events → sounds
 
         private void OnItemClicked(ItemClickedEvent _) => Sfx(SoundEvent.ItemSelect);
         private void OnItemReachedSpot(ItemReachedSpotEvent _) => Sfx(SoundEvent.ItemPlace);
@@ -125,10 +133,9 @@ namespace MatchThemAll.Scripts
             else if (sceneName == SceneLoader.Lobby || sceneName == SceneLoader.LevelSelect) PlayMusic(SoundEvent.MusicMenu);
         }
 
-        // ------------------------------------------------------------------ Event API
+        #endregion
 
-        private readonly System.Collections.Generic.Dictionary<SoundEvent, float> _lastPlayed = new();
-        private const float MinRepeatInterval = 0.04f; // collapses same-frame duplicates (e.g. a 3-item merge)
+        #region Playback
 
         /// <summary>Plays the sound assigned to <paramref name="id"/> in the SoundLibrary. Safe to call when no manager/clip exists.</summary>
         public static void Sfx(SoundEvent id)
@@ -142,16 +149,30 @@ namespace MatchThemAll.Scripts
             var clip = entry.PickClip();
             if (!clip) return;
 
-            if (_lastPlayed.TryGetValue(id, out var last) && Time.unscaledTime - last < MinRepeatInterval) return;
-            _lastPlayed[id] = Time.unscaledTime;
+            float now = Time.unscaledTime;
+            if (_lastPlayed.TryGetValue(id, out var last) && now - last < MinRepeatInterval) return;
+            _lastPlayed[id] = now;
 
-            var source = GetFreeSource();
+            int v = PickVoice();
+            var source = _voices[v];
+            _voiceStartedAt[v] = now;
             source.clip = clip;
             source.volume = entry.volume;
             source.pitch = Random.Range(entry.pitchMin, entry.pitchMax);
-            source.loop = false;
             source.outputAudioMixerGroup = library.sfxGroup;
             source.Play();
+        }
+
+        /// <summary>An idle voice if there is one, otherwise the one that started longest ago.</summary>
+        private int PickVoice()
+        {
+            int oldest = 0;
+            for (int i = 0; i < _voices.Length; i++)
+            {
+                if (!_voices[i].isPlaying) return i;
+                if (_voiceStartedAt[i] < _voiceStartedAt[oldest]) oldest = i;
+            }
+            return oldest;
         }
 
         /// <summary>Starts a looping music event (MusicMenu / MusicGame). Keeps playing if the clip is unchanged.</summary>
@@ -159,114 +180,33 @@ namespace MatchThemAll.Scripts
         {
             if (!library || !library.TryGet(id, out var entry)) return;
             var clip = entry.PickClip();
-            if (!clip || (_musicSource.clip == clip && _musicSource.isPlaying)) return;
+            if (!clip || (_music.clip == clip && _music.isPlaying)) return;
 
-            _musicSource.clip = clip;
-            _musicSource.volume = entry.volume;
-            _musicSource.pitch = 1f;
-            _musicSource.outputAudioMixerGroup = library.musicGroup;
-            _musicSource.Play();
+            _music.clip = clip;
+            _music.volume = entry.volume;
+            _music.pitch = 1f;
+            _music.outputAudioMixerGroup = library.musicGroup;
+            _music.Play();
         }
 
-        /// <summary>Creates the AudioSource components that act as the SFX pool.</summary>
-        private void BuildPool()
-        {
-            _sfxPool = new AudioSource[sfxPoolSize];
-            for (var i = 0; i < sfxPoolSize; i++)
-            {
-                _sfxPool[i]            = gameObject.AddComponent<AudioSource>();
-                _sfxPool[i].playOnAwake = false;
-            }
+        #endregion
 
-            _musicSource            = gameObject.AddComponent<AudioSource>();
-            _musicSource.playOnAwake = false;
-            _musicSource.loop        = true;
-        }
+        #region Volume
 
-        // ------------------------------------------------------------------ SFX
+        /// <summary>SFX bus volume, 0 (mute) to 1 (full).</summary>
+        public void SetSFXVolume(float volume01) => SetBus(SfxVolumeParam, volume01);
 
-        /// <summary>
-        /// Plays a one-shot (or looping) sound effect.
-        /// Finds a free AudioSource from the pool; if all are busy, steals the oldest.
-        /// </summary>
-        public void Play(SoundDataSO data)
-        {
-            if (!data || !data.clip)
-            {
-                Debug.LogWarning("SoundManager.Play: SoundDataSO or its clip is null.");
-                return;
-            }
+        /// <summary>Music bus volume, 0 (mute) to 1 (full).</summary>
+        public void SetMusicVolume(float volume01) => SetBus(MusicVolumeParam, volume01);
 
-            var source                = GetFreeSource();
-            source.clip                       = data.clip;
-            source.volume                     = data.volume;
-            source.pitch                      = data.pitch;
-            source.loop                       = data.loop;
-            source.outputAudioMixerGroup      = data.mixerGroup;
-            source.Play();
-        }
-
-        /// <summary>
-        /// Returns the first idle AudioSource in the pool.
-        /// Falls back to round-robin stealing when all sources are busy.
-        /// </summary>
-        private AudioSource GetFreeSource()
-        {
-            foreach (var sfx in _sfxPool)
-                if (!sfx.isPlaying)
-                    return sfx;
-
-            // All busy — steal the next source in order and restart it
-            var stolen = _sfxPool[_poolCursor % _sfxPool.Length];
-            _poolCursor++;
-            return stolen;
-        }
-
-        // ------------------------------------------------------------------ Music
-
-        /// <summary>Starts background music. Ignored if the same clip is already playing.</summary>
-        public void PlayMusic(SoundDataSO data)
-        {
-            if (!data || !data.clip) return;
-
-            // Avoid restarting the same track if it is already running
-            if (_musicSource.clip == data.clip && _musicSource.isPlaying) return;
-
-            _musicSource.clip                  = data.clip;
-            _musicSource.volume                = data.volume;
-            _musicSource.pitch                 = data.pitch;
-            _musicSource.outputAudioMixerGroup = data.mixerGroup;
-            _musicSource.Play();
-        }
-
-        /// <summary>Stops background music immediately.</summary>
-        public void StopMusic() => _musicSource.Stop();
-
-        // ------------------------------------------------------------------ Volume control
-
-        /// <summary>Sets master volume. normalizedValue is 0 (mute) to 1 (full).</summary>
-        public void SetMasterVolume(float normalizedValue) =>
-            SetMixerVolume(MasterVolumeParam, normalizedValue);
-
-        /// <summary>Sets SFX bus volume. normalizedValue is 0 to 1.</summary>
-        public void SetSFXVolume(float normalizedValue) =>
-            SetMixerVolume(SfxVolumeParam, normalizedValue);
-
-        /// <summary>Sets music bus volume. normalizedValue is 0 to 1.</summary>
-        public void SetMusicVolume(float normalizedValue) =>
-            SetMixerVolume(MusicVolumeParam, normalizedValue);
-
-        /// <summary>
-        /// Converts a 0-1 linear slider value to dB and applies it to the AudioMixer.
-        /// AudioMixer works in dB; using log10 gives a perceptually linear volume curve.
-        /// </summary>
-        private void SetMixerVolume(string parameter, float normalizedValue)
+        // The mixer works in decibels; 20·log10(v) makes the slider feel even. 0 maps to the mixer's floor.
+        private void SetBus(string parameter, float volume01)
         {
             if (!audioMixer) return;
-
-            // Clamp to avoid log10(0) = -Infinity
-            var db = Mathf.Log10(Mathf.Max(0.0001f, normalizedValue)) * 20f;
+            float db = volume01 > 0.0001f ? 20f * Mathf.Log10(volume01) : SilentDb;
             audioMixer.SetFloat(parameter, db);
         }
+
+        #endregion
     }
 }

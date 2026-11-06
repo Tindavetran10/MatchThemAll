@@ -1,14 +1,17 @@
-using System.Collections;
 using TMPro;
 using UnityEngine;
 
 namespace MatchThemAll.Scripts
 {
+    /// <summary>
+    /// The level clock. Counts whole seconds down while running, stops for pause / popups / tutorial
+    /// steps, and can be frozen by the Freeze power-up (the freeze itself only drains during play).
+    /// </summary>
     public class TimerManager : MonoBehaviour
     {
         public static TimerManager Instance;
-        
-        [Header("Elements")]
+
+        [Header("HUD")]
         [SerializeField] private TextMeshProUGUI timerText;
 
         [Header("Freeze")]
@@ -18,19 +21,21 @@ namespace MatchThemAll.Scripts
         /// <summary>Remaining time in seconds. Read by WinPanelManager for star calculation.</summary>
         public int CurrentTime { get; private set; }
 
-        private bool _isRunning;
-        private bool _resumeAfterOffer; // was the timer counting when the power-up offer popup opened?
-        private float _freezeLeft;
+        public bool IsFrozen { get; private set; }
 
-        // Cached to avoid allocating a new WaitForSeconds every tick
-        private static readonly WaitForSeconds OneSecondWait = new(1f);
+        /// <summary>Freeze time left, 1 → 0 (0 when not frozen). Drives the freeze bar under the clock.</summary>
+        public float FreezeRemaining01 => IsFrozen && freezeDuration > 0f ? Mathf.Clamp01(_freezeLeft / freezeDuration) : 0f;
+
+        private bool _ticking;
+        private float _sinceLastTick;   // scaled seconds since the last whole-second step
+        private bool _resumeAfterOffer; // was the clock ticking when the power-up offer popup opened?
+        private float _freezeLeft;
 
         private void Awake()
         {
-            if (Instance == null)
-                Instance = this;
-            else Destroy(gameObject);
-            
+            if (Instance && Instance != this) { Destroy(gameObject); return; }
+            Instance = this;
+
             LevelManager.LevelSpawned += OnLevelSpawned;
             EventBus.Subscribe<GameStateChangedEvent>(OnGameStateChanged);
         }
@@ -43,88 +48,82 @@ namespace MatchThemAll.Scripts
 
         private void Update()
         {
-            // Freeze countdown: only while actually playing, so pause / popups don't eat the freeze.
-            if (!IsFrozen || !GameManager.Instance.IsGame()) return;
-            _freezeLeft -= Time.deltaTime;
-            if (_freezeLeft <= 0f) EndFreeze(restartTimer: true);
+            if (_ticking) Tick(Time.deltaTime);
+
+            // Freeze drains only while actually playing, so pause / popups don't eat it.
+            if (IsFrozen && GameManager.Instance.IsGame())
+            {
+                _freezeLeft -= Time.deltaTime;
+                if (_freezeLeft <= 0f) EndFreeze(restartClock: true);
+            }
         }
+
+        private void Tick(float dt)
+        {
+            _sinceLastTick += dt;
+            while (_ticking && _sinceLastTick >= 1f && CurrentTime > 0)
+            {
+                _sinceLastTick -= 1f;
+                CurrentTime--;
+                RefreshText();
+            }
+
+            if (_ticking && CurrentTime <= 0)
+            {
+                Halt();
+                GameManager.Instance.SetGameState(EGameState.OUTOFTIME);
+            }
+        }
+
+        private void Run()
+        {
+            _ticking = true;
+            _sinceLastTick = 0f; // every (re)start waits a full second before the first step
+        }
+
+        private void Halt() => _ticking = false;
+
+        private void RefreshText() =>
+            timerText.SetText("{0:00}:{1:00}", CurrentTime / 60, CurrentTime % 60); // SetText(format, floats) doesn't allocate
 
         private void OnLevelSpawned(Level level)
         {
-            if (IsFrozen) EndFreeze(restartTimer: false);
+            if (IsFrozen) EndFreeze(restartClock: false);
             CurrentTime = level.Duration;
-            UpdateTimerText();
-            StartTimer();
-        }
-
-        private void StartTimer()
-        {
-            StopTimer(); // cancel any already-running timer before starting a new one
-            _isRunning = true;
-            StartCoroutine(TimerCoroutine());
-        }
-
-        private IEnumerator TimerCoroutine()
-        {
-            while (CurrentTime > 0)
-            {
-                yield return OneSecondWait;
-                if (!_isRunning) yield break;        // respect Stop/Pause
-
-                CurrentTime--;
-                UpdateTimerText();
-            }
-
-            TimerFinished();
-        }
-
-        private void UpdateTimerText()
-        {
-            // TMP's SetText(string, float, float) writes directly into the text buffer — zero string allocation
-            timerText.SetText("{0:00}:{1:00}", CurrentTime / 60, CurrentTime % 60);
-        }
-
-        private void TimerFinished()
-        {
-            StopTimer();
-            GameManager.Instance.SetGameState(EGameState.OUTOFTIME);
+            RefreshText();
+            Run();
         }
 
         private void OnGameStateChanged(GameStateChangedEvent evt)
         {
+            var previous = GameManager.Instance.PreviousState;
             switch (evt.NewState)
             {
                 case EGameState.PAUSED:
                 case EGameState.OUTOFTIME:
-                    StopTimer();
+                    Halt();
                     break;
+
                 case EGameState.POWERUPOFFER:
-                    // Resume later only if it was counting now (not frozen, not tutorial-paused, level already started).
-                    _resumeAfterOffer = _isRunning;
-                    StopTimer();
+                    // Resume later only if it is ticking now (not frozen, not tutorial-paused, level started).
+                    _resumeAfterOffer = _ticking;
+                    Halt();
                     break;
-                case EGameState.GAME when GameManager.Instance.PreviousState == EGameState.PAUSED || GameManager.Instance.PreviousState == EGameState.OUTOFTIME:
-                    if (!IsFrozen) StartTimer(); // resume from pause or out of time (a running freeze restarts it itself)
+
+                case EGameState.GAME when previous is EGameState.PAUSED or EGameState.OUTOFTIME:
+                    if (!IsFrozen) Run(); // a running freeze restarts the clock itself when it ends
                     break;
-                case EGameState.GAME when GameManager.Instance.PreviousState == EGameState.POWERUPOFFER:
-                    if (_resumeAfterOffer) StartTimer();
+
+                case EGameState.GAME when previous == EGameState.POWERUPOFFER:
+                    if (_resumeAfterOffer) Run();
                     break;
-                case EGameState.LEVELCOMPLETE or EGameState.GAMEOVER:
-                    StopTimer();
-                    if (IsFrozen) EndFreeze(restartTimer: false);
+
+                case EGameState.LEVELCOMPLETE:
+                case EGameState.GAMEOVER:
+                    Halt();
+                    if (IsFrozen) EndFreeze(restartClock: false);
                     break;
             }
-        }
-
-        public bool IsFrozen { get; private set; }
-
-        /// <summary>Freeze time left, 1 → 0 (0 when not frozen). Drives the freeze bar under the clock.</summary>
-        public float FreezeRemaining01 => IsFrozen && freezeDuration > 0f ? Mathf.Clamp01(_freezeLeft / freezeDuration) : 0f;
-
-        private void StopTimer()
-        {
-            _isRunning = false;
-            StopAllCoroutines();
         }
 
         public void FreezeTimer()
@@ -132,38 +131,28 @@ namespace MatchThemAll.Scripts
             if (IsFrozen) return;
             IsFrozen = true;
             _freezeLeft = freezeDuration;
-            StopTimer();
+            Halt();
             EventBus.Publish(new TimerFrozenEvent(freezeDuration));
         }
 
-        private void EndFreeze(bool restartTimer)
+        private void EndFreeze(bool restartClock)
         {
             IsFrozen = false;
             _freezeLeft = 0f;
             EventBus.Publish(new TimerUnfrozenEvent());
-            if (restartTimer && GameManager.Instance.IsGame()) StartTimer();
+            if (restartClock && GameManager.Instance.IsGame()) Run();
         }
 
         public void AddTime(int seconds)
         {
             CurrentTime += seconds;
-            UpdateTimerText();
+            RefreshText();
         }
 
         public void SetTutorialPause(bool isPaused)
         {
-            if (isPaused)
-            {
-                StopTimer();
-            }
-            else
-            {
-                // Only start if we are in the GAME state (and not frozen — the freeze restarts it when it ends)
-                if (GameManager.Instance.IsGame() && !IsFrozen)
-                {
-                    StartTimer();
-                }
-            }
+            if (isPaused) Halt();
+            else if (GameManager.Instance.IsGame() && !IsFrozen) Run(); // a freeze restarts the clock when it ends
         }
 
 #if UNITY_EDITOR
@@ -172,8 +161,9 @@ namespace MatchThemAll.Scripts
         {
             if (!GameManager.Instance.IsGame()) return;
             CurrentTime = 0;
-            UpdateTimerText();
-            TimerFinished();
+            RefreshText();
+            Run();
+            Tick(0f);
         }
 #endif
     }

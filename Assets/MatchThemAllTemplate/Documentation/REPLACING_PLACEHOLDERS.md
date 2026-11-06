@@ -27,5 +27,5 @@ Here is how to swap them out for production-ready 3D models and visuals.
 
 ## 3. Replacing Audio & SFX
 1. Import audio files (`.wav`, `.mp3`, `.ogg`) into `Assets/MatchThemAllTemplate/Audio/Audio Clip/`.
-2. Navigate to `Assets/MatchThemAllTemplate/Audio/Audio Data/`.
-3. Open the corresponding `SoundDataSO` asset (e.g. `SFX_Merge.asset`, `SFX_LevelComplete.asset`) and assign your new audio clip.
+2. Open **Match Them All ▸ Sound Manager** (it edits `Resources/Sound/SoundLibrary.asset`).
+3. Pick the sound event (e.g. `Merge`, `LevelComplete`) and assign your new clip(s), volume and pitch range.

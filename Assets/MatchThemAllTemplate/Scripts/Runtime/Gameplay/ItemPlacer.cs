@@ -1,7 +1,7 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using NaughtyAttributes;
 using UnityEngine;
-using ZLinq;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -10,128 +10,99 @@ using UnityEditor;
 namespace MatchThemAll.Scripts
 {
     /// <summary>
-    /// Spawns items at runtime from a LevelDataSO.
-    /// No longer stores item data itself — that lives in the ScriptableObject.
+    /// Scatters a level's items inside a box. The level's seed makes the scatter reproducible:
+    /// each item consumes, in order, three Random.Range calls (x, y, z) and one Random.onUnitSphere.
+    /// Keep that order — changing it reshuffles every existing level.
     /// </summary>
     public class ItemPlacer : MonoBehaviour
     {
-        [Header("Elements")]
+        [Header("Spawn Area")]
         [SerializeField] private BoxCollider spawnZone;
-        
-        [Header("Data")]
-        private readonly System.Collections.Generic.List<Item> _activeItems = new();
 
-        /// <summary>
-        /// Called by Level.Initialize() at runtime.
-        /// Uses the SO's seed and item list to scatter items inside the spawn zone.
-        /// </summary>
+        private const int ItemsPerFrame = 5;
+        private readonly List<Item> _activeItems = new();
+
+        public List<Item> GetItems() => _activeItems;
+
+        /// <summary>Spawns the whole level in one frame.</summary>
         public void Initialize(LevelDataSO data)
         {
-            if (!data) { Debug.LogError("ItemPlacer: null LevelDataSO received."); return; }
-            ClearItems();
-            Random.InitState(data.seed);
-
-            foreach (var entry in data.itemData)
-            {
-                int totalAmount = entry.amount * Mathf.Max(1, entry.multiplier);
-                for (int i = 0; i < totalAmount; i++)
-                {
-                    SpawnItem(entry.itemPrefab);
-                }
-            }
-            CompactItems();
+            if (!BeginSpawn(data)) return;
+            foreach (var prefab in Expand(data)) Spawn(prefab);
         }
 
+        /// <summary>Spawns the level a few items per frame to avoid a hitch.</summary>
         public async Task InitializeAsync(LevelDataSO data)
         {
-            if (data == null) { Debug.LogError("ItemPlacer: null LevelDataSO received."); return; }
-            ClearItems();
-            Random.InitState(data.seed);
-
-            int itemsSpawnedThisFrame = 0;
-            const int itemsPerFrame = 5; // Spawn 5 items per frame to avoid spikes
-
-            foreach (var entry in data.itemData)
+            if (!BeginSpawn(data)) return;
+            int inBatch = 0;
+            foreach (var prefab in Expand(data))
             {
-                int totalAmount = entry.amount * Mathf.Max(1, entry.multiplier);
-                for (int i = 0; i < totalAmount; i++)
-                {
-                    SpawnItem(entry.itemPrefab);
-                    
-                    itemsSpawnedThisFrame++;
-                    if (itemsSpawnedThisFrame >= itemsPerFrame)
-                    {
-                        itemsSpawnedThisFrame = 0;
-                        await Task.Delay(10); // Task.Yield() runs synchronously in Unity. Delay(10) forces it to wait for the next frame.
-                    }
-                }
+                Spawn(prefab);
+                if (++inBatch < ItemsPerFrame) continue;
+                inBatch = 0;
+                await Task.Delay(10); // Task.Yield() completes synchronously in Unity; a short delay reaches the next frame
             }
-            CompactItems();
         }
 
-        private void ClearItems()
+        private bool BeginSpawn(LevelDataSO data)
+        {
+            if (!data) { Debug.LogError("ItemPlacer: null LevelDataSO received."); return false; }
+            Despawn();
+            Random.InitState(data.seed);
+            return true;
+        }
+
+        /// <summary>One entry per item to spawn (amount × multiplier copies of each prefab).</summary>
+        private static IEnumerable<Item> Expand(LevelDataSO data)
+        {
+            foreach (var entry in data.itemData)
+            {
+                int copies = entry.amount * Mathf.Max(1, entry.multiplier);
+                for (int c = 0; c < copies; c++) yield return entry.itemPrefab;
+            }
+        }
+
+        private void Spawn(Item prefab)
+        {
+            var item = CreateInstance(prefab);
+            var t = item.transform;
+            t.SetParent(transform);
+            t.position = RandomPointInZone();
+            t.rotation = Quaternion.Euler(Random.onUnitSphere * 360f);
+            _activeItems.Add(item);
+        }
+
+        private static Item CreateInstance(Item prefab)
         {
 #if UNITY_EDITOR
             if (!Application.isPlaying)
-            {
-                // Destroy tracked preview items so they don't leak in the scene
-                foreach (var item in _activeItems.AsValueEnumerable().Where(item => item)) 
-                    DestroyImmediate(item.gameObject);
-                _activeItems.Clear();
-                return;
-            }
+                return ((GameObject)PrefabUtility.InstantiatePrefab(prefab.gameObject)).GetComponent<Item>();
 #endif
-            foreach (var item in _activeItems.AsValueEnumerable().Where(item => item)) 
-                ItemPoolManager.Instance.ReleaseItem(item);
+            return ItemPoolManager.Instance.GetItem(prefab);
+        }
 
+        private void Despawn()
+        {
+            foreach (var item in _activeItems)
+            {
+                if (!item) continue;
+#if UNITY_EDITOR
+                if (!Application.isPlaying) { DestroyImmediate(item.gameObject); continue; }
+#endif
+                ItemPoolManager.Instance.ReleaseItem(item);
+            }
             _activeItems.Clear();
         }
 
-        /// <summary>
-        /// Removes null entries from the active items list.
-        /// Called after spawning completes — NOT on every read.
-        /// </summary>
-        private void CompactItems()
+        private Vector3 RandomPointInZone()
         {
-            for (int i = _activeItems.Count - 1; i >= 0; i--)
-            {
-                if (!_activeItems[i])
-                    _activeItems.RemoveAt(i);
-            }
+            Vector3 half = spawnZone.size * 0.5f;
+            float x = Random.Range(-half.x, half.x);
+            float y = Random.Range(-half.y, half.y);
+            float z = Random.Range(-half.z, half.z);
+            return transform.TransformPoint(spawnZone.center + new Vector3(x, y, z));
         }
-
-        private void SpawnItem(Item prefab)
-        {
-#if UNITY_EDITOR
-            if (!Application.isPlaying)
-            {
-                GameObject go = (GameObject)PrefabUtility.InstantiatePrefab(prefab.gameObject);
-                Item item = go.GetComponent<Item>();
-                item.transform.SetParent(transform);
-                item.transform.position = GetSpawnPosition();
-                item.transform.rotation = Quaternion.Euler(Random.onUnitSphere * 360f);
-                _activeItems.Add(item);
-                return;
-            }
-#endif
-            Item runtimeItem = ItemPoolManager.Instance.GetItem(prefab);
-            runtimeItem.transform.SetParent(transform);
-            runtimeItem.transform.position = GetSpawnPosition();
-            runtimeItem.transform.rotation = Quaternion.Euler(Random.onUnitSphere * 360f);
-            _activeItems.Add(runtimeItem);
-        }
-
-        private Vector3 GetSpawnPosition()
-        {
-            float x = Random.Range(-spawnZone.size.x / 2f, spawnZone.size.x / 2f);
-            float y = Random.Range(-spawnZone.size.y / 2f, spawnZone.size.y / 2f);
-            float z = Random.Range(-spawnZone.size.z / 2f, spawnZone.size.z / 2f);
-
-            Vector3 localPos = spawnZone.center + new Vector3(x, y, z);
-            return transform.TransformPoint(localPos);
-        }
-
-        public System.Collections.Generic.List<Item> GetItems() => _activeItems;
 
 #if UNITY_EDITOR
         [Header("Editor Preview")]
@@ -141,29 +112,12 @@ namespace MatchThemAll.Scripts
         [Button("Preview Spawn")]
         private void PreviewSpawn()
         {
-            if (!previewData)
-            {
-                Debug.LogWarning("ItemPlacer: Assign a LevelDataSO to Preview Data first.");
-                return;
-            }
-
-            PreviewSpawnWithData(previewData);
+            if (previewData) Initialize(previewData);
+            else Debug.LogWarning("ItemPlacer: Assign a LevelDataSO to Preview Data first.");
         }
 
-        /// <summary>
-        /// Called by LevelEditorWindow. Passes data directly so the serialized
-        /// previewData field is never written to, keeping the prefab asset clean.
-        /// </summary>
-        public void PreviewSpawnFromEditor(LevelDataSO data) => PreviewSpawnWithData(data);
-
-        private void PreviewSpawnWithData(LevelDataSO data) =>
-            // ClearItems handles destroying previously spawned edit-mode objects
-            Initialize(data);
-
-        private void OnValidate()
-        {
-            // Validation now handled inside LevelDataSO / ItemLevelData
-        }
+        /// <summary>Used by LevelEditorWindow; takes the data directly so the prefab's previewData stays untouched.</summary>
+        public void PreviewSpawnFromEditor(LevelDataSO data) => Initialize(data);
 #endif
     }
 }

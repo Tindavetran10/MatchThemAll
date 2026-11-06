@@ -2,6 +2,7 @@ using UnityEngine;
 
 namespace MatchThemAll.Scripts
 {
+    /// <summary>Shows the panel that belongs to each game state; panels with a UIAnimator animate out.</summary>
     public class UIManager : MonoBehaviour
     {
         [Header("Panels")]
@@ -15,31 +16,21 @@ namespace MatchThemAll.Scripts
 
         private void OnGameStateChanged(GameStateChangedEvent evt)
         {
-            var gameState = evt.NewState;
-            // Keep the game HUD (goals, timer) visible while paused or out of time.
-            SetPanelActive(gamePanel, gameState is EGameState.GAME or EGameState.PAUSED or EGameState.OUTOFTIME or EGameState.POWERUPOFFER);
-
-            // Pause overlay sits on top of the game panel.
-            SetPanelActive(pausePanel, gameState == EGameState.PAUSED);
-
-            SetPanelActive(levelCompletePanel, gameState == EGameState.LEVELCOMPLETE);
-            SetPanelActive(gameOverPanel, gameState == EGameState.GAMEOVER);
+            var s = evt.NewState;
+            // The HUD (goals, timer) stays up under the pause, out-of-time and power-up popups.
+            Show(gamePanel, s is EGameState.GAME or EGameState.PAUSED or EGameState.OUTOFTIME or EGameState.POWERUPOFFER);
+            Show(pausePanel, s == EGameState.PAUSED);
+            Show(levelCompletePanel, s == EGameState.LEVELCOMPLETE);
+            Show(gameOverPanel, s == EGameState.GAMEOVER);
         }
 
-        private static void SetPanelActive(GameObject panel, bool active)
+        private static void Show(GameObject panel, bool visible)
         {
-            if (!panel) return;
+            if (!panel || panel.activeSelf == visible) return;
+            if (visible) { panel.SetActive(true); return; }
 
-            if (active)
-            {
-                panel.SetActive(true);
-            }
-            else if (panel.activeSelf)
-            {
-                var anim = panel.GetComponent<UI.UIAnimator>();
-                if (anim) anim.ClosePanel();
-                else panel.SetActive(false);
-            }
+            if (panel.TryGetComponent<UI.UIAnimator>(out var animator)) animator.ClosePanel();
+            else panel.SetActive(false);
         }
     }
 }

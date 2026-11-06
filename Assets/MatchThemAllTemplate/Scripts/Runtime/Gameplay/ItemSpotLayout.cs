@@ -1,32 +1,23 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace MatchThemAll.Scripts
 {
     /// <summary>
-    /// Equal spacing and alignment configuration script for child Item Spots.
-    /// Attach this to the "Item Spots" parent game object to manage child spacing automatically in the editor.
+    /// Lines up the active children (the tray's item spots) along one local axis, in edit mode too.
+    /// Put it on the "Item Spots" parent; ItemSpotManager calls <see cref="UpdateLayout"/> after it
+    /// hides spots for levels with fewer slots.
     /// </summary>
     [ExecuteAlways]
     [DisallowMultipleComponent]
     public class ItemSpotLayout : MonoBehaviour
     {
-        private enum LayoutMode
-        {
-            SpacingFromFirst,
-            FitBetweenEnds,
-            Centered
-        }
-
-        private enum Axis
-        {
-            X,
-            Y,
-            Z
-        }
+        // Serialized as ints: append new values, never reorder.
+        private enum LayoutMode { SpacingFromFirst, FitBetweenEnds, Centered }
+        private enum Axis { X, Y, Z }
 
         [Header("Layout Settings")]
+        [Tooltip("SpacingFromFirst: keep the first child, step by Spacing. FitBetweenEnds: keep first and last, spread the rest evenly. Centered: step by Spacing around the parent's origin.")]
         [SerializeField] private LayoutMode layoutMode = LayoutMode.SpacingFromFirst;
         [SerializeField] private Axis axis = Axis.Y;
         [SerializeField] private float spacing = -0.14f;
@@ -39,171 +30,64 @@ namespace MatchThemAll.Scripts
         [Tooltip("Optional list of children to ignore during layout.")]
         [SerializeField] private List<Transform> ignoredChildren = new();
 
-        private void OnTransformChildrenChanged() => UpdateLayout();
+        private readonly List<Transform> _laidOut = new();
 
+        private void OnTransformChildrenChanged() => UpdateLayout();
         private void OnValidate() => UpdateLayout();
 
         [ContextMenu("Update Layout")]
         public void UpdateLayout()
         {
-            int childCount = transform.childCount;
-            if (childCount <= 1) return;
+            CollectChildren();
+            int n = _laidOut.Count;
+            if (n < 2) return;
 
-            // Collect valid children
-            List<Transform> children = new List<Transform>();
-            for (int i = 0; i < childCount; i++)
+            int a = (int)axis;
+            Vector3 first = _laidOut[0].localPosition;
+            Vector3 last = _laidOut[n - 1].localPosition;
+
+            for (int i = 0; i < n; i++)
             {
-                Transform child = transform.GetChild(i);
+                Vector3 p = _laidOut[i].localPosition;
+                switch (layoutMode)
+                {
+                    case LayoutMode.SpacingFromFirst:
+                        if (i == 0) continue; // the first child is the anchor
+                        p[a] = first[a] + i * spacing;
+                        if (!lockOtherAxes) CopyOtherAxes(ref p, first, a);
+                        break;
+
+                    case LayoutMode.FitBetweenEnds:
+                        float t = i / (float)(n - 1);
+                        Vector3 along = Vector3.Lerp(first, last, t);
+                        p[a] = along[a];
+                        if (!lockOtherAxes) CopyOtherAxes(ref p, along, a);
+                        break;
+
+                    case LayoutMode.Centered:
+                        p[a] = (i - (n - 1) * 0.5f) * spacing;
+                        if (!lockOtherAxes) CopyOtherAxes(ref p, Vector3.zero, a);
+                        break;
+                }
+                _laidOut[i].localPosition = p;
+            }
+        }
+
+        private void CollectChildren()
+        {
+            _laidOut.Clear();
+            foreach (Transform child in transform)
+            {
                 if (!child.gameObject.activeSelf) continue;
                 if (ignoredChildren != null && ignoredChildren.Contains(child)) continue;
-                children.Add(child);
-            }
-
-            int count = children.Count;
-            if (count <= 1) return;
-
-            if (layoutMode == LayoutMode.SpacingFromFirst)
-            {
-                Vector3 firstPos = children[0].localPosition;
-                for (int i = 1; i < count; i++)
-                {
-                    Vector3 localPos = children[i].localPosition;
-                    float offset = i * spacing;
-                    SetCoordinate(ref localPos, GetCoordinate(firstPos) + offset);
-                    if (!lockOtherAxes)
-                    {
-                        SetOtherCoordinates(ref localPos, firstPos);
-                    }
-                    children[i].localPosition = localPos;
-                }
-            }
-            else if (layoutMode == LayoutMode.FitBetweenEnds)
-            {
-                Vector3 firstPos = children[0].localPosition;
-                Vector3 lastPos = children[count - 1].localPosition;
-                float startVal = GetCoordinate(firstPos);
-                float endVal = GetCoordinate(lastPos);
-
-                for (int i = 0; i < count; i++)
-                {
-                    float t = (float)i / (count - 1);
-                    Vector3 localPos = children[i].localPosition;
-                    SetCoordinate(ref localPos, Mathf.Lerp(startVal, endVal, t));
-                    if (!lockOtherAxes)
-                    {
-                        SetOtherCoordinates(ref localPos, Vector3.Lerp(firstPos, lastPos, t));
-                    }
-                    children[i].localPosition = localPos;
-                }
-            }
-            else if (layoutMode == LayoutMode.Centered)
-            {
-                float totalLength = (count - 1) * spacing;
-                float startVal = -totalLength / 2f;
-
-                for (int i = 0; i < count; i++)
-                {
-                    Vector3 localPos = children[i].localPosition;
-                    float offset = startVal + i * spacing;
-                    SetCoordinate(ref localPos, offset);
-                    if (!lockOtherAxes)
-                    {
-                        SetCoordinateOnAxis(ref localPos, GetOtherAxisA(), 0f);
-                        SetCoordinateOnAxis(ref localPos, GetOtherAxisB(), 0f);
-                    }
-                    children[i].localPosition = localPos;
-                }
+                _laidOut.Add(child);
             }
         }
 
-        private float GetCoordinate(Vector3 vec)
+        private static void CopyOtherAxes(ref Vector3 target, Vector3 source, int keepAxis)
         {
-            return axis switch
-            {
-                Axis.X => vec.x,
-                Axis.Y => vec.y,
-                Axis.Z => vec.z,
-                _ => 0f
-            };
-        }
-
-        private void SetCoordinate(ref Vector3 vec, float value)
-        {
-            switch (axis)
-            {
-                case Axis.X:
-                    vec.x = value;
-                    break;
-                case Axis.Y:
-                    vec.y = value;
-                    break;
-                case Axis.Z:
-                    vec.z = value;
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-        }
-
-        private static void SetCoordinateOnAxis(ref Vector3 vec, Axis a, float value)
-        {
-            switch (a)
-            {
-                case Axis.X:
-                    vec.x = value;
-                    break;
-                case Axis.Y:
-                    vec.y = value;
-                    break;
-                case Axis.Z:
-                    vec.z = value;
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(a), a, null);
-            }
-        }
-
-        private void SetOtherCoordinates(ref Vector3 vec, Vector3 source)
-        {
-            switch (axis)
-            {
-                case Axis.X:
-                    vec.y = source.y;
-                    vec.z = source.z;
-                    break;
-                case Axis.Y:
-                    vec.x = source.x;
-                    vec.z = source.z;
-                    break;
-                case Axis.Z:
-                    vec.x = source.x;
-                    vec.y = source.y;
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-        }
-
-        private Axis GetOtherAxisA()
-        {
-            return axis switch
-            {
-                Axis.X => Axis.Y,
-                Axis.Y => Axis.X,
-                Axis.Z => Axis.X,
-                _ => Axis.X
-            };
-        }
-
-        private Axis GetOtherAxisB()
-        {
-            return axis switch
-            {
-                Axis.X => Axis.Z,
-                Axis.Y => Axis.Z,
-                Axis.Z => Axis.Y,
-                _ => Axis.Z
-            };
+            for (int k = 0; k < 3; k++)
+                if (k != keepAxis) target[k] = source[k];
         }
     }
 }

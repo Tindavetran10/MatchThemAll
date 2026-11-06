@@ -53,12 +53,11 @@ namespace MatchThemAll.Scripts
 
         private void Awake()
         {
-            if (Instance == null)
-                Instance = this;
-            else Destroy(gameObject);
+            if (Instance && Instance != this) { Destroy(gameObject); return; }
+            Instance = this;
 
-            LoadTask = LoadDataAsync();
             EventBus.Subscribe<GameStateChangedEvent>(OnGameStateChanged);
+            LoadTask = LoadDataAsync();
         }
 
         private void OnDestroy() => EventBus.Unsubscribe<GameStateChangedEvent>(OnGameStateChanged);
@@ -209,37 +208,29 @@ namespace MatchThemAll.Scripts
         [Button("Reset Level Progress")]
         public void ResetLevelProgress()
         {
-            _savedProgressIndex = 0;
-            CurrentLevelIndex = 0;
             SaveManager.Wipe();
-            Debug.Log("All save data wiped. Starting from Level 1.");
+            _savedProgressIndex = CurrentLevelIndex = 0;
+            Debug.Log("[LevelManager] Save wiped; progress back to level 1.");
         }
+
+        /// <summary>States that return to GAME with the current level still on the board.</summary>
+        private static bool IsResumeFrom(EGameState previous) =>
+            previous is EGameState.PAUSED or EGameState.OUTOFTIME or EGameState.POWERUPOFFER;
 
         private void OnGameStateChanged(GameStateChangedEvent evt)
         {
-            switch (evt.NewState)
+            var state = evt.NewState;
+            if (state == EGameState.GAME)
             {
-                // Only spawn a fresh level when transitioning from a non-pause and non-continue state.
-                // Resuming from PAUSED or TIMEOUT should never re-spawn the current level.
-                case EGameState.GAME when GameManager.Instance.PreviousState != EGameState.PAUSED
-                                          && GameManager.Instance.PreviousState != EGameState.OUTOFTIME
-                                          && GameManager.Instance.PreviousState != EGameState.POWERUPOFFER:
-                    SpawnLevel();
-                    break;
-                case EGameState.GAME: // resuming from pause/out of time/power-up popup — do nothing, level already exists
-                    break;
-                case EGameState.LEVELCOMPLETE:
-                    // Stars are saved by WinPanelManager after calculating time remaining
-                    break;
-                case EGameState.MENU:
-                case EGameState.GAMEOVER:
-                case EGameState.PAUSED:
-                case EGameState.OUTOFTIME:
-                case EGameState.POWERUPOFFER:
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(evt.NewState), evt.NewState, null);
+                if (!IsResumeFrom(GameManager.Instance.PreviousState)) SpawnLevel();
+                return;
             }
+
+            // Every other known state leaves the level alone (stars are saved by WinPanelManager).
+            // An unknown state is a bug: adding an EGameState must be a conscious decision here.
+            if (state is EGameState.LEVELCOMPLETE or EGameState.MENU or EGameState.GAMEOVER
+                or EGameState.PAUSED or EGameState.OUTOFTIME or EGameState.POWERUPOFFER) return;
+            throw new ArgumentOutOfRangeException(nameof(evt.NewState), state, null);
         }
     }
 }

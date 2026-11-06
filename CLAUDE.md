@@ -150,7 +150,7 @@ These classes have the most edges in the graph. Changes here have wide ripple ef
 - **No silent spending.** Anything that costs currency must be an explicit player choice (`PowerupOfferPanel` popup), never an automatic fallback inside a click handler.
 - **Adding an `EGameState`:** audit every `GameStateChangedEvent` subscriber. `LevelManager` throws on unknown states and only skips the level re-spawn for the states it lists; `TimerManager` must only resume a timer that was actually running (frozen / tutorial-paused / level not started).
 - **`AdManagerMock` bootstraps itself** (`RuntimeInitializeOnLoadMethod`) — no scene contains it. Never assume a manager exists because a script references it; grep scenes/prefabs for its script GUID.
-- **Capturing Play-mode checks:** `ScreenCapture.CaptureScreenshot` silently writes nothing unless the Game view is the visible tab, and `EditorApplication.update` timers can stall while Unity is unfocused. Time captures with a coroutine on a scene object (`VfxPool.Instance.StartCoroutine`), render `Camera.main` into a RenderTexture for images, and prefer numeric checks (e.g. barrel-vs-laser angle). `RunCommand` scripts can't reference PrimeTween. Make sure the level isn't OUTOFTIME (60 s levels) before tapping.
+- **Capturing Play-mode checks:** `ScreenCapture.CaptureScreenshot` silently writes nothing unless the Game view is the visible tab, and `EditorApplication.update` timers can stall while Unity is unfocused. If Play mode sits on frame 2 (`Time.time` stuck at 0.02), set `Application.runInBackground = true` from `RunCommand` (runtime only, not saved). Time captures with a coroutine on a scene object (`VfxPool.Instance.StartCoroutine`), render `Camera.main` into a RenderTexture for images, and prefer numeric checks (e.g. barrel-vs-laser angle). `RunCommand` scripts can't reference PrimeTween. Make sure the level isn't OUTOFTIME (60 s levels) before tapping.
 - In Unity MCP `RunCommand` scripts, `Image` resolves to the AI Assistant's `Unity.AI.Image` namespace — alias it: `using UiImage = UnityEngine.UI.Image;`.
 - Power-up VFX are generated (`Tools ▸ AssetGen ▸ Generate Powerup FX`) and the `Powerup_*.asset` / `FreezeOverlay` references point into them. Regenerating keeps the prefab GUIDs and internal IDs (checked), but use *Generate Powerup FX*, not *Generate VFX*, unless you also mean to rebuild `FX_MergeBurst`.
 - **No leftover objects after a model swap.** When replacing a model, delete the old model's empty children (e.g. `Cylinder.074` under the freeze blaster) unless something references them — and if a point is needed (gun tip), name it for its job (`Muzzle`). Grep for references before deleting.
@@ -177,7 +177,7 @@ These classes have the most edges in the graph. Changes here have wide ripple ef
 | Timer Management | `TimerManager` | Game-state-aware countdown |
 | Item Behavior | `Item` | Core item physics + state |
 | Item Placement | `ItemPlacer` | Spawn, preview, placement |
-| Audio Manager | `SoundManager`, `SoundDataSO` | Audio playback |
+| Audio Manager | `SoundManager`, `SoundLibrarySO` | Audio playback |
 | Game Manager | `GameManager` | Game state machine |
 | Level Data Management | `LevelDataSO` | Level config (ScriptableObject) |
 | Pixelate Render Feature | `PixelizeFeature`, `PixelizePass` | Custom URP render pass |

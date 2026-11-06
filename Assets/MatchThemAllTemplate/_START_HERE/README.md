@@ -46,7 +46,7 @@ For developers who want to go deeper, the project is organized by **feature**, n
 - **`Power Ups/Prefabs/`** — Power-up prefabs
 
 **Scripts-Only Folders** (no prefabs needed):
-- **`Scripts/Core/`** — Infrastructure: `GameManager`, `InputManager`, `SoundManager`, `SceneLoader`, `EventBus`, `GameEvents`, `DailyRewardManager`, `SoundDataSO`
+- **`Scripts/Core/`** — Infrastructure: `GameManager`, `InputManager`, `SoundManager`, `SceneLoader`, `EventBus`, `GameEvents`, `DailyRewardManager`
 - **`Scripts/Gameplay/`** — Core game loop: `Item`, `ItemPlacer`, `ItemSpot`, `ItemSpotLayout`, `GoalManager`, `HintManager`, `ItemSpotManager`, `MatchSystem`, `MergeManager`, `ComboManager`, `TimerManager`
 - **`Scripts/Tutorial/`** — `TutorialManager`, `TutorialStep`
 - **`Scripts/Save System/`** — `SaveManager`, `PlayerData`, `SaveManagerBootstrapper`
