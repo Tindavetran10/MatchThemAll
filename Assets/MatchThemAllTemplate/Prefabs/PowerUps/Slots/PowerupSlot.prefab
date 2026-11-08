@@ -108,6 +108,7 @@ MonoBehaviour:
   videoIcons: {fileID: 7966070588930724218}
   lockBadge: {fileID: 7519536284430688862}
   levelLabel: {fileID: 3811107108777023292}
+  counterBadge: {fileID: 5419237382041914080}
   iconImage: {fileID: 0}
   modelAnchor: {fileID: 4881224668309223623}
   iconSprite: {fileID: 7027834436404415684}
@@ -344,6 +345,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9541d86e2fd84c1d9990edf0852d74ab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &5419237382041914080 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4603619525538288172, guid: 7700cc13ef5ba4a4698cd5614f7ef4a2, type: 3}
+  m_PrefabInstance: {fileID: 8419383014829807820}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &7519536284430688862 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 2057417529219201682, guid: 7700cc13ef5ba4a4698cd5614f7ef4a2, type: 3}

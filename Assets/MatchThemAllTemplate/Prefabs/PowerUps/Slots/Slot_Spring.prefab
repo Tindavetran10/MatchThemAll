@@ -99,6 +99,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 7700cc13ef5ba4a4698cd5614f7ef4a2, type: 3}
+--- !u!1 &2217917388607684250 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4603619525538288172, guid: 7700cc13ef5ba4a4698cd5614f7ef4a2, type: 3}
+  m_PrefabInstance: {fileID: 2388305884923849910}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &4286992866524800256 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1898973954539014582, guid: 7700cc13ef5ba4a4698cd5614f7ef4a2, type: 3}
@@ -270,6 +275,10 @@ PrefabInstance:
       propertyPath: videoIcons
       value: 
       objectReference: {fileID: 4286992866524800256}
+    - target: {fileID: 9148548423909859419, guid: 948155622add5724f83b6861e93f3a39, type: 3}
+      propertyPath: counterBadge
+      value: 
+      objectReference: {fileID: 2217917388607684250}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

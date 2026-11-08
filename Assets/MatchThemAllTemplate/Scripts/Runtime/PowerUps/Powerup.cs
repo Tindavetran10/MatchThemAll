@@ -25,6 +25,8 @@ namespace MatchThemAll.Scripts.Power_Ups
         [SerializeField] private GameObject videoIcons;
         [SerializeField] private GameObject lockBadge;     // shown when locked
         [SerializeField] private TextMeshPro levelLabel;   // "Lv N" when locked
+        [Tooltip("The badge the charge count sits on (Amount Container/Container). Hidden while locked.")]
+        [SerializeField] private GameObject counterBadge;
         [SerializeField] private Image iconImage;
 
         [Header("Custom Slot (PowerupSlot only)")]
@@ -34,6 +36,9 @@ namespace MatchThemAll.Scripts.Power_Ups
         [SerializeField] private SpriteRenderer iconSprite;
 
         private const float IconSize = 0.8f; // icon's largest side, in slot units (slot pitch is ~1.15)
+        private static readonly Color LockedTint = new(0.4f, 0.4f, 0.45f, 1f);
+        private static readonly int BaseColorId = Shader.PropertyToID("_BaseColor");
+        private static MaterialPropertyBlock _tintBlock;
 
         [Header("Animation Event")]
         [Tooltip("Fired by the Animator 'Started' animation event. The Vacuum effect waits on this so its collection runs in sync with the suck animation.")]
@@ -108,6 +113,7 @@ namespace MatchThemAll.Scripts.Power_Ups
             if (amountText && amountText.gameObject) amountText.gameObject.SetActive(!locked && amount > 0);
             if (amountText) amountText.text = amount.ToString();
 
+            if (counterBadge) counterBadge.SetActive(!locked);
             if (lockBadge) lockBadge.SetActive(locked);
             if (levelLabel)
             {
@@ -118,6 +124,24 @@ namespace MatchThemAll.Scripts.Power_Ups
             // Non-interactable when locked: disable the collider so InputManager's raycast can't hit it.
             var col = GetComponent<Collider>();
             if (col) col.enabled = !locked;
+            SetDarkened(locked);
+        }
+
+        /// <summary>
+        /// Darkens the model (prop, tray model or icon) while locked. Uses a per-renderer property block, so the
+        /// shared M_Palette material is untouched; unlocking clears the block.
+        /// </summary>
+        private void SetDarkened(bool dark)
+        {
+            _tintBlock ??= new MaterialPropertyBlock();
+            foreach (var r in GetComponentsInChildren<Renderer>(true))
+            {
+                if (r is SpriteRenderer sprite) { sprite.color = dark ? LockedTint : Color.white; continue; }
+                if (!dark) { r.SetPropertyBlock(null); continue; }
+                r.GetPropertyBlock(_tintBlock);
+                _tintBlock.SetColor(BaseColorId, LockedTint);
+                r.SetPropertyBlock(_tintBlock);
+            }
         }
     }
 }

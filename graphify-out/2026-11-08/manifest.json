@@ -540,9 +540,9 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/PowerUps/Powerup.cs": {
-    "mtime": 1794112602.6523857,
-    "seen": 1794112676.8344455,
-    "ast_hash": "af84d47b6c22efec97a49a5adcb1950a",
+    "mtime": 1794116817.2745173,
+    "seen": 1794117173.0274148,
+    "ast_hash": "300ab5de5559ff87641ef3953b96af1f",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/PowerUps/PowerupContext.cs": {
@@ -552,9 +552,9 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/PowerUps/PowerupDataSO.cs": {
-    "mtime": 1794111709.2562933,
-    "seen": 1794112000.2713094,
-    "ast_hash": "3b043521c202edf3f4299d1fccb21200",
+    "mtime": 1794116806.033156,
+    "seen": 1794117173.0274177,
+    "ast_hash": "674ee567e976f6347422d6f6f8183258",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/PowerUps/PowerupDatabaseSO.cs": {
@@ -570,9 +570,9 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/PowerUps/PowerupManager.cs": {
-    "mtime": 1794112251.7306626,
-    "seen": 1794112537.994972,
-    "ast_hash": "899340c5bc48a756973ed66f61028127",
+    "mtime": 1794116994.5583334,
+    "seen": 1794117173.0274217,
+    "ast_hash": "72664e56e173554b75d6001547a9d9e5",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/PowerUps/Spring.cs": {
@@ -2322,9 +2322,9 @@
     "semantic_hash": ""
   },
   "CLAUDE.md": {
-    "mtime": 1794115862.7335649,
-    "seen": 1794115906.1106668,
-    "ast_hash": "230725e9d51ac1b452be952a9dabcdcc",
+    "mtime": 1794117132.7276812,
+    "seen": 1794117173.0278475,
+    "ast_hash": "324eb9c0c083e2fdee0d84aa13278d08",
     "semantic_hash": ""
   },
   "ProjectSettings/ProjectVersion.txt": {
@@ -24978,9 +24978,9 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Editor/PowerupManagerWindow.cs": {
-    "mtime": 1794114166.7069998,
-    "seen": 1794114258.0236616,
-    "ast_hash": "836ac2062f0c4082d024fa6573926aaa",
+    "mtime": 1794116829.5213504,
+    "seen": 1794117173.0273418,
+    "ast_hash": "2fc64dbdc50c54d1f0fd77ee1ee86646",
     "semantic_hash": ""
   },
   "docs/superpowers/plans/2026-11-08-powerup-editor.md": {
@@ -25002,15 +25002,9 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Editor/PowerupSlotPreview.cs": {
-    "mtime": 1794112712.3042004,
-    "seen": 1794113581.3597496,
-    "ast_hash": "89a2d675400b6602bbe790c29182cf82",
-    "semantic_hash": ""
-  },
-  "Assets/MatchThemAllTemplate/Scripts/Runtime/PowerUps/Custom/ExtraTimeEffect.cs": {
-    "mtime": 1794114694.5525014,
-    "seen": 1794115226.3568454,
-    "ast_hash": "8f37e581fdcefa371cd88cac29633ed7",
+    "mtime": 1794116829.460274,
+    "seen": 1794117173.027346,
+    "ast_hash": "b972eb9b889c1cc706d68bcdff8a38be",
     "semantic_hash": ""
   },
   "docs/decisions/2026-11-08-data-driven-powerup-tray.md": {

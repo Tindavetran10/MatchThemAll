@@ -62,6 +62,10 @@ PrefabInstance:
       propertyPath: videoIcons
       value: 
       objectReference: {fileID: 8365243874863876386}
+    - target: {fileID: 1822975705226598788, guid: 5907f6d3f2648eb4397fb1b4b014e8c2, type: 3}
+      propertyPath: counterBadge
+      value: 
+      objectReference: {fileID: 5885788732203815608}
     - target: {fileID: 3079636073805969381, guid: 5907f6d3f2648eb4397fb1b4b014e8c2, type: 3}
       propertyPath: m_Name
       value: FreezeBlaster
@@ -278,6 +282,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9541d86e2fd84c1d9990edf0852d74ab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &5885788732203815608 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4603619525538288172, guid: 7700cc13ef5ba4a4698cd5614f7ef4a2, type: 3}
+  m_PrefabInstance: {fileID: 7948240071088554132}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &8268811690872142342 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 2057417529219201682, guid: 7700cc13ef5ba4a4698cd5614f7ef4a2, type: 3}

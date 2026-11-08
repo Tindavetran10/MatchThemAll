@@ -104,10 +104,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 3801228843167506060}
     m_Modifications:
-    - target: {fileID: 148244741712908798, guid: 7700cc13ef5ba4a4698cd5614f7ef4a2, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: -3.75
-      objectReference: {fileID: 0}
     - target: {fileID: 7872646627280019405, guid: 7700cc13ef5ba4a4698cd5614f7ef4a2, type: 3}
       propertyPath: m_Name
       value: Amount Container
@@ -196,6 +192,11 @@ GameObject:
 --- !u!1 &5043570467191421543 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1898973954539014582, guid: 7700cc13ef5ba4a4698cd5614f7ef4a2, type: 3}
+  m_PrefabInstance: {fileID: 6891877825873982417}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &6937665274923393533 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4603619525538288172, guid: 7700cc13ef5ba4a4698cd5614f7ef4a2, type: 3}
   m_PrefabInstance: {fileID: 6891877825873982417}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &8911392539399121326
@@ -299,6 +300,7 @@ MonoBehaviour:
   videoIcons: {fileID: 5043570467191421543}
   lockBadge: {fileID: 4839597228443666755}
   levelLabel: {fileID: 2274515558691093537}
+  counterBadge: {fileID: 6937665274923393533}
   iconImage: {fileID: 0}
   modelAnchor: {fileID: 0}
   iconSprite: {fileID: 0}
