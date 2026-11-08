@@ -14,9 +14,9 @@ namespace MatchThemAll.Scripts.Power_Ups
     public class Powerup : MonoBehaviour
     {
         [Header("Data")]
-        [Tooltip("The power-up this button represents. If null, resolved at boot from PowerupManager by powerupId.")]
+        [Tooltip("The power-up this slot represents. Assigned by PowerupManager when it spawns the slot.")]
         [SerializeField] private PowerupDataSO data;
-        [Tooltip("Matches a PowerupDataSO.id in the database — used to auto-resolve `data` on boot.")]
+        [Tooltip("The PowerupDataSO.id of the assigned data (informational; set on spawn).")]
         [SerializeField] private string powerupId;
 
         [Header("UI References")]
@@ -26,6 +26,14 @@ namespace MatchThemAll.Scripts.Power_Ups
         [SerializeField] private GameObject lockBadge;     // shown when locked
         [SerializeField] private TextMeshPro levelLabel;   // "Lv N" when locked
         [SerializeField] private Image iconImage;
+
+        [Header("Custom Slot (PowerupSlot only)")]
+        [Tooltip("Where PowerupDataSO.trayModel is instantiated. Leave empty on built-in slots.")]
+        [SerializeField] private Transform modelAnchor;
+        [Tooltip("Shows PowerupDataSO.icon when the power-up has no tray model.")]
+        [SerializeField] private SpriteRenderer iconSprite;
+
+        private const float IconSize = 0.8f; // icon's largest side, in slot units (slot pitch is ~1.15)
 
         [Header("Animation Event")]
         [Tooltip("Fired by the Animator 'Started' animation event. The Vacuum effect waits on this so its collection runs in sync with the suck animation.")]
@@ -38,22 +46,28 @@ namespace MatchThemAll.Scripts.Power_Ups
         private void TriggerPowerupStart() => Started?.Invoke();
         public void Play() { if (animator) animator.Play("Activate"); }
 
-        /// <summary>Assigns the data and wires icon/name. Called by PowerupManager on boot.</summary>
+        /// <summary>Assigns the data and builds the slot's look. Called by PowerupManager when it spawns the slot.</summary>
         public void Configure(PowerupDataSO so)
         {
             data = so;
-            if (!string.IsNullOrEmpty(powerupId) && so != null) powerupId = so.id;
-            if (iconImage != null && so != null && so.Icon != null) iconImage.sprite = so.Icon;
-        }
+            if (!so) return;
+            powerupId = so.id;
+            if (iconImage && so.Icon) iconImage.sprite = so.Icon;
 
-        /// <summary>Resolves `data` from the database if only powerupId was set in the Inspector.</summary>
-        public bool TryAutoResolve(PowerupDatabaseSO database)
-        {
-            if (data != null) return true;
-            if (database == null || string.IsNullOrEmpty(powerupId)) return false;
-            data = database.FindById(powerupId);
-            if (data != null && iconImage != null && data.Icon != null) iconImage.sprite = data.Icon;
-            return data != null;
+            if (!modelAnchor) return; // built-in slot: its prop is part of the prefab
+            bool hasModel = so.TrayModel;
+            if (hasModel)
+            {
+                var model = Instantiate(so.TrayModel, modelAnchor, false);
+                foreach (var c in model.GetComponentsInChildren<Collider>(true)) c.enabled = false; // the slot's own collider takes taps
+            }
+            if (iconSprite)
+            {
+                iconSprite.gameObject.SetActive(!hasModel);
+                iconSprite.sprite = so.Icon;
+                if (so.Icon) // fit any icon size to the slot
+                    iconSprite.transform.localScale = Vector3.one * (IconSize / Mathf.Max(so.Icon.bounds.size.x, so.Icon.bounds.size.y));
+            }
         }
 
         public void UpdateVisuals(int amount, bool locked)
@@ -66,7 +80,8 @@ namespace MatchThemAll.Scripts.Power_Ups
             if (levelLabel)
             {
                 levelLabel.gameObject.SetActive(locked);
-                if (locked && data != null) levelLabel.text = $"Lv {data.unlockLevel}";
+                // unlockLevel is a 0-based level index; players see level numbers from 1.
+                if (locked && data != null) levelLabel.text = $"Lv {data.unlockLevel + 1}";
             }
             // Non-interactable when locked: disable the collider so InputManager's raycast can't hit it.
             var col = GetComponent<Collider>();

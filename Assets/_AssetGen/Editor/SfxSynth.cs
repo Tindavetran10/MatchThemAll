@@ -78,17 +78,17 @@ static class SfxSynth
         (SoundEvent.Combo, "Combo", Arp(.05f, .12f, Wave.Square, .2f, "E6", "G6", "B6")),
         (SoundEvent.GoalComplete, "Goal Complete", new[] { N(0, .5f, Hz("E6"), -1, Wave.Sine, .45f), N(.1f, .6f, Hz("B6"), -1, Wave.Sine, .4f) }),
         // Tornado: long swelling wind (two low-passed noise layers) + a rising, wobbling hum.
-        (SoundEvent.PowerupVacuum, "Powerup Vacuum", new[] { N(0, 2.4f, 0, 0, Wave.Noise, .5f, .7f, lp: .1f), N(.3f, 2.0f, 0, 0, Wave.Noise, .22f, .5f, lp: .3f),
+        ((SoundEvent)15 /* was PowerupVacuum: keeps the render seed */, "Powerup Vacuum", new[] { N(0, 2.4f, 0, 0, Wave.Noise, .5f, .7f, lp: .1f), N(.3f, 2.0f, 0, 0, Wave.Noise, .22f, .5f, lp: .3f),
             N(0, 2.4f, 110, 420, Wave.Triangle, .16f, .6f, vib: .08f, vibHz: 6) }),
         // (.22s after the tap: when the pad springs.)
-        (SoundEvent.PowerupSpring, "Powerup Spring", At(.22f, new[] { N(0, .45f, 220, 620, Wave.Sine, .55f, vib: .12f, vibHz: 14) })),
+        ((SoundEvent)16 /* was PowerupSpring */, "Powerup Spring", At(.22f, new[] { N(0, .45f, 220, 620, Wave.Sine, .55f, vib: .12f, vibHz: 14) })),
         (SoundEvent.SpringLand, "Spring Land", new[] { N(0, .14f, 190, 70, Wave.Sine, .75f), N(0, .06f, 0, 0, Wave.Noise, .25f, lp: .3f) }),
         // Bomb (Fan power-up): deep boom + noise blast + rumble, then fire crackle.
         // (.2s after the tap: the canister jiggles first.)
-        (SoundEvent.PowerupFan, "Powerup Fan", At(.2f, Cat(new[] { N(0, .9f, 95, 32, Wave.Sine, .9f, .002f), N(0, .7f, 0, 0, Wave.Noise, .75f, .001f, lp: .35f),
+        ((SoundEvent)17 /* was PowerupFan */, "Powerup Fan", At(.2f, Cat(new[] { N(0, .9f, 95, 32, Wave.Sine, .9f, .002f), N(0, .7f, 0, 0, Wave.Noise, .75f, .001f, lp: .35f),
             N(0, 1.3f, 0, 0, Wave.Noise, .4f, .01f, lp: .05f) }, Ticks(.25f, 1.3f, 22, .35f, .8f)))),
         // Freeze gun: laser zap (when the gun fires, .22s after the tap), then ice crackling, then a glassy shimmer.
-        (SoundEvent.PowerupFreeze, "Powerup Freeze", At(.22f, Cat(new[] { N(0, .2f, 2600, 300, Wave.Saw, .25f), N(0, .2f, 1900, 240, Wave.Square, .1f) },
+        ((SoundEvent)18 /* was PowerupFreeze */, "Powerup Freeze", At(.22f, Cat(new[] { N(0, .2f, 2600, 300, Wave.Saw, .25f), N(0, .2f, 1900, 240, Wave.Square, .1f) },
             Ticks(.15f, .8f, 26, .3f, .95f), Arp(.05f, .6f, Wave.Sine, .16f, "B6", "F#7", "D#7", "A#7")))),
         (SoundEvent.StarPop, "Star Pop", new[] { N(0, .05f, 1200, 1900, Wave.Sine, .6f) }),
         (SoundEvent.CoinReward, "Coin", new[] { N(0, .07f, Hz("B5"), -1, Wave.Square, .25f), N(.07f, .3f, Hz("E6"), -1, Wave.Square, .25f) }),
@@ -118,6 +118,8 @@ static class SfxSynth
         Undo.RecordObject(lib, "Assign generated SFX");
         foreach (var (id, path) in paths)
         {
+            // Retired ids (the power-up sounds, 15–18) only regenerate their WAV; each PowerupDataSO references the file directly.
+            if (!System.Enum.IsDefined(typeof(SoundEvent), id)) continue;
             var clip = AssetDatabase.LoadAssetAtPath<AudioClip>(path);
             var entry = lib.entries.Find(e => e.id == id);
             if (entry == null) lib.entries.Add(entry = new SoundLibrarySO.Entry { id = id });

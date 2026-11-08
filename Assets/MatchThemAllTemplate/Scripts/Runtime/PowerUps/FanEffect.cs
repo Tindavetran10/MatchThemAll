@@ -22,7 +22,8 @@ namespace MatchThemAll.Scripts.Power_Ups
         [Tooltip("Seconds the canister jiggles before it blows (the explosion sound is timed to this).")]
         public float fuseTime = 0.2f;
 
-        private float _nextAllowedTime = -999f;
+        // NonSerialized: otherwise the Editor's domain-reload backup carries a stale Time.time into the next Play session.
+        [System.NonSerialized] private float _nextAllowedTime = -999f;
 
         // Gate here (not in Activate) so debounced clicks are rejected BEFORE PowerupManager spends a charge.
         public override bool CanActivate(PowerupContext ctx) => Time.time >= _nextAllowedTime;

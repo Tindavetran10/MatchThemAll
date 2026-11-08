@@ -17,6 +17,8 @@ namespace MatchThemAll.Scripts.Power_Ups
     [System.Serializable]
     public class VacuumEffect : PowerupEffect
     {
+        public override bool WaitsForSlotAnimation => true;
+
         [Tooltip("Seconds each item takes to spiral into the nozzle.")]
         public float spiralTime = 0.9f;
         [Tooltip("Turns of the spiral on the way in.")]

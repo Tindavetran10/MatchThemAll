@@ -142,6 +142,24 @@ namespace MatchThemAll.Scripts
             if (Instance) Instance.PlayEvent(id);
         }
 
+        /// <summary>Plays <paramref name="clip"/> on the SFX group (power-ups carry their own clip). Safe when no manager/clip exists.</summary>
+        public static void Sfx(AudioClip clip, float volume, float pitch)
+        {
+            if (Instance && clip) Instance.PlayClip(clip, volume, pitch);
+        }
+
+        private void PlayClip(AudioClip clip, float volume, float pitch)
+        {
+            int v = PickVoice();
+            var source = _voices[v];
+            _voiceStartedAt[v] = Time.unscaledTime;
+            source.clip = clip;
+            source.volume = volume;
+            source.pitch = pitch;
+            source.outputAudioMixerGroup = library ? library.sfxGroup : null;
+            source.Play();
+        }
+
         private void PlayEvent(SoundEvent id)
         {
             if (!library || !library.TryGet(id, out var entry)) return;

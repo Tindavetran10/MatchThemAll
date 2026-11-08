@@ -17,6 +17,8 @@ namespace MatchThemAll.Scripts.Power_Ups
 
         [Header("Progression")]
         [Min(0)] public int order;                // left→right display order
+        [Tooltip("0-based level index: 0 = from the start, 4 = unlocks on the level players see as 5. " +
+                 "The Power-up Manager window edits this in player-facing numbers.")]
         [Min(0)] public int unlockLevel;          // player level (currentLevelIndex) required
         [Min(0)] public int defaultAmount;        // first-launch charge grant
 
@@ -25,8 +27,17 @@ namespace MatchThemAll.Scripts.Power_Ups
         [Min(0)] public int buyCost = 50;          // spent when activating with 0 charges
 
         [Header("Runtime")]
-        [SerializeField] private GameObject uiPrefab;          // the button prefab (carries PowerupUI)
+        [Tooltip("Slot Prefab: the tray slot spawned for this power-up (PowerupSlot, or a built-in Slot_* prefab).")]
+        [SerializeField] private GameObject uiPrefab;          // slot prefab (name kept for serialization)
+        [Tooltip("Optional 3D model shown in a PowerupSlot. Empty = the icon is shown instead.")]
+        [SerializeField] private GameObject trayModel;
         [SerializeReference] private PowerupEffect effect;     // polymorphic behavior
+
+        [Header("Sound")]
+        [Tooltip("Played when the power-up activates. Empty = silent.")]
+        [SerializeField] private AudioClip activateSound;
+        [Range(0f, 1f)] [SerializeField] private float activateVolume = 1f;
+        [Range(0.5f, 2f)] [SerializeField] private float activatePitch = 1f;
 
         [Header("VFX")]
         [Tooltip("Plays once when the powerup activates. Required for VFX; null = no effect.")]
@@ -38,6 +49,10 @@ namespace MatchThemAll.Scripts.Power_Ups
         public string DisplayName => displayName;
         public Sprite Icon => icon;
         public GameObject UIPrefab => uiPrefab;
+        public GameObject TrayModel => trayModel;
+        public AudioClip ActivateSound => activateSound;
+        public float ActivateVolume => activateVolume;
+        public float ActivatePitch => activatePitch;
         public PowerupEffect Effect => effect;
         public ParticleSystem ActivateVfx => activateVfx;
         public ParticleSystem EndVfx => endVfx;

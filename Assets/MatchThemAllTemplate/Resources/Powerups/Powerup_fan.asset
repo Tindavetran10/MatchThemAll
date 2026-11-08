@@ -15,14 +15,18 @@ MonoBehaviour:
   id: fan
   displayName: Fan
   icon: {fileID: 0}
-  order: 2
-  unlockLevel: 0
+  order: 1
+  unlockLevel: 1
   defaultAmount: 3
   buyCurrency: 0
   buyCost: 50
-  uiPrefab: {fileID: 2786794367453939414, guid: 73fc18920915a614e9e350ade3a95b05, type: 3}
+  uiPrefab: {fileID: 3148643626629016852, guid: 2f53cdf4cd7ebab44bc37025b8144c0b, type: 3}
+  trayModel: {fileID: 0}
   effect:
     rid: 1442196544509706361
+  activateSound: {fileID: 8300000, guid: a5b5375d08cd06a439bde4aaafa95b7f, type: 3}
+  activateVolume: 1
+  activatePitch: 0.7
   activateVfx: {fileID: 1416300526708002439, guid: fe865c0e2fa2cf944b1134dbd2610ff4, type: 3}
   endVfx: {fileID: 0}
   references:

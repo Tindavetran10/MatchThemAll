@@ -198,22 +198,27 @@ namespace MatchThemAll.Scripts.SaveSystem
             return true;
         }
 
-        /// <summary>Seeds each database entry's defaultAmount on first launch.</summary>
+        /// <summary>
+        /// Gives each power-up its defaultAmount the first time this save sees it — on first launch, and for
+        /// power-ups added later (e.g. in an update), which would otherwise start at 0 for existing players.
+        /// "Seen" = the save has an entry for the id; the entry is created even for a 0 default.
+        /// </summary>
         public static void InitializePowerups(PowerupDatabaseSO database)
         {
-            if (Data.hasInitializedPowerups) return;
+            if (!database) return;
+            bool changed = !Data.hasInitializedPowerups;
             Data.hasInitializedPowerups = true;
 
-            if (database)
+            foreach (var so in database.Ordered)
             {
-                foreach (var so in database.Ordered)
-                {
-                    if (so && so.defaultAmount > 0)
-                        Data.SetPowerupCount(so.id, so.defaultAmount);
-                }
+                if (!so || string.IsNullOrEmpty(so.id) || Data.HasPowerupEntry(so.id)) continue;
+                Data.SetPowerupCount(so.id, so.defaultAmount);
+                changed = true;
             }
+
+            if (!changed) return;
             MarkDirty();
-            Flush(); // First launch — write immediately
+            Flush(); // new starting charges — write immediately
         }
 
         // ── Currency ───────────────────────────────────────────────────────

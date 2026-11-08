@@ -15,14 +15,18 @@ MonoBehaviour:
   id: spring
   displayName: Spring
   icon: {fileID: 0}
-  order: 1
-  unlockLevel: 0
+  order: 2
+  unlockLevel: 2
   defaultAmount: 3
   buyCurrency: 0
   buyCost: 50
-  uiPrefab: {fileID: 2786794367453939414, guid: 73fc18920915a614e9e350ade3a95b05, type: 3}
+  uiPrefab: {fileID: 9183140678464160626, guid: b7361b9a537096c4b9fdde8304c0be1d, type: 3}
+  trayModel: {fileID: 0}
   effect:
     rid: 1442196544509706360
+  activateSound: {fileID: 8300000, guid: b64a3cccc12fcfe4eaeec5571fc19bdb, type: 3}
+  activateVolume: 1
+  activatePitch: 1.1
   activateVfx: {fileID: 6307274058649901439, guid: 8341b6dedee635f4495b9362777c24ef, type: 3}
   endVfx: {fileID: 8659470013189234635, guid: d802fd676dccaeb4ea7a2cc874b68512, type: 3}
   references:

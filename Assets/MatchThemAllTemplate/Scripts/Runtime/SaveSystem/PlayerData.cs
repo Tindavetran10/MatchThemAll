@@ -43,7 +43,7 @@ namespace MatchThemAll.Scripts.SaveSystem
         public int gems;
 
         // ── Powerup Charges ────────────────────────────────────────────────
-        public bool hasInitializedPowerups;
+        public bool hasInitializedPowerups;               // kept for save compatibility; seeding now checks per-id entries
         public List<PowerupSaveEntry> powerups = new();   // id-keyed map
 
         // ── Shop (first-purchase bonus tracking) ───────────────────────────
@@ -111,6 +111,10 @@ namespace MatchThemAll.Scripts.SaveSystem
             if (powerups == null || string.IsNullOrEmpty(id)) return 0;
             return powerups.AsValueEnumerable().FirstOrDefault(t => t.id == id)?.count ?? 0;
         }
+
+        /// <summary>True if this save has a charge entry (even 0) for the id — i.e. it has been given its starting charges.</summary>
+        public bool HasPowerupEntry(string id)
+            => powerups != null && !string.IsNullOrEmpty(id) && powerups.AsValueEnumerable().Any(t => t.id == id);
 
         /// <summary>Sets (or inserts) the count for an id.</summary>
         public void SetPowerupCount(string id, int count)

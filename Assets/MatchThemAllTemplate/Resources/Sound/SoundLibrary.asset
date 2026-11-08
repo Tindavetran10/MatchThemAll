@@ -75,30 +75,6 @@ MonoBehaviour:
     volume: 1
     pitchMin: 1
     pitchMax: 1
-  - id: 15
-    clips:
-    - {fileID: 8300000, guid: c6eed977cf00d3845926b335f86e27d1, type: 3}
-    volume: 0.9
-    pitchMin: 0.9
-    pitchMax: 0.9
-  - id: 16
-    clips:
-    - {fileID: 8300000, guid: b64a3cccc12fcfe4eaeec5571fc19bdb, type: 3}
-    volume: 1
-    pitchMin: 1.1
-    pitchMax: 1.1
-  - id: 17
-    clips:
-    - {fileID: 8300000, guid: a5b5375d08cd06a439bde4aaafa95b7f, type: 3}
-    volume: 1
-    pitchMin: 0.7
-    pitchMax: 0.7
-  - id: 18
-    clips:
-    - {fileID: 8300000, guid: 4493f72758a33a94bac171c6c018e950, type: 3}
-    volume: 1
-    pitchMin: 0.75
-    pitchMax: 0.75
   - id: 19
     clips:
     - {fileID: 8300000, guid: 83fc102c532a3d646b841091400c20fb, type: 3}

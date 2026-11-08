@@ -390,9 +390,9 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/Core/SoundManager.cs": {
-    "mtime": 1794079449.607,
-    "seen": 1794080290.141251,
-    "ast_hash": "37fa45f6a4c63ae56c01fafd1d51d203",
+    "mtime": 1794111709.330711,
+    "seen": 1794112000.2712617,
+    "ast_hash": "ebfb4b45c66966b54ba5d024c4a83acf",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/Gameplay/ComboManager.cs": {
@@ -522,9 +522,9 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/PowerUps/FanEffect.cs": {
-    "mtime": 1794081992.135,
-    "seen": 1794084628.5275552,
-    "ast_hash": "dfe6f8bae8b34ca72b3a0be6868e2fe5",
+    "mtime": 1794115683.6844218,
+    "seen": 1794115906.1102417,
+    "ast_hash": "476367010850985d8f661d192f74c62a",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/PowerUps/FreezeEffect.cs": {
@@ -540,9 +540,9 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/PowerUps/Powerup.cs": {
-    "mtime": 1794082032.242,
-    "seen": 1794084628.5275595,
-    "ast_hash": "94862944ac82af72c195299d41a5e3e9",
+    "mtime": 1794112602.6523857,
+    "seen": 1794112676.8344455,
+    "ast_hash": "af84d47b6c22efec97a49a5adcb1950a",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/PowerUps/PowerupContext.cs": {
@@ -552,9 +552,9 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/PowerUps/PowerupDataSO.cs": {
-    "mtime": 1794082032.238,
-    "seen": 1794084628.5275617,
-    "ast_hash": "7e622fb89c78189360c85c100de15d6a",
+    "mtime": 1794111709.2562933,
+    "seen": 1794112000.2713094,
+    "ast_hash": "3b043521c202edf3f4299d1fccb21200",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/PowerUps/PowerupDatabaseSO.cs": {
@@ -564,15 +564,15 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/PowerUps/PowerupEffect.cs": {
-    "mtime": 1788780860.0062158,
-    "seen": 1792067873.7639768,
-    "ast_hash": "95ea49c72a9361acf867d5082c55c5ae",
+    "mtime": 1794111867.3159838,
+    "seen": 1794112000.2713118,
+    "ast_hash": "fbad017841b2a0e2e76fe857241fd20f",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/PowerUps/PowerupManager.cs": {
-    "mtime": 1794084539.7539325,
-    "seen": 1794084628.5275657,
-    "ast_hash": "44b5e70d25579d9f924bc1a6b09cfb4a",
+    "mtime": 1794112251.7306626,
+    "seen": 1794112537.994972,
+    "ast_hash": "899340c5bc48a756973ed66f61028127",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/PowerUps/Spring.cs": {
@@ -594,21 +594,21 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/PowerUps/VacuumEffect.cs": {
-    "mtime": 1794082032.292,
-    "seen": 1794084628.5275726,
-    "ast_hash": "0c69f759fd39ea7aab67e255ea4ddc2c",
+    "mtime": 1794111867.380721,
+    "seen": 1794112000.27132,
+    "ast_hash": "c2972e5f4d06921a140fb9aeb5838547",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/SaveSystem/PlayerData.cs": {
-    "mtime": 1793957538.869875,
-    "seen": 1793958928.894406,
-    "ast_hash": "d168a9def1b0bae9968c9588f14a47cb",
+    "mtime": 1794115669.4599833,
+    "seen": 1794115906.1102629,
+    "ast_hash": "3399a00440378d46d9d9ecc129046c08",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/SaveSystem/SaveManager.cs": {
-    "mtime": 1794082032.261,
-    "seen": 1794084628.527575,
-    "ast_hash": "8446ada6f7a701556abc40919106125f",
+    "mtime": 1794115669.5443177,
+    "seen": 1794115906.1102643,
+    "ast_hash": "abe8cdae2fd6e8445515b5f2f575cbc6",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/SaveSystem/SaveManagerBootstrapper.cs": {
@@ -2322,9 +2322,9 @@
     "semantic_hash": ""
   },
   "CLAUDE.md": {
-    "mtime": 1794104093.500156,
-    "seen": 1794105285.0229986,
-    "ast_hash": "1aa8d94e91e780a5aecbb582ef7792d7",
+    "mtime": 1794115862.7335649,
+    "seen": 1794115906.1106668,
+    "ast_hash": "230725e9d51ac1b452be952a9dabcdcc",
     "semantic_hash": ""
   },
   "ProjectSettings/ProjectVersion.txt": {
@@ -23874,15 +23874,15 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Editor/SoundManagerWindow.cs": {
-    "mtime": 1794105671.39617,
-    "seen": 1794105783.1135,
-    "ast_hash": "9b097152490f145bf4da9996c2bd035c",
+    "mtime": 1794115015.277194,
+    "seen": 1794115226.3567827,
+    "ast_hash": "e3af4b9f07c3edc17ce5b8e2597c374b",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/Core/SoundEvent.cs": {
-    "mtime": 1793572693.9386556,
-    "seen": 1793573574.514982,
-    "ast_hash": "29be6e60ae70a1f274215e784de491d1",
+    "mtime": 1794115015.1030247,
+    "seen": 1794115226.3567986,
+    "ast_hash": "03f042ec01b5da4a3f132a012dc8c90a",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/Core/SoundLibrarySO.cs": {
@@ -23904,9 +23904,9 @@
     "semantic_hash": ""
   },
   "Assets/_AssetGen/Editor/SfxSynth.cs": {
-    "mtime": 1793573062.0827193,
-    "seen": 1793573574.5154366,
-    "ast_hash": "f3d8b4da5c0794226665514ddbc4e552",
+    "mtime": 1794115016.6927423,
+    "seen": 1794115226.357248,
+    "ast_hash": "e11503b02eec2bbbc316439f2743a9c8",
     "semantic_hash": ""
   },
   "Assets/_AssetGen/Editor/SpriteGen.cs": {
@@ -24975,6 +24975,48 @@
     "mtime": 1794104093.5537038,
     "seen": 1794105285.0230875,
     "ast_hash": "b7cf577e1d0666807f35413039b9e56e",
+    "semantic_hash": ""
+  },
+  "Assets/MatchThemAllTemplate/Scripts/Editor/PowerupManagerWindow.cs": {
+    "mtime": 1794114166.7069998,
+    "seen": 1794114258.0236616,
+    "ast_hash": "836ac2062f0c4082d024fa6573926aaa",
+    "semantic_hash": ""
+  },
+  "docs/superpowers/plans/2026-11-08-powerup-editor.md": {
+    "mtime": 1794111584.1731207,
+    "seen": 1794112000.2717295,
+    "ast_hash": "b929452a1b80484c98e48fb32ecad268",
+    "semantic_hash": ""
+  },
+  "docs/superpowers/specs/2026-11-08-powerup-editor-design.md": {
+    "mtime": 1794111593.8253498,
+    "seen": 1794112000.2717335,
+    "ast_hash": "ca4b9a0e349faa89800281e71416822e",
+    "semantic_hash": ""
+  },
+  "Assets/MatchThemAllTemplate/Scripts/Editor/PowerupMechanicTemplate.cs": {
+    "mtime": 1794112712.377421,
+    "seen": 1794113581.3597481,
+    "ast_hash": "f5bb9eaebef3650709d65902b223dcbe",
+    "semantic_hash": ""
+  },
+  "Assets/MatchThemAllTemplate/Scripts/Editor/PowerupSlotPreview.cs": {
+    "mtime": 1794112712.3042004,
+    "seen": 1794113581.3597496,
+    "ast_hash": "89a2d675400b6602bbe790c29182cf82",
+    "semantic_hash": ""
+  },
+  "Assets/MatchThemAllTemplate/Scripts/Runtime/PowerUps/Custom/ExtraTimeEffect.cs": {
+    "mtime": 1794114694.5525014,
+    "seen": 1794115226.3568454,
+    "ast_hash": "8f37e581fdcefa371cd88cac29633ed7",
+    "semantic_hash": ""
+  },
+  "docs/decisions/2026-11-08-data-driven-powerup-tray.md": {
+    "mtime": 1794115496.255858,
+    "seen": 1794115544.2568212,
+    "ast_hash": "f17335460b17ed27abacec83a9d951b0",
     "semantic_hash": ""
   }
 }

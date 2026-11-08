@@ -1,5 +1,5 @@
 using System;
-using ZLinq;
+using System.Collections.Generic;
 using MatchThemAll.Scripts.Power_Ups;
 using MatchThemAll.Scripts.SaveSystem;
 using MatchThemAll.Scripts.Settings;
@@ -19,9 +19,9 @@ namespace MatchThemAll.Scripts
         [Tooltip("The registry of all power-ups. If unassigned, loaded from Resources/Powerups/PowerupDatabase.")]
         [SerializeField] private PowerupDatabaseSO database;
 
-        [Header("Vacuum Elements")]
-        [SerializeField] private Vacuum vacuum;              // the vacuum button (plays the suck animation)
-        [SerializeField] private Transform vacuumSuckPosition;
+        [Header("Tray")]
+        [Tooltip("The Powerup Zone (has PowerupTrayLayout). Each power-up's slot prefab is spawned under it, in order.")]
+        [SerializeField] private Transform trayRoot;
 
         [Header("Fan Elements")]
         [SerializeField] private Transform fanOrigin;          // where the fan VFX originates
@@ -34,7 +34,7 @@ namespace MatchThemAll.Scripts
 
         [Header("State")]
         private bool _isBusy;
-        private bool _vacuumRequested;
+        private PowerupDataSO _awaitingAnimation; // effect waiting for its slot's Started animation event
 
         public event Action<Item> OnItemPickup;
         public event Action<Item> OnItemBackToGame;
@@ -57,22 +57,33 @@ namespace MatchThemAll.Scripts
             // Seed first-launch powerup counts from the database (defaultAmount per SO).
             SaveManager.InitializePowerups(database);
 
-            _powerupUIElements = FindObjectsByType<Powerup>(FindObjectsInactive.Include, FindObjectsSortMode.None);
-            foreach (var pu in _powerupUIElements)
+            // Spawn one tray slot per power-up, in display order; PowerupTrayLayout spaces them.
+            var spawned = new List<Powerup>();
+            if (trayRoot && database)
             {
-                if (pu) pu.TryAutoResolve(database);
+                foreach (var so in database.Ordered)
+                {
+                    if (!so.UIPrefab) { Debug.LogWarning($"[PowerupManager] '{so.id}' has no slot prefab — not shown in the tray."); continue; }
+                    var slot = Instantiate(so.UIPrefab, trayRoot, false);
+                    slot.name = $"{so.id} Slot";
+                    var pu = slot.GetComponentInChildren<Powerup>(true);
+                    if (!pu) { Debug.LogWarning($"[PowerupManager] Slot prefab of '{so.id}' has no Powerup component."); continue; }
+                    pu.Configure(so);
+                    spawned.Add(pu);
+                }
             }
+            _powerupUIElements = spawned.ToArray();
 
             UpdateAllPowerupVisuals();
 
-            Powerup.Started += OnVacuumStarted;            // animation handshake (vacuum)
+            Powerup.Started += OnSlotAnimationStarted;     // animation handshake (e.g. vacuum suck)
             EventBus.Subscribe<PowerupClickedEvent>(OnPowerupClickedEvent);
             SaveManager.OnPowerupsChanged += UpdateAllPowerupVisuals;
         }
 
         private void OnDestroy()
         {
-            Powerup.Started -= OnVacuumStarted;
+            Powerup.Started -= OnSlotAnimationStarted;
             EventBus.Unsubscribe<PowerupClickedEvent>(OnPowerupClickedEvent);
             SaveManager.OnPowerupsChanged -= UpdateAllPowerupVisuals;
         }
@@ -97,29 +108,21 @@ namespace MatchThemAll.Scripts
                 return;
             }
 
-            SoundManager.Sfx(so.id switch
-            {
-                "vacuum" => SoundEvent.PowerupVacuum,
-                "spring" => SoundEvent.PowerupSpring,
-                "fan"    => SoundEvent.PowerupFan,
-                "freeze" => SoundEvent.PowerupFreeze,
-                _        => SoundEvent.None
-            });
+            SoundManager.Sfx(so.ActivateSound, so.ActivateVolume, so.ActivatePitch);
 
-            // Vacuum waits for its suck animation; the others run immediately.
-            if (so.id == "vacuum")
+            // Effects like the vacuum wait for their slot's animation; the others run immediately.
+            Powerup slot = FindPowerup(so);
+            if (so.Effect.WaitsForSlotAnimation)
             {
                 _isBusy = true;
-                if (vacuum != null && vacuum.HasAnimator)
+                if (slot && slot.HasAnimator)
                 {
-                    // Sync collection to the suck animation via the Started animation event.
-                    _vacuumRequested = true;
-                    vacuum.Play();
+                    _awaitingAnimation = so;   // OnSlotAnimationStarted runs the effect in sync with the animation
+                    slot.Play();
                 }
                 else
                 {
-                    // No Animator wired (placeholder button) — run the effect immediately.
-                    so.Effect.Activate(ctx);
+                    so.Effect.Activate(ctx);   // no Animator wired — run immediately
                 }
                 UpdateAllPowerupVisuals();
             }
@@ -129,22 +132,18 @@ namespace MatchThemAll.Scripts
             }
         }
 
-        private void OnVacuumStarted()
+        private void OnSlotAnimationStarted()
         {
-            if (!_vacuumRequested) return;
-            _vacuumRequested = false;
-
-            // Find the vacuum SO and run its effect.
-            PowerupDataSO vacuumSo = database != null ? database.FindById("vacuum") : null;
-            if (vacuumSo != null && vacuumSo.Effect != null)
-                vacuumSo.Effect.Activate(BuildContext(vacuumSo));
-            else
-                _isBusy = false;
+            if (_awaitingAnimation == null) return;
+            var so = _awaitingAnimation;
+            _awaitingAnimation = null;
+            so.Effect.Activate(BuildContext(so));
         }
 
         /// <summary>Builds the per-activation dependency context handed to an effect.</summary>
         private PowerupContext BuildContext(PowerupDataSO so)
         {
+            var source = FindSource(so);
             return new PowerupContext
             {
                 Items = LevelManager.Instance != null ? LevelManager.Instance.Items : null,
@@ -152,23 +151,40 @@ namespace MatchThemAll.Scripts
                 ItemSpots = ItemSpotManager.Instance,
                 Timer = TimerManager.Instance,
                 GameSettings = gameSettings,
-                VacuumSuckPosition = vacuumSuckPosition,
+                VacuumSuckPosition = FindChild(source, "SuckPoint"),
                 ActivateVfx = so.ActivateVfx,
                 EndVfx = so.EndVfx,
                 FanOrigin = fanOrigin,
                 FreezeMuzzle = freezeMuzzle,
-                Source = FindSource(so),
+                Source = source,
                 OnItemPickup = InvokeItemPickup,
                 OnItemBackToGame = InvokeItemBackToGame,
                 SetBusy = busy => _isBusy = busy,
             };
         }
 
-        /// <summary>The tray prop (the Powerup's own transform) for this power-up, so effects can animate it.</summary>
-        private Transform FindSource(PowerupDataSO so)
+        /// <summary>The tray slot's Powerup for this power-up (its transform is the prop effects animate).</summary>
+        private Powerup FindPowerup(PowerupDataSO so)
         {
             if (_powerupUIElements == null) return null;
-            return (from pu in _powerupUIElements.AsValueEnumerable() where pu && pu.Data == so select pu.transform).FirstOrDefault();
+            foreach (var pu in _powerupUIElements)
+                if (pu && pu.Data == so) return pu;
+            return null;
+        }
+
+        private Transform FindSource(PowerupDataSO so)
+        {
+            var pu = FindPowerup(so);
+            return pu ? pu.transform : null;
+        }
+
+        /// <summary>First descendant named <paramref name="name"/> (per activation, not per frame).</summary>
+        private static Transform FindChild(Transform root, string name)
+        {
+            if (!root) return null;
+            foreach (var t in root.GetComponentsInChildren<Transform>(true))
+                if (t.name == name) return t;
+            return null;
         }
 
         private void InvokeItemPickup(Item item) => OnItemPickup?.Invoke(item);
