@@ -6,7 +6,8 @@ namespace MatchThemAll.Scripts
     /// <summary>
     /// The lasting "the level is frozen" look while the Freeze power-up holds the clock:
     /// frost creeping in from the screen edges, ice spheres on the board's corners and edges,
-    /// and a bar under the clock showing how much freeze is left. Driven only by
+    /// and an icy fill inside the clock pill (behind the digits) showing how much freeze is left, plus a snowflake
+    /// badge on the stopwatch. Both live inside the timer, so they can't overlap the goal cards below it. Driven only by
     /// <see cref="TimerFrozenEvent"/> / <see cref="TimerUnfrozenEvent"/> and TimerManager.FreezeRemaining01.
     /// The frost lives on its own Screen Space - Camera canvas placed just behind the spheres, so the spheres,
     /// item spots and tray draw over it while it still frosts the item pile; the HUD (overlay canvas) stays on top.
@@ -16,9 +17,13 @@ namespace MatchThemAll.Scripts
         [Header("Screen frost")]
         [SerializeField] private CanvasGroup frost;
 
-        [Header("Bar under the clock")]
+        [Header("Freeze time left (inside the clock pill)")]
+        [Tooltip("Group holding the icy fill; sits inside the timer pill, behind the digits.")]
         [SerializeField] private CanvasGroup bar;
+        [Tooltip("The icy fill; its right edge shrinks as the freeze runs out.")]
         [SerializeField] private RectTransform barFill;
+        [Tooltip("Snowflake badge on the stopwatch, shown while frozen.")]
+        [SerializeField] private CanvasGroup badge;
 
         [Header("Ice spheres")]
         [SerializeField] private GameObject iceSpherePrefab;
@@ -41,6 +46,7 @@ namespace MatchThemAll.Scripts
         {
             if (frost) frost.alpha = 0f;
             if (bar) bar.alpha = 0f;
+            if (badge) badge.alpha = 0f;
             EventBus.Subscribe<TimerFrozenEvent>(OnFrozen);
             EventBus.Subscribe<TimerUnfrozenEvent>(OnUnfrozen);
         }
@@ -62,6 +68,7 @@ namespace MatchThemAll.Scripts
             _frozen = true;
             if (frost) Tween.Alpha(frost, 1f, .45f, Ease.OutQuad);
             if (bar) Tween.Alpha(bar, 1f, .25f);
+            if (badge) Tween.Alpha(badge, 1f, .25f);
             if (barFill) barFill.anchorMax = Vector2.one;
             ShowSpheres();
         }
@@ -71,6 +78,7 @@ namespace MatchThemAll.Scripts
             _frozen = false;
             if (frost) Tween.Alpha(frost, 0f, .6f, Ease.InQuad);
             if (bar) Tween.Alpha(bar, 0f, .25f);
+            if (badge) Tween.Alpha(badge, 0f, .25f);
             HideSpheres();
         }
 
