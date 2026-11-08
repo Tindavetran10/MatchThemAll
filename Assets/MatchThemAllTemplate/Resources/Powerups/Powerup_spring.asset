@@ -16,12 +16,14 @@ MonoBehaviour:
   displayName: Spring
   icon: {fileID: 0}
   order: 2
-  unlockLevel: 2
+  unlockLevel: 3
   defaultAmount: 3
   buyCurrency: 0
   buyCost: 50
   uiPrefab: {fileID: 9183140678464160626, guid: b7361b9a537096c4b9fdde8304c0be1d, type: 3}
   trayModel: {fileID: 0}
+  modelOffset: {x: 0, y: 0, z: 0}
+  modelRotation: {x: 0, y: 0, z: 0}
   effect:
     rid: 1442196544509706360
   activateSound: {fileID: 8300000, guid: b64a3cccc12fcfe4eaeec5571fc19bdb, type: 3}

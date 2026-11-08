@@ -570,9 +570,9 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/PowerUps/PowerupManager.cs": {
-    "mtime": 1794116994.5583334,
-    "seen": 1794117173.0274217,
-    "ast_hash": "72664e56e173554b75d6001547a9d9e5",
+    "mtime": 1794137393.4674492,
+    "seen": 1794137522.1899211,
+    "ast_hash": "3536b14d8afcc15191577b98d47db5b9",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/PowerUps/Spring.cs": {
@@ -2166,8 +2166,8 @@
     "semantic_hash": ""
   },
   "ProjectSettings/ScriptableBuildPipeline.json": {
-    "mtime": 1782579927.2218385,
-    "seen": 1792067873.7643025,
+    "mtime": 1794136734.6707454,
+    "seen": 1794137522.190142,
     "ast_hash": "4499d0efefbbb64353d6bec6a237209b",
     "semantic_hash": ""
   },
@@ -2322,9 +2322,9 @@
     "semantic_hash": ""
   },
   "CLAUDE.md": {
-    "mtime": 1794123177.639037,
-    "seen": 1794123197.3869815,
-    "ast_hash": "73d526e364e0cb76bfbf6c79851eb17f",
+    "mtime": 1794137486.3381662,
+    "seen": 1794137522.1901727,
+    "ast_hash": "b5dfe624bfb9728a693ec9bc5fe48462",
     "semantic_hash": ""
   },
   "ProjectSettings/ProjectVersion.txt": {

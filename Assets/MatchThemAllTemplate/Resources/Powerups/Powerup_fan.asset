@@ -16,7 +16,7 @@ MonoBehaviour:
   displayName: Fan
   icon: {fileID: 0}
   order: 1
-  unlockLevel: 1
+  unlockLevel: 2
   defaultAmount: 3
   buyCurrency: 0
   buyCost: 50

@@ -16,7 +16,7 @@ MonoBehaviour:
   displayName: Freeze Gun
   icon: {fileID: 0}
   order: 0
-  unlockLevel: 0
+  unlockLevel: 1
   defaultAmount: 3
   buyCurrency: 0
   buyCost: 50

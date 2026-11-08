@@ -79,6 +79,8 @@ namespace MatchThemAll.Scripts
             Powerup.Started += OnSlotAnimationStarted;     // animation handshake (e.g. vacuum suck)
             EventBus.Subscribe<PowerupClickedEvent>(OnPowerupClickedEvent);
             SaveManager.OnPowerupsChanged += UpdateAllPowerupVisuals;
+            // Level ids load async: until then GetCurrentLevelIndex() is 0 and every lock shows. Redraw once the level is in.
+            LevelManager.LevelSpawned += OnLevelSpawned;
         }
 
         private void OnDestroy()
@@ -86,7 +88,10 @@ namespace MatchThemAll.Scripts
             Powerup.Started -= OnSlotAnimationStarted;
             EventBus.Unsubscribe<PowerupClickedEvent>(OnPowerupClickedEvent);
             SaveManager.OnPowerupsChanged -= UpdateAllPowerupVisuals;
+            LevelManager.LevelSpawned -= OnLevelSpawned;
         }
+
+        private void OnLevelSpawned(Level level) => UpdateAllPowerupVisuals();
 
         private void OnPowerupClickedEvent(PowerupClickedEvent evt)
         {
