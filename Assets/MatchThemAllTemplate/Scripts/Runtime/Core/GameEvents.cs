@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using MatchThemAll.Scripts.Power_Ups;
 using MatchThemAll.Scripts.Shop;
+using UnityEngine;
 
 namespace MatchThemAll.Scripts
 {
@@ -93,5 +94,29 @@ namespace MatchThemAll.Scripts
     {
         public ShopProductSO Product;
         public ShopPurchaseSucceededEvent(ShopProductSO product) => Product = product;
+    }
+
+    // ==========================================
+    // CURRENCY EVENTS
+    // ==========================================
+
+    /// <summary>
+    /// Raised right after coins/gems are added through SaveManager, so the pill can play the fly-to-counter
+    /// effect. ScreenPosition is where the burst starts; Delay holds the burst back (the counter waits too).
+    /// </summary>
+    public struct CurrencyGrantedEvent
+    {
+        public ECurrency Currency;
+        public int Amount;
+        public Vector2 ScreenPosition;
+        public float Delay;
+
+        public CurrencyGrantedEvent(ECurrency currency, int amount, Vector2 screenPosition, float delay = 0f)
+        {
+            Currency = currency; Amount = amount; ScreenPosition = screenPosition; Delay = delay;
+        }
+
+        /// <summary>Burst from the middle of the screen (grants with no on-screen source, e.g. store purchases).</summary>
+        public static Vector2 ScreenCenter => new(Screen.width * 0.5f, Screen.height * 0.5f);
     }
 }

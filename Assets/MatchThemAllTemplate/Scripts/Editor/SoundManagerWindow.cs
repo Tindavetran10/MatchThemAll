@@ -189,7 +189,7 @@ namespace MatchThemAll.Scripts.Editor
             SoundEvent.PowerupFan => "Fan power-up activates.",
             SoundEvent.PowerupFreeze => "Freeze power-up activates.",
             SoundEvent.StarPop => "Each star popping in on the Level Complete panel.",
-            SoundEvent.CoinReward => "Coins awarded after a win.",
+            SoundEvent.CoinReward => "Each coin or gem landing on its counter (win, daily reward, shop).",
             SoundEvent.LevelComplete => "The level is won.",
             SoundEvent.GameOver => "The level is lost.",
             SoundEvent.OutOfTime => "The timer runs out (Continue panel).",
@@ -345,6 +345,8 @@ namespace MatchThemAll.Scripts.Editor
                 GUI.enabled = count > 0;
                 if (GUILayout.Button(new GUIContent("▶", "Preview"), GUILayout.Width(26), GUILayout.Height(44)))
                     Preview(en, e);
+                if (GUILayout.Button(new GUIContent("■", "Stop preview"), GUILayout.Width(26), GUILayout.Height(44)))
+                    StopPreview();
                 GUI.enabled = true;
                 GUILayout.Space(8);
                 GUILayout.EndHorizontal();
@@ -445,6 +447,7 @@ namespace MatchThemAll.Scripts.Editor
                 var c = clips.GetArrayElementAtIndex(i).objectReferenceValue as AudioClip;
                 GUI.enabled = c;
                 if (GUILayout.Button(new GUIContent("▶", "Preview this clip"), GUILayout.Width(26))) PlayClip(c, Category(_selected) == "MUSIC");
+                if (GUILayout.Button(new GUIContent("■", "Stop preview"), GUILayout.Width(26))) StopPreview();
                 GUI.enabled = true;
                 GUI.color = AccentRed;
                 if (GUILayout.Button("✕", GUILayout.Width(26))) remove = i;

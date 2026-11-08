@@ -30,7 +30,11 @@ namespace MatchThemAll.Scripts.UI
         public void Initialize(int streakDay, Action onClaimCallback)
         {
             _onClaimCallback = onClaimCallback;
-            
+
+            // No callback = today's reward is already claimed; the panel is only for viewing.
+            if (claimButton)
+                claimButton.interactable = onClaimCallback != null;
+
             if (dayText)
                 dayText.text = $"Day {streakDay}";
 

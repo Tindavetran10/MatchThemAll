@@ -336,9 +336,9 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/Core/DailyRewardManager.cs": {
-    "mtime": 1784480298.3806126,
-    "seen": 1792067873.7639263,
-    "ast_hash": "4bc1ed027a08408373236ee12bed4c53",
+    "mtime": 1794103219.6896107,
+    "seen": 1794104079.1834114,
+    "ast_hash": "d2e9b7b0d98d00b09faacde503d73588",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/Core/DebugCheats.cs": {
@@ -354,9 +354,9 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/Core/GameEvents.cs": {
-    "mtime": 1793572653.7193751,
-    "seen": 1793573574.51497,
-    "ast_hash": "ff6a910c5f7715851c6a40a41055eb66",
+    "mtime": 1794101003.860956,
+    "seen": 1794101825.355327,
+    "ast_hash": "1b94a88a0eb2aa7bb421525e15ffcc6c",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/Core/GameManager.cs": {
@@ -642,9 +642,9 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/Shop/ShopManager.cs": {
-    "mtime": 1794084550.413494,
-    "seen": 1794084628.527583,
-    "ast_hash": "dc2b3813d00815389f5678c2ce19d1f1",
+    "mtime": 1794101012.5296593,
+    "seen": 1794101825.3554115,
+    "ast_hash": "10eb9e928939e5752c0bc19016a799ab",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/Shop/ShopOpener.cs": {
@@ -708,9 +708,9 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/UI/DailyRewardPanel.cs": {
-    "mtime": 1792075126.53487,
-    "seen": 1792075412.3197355,
-    "ast_hash": "96a1d9a560c35783d0d02e1924d8404f",
+    "mtime": 1794103224.623695,
+    "seen": 1794104079.1835172,
+    "ast_hash": "45dea73b6305c2e70219d6ba0925d263",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/UI/FloatingText.cs": {
@@ -798,9 +798,9 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/UI/Manager/WinPanelManager.cs": {
-    "mtime": 1794082892.293,
-    "seen": 1794084628.5276196,
-    "ast_hash": "2951f93935b95147934f621875ffe7be",
+    "mtime": 1794105670.4400098,
+    "seen": 1794105783.1136317,
+    "ast_hash": "f42d3d1b44c1d5c5067f4bce97785f4c",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/UI/UIAnimator.cs": {
@@ -2322,9 +2322,9 @@
     "semantic_hash": ""
   },
   "CLAUDE.md": {
-    "mtime": 1794098977.0554287,
-    "seen": 1794099009.2529316,
-    "ast_hash": "75a4d48c14b1df501b97be5dfdc2420b",
+    "mtime": 1794104093.500156,
+    "seen": 1794105285.0229986,
+    "ast_hash": "1aa8d94e91e780a5aecbb582ef7792d7",
     "semantic_hash": ""
   },
   "ProjectSettings/ProjectVersion.txt": {
@@ -23874,9 +23874,9 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Editor/SoundManagerWindow.cs": {
-    "mtime": 1794088847.439,
-    "seen": 1794092273.7178733,
-    "ast_hash": "04428edec8edd5fad8092b6d8c4e38b1",
+    "mtime": 1794105671.39617,
+    "seen": 1794105783.1135,
+    "ast_hash": "9b097152490f145bf4da9996c2bd035c",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/Core/SoundEvent.cs": {
@@ -24963,6 +24963,18 @@
     "mtime": 1794085654.4819155,
     "seen": 1794085856.7220876,
     "ast_hash": "11b9f494c8c6ab2fc35e696a77dfaf91",
+    "semantic_hash": ""
+  },
+  "Assets/MatchThemAllTemplate/Scripts/Runtime/UI/CurrencyFlyEffect.cs": {
+    "mtime": 1794105799.230042,
+    "seen": 1794105895.8174098,
+    "ast_hash": "0b0afeec9caa8d9dec906987243d9c1d",
+    "semantic_hash": ""
+  },
+  "docs/decisions/2026-11-08-currency-fly-effect.md": {
+    "mtime": 1794104093.5537038,
+    "seen": 1794105285.0230875,
+    "ast_hash": "b7cf577e1d0666807f35413039b9e56e",
     "semantic_hash": ""
   }
 }
