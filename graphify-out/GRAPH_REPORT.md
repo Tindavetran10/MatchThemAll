@@ -1,17 +1,17 @@
 # Graph Report - MatchThemAll - Copy  (2026-11-08)
 
 ## Corpus Check
-- 420 files · ~5,656,526 words
+- 420 files · ~5,656,679 words
 - Verdict: corpus is large enough that graph structure adds value.
-- Unclassified: 9133 file(s) not represented in the graph (top: .meta 6906, .prefab 718, .psd 405)
+- Unclassified: 9135 file(s) not represented in the graph (top: .meta 6907, .prefab 719, .psd 405)
 
 ## Summary
-- 5868 nodes · 9720 edges · 443 communities (304 shown, 139 thin omitted)
+- 5870 nodes · 9735 edges · 447 communities (303 shown, 144 thin omitted)
 - Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 224 edges (avg confidence: 0.83)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `a3107da2`
+- Built from commit: `40e7c5d4`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -35,10 +35,10 @@
 - GameController
 - NaughtyAttributes.Editor
 - Item
-- com.unity.modules.imageconversion
+- com.unity.modules.unitywebrequest
 - Claude Code setup (MatchThemAll) — reuse for a new project
 - ObjectRenderSnapable
-- com.unity.modules.jsonserialize
+- com.unity.mathematics
 - packages-lock.json
 - MaterialInspector
 - ItemSpotManager
@@ -46,10 +46,10 @@
 - Bloom
 - Powerup VFX Design (Hybrid, Sci-Fi Theme)
 - NaughtyAttributes
-- .RemoveFromLevels
+- com.unity.test-framework
 - SpringEffect
 - ShopEditorWindow
-- MatchThemAll.Scripts.Power_Ups
+- Powerup
 - Asset Store Publication Preparation — Design Specification
 - .BuildPanel
 - .GetField
@@ -58,22 +58,22 @@
 - API Reference
 - SpriteGen
 - com.unity.modules.physics
-- com.unity.render-pipelines.core
+- com.unity.searcher
 - Styles
 - .Subscribe
 - LevelMapManager
-- com.unity.nuget.mono-cecil
+- com.unity.nuget.newtonsoft-json
 - com.unity.modules.imgui
 - Editor/CHANGELOG.md
 - .OnGUI_Internal
 - CFXR_Demo
 - EColor
-- com.unity.modules.audio
+- com.unity.modules.animation
 - ModelGen
 - ItemSpotLayout
 - LevelManager
 - External Dependency Manager for Unity
-- ShopManager
+- UnityIapService
 - CameraShake
 - .GetHelpBoxHeight
 - PixelizationPass
@@ -96,7 +96,7 @@
 - com.unity.modules.uielements
 - SoundManagerWindow
 - .Build
-- UnityIapService
+- CameraSnapSRP
 - DropdownList
 - MetaAttribute
 - Palette
@@ -118,10 +118,10 @@
 - Sequence
 - ClawController
 - SpriteSwapper
-- .Publish
+- ItemReachedSpotEvent
 - NaughtyEditorGUI
 - FloatingText
-- .DrawLevelDetail
+- ShopDatabaseSO
 - ValidatorAttribute
 - ShowNativePropertyTest
 - BackgroundMusic
@@ -132,7 +132,7 @@
 - PieceObject
 - RewardEnum
 - RewardEnum
-- com.unity.modules.unitywebrequest
+- dependencies
 - com.unity.services.core
 - CartoonFX
 - CFXR_ParticleTextFontAsset
@@ -147,7 +147,7 @@
 - .OnGUI_Internal
 - HintManager
 - Token
-- MatchThemAll.Scripts.Monetization
+- VacuumEffect
 - WinPanelManager
 - .RecordRenderGraph
 - PowerupDataSO
@@ -175,7 +175,7 @@
 - EInfoBoxType
 - TestEnum
 - PopupRewardItem
-- com.unity.test-framework
+- com.unity.ext.nunit
 - SteppedAnimation
 - ButtonsPressed
 - LevelPlayAdService
@@ -201,17 +201,17 @@
 - Power-up VFX overhaul (Freeze, Bomb/Fan, Spring, Vacuum)
 - CFXR_Effect_Editor
 - AnimatedLightDrawer
-- ScriptableObject
+- NaughtyAttributes.Test
 - LevelMapPath
 - ReviewRequest
 - Game flow
-- .LoadLevelsAsync
+- LoadingScreenManager
 - RewardEnum
 - RewardEnum
 - RewardEnum
 - PowerupContext
 - App Store & Google Play Publishing Checklist
-- VfxPool
+- PowerupEffect
 - FreezeEffect
 - ProPixelizer
 - TrackingConsent
@@ -221,10 +221,10 @@
 - File Map
 - Power-up tray: per-slot cards + automatic layout
 - Power-up Editor — Design
-- .CardButton
+- .LoadLevel
 - ButtonAttribute
 - Ricimi
-- LabelTest.cs
+- .CompleteCurrentStep
 - PowerupSlotPreview
 - DitherPattern
 - music-sources.md
@@ -240,7 +240,7 @@
 - ColorSwapper
 - MinMaxSliderTest.cs
 - Version 1.2.75 - Jun 20, 2018
-- JumpAnimation
+- .Load
 - Version 1.2.53 - Oct 2, 2017
 - Version 1.2.50 - Sep 18, 2017
 - Version 1.2.48 - Sep 12, 2017
@@ -307,7 +307,7 @@
 - MinMaxSliderAttribute
 - HierarchySectionHeader
 - Version 1.2.22 - May 19, 2017
-- .ResetSessionStatics
+- GemDisplay
 - Version 1.2.20 - May 8, 2017
 - Version 1.2.19 - May 4, 2017
 - Version 1.2.17 - Apr 20, 2017
@@ -317,7 +317,7 @@
 - Version 1.2.16 - Apr 17, 2017
 - Version 1.2.12 - Feb 14, 2017
 - Version 1.2.10 - Jan 11, 2017
-- NaughtyAttributes.Test
+- ProgressBarTest.cs
 - Version 1.2.8 - Dec 6, 2016
 - AdjustLobbyAnchors
 - Version 1.2.7 - Dec 2, 2016
@@ -325,27 +325,30 @@
 - Version 1.2.6 - Nov 15, 2016
 - InputAxisTest.cs
 - LayerTest.cs
-- UIButtonPunch
+- PowerupDatabaseSO
 - ShowAssetPreviewNest1
 - SortingLayerTest.cs
 - TagTest.cs
 - Version 1.2.5 - Nov 3, 2016
 - Version 1.2.4 - Oct 27, 2016
 - Version 1.2.3 - Oct 25, 2016
+- CoinDisplay
 - ProgressBarAttribute
 - Version 1.2.2 - Oct 17, 2016
+- ReorderableListTest
 - com.unity.performance.profile-analyzer
 - Code Style & Contribution Guidelines
 - Common Mistakes & Troubleshooting
 - Version 1.2.163 - Dec 15, 2020
-- AnimatedButton
+- DirectionalLightController
 - Version 1.1.1 - 25 Feb 2016
 - Headlights
 - SqueezeAnimation
+- com.unity.modules.accessibility
 - MenuItems
 - VectorUtilities
 - Version 1.2.161 - Oct 12, 2020
-- com.unity.modules.unityanalytics
+- com.unity.modules.jsonserialize
 - Version 1.2.160 - Sep 30, 2020
 - _START_HERE/README.md
 - Version 1.2.159 - Sep 11, 2020
@@ -439,21 +442,22 @@
 - Version 1.2.106 - May 1, 2019
 - Version 1.2.101 - Feb 12, 2019
 - Version 1.2.74 - Jun 19, 2018
-- MatchThemAll.Scripts.Shop
-- DailyRewardManager
+- com.unity.modules.umbra
+- MatchThemAll.Scripts.Power_Ups
+- ECurrency
 - ProPixelizerMaterialRandomizer
-- SceneTest.cs
+- FolderPathTest.cs
+- ReadOnlyTest.cs
 - PowerupTrayLayout
 - AnimatorParamAttribute
 - 2026-11-08-data-driven-powerup-tray.md
-- com.cysharp.zlinq
+- ResizableTextAreaTest.cs
 - CFXR_ShaderPostProcessor
 - MusicManager
-- com.github-glitchenzo.nugetforunity
+- TutorialManager.cs
 - ExpandableTest.cs
 - FilePathAttribute
-- MatchThemAll.Scripts.UI
-- HorizontalLineTest.cs
+- .Clear
 - InfoBoxTest.cs
 - UIProfileController
 
@@ -463,9 +467,9 @@
 3. `LevelEditorWindow` - 54 edges
 4. `NaughtyAttributes` - 54 edges
 5. `Asset Store Publication Implementation Plan` - 54 edges
-6. `PowerupDataSO` - 46 edges
-7. `SaveManager` - 45 edges
-8. `UIOverhaulBuilder` - 44 edges
+6. `UIOverhaulBuilder` - 46 edges
+7. `PowerupDataSO` - 46 edges
+8. `SaveManager` - 45 edges
 9. `SpriteGen` - 43 edges
 10. `ItemManagerWindow` - 42 edges
 
@@ -484,7 +488,7 @@
 ## Import Cycles
 - None detected.
 
-## Communities (443 total, 139 thin omitted)
+## Communities (447 total, 144 thin omitted)
 
 ### Community 0 - "CartoonUIBuilder"
 Cohesion: 0.06
@@ -495,12 +499,12 @@ Cohesion: 0.07
 Nodes (40): Camera, Canvas, CanvasScaler, Scene, Transform, SceneCaptureUtil, Canvas, CanvasScaler (+32 more)
 
 ### Community 2 - "SerializedObject"
-Cohesion: 0.05
-Nodes (32): MaterialEditor, MaterialProperty, ProPixelizerBaseGUI, Material, MaterialEditor, MaterialProperty, SerializedObject, PixelizedWithOutlineShaderGUI (+24 more)
+Cohesion: 0.06
+Nodes (28): MaterialEditor, MaterialProperty, ProPixelizerBaseGUI, Material, MaterialEditor, MaterialProperty, SerializedObject, PixelizedWithOutlineShaderGUI (+20 more)
 
 ### Community 3 - "TintedButton"
-Cohesion: 0.13
-Nodes (12): PointerEventData, ButtonClickedEvent, IEnumerator, Image, PointerEventData, ButtonClickedEvent, TintedButton, onClick (+4 more)
+Cohesion: 0.06
+Nodes (30): Animator, PointerEventData, AnimatedButton, onClick, ButtonClickedEvent, Animator, GameObject, Image (+22 more)
 
 ### Community 4 - "NaughtyInspector"
 Cohesion: 0.10
@@ -519,16 +523,16 @@ Cohesion: 0.06
 Nodes (28): Animator, GameObject, IEnumerator, List, ParticleSystem, Random, Text, Transform (+20 more)
 
 ### Community 8 - "LevelEditorWindow"
-Cohesion: 0.09
-Nodes (20): Color, Editor, GameObject, GUIStyle, index, level, LevelDataSO, levelName (+12 more)
+Cohesion: 0.05
+Nodes (40): Color, Dictionary, GUIStyle, InitializeOnLoadMethod, Texture2D, EditorWindowStyles, GameObject, IList (+32 more)
 
 ### Community 9 - "GameController"
 Cohesion: 0.05
 Nodes (31): Collider2D, CoinObject, Animator, Button, GameObject, IEnumerator, Image, ParticleSystem (+23 more)
 
 ### Community 10 - "TutorialManager"
-Cohesion: 0.13
-Nodes (15): CanvasGroup, GameObject, GoalCard, IEnumerator, Item, ItemClickedEvent, Level, List (+7 more)
+Cohesion: 0.17
+Nodes (12): CanvasGroup, GameObject, GoalCard, IEnumerator, Item, Level, List, Powerup (+4 more)
 
 ### Community 11 - "Asset Store Publication Implementation Plan"
 Cohesion: 0.04
@@ -562,33 +566,33 @@ Nodes (22): GUIContent, Rect, SerializedProperty, AllowNestingPropertyDrawer, Ma
 Cohesion: 0.07
 Nodes (22): Collider, Quaternion, Renderer, Rigidbody, Sprite, Vector3, Item, CustomDockPositionOffset (+14 more)
 
-### Community 19 - "com.unity.modules.imageconversion"
-Cohesion: 0.13
-Nodes (15): dependencies, depth, source, version, dependencies, depth, source, version (+7 more)
+### Community 19 - "com.unity.modules.unitywebrequest"
+Cohesion: 0.07
+Nodes (31): dependencies, depth, source, version, dependencies, depth, source, version (+23 more)
 
 ### Community 20 - "Claude Code setup (MatchThemAll) — reuse for a new project"
 Cohesion: 0.11
 Nodes (17): 1.1 `settings.json`, 1.2 Plugins, 1.3 Hook: `~/.claude/hooks/graphify-reminder.js`, 1.4 Global skill: graphify, 1. Global layer (`~/.claude/`), 2.1 `CLAUDE.md` (project root, committed), 2.2 `.claude/settings.local.json` (git-ignored), 2.3 `.gitignore` (+9 more)
 
 ### Community 21 - "ObjectRenderSnapable"
-Cohesion: 0.06
-Nodes (24): Camera, IEnumerable, ScriptableRenderContext, Vector3, CameraSnapSRP, PreSnapCameraPosition, PixelSizeMode, FixedWorldSpacePixelSize (+16 more)
+Cohesion: 0.11
+Nodes (14): Camera, Quaternion, Renderer, Transform, Vector3, eSnapAngleStrategy, CameraSpaceY, WorldSpaceRotation (+6 more)
 
-### Community 22 - "com.unity.modules.jsonserialize"
-Cohesion: 0.06
-Nodes (39): dependencies, depth, source, url, version, dependencies, depth, source (+31 more)
+### Community 22 - "com.unity.mathematics"
+Cohesion: 0.07
+Nodes (33): dependencies, depth, source, url, version, dependencies, depth, source (+25 more)
 
 ### Community 23 - "packages-lock.json"
 Cohesion: 0.05
 Nodes (42): com.unity.2d.sprite, com.unity.modules.androidjni, com.unity.modules.animation, com.unity.modules.assetbundle, com.unity.modules.audio, com.unity.modules.director, com.unity.modules.imageconversion, com.unity.modules.imgui (+34 more)
 
 ### Community 24 - "MaterialInspector"
-Cohesion: 0.10
-Nodes (19): AssetImporter, GC_EndIf, GC_Header, label, GC_HelpBox, message, messageType, GC_Label (+11 more)
+Cohesion: 0.09
+Nodes (20): AssetImporter, GC_EndIf, GC_Header, label, GC_HelpBox, message, messageType, GC_Label (+12 more)
 
 ### Community 25 - "ItemSpotManager"
 Cohesion: 0.06
-Nodes (23): ItemClickedEvent, Animator, Transform, ItemSpot, Item, Action, Ease, HashSet (+15 more)
+Nodes (22): Animator, Transform, ItemSpot, Item, Action, Ease, HashSet, IEnumerable (+14 more)
 
 ### Community 26 - "GameController"
 Cohesion: 0.09
@@ -606,9 +610,9 @@ Nodes (30): Deferred (out of scope, tracked), File Structure, Global Constraints
 Cohesion: 0.07
 Nodes (25): AllowNestingAttribute, DrawerAttribute, EnumFlagsAttribute, ExpandableAttribute, IsReadonly, FolderPathAttribute, DefaultPath, RelativePath (+17 more)
 
-### Community 30 - ".RemoveFromLevels"
-Cohesion: 0.22
-Nodes (11): GameObject, IList, index, Item, ItemLevelData, level, LevelDataSO, levelName (+3 more)
+### Community 30 - "com.unity.test-framework"
+Cohesion: 0.08
+Nodes (27): dependencies, depth, source, version, dependencies, depth, source, url (+19 more)
 
 ### Community 31 - "SpringEffect"
 Cohesion: 0.16
@@ -618,17 +622,17 @@ Nodes (9): Camera, Item, Renderer, Rigidbody, TrailRenderer, Transform, Vector2,
 Cohesion: 0.11
 Nodes (9): Color, GUIStyle, List, MenuItem, SerializedObject, Texture2D, Vector2, ShopEditorWindow (+1 more)
 
-### Community 33 - "MatchThemAll.Scripts.Power_Ups"
+### Community 33 - "Powerup"
 Cohesion: 0.08
-Nodes (21): Fan, FreezeGun, Action, Animator, Collider, Color, GameObject, Image (+13 more)
+Nodes (19): Fan, FreezeGun, Action, Animator, Collider, Color, GameObject, Image (+11 more)
 
 ### Community 34 - "Asset Store Publication Preparation — Design Specification"
 Cohesion: 0.05
 Nodes (39): 1. Package Identity, Addressables Path Update, Asset Store Publication Preparation — Design Specification, Asset Store Tools Validator, Code Documentation Audit, Commonly Overlooked Requirements (Gotchas), Complete Pre-Submission Checklist, Conclusion (+31 more)
 
 ### Community 35 - ".BuildPanel"
-Cohesion: 0.15
-Nodes (18): Button, Canvas, Color, ContentSizeFitter, EventSystem, GameObject, HorizontalLayoutGroup, Image (+10 more)
+Cohesion: 0.13
+Nodes (19): Button, Canvas, Color, ContentSizeFitter, EventSystem, GameObject, HorizontalLayoutGroup, Image (+11 more)
 
 ### Community 36 - ".GetField"
 Cohesion: 0.14
@@ -640,7 +644,7 @@ Nodes (17): Button, Color, GameObject, IEnumerator, Image, Material, ParticleSys
 
 ### Community 38 - "GameEvents.cs"
 Cohesion: 0.11
-Nodes (15): ItemPickedUpEvent, LevelSpawnedEvent, PowerupItemBackToGameEvent, PowerupItemPickedUpEvent, PowerupOfferRequestedEvent, TimerFrozenEvent, TimerUnfrozenEvent, CanvasGroup (+7 more)
+Nodes (14): ItemPickedUpEvent, LevelSpawnedEvent, PowerupItemBackToGameEvent, PowerupItemPickedUpEvent, TimerFrozenEvent, TimerUnfrozenEvent, CanvasGroup, GameObject (+6 more)
 
 ### Community 39 - "API Reference"
 Cohesion: 0.15
@@ -654,29 +658,29 @@ Nodes (18): Canvas, Action, Color, Dictionary, Func, IEnumerable, MenuItem, Text
 Cohesion: 0.10
 Nodes (20): dependencies, depth, source, version, dependencies, depth, source, version (+12 more)
 
-### Community 42 - "com.unity.render-pipelines.core"
-Cohesion: 0.07
-Nodes (30): depth, source, version, dependencies, depth, source, version, dependencies (+22 more)
+### Community 42 - "com.unity.searcher"
+Cohesion: 0.08
+Nodes (26): dependencies, depth, source, version, dependencies, depth, source, version (+18 more)
 
 ### Community 43 - "Styles"
-Cohesion: 0.08
-Nodes (20): GC_Separator, Styles, CenteredWhiteLabel, CloseCrossButton, HelpBoxRichTextStyle, LineStyle, MaterialHeaderStyle, MaterialHeaderStyleHighlight (+12 more)
+Cohesion: 0.09
+Nodes (19): GC_Separator, Styles, CenteredWhiteLabel, CloseCrossButton, HelpBoxRichTextStyle, LineStyle, MaterialHeaderStyle, MaterialHeaderStyleHighlight (+11 more)
 
 ### Community 44 - ".Subscribe"
 Cohesion: 0.10
 Nodes (12): Action, Dictionary, List, Type, EventBus, GameStateChangedEvent, GameStateChangedEvent, PixelizeController (+4 more)
 
 ### Community 45 - "LevelMapManager"
-Cohesion: 0.18
-Nodes (7): IEnumerator, IReadOnlyList, List, RectTransform, ScrollRect, Vector2, LevelMapManager
+Cohesion: 0.12
+Nodes (11): IEnumerator, Image, IReadOnlyList, LevelDataSO, List, RectTransform, RuntimeInitializeOnLoadMethod, ScrollRect (+3 more)
 
-### Community 46 - "com.unity.nuget.mono-cecil"
-Cohesion: 0.07
-Nodes (29): dependencies, depth, source, version, dependencies, depth, source, url (+21 more)
+### Community 46 - "com.unity.nuget.newtonsoft-json"
+Cohesion: 0.09
+Nodes (23): dependencies, depth, source, version, dependencies, depth, source, url (+15 more)
 
 ### Community 47 - "com.unity.modules.imgui"
-Cohesion: 0.06
-Nodes (35): dependencies, depth, source, url, version, dependencies, depth, source (+27 more)
+Cohesion: 0.09
+Nodes (23): dependencies, depth, source, url, version, dependencies, depth, source (+15 more)
 
 ### Community 48 - "Editor/CHANGELOG.md"
 Cohesion: 0.04
@@ -694,17 +698,17 @@ Nodes (13): CFXR_Demo, Camera, GameObject, Image, InputSystemUIInputModule, Part
 Cohesion: 0.08
 Nodes (22): Vector2, CurveRangeAttribute, Color, Max, Min, HorizontalLineAttribute, Color, Height (+14 more)
 
-### Community 52 - "com.unity.modules.audio"
-Cohesion: 0.08
-Nodes (26): dependencies, depth, source, version, dependencies, depth, source, version (+18 more)
+### Community 52 - "com.unity.modules.animation"
+Cohesion: 0.10
+Nodes (21): dependencies, depth, source, version, dependencies, depth, source, version (+13 more)
 
 ### Community 53 - "ModelGen"
 Cohesion: 0.07
 Nodes (31): Action, AnimationClip, Animator, Dictionary, Func, GameObject, IEnumerable, List (+23 more)
 
 ### Community 54 - "ItemSpotLayout"
-Cohesion: 0.11
-Nodes (15): ContextMenu, List, Transform, Vector3, Axis, X, Y, Z (+7 more)
+Cohesion: 0.07
+Nodes (24): ContextMenu, List, Transform, Vector3, Axis, X, Y, Z (+16 more)
 
 ### Community 55 - "LevelManager"
 Cohesion: 0.10
@@ -714,9 +718,9 @@ Nodes (16): Action, Button, IReadOnlyList, List, Task, Transform, LevelManager, 
 Cohesion: 0.04
 Nodes (46): ABI Stripping, Adding Registries, Analytics, Android Dependency Management, Android Manifest Variable Processing, Android Resolver, Appending text to generated Podfile, Auto-resolution (+38 more)
 
-### Community 57 - "ShopManager"
-Cohesion: 0.10
-Nodes (14): Action, IapGrantHandler, IReadOnlyList, IapProduct, IIapService, IsInitialized, NullIapService, IsInitialized (+6 more)
+### Community 57 - "UnityIapService"
+Cohesion: 0.05
+Nodes (29): Action, IapGrantHandler, IReadOnlyList, IapProduct, IIapService, IsInitialized, NullIapService, IsInitialized (+21 more)
 
 ### Community 58 - "CameraShake"
 Cohesion: 0.15
@@ -727,8 +731,8 @@ Cohesion: 0.15
 Nodes (11): GUIContent, Rect, SerializedProperty, FilePathPropertyDrawer, GUIContent, Rect, SerializedProperty, FolderPathPropertyDrawer (+3 more)
 
 ### Community 60 - "PixelizationPass"
-Cohesion: 0.13
-Nodes (17): MaterialLibrary, Matrix4x4, RendererListHandle, RTHandle, ShaderTagId, Vector4, OutlineDetectionPassRG, PassData (+9 more)
+Cohesion: 0.12
+Nodes (18): MaterialLibrary, Matrix4x4, RendererListHandle, RTHandle, ShaderTagId, Vector4, OutlineDetectionPassRG, PassData (+10 more)
 
 ### Community 61 - "CFXR_Effect"
 Cohesion: 0.14
@@ -747,12 +751,8 @@ Cohesion: 0.12
 Nodes (12): Camera, Collider, Material, MeshRenderer, Vector2, InputManager, Instance, IsPointerActive (+4 more)
 
 ### Community 65 - ".GrantRewards"
-Cohesion: 0.13
-Nodes (8): Button, RuntimeInitializeOnLoadMethod, DebugCheats, Vector2, CurrencyGrantedEvent, ScreenCenter, DebugGrantCurrencyButton, IReadOnlyList
-
-### Community 66 - "PrimeTween"
-Cohesion: 0.09
-Nodes (13): Camera, Color, Light, DirectionalLightController, AnimationCurve, MeshRenderer, Road, Text (+5 more)
+Cohesion: 0.21
+Nodes (4): Button, RuntimeInitializeOnLoadMethod, DebugCheats, IReadOnlyList
 
 ### Community 67 - "DisableIfEnumFlag"
 Cohesion: 0.13
@@ -775,7 +775,7 @@ Cohesion: 0.14
 Nodes (10): GameController, ins, RewardsCollected, IEnumerator, ParticleSystem, Rigidbody2D, Text, Transform (+2 more)
 
 ### Community 72 - "MergeStartedEvent"
-Cohesion: 0.10
+Cohesion: 0.11
 Nodes (13): List, MergeStartedEvent, Action, ComboManager, CurrentCombo, Instance, Ease, IEnumerator (+5 more)
 
 ### Community 73 - "GameManager"
@@ -787,28 +787,28 @@ Cohesion: 0.07
 Nodes (27): IEnumerable, IEnumerator, List, GameplayActions, @Click, enabled, @Pointer, IGameplayActions (+19 more)
 
 ### Community 75 - "PowerupManager"
-Cohesion: 0.11
-Nodes (9): PowerupClickedEvent, IEnumerable, List, PowerupDatabaseSO, Ordered, Button, Transform, PowerupManager (+1 more)
+Cohesion: 0.16
+Nodes (6): PowerupClickedEvent, PowerupOfferRequestedEvent, Button, Transform, PowerupManager, Instance
 
 ### Community 76 - "UIAnimator"
-Cohesion: 0.20
-Nodes (6): CanvasGroup, Ease, Image, Transform, Vector3, UIAnimator
+Cohesion: 0.13
+Nodes (8): GameObject, MainMenuManager, CanvasGroup, Ease, Image, Transform, Vector3, UIAnimator
 
 ### Community 77 - "com.unity.modules.uielements"
-Cohesion: 0.13
-Nodes (15): dependencies, depth, source, url, version, depth, source, version (+7 more)
+Cohesion: 0.08
+Nodes (26): dependencies, depth, source, url, version, dependencies, depth, source (+18 more)
 
 ### Community 78 - "SoundManagerWindow"
-Cohesion: 0.11
-Nodes (16): AudioClip, AudioMixer, Color, GameObject, GUIStyle, List, MenuItem, SerializedObject (+8 more)
+Cohesion: 0.08
+Nodes (20): AudioClip, AudioMixer, Color, GameObject, GUIStyle, List, MenuItem, SerializedObject (+12 more)
 
 ### Community 79 - ".Build"
 Cohesion: 0.15
 Nodes (14): Canvas, CanvasScaler, EventSystem, GameObject, GraphicRaycaster, Image, InputSystemUIInputModule, MenuItem (+6 more)
 
-### Community 80 - "UnityIapService"
-Cohesion: 0.11
-Nodes (15): Action, Dictionary, IapGrantHandler, IReadOnlyList, List, RuntimeInitializeOnLoadMethod, UnityIapService, IsInitialized (+7 more)
+### Community 80 - "CameraSnapSRP"
+Cohesion: 0.15
+Nodes (10): Camera, IEnumerable, ScriptableRenderContext, Vector3, CameraSnapSRP, PreSnapCameraPosition, PixelSizeMode, FixedWorldSpacePixelSize (+2 more)
 
 ### Community 81 - "DropdownList"
 Cohesion: 0.24
@@ -835,12 +835,12 @@ Cohesion: 0.12
 Nodes (16): EItemName, GameObject, List, ECompletionCondition, Manual, OnMerge, OnPowerupUsed, OnTimer (+8 more)
 
 ### Community 87 - "TimerManager"
-Cohesion: 0.23
+Cohesion: 0.22
 Nodes (6): Button, TextMeshProUGUI, TimerManager, CurrentTime, FreezeRemaining01, IsFrozen
 
 ### Community 88 - "InputController"
-Cohesion: 0.14
-Nodes (8): InputSystemUIInputModule, StandaloneInputModule, Vector2, InputController, isLegacyInputManagerEnabled, isNewInputSystemEnabled, screenPosition, touchSupported
+Cohesion: 0.11
+Nodes (11): InputSystemUIInputModule, StandaloneInputModule, Vector2, InputController, isLegacyInputManagerEnabled, isNewInputSystemEnabled, screenPosition, touchSupported (+3 more)
 
 ### Community 89 - "SfxSynth"
 Cohesion: 0.13
@@ -855,12 +855,12 @@ Cohesion: 0.12
 Nodes (10): AnimateAllType, Button, IEnumerator, Image, Slider, Text, AnimateAllType, Async (+2 more)
 
 ### Community 92 - "TypewriterAnimatorExample"
-Cohesion: 0.18
+Cohesion: 0.19
 Nodes (9): AnimationType, TextMeshProUGUI, TMP_Text, Tween, AnimationType, ByWords, Simple, WithPunctuations (+1 more)
 
 ### Community 93 - "MonoBehaviour"
 Cohesion: 0.11
-Nodes (14): GameObject, Vector3, RotateObject, FolderPathNest1, FolderPathNest2, FolderPathTest, ReadOnlyNest1, ReadOnlyNest2 (+6 more)
+Nodes (15): GameObject, Vector3, RotateObject, Vector2, LabelNest1, LabelNest2, LabelTest, SceneNest1 (+7 more)
 
 ### Community 94 - "MaterialProperty"
 Cohesion: 0.30
@@ -871,20 +871,20 @@ Cohesion: 0.11
 Nodes (16): CFXR_ShaderImporter, ComparisonOperator, Equal, Greater, GreaterOrEqual, Less, LessOrEqual, RenderPipeline (+8 more)
 
 ### Community 96 - "CFXR_ParticleText"
-Cohesion: 0.15
+Cohesion: 0.16
 Nodes (12): ClearBehavior, Destroy, Disable, None, CFXR_ParticleText, ParticleTextEditor, CastTarget, Color (+4 more)
 
 ### Community 97 - "PixelizeFeature"
-Cohesion: 0.10
-Nodes (17): RenderingData, ScriptableRenderer, CustomPassSettings, PixelizeFeature, ContextContainer, RenderGraph, TextureHandle, UniversalCameraData (+9 more)
+Cohesion: 0.11
+Nodes (16): RenderingData, ScriptableRenderer, CustomPassSettings, PixelizeFeature, ContextContainer, RenderGraph, TextureHandle, UniversalCameraData (+8 more)
 
 ### Community 98 - "ColliderX"
-Cohesion: 0.22
-Nodes (7): ColliderX, BoxCollider, Collider, MeshCollider, MeshFilter, Transform, GUISkin
+Cohesion: 0.19
+Nodes (8): ColliderLimits, ColliderX, BoxCollider, Collider, MeshCollider, MeshFilter, Transform, GUISkin
 
 ### Community 99 - "Sequence"
-Cohesion: 0.14
-Nodes (10): Animatable, Clickable, Transform, Baggage, Sequence, Transform, Vector3, SlidingDoor (+2 more)
+Cohesion: 0.10
+Nodes (15): Animatable, Clickable, Transform, Baggage, Sequence, Transform, JumpAnimation, AnimationCurve (+7 more)
 
 ### Community 100 - "ClawController"
 Cohesion: 0.18
@@ -902,17 +902,17 @@ Nodes (11): FieldInfo, GUIContent, GUIStyle, MessageType, MethodInfo, Object, Pr
 Cohesion: 0.11
 Nodes (12): ComboVFX, Action, Color, RectTransform, TextMeshProUGUI, FloatingText, Canvas, Color (+4 more)
 
-### Community 105 - ".DrawLevelDetail"
-Cohesion: 0.26
-Nodes (3): Item, ItemPlacer, Texture
+### Community 105 - "ShopDatabaseSO"
+Cohesion: 0.17
+Nodes (8): IEnumerable, IReadOnlyList, List, ShopDatabaseSO, OrderedTabs, Sprite, ShopTabSO, DisplayName
 
 ### Community 106 - "ValidatorAttribute"
 Cohesion: 0.11
 Nodes (13): MaxValueAttribute, MaxValue, MaxValueName, MinValueAttribute, MinValue, MinValueName, RequiredAttribute, Message (+5 more)
 
 ### Community 107 - "ShowNativePropertyTest"
-Cohesion: 0.09
-Nodes (23): Vector2, BoxGroupTest, Vector2, FoldoutTest, GameObject, List, Vector3, ReorderableListTest (+15 more)
+Cohesion: 0.12
+Nodes (16): Vector2, BoxGroupTest, Vector2, FoldoutTest, RequiredNest1, RequiredNest2, RequiredTest, ShowNativePropertyTest (+8 more)
 
 ### Community 108 - "BackgroundMusic"
 Cohesion: 0.17
@@ -946,28 +946,28 @@ Nodes (13): GameObject, MultiDimensional, RewardEnum, Energy, Gem1, Gem2, Gem3, 
 Cohesion: 0.20
 Nodes (10): RewardEnum, Energy, Gem1, Gem2, Gem3, Gem4, Gold, Life (+2 more)
 
-### Community 116 - "com.unity.modules.unitywebrequest"
-Cohesion: 0.05
-Nodes (43): dependencies, depth, source, url, version, dependencies, depth, source (+35 more)
+### Community 116 - "dependencies"
+Cohesion: 0.08
+Nodes (28): dependencies, depth, source, url, version, dependencies, depth, source (+20 more)
 
 ### Community 117 - "com.unity.services.core"
 Cohesion: 0.06
-Nodes (35): dependencies, depth, source, version, dependencies, depth, source, url (+27 more)
+Nodes (34): dependencies, depth, source, url, version, depth, source, url (+26 more)
 
 ### Community 118 - "CartoonFX"
 Cohesion: 0.13
 Nodes (5): CFXR_Demo_Rotate, Vector3, CFXR_Demo_Translate, Vector3, CartoonFX
 
 ### Community 119 - "CFXR_ParticleTextFontAsset"
-Cohesion: 0.18
-Nodes (9): CFXR_ParticleTextFontAsset, Kerning, LetterCase, Both, Lower, Upper, Sprite, Kerning (+1 more)
+Cohesion: 0.14
+Nodes (10): CFXR_ParticleTextFontAsset, Kerning, LetterCase, Both, Lower, Upper, ParticleTextFontAssetEditor, Sprite (+2 more)
 
 ### Community 120 - "VfxGen"
 Cohesion: 0.11
 Nodes (21): add, alpha, Color, Func, GameObject, LineRenderer, Material, MenuItem (+13 more)
 
 ### Community 121 - "ShopPanel"
-Cohesion: 0.16
+Cohesion: 0.15
 Nodes (7): ShopOpener, GameObject, List, TMP_Text, Transform, ShopPanel, IsOpen
 
 ### Community 122 - "EnableIfAttributeBase"
@@ -983,7 +983,7 @@ Cohesion: 0.20
 Nodes (9): MeshRenderer, Transform, HighlightableElement, models, Camera, HighlightedElementController, current, CanBeNull (+1 more)
 
 ### Community 125 - "MeasureMemoryAllocations"
-Cohesion: 0.16
+Cohesion: 0.17
 Nodes (6): Text, DebugInfo, List, Stack, MeasureMemoryAllocations, gcAllocTotal
 
 ### Community 126 - "SaveManager"
@@ -1006,9 +1006,9 @@ Nodes (6): EItemName, GameStateChangedEvent, Item, ItemClickedEvent, List, HintM
 Cohesion: 0.14
 Nodes (13): Token, TokenType, BINARY_OP, CLOSE_PAREN, EXPR_END, LITERAL, OPEN_PAREN, UNARY_OP (+5 more)
 
-### Community 131 - "MatchThemAll.Scripts.Monetization"
-Cohesion: 0.20
-Nodes (4): IosTrackingPostBuild, BuildTarget, MatchThemAll.Scripts.Monetization, PostProcessBuild
+### Community 131 - "VacuumEffect"
+Cohesion: 0.27
+Nodes (5): Item, ItemLevelData, List, VacuumEffect, WaitsForSlotAnimation
 
 ### Community 132 - "WinPanelManager"
 Cohesion: 0.27
@@ -1019,8 +1019,8 @@ Cohesion: 0.14
 Nodes (11): ContextContainer, PassData, RenderGraph, UniversalCameraData, UniversalRenderingData, CommandBuffer, ContextContainer, PassData (+3 more)
 
 ### Community 134 - "PowerupDataSO"
-Cohesion: 0.11
-Nodes (18): AudioClip, GameObject, ParticleSystem, Sprite, Vector3, PowerupDataSO, ActivatePitch, ActivateSound (+10 more)
+Cohesion: 0.09
+Nodes (19): Rect, AudioClip, GameObject, ParticleSystem, Sprite, Vector3, PowerupDataSO, ActivatePitch (+11 more)
 
 ### Community 135 - "TCP2ShaderImporter_Editor"
 Cohesion: 0.32
@@ -1039,19 +1039,19 @@ Cohesion: 0.11
 Nodes (17): Material, Shader, MaterialLibrary, OutlineDetection, ShaderResources, Material, MaterialLibrary, OutlineDetection (+9 more)
 
 ### Community 139 - "PowerupManagerWindow"
-Cohesion: 0.10
-Nodes (13): AudioClip, Color, GameObject, GUIStyle, List, MenuItem, Rect, SerializedObject (+5 more)
+Cohesion: 0.11
+Nodes (12): AudioClip, Color, GameObject, GUIStyle, List, MenuItem, SerializedObject, Texture2D (+4 more)
 
 ### Community 140 - "PlayerDataWindow"
-Cohesion: 0.12
-Nodes (7): Dictionary, MenuItem, PlayerDataWindow, TextMeshProUGUI, GemDisplay, IReadOnlyDictionary, PlayModeStateChange
+Cohesion: 0.19
+Nodes (5): Dictionary, MenuItem, PlayerDataWindow, IReadOnlyDictionary, PlayModeStateChange
 
 ### Community 141 - "SoundManager"
-Cohesion: 0.05
-Nodes (39): ShopPurchaseSucceededEvent, SoundEvent, ButtonClick, ButtonClose, CoinReward, Combo, Error, GameOver (+31 more)
+Cohesion: 0.04
+Nodes (40): ItemClickedEvent, ShopPurchaseSucceededEvent, SoundEvent, ButtonClick, ButtonClose, CoinReward, Combo, Error (+32 more)
 
 ### Community 142 - "ShopProductCard"
-Cohesion: 0.23
+Cohesion: 0.21
 Nodes (6): Button, GameObject, Image, ShopPurchaseSucceededEvent, TextMeshProUGUI, ShopProductCard
 
 ### Community 143 - "LevelButtonUI"
@@ -1075,36 +1075,36 @@ Cohesion: 0.12
 Nodes (16): `AggregateBy`, `CountBy` constraints, `AsValueEnumerable()`, `Average() : where INumber<T>`, `Sum() : where INumber<T>`, Consume Operator, Custom Operator, FileSystem, GameObject/Transform(Unity), `int CopyTo(Span<T> destination)`, `void CopyTo(List<T> list)` (+8 more)
 
 ### Community 148 - "ContinuePanelManager"
-Cohesion: 0.13
-Nodes (6): TextMeshProUGUI, CoinDisplay, GameObject, GameStateChangedEvent, TextMeshProUGUI, ContinuePanelManager
+Cohesion: 0.20
+Nodes (4): GameObject, GameStateChangedEvent, TextMeshProUGUI, ContinuePanelManager
 
 ### Community 149 - "Editor"
-Cohesion: 0.13
-Nodes (7): ParticleTextFontAssetEditor, Camera, CameraSnapSRPEditor, PaletteEditor, SteppedAnimationEditor, ProPixelizer.Tools, Editor
+Cohesion: 0.16
+Nodes (6): Camera, CameraSnapSRPEditor, PaletteEditor, SteppedAnimationEditor, ProPixelizer.Tools, Editor
 
 ### Community 150 - "SettingsManager"
-Cohesion: 0.13
-Nodes (8): GameObject, MainMenuManager, Slider, Toggle, SettingsManager, hapticsEnabled, musicVolume, sfxVolume
+Cohesion: 0.12
+Nodes (6): Slider, Toggle, SettingsManager, hapticsEnabled, musicVolume, sfxVolume
 
 ### Community 151 - "Transition"
-Cohesion: 0.17
-Nodes (9): Color, SceneTransition, Canvas, Color, GameObject, IEnumerator, Image, RectTransform (+1 more)
+Cohesion: 0.23
+Nodes (7): Canvas, Color, GameObject, IEnumerator, Image, RectTransform, Transition
 
 ### Community 152 - "PowerupOfferPanel"
 Cohesion: 0.25
 Nodes (5): GameObject, GameStateChangedEvent, TextMeshProUGUI, PowerupOfferPanel, PowerupOfferRequestedEvent
 
 ### Community 153 - "CurrencyFlyEffect"
-Cohesion: 0.14
-Nodes (13): ECurrency, Coins, Gems, Canvas, CurrencyGrantedEvent, Image, List, RectTransform (+5 more)
+Cohesion: 0.20
+Nodes (10): Canvas, CurrencyGrantedEvent, Image, List, RectTransform, Sequence, Stack, TextMeshProUGUI (+2 more)
 
 ### Community 154 - "MatchThemAll.Scripts"
 Cohesion: 0.09
 Nodes (7): List, Transform, GoalManager, Goals, ItemLevelData, MatchThemAll.Scripts, Predicate
 
 ### Community 155 - "SceneLoader"
-Cohesion: 0.07
-Nodes (17): IEnumerator, OpenSceneLoader, Canvas, Ease, Image, Tween, SceneLoader, RequestedLevelIndex (+9 more)
+Cohesion: 0.22
+Nodes (8): Canvas, Ease, Image, Tween, SceneLoader, RequestedLevelIndex, TargetScene, Awaitable
 
 ### Community 156 - "EInfoBoxType"
 Cohesion: 0.18
@@ -1118,9 +1118,9 @@ Nodes (11): EnumFlagsNest1, EnumFlagsNest2, EnumFlagsTest, TestEnum, All, B, C, 
 Cohesion: 0.17
 Nodes (6): PopupRewardItem, Image, Text, Reward, Collider2D, ClawMachine
 
-### Community 159 - "com.unity.test-framework"
-Cohesion: 0.09
-Nodes (22): dependencies, depth, source, version, dependencies, depth, source, url (+14 more)
+### Community 159 - "com.unity.ext.nunit"
+Cohesion: 0.17
+Nodes (12): dependencies, depth, source, version, dependencies, depth, source, url (+4 more)
 
 ### Community 160 - "SteppedAnimation"
 Cohesion: 0.27
@@ -1155,12 +1155,12 @@ Cohesion: 0.40
 Nodes (4): GUIContent, Rect, SerializedProperty, SortingLayerPropertyDrawer
 
 ### Community 168 - "CameraController"
-Cohesion: 0.21
+Cohesion: 0.25
 Nodes (5): Camera, Vector2, CameraController, Transform, Door
 
 ### Community 169 - "dependencies"
-Cohesion: 0.07
-Nodes (28): dependencies, depth, source, version, dependencies, depth, source, version (+20 more)
+Cohesion: 0.08
+Nodes (25): dependencies, depth, hash, source, version, dependencies, depth, hash (+17 more)
 
 ### Community 170 - "RewardEnum"
 Cohesion: 0.13
@@ -1179,7 +1179,7 @@ Cohesion: 0.40
 Nodes (3): GameObject, Slider, SoundManager
 
 ### Community 174 - "AdManager"
-Cohesion: 0.16
+Cohesion: 0.18
 Nodes (7): Action, RuntimeInitializeOnLoadMethod, AdManager, AdsRemoved, Instance, IsReady, IsRewardedAvailable
 
 ### Community 175 - "AssetGuidSwap"
@@ -1199,8 +1199,8 @@ Cohesion: 0.40
 Nodes (4): Asset licensing: ship only owned, CC0 or OFL/MIT content, Consequences, Context, Decision
 
 ### Community 180 - "MonetizationSettingsSO"
-Cohesion: 0.16
-Nodes (8): Func, RuntimeInitializeOnLoadMethod, MonetizationServices, Iap, MonetizationSettingsSO, AppKey, InterstitialAdUnitId, RewardedAdUnitId
+Cohesion: 0.10
+Nodes (12): IosTrackingPostBuild, Func, RuntimeInitializeOnLoadMethod, MonetizationServices, Iap, MonetizationSettingsSO, AppKey, InterstitialAdUnitId (+4 more)
 
 ### Community 181 - "AnimatedLight"
 Cohesion: 0.29
@@ -1218,12 +1218,12 @@ Nodes (4): CFXR_Effect_Editor, PaddedRoundedRect, GameObject, GUIStyle
 Cohesion: 0.44
 Nodes (5): AnimatedLightDrawer, GUIContent, Rect, SerializedProperty, PropertyDrawer
 
-### Community 185 - "ScriptableObject"
-Cohesion: 0.16
-Nodes (9): Button, List, _NaughtyScriptableObject, List, _TestScriptableObjectA, Vector2Int, _TestScriptableObjectB, ColliderLimits (+1 more)
+### Community 185 - "NaughtyAttributes.Test"
+Cohesion: 0.09
+Nodes (21): HorizontalLineNest1, HorizontalLineNest2, HorizontalLineTest, MyClass, MyStruct, _NaughtyComponent, Button, List (+13 more)
 
 ### Community 186 - "LevelMapPath"
-Cohesion: 0.18
+Cohesion: 0.20
 Nodes (6): IEnumerable, List, Vector2, LevelMapPath, Graphic, VertexHelper
 
 ### Community 187 - "ReviewRequest"
@@ -1234,9 +1234,9 @@ Nodes (18): Color, ContextMenu, Dictionary, GUIStyle, InitializeOnLoadMethod, Me
 Cohesion: 0.33
 Nodes (6): Game flow, GameManager, LevelManager, SceneLoader, TimerManager, TutorialManager
 
-### Community 189 - ".LoadLevelsAsync"
-Cohesion: 0.33
-Nodes (3): Image, LevelDataSO, Task
+### Community 189 - "LoadingScreenManager"
+Cohesion: 0.24
+Nodes (6): IEnumerator, Image, Slider, TextMeshProUGUI, LoadingScreenManager, AsyncOperation
 
 ### Community 190 - "RewardEnum"
 Cohesion: 0.20
@@ -1251,32 +1251,32 @@ Cohesion: 0.20
 Nodes (10): RewardEnum, Energy, Gem1, Gem2, Gem3, Gem4, Gold, Life (+2 more)
 
 ### Community 193 - "PowerupContext"
-Cohesion: 0.08
-Nodes (19): MenuItem, PowerupDatabaseSetup, FanEffect, Action, Item, ItemLevelData, List, ParticleSystem (+11 more)
+Cohesion: 0.18
+Nodes (10): FanEffect, Action, Item, ItemLevelData, List, ParticleSystem, Transform, PowerupContext (+2 more)
 
 ### Community 194 - "App Store & Google Play Publishing Checklist"
 Cohesion: 0.33
 Nodes (5): 1. Compliance & Asset Verification, 2. Rendering & Optimization, 3. Storage & Initialization, 4. Integration, App Store & Google Play Publishing Checklist
 
-### Community 195 - "VfxPool"
-Cohesion: 0.19
-Nodes (9): Dictionary, GameObject, IEnumerator, IObjectPool, ParticleSystem, Transform, Vector3, VfxPool (+1 more)
+### Community 195 - "PowerupEffect"
+Cohesion: 0.25
+Nodes (4): MenuItem, PowerupDatabaseSetup, PowerupEffect, WaitsForSlotAnimation
 
 ### Community 196 - "FreezeEffect"
 Cohesion: 0.23
 Nodes (8): Camera, LineRenderer, Quaternion, Renderer, Transform, Vector2, Vector3, FreezeEffect
 
 ### Community 197 - "ProPixelizer"
-Cohesion: 0.08
-Nodes (11): Quaternion, Vector3, ProPixelizerExampleFloating, CameraRenderSnapable, RenderingData, ScriptableRenderer, AssetImportContext, ProPixelizerPackageImporter (+3 more)
+Cohesion: 0.11
+Nodes (8): Quaternion, Vector3, ProPixelizerExampleFloating, CameraRenderSnapable, AssetImportContext, ProPixelizerPackageImporter, ProPixelizer, ScriptedImporter
 
 ### Community 198 - "TrackingConsent"
 Cohesion: 0.33
 Nodes (5): Action, TrackingConsent, DllImport, MonoPInvokeCallback, StatusCallback
 
 ### Community 199 - "ShopProductSO"
-Cohesion: 0.08
-Nodes (25): MenuItem, IEnumerable, IReadOnlyList, List, ShopDatabaseSO, OrderedTabs, IReadOnlyList, List (+17 more)
+Cohesion: 0.13
+Nodes (16): IReadOnlyList, List, Sprite, EKind, Coins, Entitlement, Gems, PowerupCharge (+8 more)
 
 ### Community 200 - "ProPixelizerPass"
 Cohesion: 0.33
@@ -1298,28 +1298,24 @@ Nodes (4): Adding a power-up, Context, Decision, Power-up tray: per-slot cards +
 Cohesion: 0.15
 Nodes (12): 1. Runtime, 2. Editor window — `PowerupManagerWindow`, 3. Migration and testing, Data — `PowerupDataSO` (no field renames), Decisions (from the brainstorm), Effects and context, Goal, Power-up Editor — Design (+4 more)
 
-### Community 205 - ".CardButton"
-Cohesion: 0.29
-Nodes (6): Color, Dictionary, GUIStyle, InitializeOnLoadMethod, Texture2D, EditorWindowStyles
-
 ### Community 206 - "ButtonAttribute"
 Cohesion: 0.29
 Nodes (7): ButtonAttribute, SelectedEnableMode, Text, EButtonEnableMode, Always, Editor, Playmode
 
 ### Community 207 - "Ricimi"
-Cohesion: 0.15
-Nodes (6): InitialPlayerPrefs, Color, Image, PlayPopup, PlayPopupOpener, Ricimi
+Cohesion: 0.12
+Nodes (8): InitialPlayerPrefs, Color, Image, PlayPopup, PlayPopupOpener, Color, SceneTransition, Ricimi
 
-### Community 208 - "LabelTest.cs"
-Cohesion: 0.60
-Nodes (4): Vector2, LabelNest1, LabelNest2, LabelTest
+### Community 208 - ".CompleteCurrentStep"
+Cohesion: 0.31
+Nodes (3): ItemClickedEvent, MergeStartedEvent, PowerupClickedEvent
 
 ### Community 209 - "PowerupSlotPreview"
-Cohesion: 0.23
+Cohesion: 0.25
 Nodes (7): GameObject, PreviewRenderUtility, Rect, Renderer, Vector2, Vector3, PowerupSlotPreview
 
 ### Community 210 - "DitherPattern"
-Cohesion: 0.24
+Cohesion: 0.22
 Nodes (5): DitherPattern, DitherPatternEditor, PreviewSize, Big, Small
 
 ### Community 212 - "Gameplay"
@@ -1563,16 +1559,16 @@ Cohesion: 0.38
 Nodes (6): AnimationCurve, CurveRangeNest1, CurveRangeNest2, CurveRangeTest, CurveRangeNest1, CurveRangeNest2
 
 ### Community 296 - "CameraProjectionMatrixAnimation"
-Cohesion: 0.29
+Cohesion: 0.33
 Nodes (4): Camera, Tween, CameraProjectionMatrixAnimation, IsAnimating
 
 ### Community 297 - "ProPixelizer"
 Cohesion: 0.29
 Nodes (6): Contact, Features, Getting Started, GitHub, Links, ProPixelizer
 
-### Community 301 - "NaughtyAttributes.Test"
-Cohesion: 0.14
-Nodes (14): MyClass, MyStruct, _NaughtyComponent, ProgressBarNest1, ProgressBarNest2, ProgressBarTest, IRequiredTypeTestInterface, IRequiredTypeTestInterface2 (+6 more)
+### Community 301 - "ProgressBarTest.cs"
+Cohesion: 0.83
+Nodes (3): ProgressBarNest1, ProgressBarNest2, ProgressBarTest
 
 ### Community 303 - "AdjustLobbyAnchors"
 Cohesion: 0.33
@@ -1590,9 +1586,9 @@ Nodes (4): Button, InputAxisNest1, InputAxisNest2, InputAxisTest
 Cohesion: 0.47
 Nodes (4): Button, LayerNest1, LayerNest2, LayerTest
 
-### Community 309 - "UIButtonPunch"
-Cohesion: 0.19
-Nodes (8): PointerEventData, SoundEvent, Tween, Vector3, UIButtonPunch, IPointerExitHandler, IPointerUpHandler, Selectable
+### Community 309 - "PowerupDatabaseSO"
+Cohesion: 0.33
+Nodes (4): IEnumerable, List, PowerupDatabaseSO, Ordered
 
 ### Community 310 - "ShowAssetPreviewNest1"
 Cohesion: 0.73
@@ -1610,6 +1606,10 @@ Nodes (4): Button, TagNest1, TagNest2, TagTest
 Cohesion: 0.33
 Nodes (5): ProgressBarAttribute, Color, MaxValue, MaxValueName, Name
 
+### Community 319 - "ReorderableListTest"
+Cohesion: 0.47
+Nodes (5): GameObject, List, Vector3, ReorderableListTest, SomeStruct
+
 ### Community 320 - "com.unity.performance.profile-analyzer"
 Cohesion: 0.33
 Nodes (6): dependencies, depth, source, url, version, com.unity.performance.profile-analyzer
@@ -1622,41 +1622,53 @@ Nodes (5): 1. C# Naming Conventions, 2. Event Handling & Subscriptions, 3. Zero-
 Cohesion: 0.18
 Nodes (11): 10. Items flying out of the board, 1. Levels don't load (`InvalidKeyException … List`1[System.String]`), 2. Items lose their colours when tapped, 3. Changing player data directly, 4. Spending currency without asking, 5. Adding a game state, 6. Tray logic that depends on timing, 7. Using `??` or `?.` on Unity objects (+3 more)
 
-### Community 324 - "AnimatedButton"
-Cohesion: 0.17
-Nodes (10): Animator, AnimatedButton, onClick, Animator, GameObject, Image, Text, LevelScene (+2 more)
+### Community 324 - "DirectionalLightController"
+Cohesion: 0.33
+Nodes (4): Camera, Color, Light, DirectionalLightController
 
 ### Community 326 - "Headlights"
-Cohesion: 0.40
+Cohesion: 0.50
 Nodes (3): AnimationCurve, Light, Headlights
 
 ### Community 327 - "SqueezeAnimation"
-Cohesion: 0.40
+Cohesion: 0.50
 Nodes (3): Transform, Tween, SqueezeAnimation
 
-### Community 332 - "com.unity.modules.unityanalytics"
+### Community 328 - "com.unity.modules.accessibility"
 Cohesion: 0.40
-Nodes (5): dependencies, depth, source, version, com.unity.modules.unityanalytics
+Nodes (5): dependencies, depth, source, version, com.unity.modules.accessibility
+
+### Community 332 - "com.unity.modules.jsonserialize"
+Cohesion: 0.13
+Nodes (15): dependencies, depth, source, version, dependencies, depth, source, version (+7 more)
 
 ### Community 348 - "MultiDimensionalArray"
 Cohesion: 0.67
 Nodes (3): MultiDimensionalArray, GameObject, Sprite
 
-### Community 430 - "MatchThemAll.Scripts.Shop"
-Cohesion: 0.12
-Nodes (4): PowerupMechanicTemplate, EntitlementIds, MatchThemAll.Scripts.Shop, MatchThemAll.Scripts.Editor
+### Community 429 - "com.unity.modules.umbra"
+Cohesion: 0.40
+Nodes (5): dependencies, depth, source, version, com.unity.modules.umbra
 
-### Community 431 - "DailyRewardManager"
-Cohesion: 0.36
-Nodes (4): Transform, DailyRewardManager, lastPlayedDate, loginStreak
+### Community 430 - "MatchThemAll.Scripts.Power_Ups"
+Cohesion: 0.09
+Nodes (10): PowerupMechanicTemplate, DebugGrantCurrencyButton, EntitlementIds, MatchThemAll.Scripts.Settings, MatchThemAll.Scripts.Shop, MatchThemAll.Scripts.SaveSystem, MatchThemAll.Scripts.Utilities, MatchThemAll.Scripts.Editor (+2 more)
+
+### Community 431 - "ECurrency"
+Cohesion: 0.17
+Nodes (10): Transform, DailyRewardManager, Vector2, CurrencyGrantedEvent, ScreenCenter, ECurrency, Coins, Gems (+2 more)
 
 ### Community 432 - "ProPixelizerMaterialRandomizer"
 Cohesion: 0.22
 Nodes (6): Color, List, MeshRenderer, Texture2D, ProPixelizerMaterialRandomizer, ProPixelizer.Examples
 
-### Community 433 - "SceneTest.cs"
+### Community 433 - "FolderPathTest.cs"
 Cohesion: 0.83
-Nodes (3): SceneNest1, SceneNest2, SceneTest
+Nodes (3): FolderPathNest1, FolderPathNest2, FolderPathTest
+
+### Community 434 - "ReadOnlyTest.cs"
+Cohesion: 0.83
+Nodes (3): ReadOnlyNest1, ReadOnlyNest2, ReadOnlyTest
 
 ### Community 435 - "PowerupTrayLayout"
 Cohesion: 0.25
@@ -1666,21 +1678,17 @@ Nodes (6): Camera, ContextMenu, List, Transform, Vector3, PowerupTrayLayout
 Cohesion: 0.40
 Nodes (4): AnimatorControllerParameterType, AnimatorParamAttribute, AnimatorName, AnimatorParamType
 
-### Community 438 - "com.cysharp.zlinq"
-Cohesion: 0.33
-Nodes (6): dependencies, depth, hash, source, version, com.cysharp.zlinq
+### Community 438 - "ResizableTextAreaTest.cs"
+Cohesion: 0.83
+Nodes (3): ResizableTextAreaNest1, ResizableTextAreaNest2, ResizableTextAreaTest
 
 ### Community 439 - "CFXR_ShaderPostProcessor"
-Cohesion: 0.29
-Nodes (4): AssetPostprocessor, CFXR_ShaderPostProcessor, ProPixelizerDomainReloader, CartoonFX.CustomShaderImporter
+Cohesion: 0.13
+Nodes (7): AssetPostprocessor, CFXR_ShaderPostProcessor, RenderingData, ScriptableRenderer, ProPixelizerDomainReloader, ProPixelizerVerification, CartoonFX.CustomShaderImporter
 
 ### Community 440 - "MusicManager"
 Cohesion: 0.33
 Nodes (4): AudioSource, GameObject, Slider, MusicManager
-
-### Community 441 - "com.github-glitchenzo.nugetforunity"
-Cohesion: 0.33
-Nodes (6): dependencies, depth, hash, source, version, com.github-glitchenzo.nugetforunity
 
 ### Community 442 - "ExpandableTest.cs"
 Cohesion: 0.80
@@ -1690,14 +1698,6 @@ Nodes (4): ScriptableObject, ExpandableScriptableObjectNest1, ExpandableScriptab
 Cohesion: 0.29
 Nodes (6): FilePathAttribute, Directory, Filter, RelativePath, Title, ValidateExists
 
-### Community 447 - "MatchThemAll.Scripts.UI"
-Cohesion: 0.17
-Nodes (5): RuntimeInitializeOnLoadMethod, StaticEventCleaner, MatchThemAll.Scripts.SaveSystem, MatchThemAll.Scripts.Utilities, MatchThemAll.Scripts.UI
-
-### Community 449 - "HorizontalLineTest.cs"
-Cohesion: 0.83
-Nodes (3): HorizontalLineNest1, HorizontalLineNest2, HorizontalLineTest
-
 ### Community 450 - "InfoBoxTest.cs"
 Cohesion: 0.83
 Nodes (3): InfoBoxNest1, InfoBoxNest2, InfoBoxTest
@@ -1705,15 +1705,15 @@ Nodes (3): InfoBoxNest1, InfoBoxNest2, InfoBoxTest
 ## Knowledge Gaps
 - **1510 isolated node(s):** `Benjathemaker`, `onClick`, `In`, `Out`, `onClick` (+1505 more)
   These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 2583 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **139 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **144 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `CFXR_Effect` connect `CFXR_Effect` to `CFXR_ParticleText`, `CFXR_Demo`, `AnimatedLight`, `CartoonFX`, `CFXR_Effect_Editor`, `CameraShake`, `MonoBehaviour`?**
-  _High betweenness centrality (0.066) - this node is a cross-community bridge._
+  _High betweenness centrality (0.065) - this node is a cross-community bridge._
 - **Why does `NaughtyInspector` connect `NaughtyInspector` to `.GetField`, `Editor`?**
-  _High betweenness centrality (0.054) - this node is a cross-community bridge._
+  _High betweenness centrality (0.056) - this node is a cross-community bridge._
 - **Why does `CartoonFX` connect `CartoonFX` to `CFXR_ParticleText`, `CFXR_EmissionBySurface`, `CFXR_ParticleTextFontAsset`, `CFXR_ShaderPostProcessor`, `MaterialInspector`, `CFXR_Effect_Editor`, `CFXR_ShaderImporter`?**
   _High betweenness centrality (0.044) - this node is a cross-community bridge._
 - **What connects `Benjathemaker`, `onClick`, `In` to the rest of the system?**
@@ -1721,6 +1721,6 @@ _Questions this graph is uniquely positioned to answer:_
 - **Should `CartoonUIBuilder` be split into smaller, more focused modules?**
   _Cohesion score 0.0637065637065637 - nodes in this community are weakly interconnected._
 - **Should `UIOverhaulBuilder` be split into smaller, more focused modules?**
-  _Cohesion score 0.07262277951933124 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.0731585518102372 - nodes in this community are weakly interconnected._
 - **Should `SerializedObject` be split into smaller, more focused modules?**
-  _Cohesion score 0.05191146881287726 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.06093189964157706 - nodes in this community are weakly interconnected._

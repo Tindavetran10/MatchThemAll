@@ -7506,7 +7506,7 @@
       },
       "norm_label": "freezefx",
       "source_file": "Assets/MatchThemAllTemplate/Scripts/Runtime/VFX/FreezeFx.cs",
-      "source_location": "L14"
+      "source_location": "L15"
     },
     {
       "id": "assets_matchthemalltemplate_thirdparty_naughtyattributes_scripts_editor_naughtyinspector_naughtyattributes_editor_naughtyinspector",
@@ -43954,7 +43954,7 @@
       },
       "norm_label": ".awake()",
       "source_file": "Assets/MatchThemAllTemplate/Scripts/Runtime/VFX/FreezeFx.cs",
-      "source_location": "L40"
+      "source_location": "L45"
     },
     {
       "id": "assets_matchthemalltemplate_scripts_runtime_vfx_freezefx_matchthemall_scripts_freezefx_hidespheres",
@@ -43974,19 +43974,19 @@
             "callee": "StopAll",
             "receiver_type": "Tween",
             "lang": "csharp",
-            "line": "L109"
+            "line": "L117"
           },
           {
             "callee": "Scale",
             "receiver_type": "Tween",
             "lang": "csharp",
-            "line": "L111"
+            "line": "L119"
           }
         ]
       },
       "norm_label": ".hidespheres()",
       "source_file": "Assets/MatchThemAllTemplate/Scripts/Runtime/VFX/FreezeFx.cs",
-      "source_location": "L103"
+      "source_location": "L111"
     },
     {
       "id": "assets_matchthemalltemplate_scripts_runtime_vfx_freezefx_matchthemall_scripts_freezefx_ondestroy",
@@ -44004,7 +44004,7 @@
       },
       "norm_label": ".ondestroy()",
       "source_file": "Assets/MatchThemAllTemplate/Scripts/Runtime/VFX/FreezeFx.cs",
-      "source_location": "L48"
+      "source_location": "L54"
     },
     {
       "id": "assets_matchthemalltemplate_scripts_runtime_vfx_freezefx_matchthemall_scripts_freezefx_onfrozen",
@@ -44024,13 +44024,13 @@
             "callee": "Alpha",
             "receiver_type": "Tween",
             "lang": "csharp",
-            "line": "L63"
+            "line": "L69"
           }
         ]
       },
       "norm_label": ".onfrozen()",
       "source_file": "Assets/MatchThemAllTemplate/Scripts/Runtime/VFX/FreezeFx.cs",
-      "source_location": "L60"
+      "source_location": "L66"
     },
     {
       "id": "assets_matchthemalltemplate_scripts_runtime_vfx_freezefx_matchthemall_scripts_freezefx_onunfrozen",
@@ -44050,13 +44050,13 @@
             "callee": "Alpha",
             "receiver_type": "Tween",
             "lang": "csharp",
-            "line": "L72"
+            "line": "L79"
           }
         ]
       },
       "norm_label": ".onunfrozen()",
       "source_file": "Assets/MatchThemAllTemplate/Scripts/Runtime/VFX/FreezeFx.cs",
-      "source_location": "L69"
+      "source_location": "L76"
     },
     {
       "id": "assets_matchthemalltemplate_scripts_runtime_vfx_freezefx_matchthemall_scripts_freezefx_showspheres",
@@ -44076,19 +44076,19 @@
             "callee": "StopAll",
             "receiver_type": "Tween",
             "lang": "csharp",
-            "line": "L94"
+            "line": "L102"
           },
           {
             "callee": "Scale",
             "receiver_type": "Tween",
             "lang": "csharp",
-            "line": "L99"
+            "line": "L107"
           }
         ]
       },
       "norm_label": ".showspheres()",
       "source_file": "Assets/MatchThemAllTemplate/Scripts/Runtime/VFX/FreezeFx.cs",
-      "source_location": "L77"
+      "source_location": "L85"
     },
     {
       "id": "assets_matchthemalltemplate_scripts_runtime_vfx_freezefx_matchthemall_scripts_freezefx_update",
@@ -44106,7 +44106,7 @@
       },
       "norm_label": ".update()",
       "source_file": "Assets/MatchThemAllTemplate/Scripts/Runtime/VFX/FreezeFx.cs",
-      "source_location": "L54"
+      "source_location": "L60"
     },
     {
       "id": "assets_matchthemalltemplate_thirdparty_naughtyattributes_scripts_editor_naughtyinspector_naughtyattributes_editor_naughtyinspector_drawbuttons",
@@ -73307,7 +73307,7 @@
       "node_kind": "heading",
       "norm_label": "10. obsidian second brain",
       "source_file": "CLAUDE.md",
-      "source_location": "L220"
+      "source_location": "L222"
     },
     {
       "id": "claude_11_unity_plugin_skills",
@@ -73319,7 +73319,7 @@
       "node_kind": "heading",
       "norm_label": "11. unity plugin skills",
       "source_file": "CLAUDE.md",
-      "source_location": "L231"
+      "source_location": "L233"
     },
     {
       "id": "claude_12_quick_commands",
@@ -73331,7 +73331,7 @@
       "node_kind": "heading",
       "norm_label": "12. quick commands",
       "source_file": "CLAUDE.md",
-      "source_location": "L257"
+      "source_location": "L259"
     },
     {
       "id": "claude_1_think_before_coding",
@@ -73427,7 +73427,7 @@
       "node_kind": "heading",
       "norm_label": "8. community map (key communities)",
       "source_file": "CLAUDE.md",
-      "source_location": "L181"
+      "source_location": "L183"
     },
     {
       "id": "claude_9_cross_community_bridge_nodes_high_betweenness_careful",
@@ -73439,7 +73439,7 @@
       "node_kind": "heading",
       "norm_label": "9. cross-community bridge nodes (high betweenness \u2014 careful!)",
       "source_file": "CLAUDE.md",
-      "source_location": "L211"
+      "source_location": "L213"
     },
     {
       "id": "claude_communication_pattern",
@@ -120566,7 +120566,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "Assets/MatchThemAllTemplate/Scripts/Runtime/VFX/FreezeFx.cs",
-      "source_location": "L44",
+      "source_location": "L50",
       "weight": 1.0
     },
     {
@@ -120578,7 +120578,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "Assets/MatchThemAllTemplate/Scripts/Runtime/VFX/FreezeFx.cs",
-      "source_location": "L50",
+      "source_location": "L56",
       "weight": 1.0
     },
     {
@@ -120590,7 +120590,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "Assets/MatchThemAllTemplate/Scripts/Runtime/VFX/FreezeFx.cs",
-      "source_location": "L66",
+      "source_location": "L73",
       "weight": 1.0
     },
     {
@@ -120602,7 +120602,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "Assets/MatchThemAllTemplate/Scripts/Runtime/VFX/FreezeFx.cs",
-      "source_location": "L74",
+      "source_location": "L82",
       "weight": 1.0
     },
     {
@@ -127314,7 +127314,7 @@
         "ref_token": "CanvasGroup"
       },
       "source_file": "Assets/MatchThemAllTemplate/Scripts/Runtime/VFX/FreezeFx.cs",
-      "source_location": "L19",
+      "source_location": "L25",
       "weight": 1.0
     },
     {
@@ -129684,7 +129684,7 @@
         "ref_token": "GameObject"
       },
       "source_file": "Assets/MatchThemAllTemplate/Scripts/Runtime/VFX/FreezeFx.cs",
-      "source_location": "L23",
+      "source_location": "L28",
       "weight": 1.0
     },
     {
@@ -133044,7 +133044,7 @@
         "ref_token": "ParticleSystem"
       },
       "source_file": "Assets/MatchThemAllTemplate/Scripts/Runtime/VFX/FreezeFx.cs",
-      "source_location": "L25",
+      "source_location": "L30",
       "weight": 1.0
     },
     {
@@ -133779,7 +133779,7 @@
         "ref_token": "RectTransform"
       },
       "source_file": "Assets/MatchThemAllTemplate/Scripts/Runtime/VFX/FreezeFx.cs",
-      "source_location": "L21",
+      "source_location": "L23",
       "weight": 1.0
     },
     {
@@ -136644,7 +136644,7 @@
         "ref_token": "Transform"
       },
       "source_file": "Assets/MatchThemAllTemplate/Scripts/Runtime/VFX/FreezeFx.cs",
-      "source_location": "L36",
+      "source_location": "L41",
       "weight": 1.0
     },
     {
@@ -137349,7 +137349,7 @@
         "ref_token": "Vector2"
       },
       "source_file": "Assets/MatchThemAllTemplate/Scripts/Runtime/VFX/FreezeFx.cs",
-      "source_location": "L28",
+      "source_location": "L33",
       "weight": 1.0
     },
     {
@@ -137889,7 +137889,7 @@
         "ref_token": "Vector3"
       },
       "source_file": "Assets/MatchThemAllTemplate/Scripts/Runtime/VFX/FreezeFx.cs",
-      "source_location": "L37",
+      "source_location": "L42",
       "weight": 1.0
     },
     {
@@ -150586,7 +150586,7 @@
         "ref_token": "TimerFrozenEvent"
       },
       "source_file": "Assets/MatchThemAllTemplate/Scripts/Runtime/VFX/FreezeFx.cs",
-      "source_location": "L44",
+      "source_location": "L50",
       "weight": 1.0
     },
     {
@@ -150601,7 +150601,7 @@
         "ref_token": "TimerFrozenEvent"
       },
       "source_file": "Assets/MatchThemAllTemplate/Scripts/Runtime/VFX/FreezeFx.cs",
-      "source_location": "L50",
+      "source_location": "L56",
       "weight": 1.0
     },
     {
@@ -150616,7 +150616,7 @@
         "ref_token": "TimerUnfrozenEvent"
       },
       "source_file": "Assets/MatchThemAllTemplate/Scripts/Runtime/VFX/FreezeFx.cs",
-      "source_location": "L45",
+      "source_location": "L51",
       "weight": 1.0
     },
     {
@@ -150631,7 +150631,7 @@
         "ref_token": "TimerUnfrozenEvent"
       },
       "source_file": "Assets/MatchThemAllTemplate/Scripts/Runtime/VFX/FreezeFx.cs",
-      "source_location": "L51",
+      "source_location": "L57",
       "weight": 1.0
     },
     {
@@ -166416,7 +166416,7 @@
         "ref_token": "TimerFrozenEvent"
       },
       "source_file": "Assets/MatchThemAllTemplate/Scripts/Runtime/VFX/FreezeFx.cs",
-      "source_location": "L60",
+      "source_location": "L66",
       "weight": 1.0
     },
     {
@@ -166431,7 +166431,7 @@
         "ref_token": "TimerUnfrozenEvent"
       },
       "source_file": "Assets/MatchThemAllTemplate/Scripts/Runtime/VFX/FreezeFx.cs",
-      "source_location": "L69",
+      "source_location": "L76",
       "weight": 1.0
     },
     {
@@ -173561,7 +173561,7 @@
         "ref_token": "MonoBehaviour"
       },
       "source_file": "Assets/MatchThemAllTemplate/Scripts/Runtime/VFX/FreezeFx.cs",
-      "source_location": "L14",
+      "source_location": "L15",
       "weight": 1.0
     },
     {
@@ -184102,7 +184102,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "Assets/MatchThemAllTemplate/Scripts/Runtime/VFX/FreezeFx.cs",
-      "source_location": "L14",
+      "source_location": "L15",
       "weight": 1.0
     },
     {
@@ -195311,7 +195311,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "CLAUDE.md",
-      "source_location": "L181",
+      "source_location": "L183",
       "weight": 1.0
     },
     {
@@ -195322,7 +195322,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "CLAUDE.md",
-      "source_location": "L211",
+      "source_location": "L213",
       "weight": 1.0
     },
     {
@@ -195333,7 +195333,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "CLAUDE.md",
-      "source_location": "L220",
+      "source_location": "L222",
       "weight": 1.0
     },
     {
@@ -195355,7 +195355,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "CLAUDE.md",
-      "source_location": "L231",
+      "source_location": "L233",
       "weight": 1.0
     },
     {
@@ -195366,7 +195366,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "CLAUDE.md",
-      "source_location": "L257",
+      "source_location": "L259",
       "weight": 1.0
     },
     {
@@ -216783,7 +216783,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "Assets/MatchThemAllTemplate/Scripts/Runtime/VFX/FreezeFx.cs",
-      "source_location": "L103",
+      "source_location": "L111",
       "weight": 1.0
     },
     {
@@ -216794,7 +216794,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "Assets/MatchThemAllTemplate/Scripts/Runtime/VFX/FreezeFx.cs",
-      "source_location": "L40",
+      "source_location": "L45",
       "weight": 1.0
     },
     {
@@ -216805,7 +216805,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "Assets/MatchThemAllTemplate/Scripts/Runtime/VFX/FreezeFx.cs",
-      "source_location": "L48",
+      "source_location": "L54",
       "weight": 1.0
     },
     {
@@ -216816,7 +216816,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "Assets/MatchThemAllTemplate/Scripts/Runtime/VFX/FreezeFx.cs",
-      "source_location": "L54",
+      "source_location": "L60",
       "weight": 1.0
     },
     {
@@ -216827,7 +216827,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "Assets/MatchThemAllTemplate/Scripts/Runtime/VFX/FreezeFx.cs",
-      "source_location": "L60",
+      "source_location": "L66",
       "weight": 1.0
     },
     {
@@ -216838,7 +216838,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "Assets/MatchThemAllTemplate/Scripts/Runtime/VFX/FreezeFx.cs",
-      "source_location": "L69",
+      "source_location": "L76",
       "weight": 1.0
     },
     {
@@ -216849,7 +216849,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "Assets/MatchThemAllTemplate/Scripts/Runtime/VFX/FreezeFx.cs",
-      "source_location": "L77",
+      "source_location": "L85",
       "weight": 1.0
     },
     {
@@ -225548,5 +225548,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "11b557e7ae8cd74394f5ae5c3c8e7f3b258b067d"
+  "built_at_commit": "a3107da29b757a9a8399ce5b9d5711efc2d9e40c"
 }

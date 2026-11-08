@@ -24,6 +24,7 @@ namespace MatchThemAll.EditorTools
         private const string NodePrefabPath = "Assets/MatchThemAllTemplate/Prefabs/UI/Level/LevelMapNode.prefab";
         private const string GemPillPrefabPath = "Assets/MatchThemAllTemplate/Prefabs/UI/GemPill.prefab";
         private const string BubblePrefabPath = "Assets/MatchThemAllTemplate/Prefabs/UI/Bubble.prefab";
+        private const string GameTitlePrefabPath = "Assets/MatchThemAllTemplate/Prefabs/UI/GameTitle.prefab";
         private const string FontPath = "Assets/MatchThemAllTemplate/Art/UI/Fonts/LilitaOne-Regular SDF.asset";
 
         // ──────────────────────────────── Palette ────────────────────────────────
@@ -97,20 +98,12 @@ namespace MatchThemAll.EditorTools
             Motion(shine, UISimpleMotion.Mode.Rotate, 8f, 0f);
             shine.SetSiblingIndex(0);
 
-            var glow = Node(group, "Glow"); Place(glow, Center, Center, new Vector2(0, 20), new Vector2(1000, 800));
-            Img(glow, Spr("Shapes/Effects/Shine"), new Color(1, 1, 1, 0.45f));
-            glow.SetSiblingIndex(1);
+            // Shared GameTitle prefab (Glow + Title) between the Shine and the Banner
+            var gameTitle = GameTitle(group, "GameTitle"); gameTitle.SetSiblingIndex(1);
+            Place(gameTitle, Center, Center, Vector2.zero, new Vector2(1000, 760));
+            StyleGameTitle(gameTitle, new Vector2(0, 20), new Vector2(1000, 800), 0.45f, new Vector2(0, 90), new Vector2(1000, 460), 200f, 10f, 0.35f);
 
-            // Existing TitleText (child of Banner) → becomes the main title
-            var title = FindDeep(root, "TitleText") as RectTransform;
             var banner = FindDeep(root, "Banner") as RectTransform;
-            if (title)
-            {
-                title.SetParent(group, false);
-                Place(title, Center, Center, new Vector2(0, 90), new Vector2(1000, 460));
-                TitleStyle(title.GetComponent<TextMeshProUGUI>(), 200f);
-                Motion(title, UISimpleMotion.Mode.Float, 10f, 0.35f);
-            }
             if (banner)
             {
                 banner.SetParent(group, false);
@@ -147,11 +140,9 @@ namespace MatchThemAll.EditorTools
             Clouds(decor);
 
             // Logo
-            var logo = Node(root, "Logo"); logo.SetSiblingIndex(2);
+            var logo = GameTitle(root, "Logo"); logo.SetSiblingIndex(2);
             Place(logo, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -263), new Vector2(1000, 420));
-            var lt = Node(logo, "Title"); Place(lt, Center, Center, new Vector2(0, 30), new Vector2(1000, 340));
-            TitleStyle(Txt(lt, "MATCH\nTHEM ALL", 150, Color.white, null), 150f);
-            Motion(lt, UISimpleMotion.Mode.Float, 8f, 0.35f);
+            StyleGameTitle(logo, new Vector2(0, 30), new Vector2(1000, 800) * (150f / 180f), 0.4f, new Vector2(0, 30), new Vector2(1000, 340), 150f, 8f, 0.35f);
 
             // Hero: a pile of colourful items (what you match in-game)
             var hero = Node(root, "Hero"); hero.SetSiblingIndex(3);
@@ -246,17 +237,10 @@ namespace MatchThemAll.EditorTools
             Clouds(decor);
 
             // Logo → title
-            var logo = root.Find("Logo") as RectTransform;
-            if (logo)
-            {
-                Place(logo, Center, Center, new Vector2(0, 220), new Vector2(1000, 520));
-                var li = logo.GetComponent<Image>(); if (li) { li.sprite = null; li.color = Color.clear; li.raycastTarget = false; }
-                var glow = Node(logo, "Glow"); Place(glow, Center, Center, Vector2.zero, new Vector2(1000, 800));
-                Img(glow, Spr("Shapes/Effects/Shine"), new Color(1, 1, 1, 0.4f)); glow.SetSiblingIndex(0);
-                var t = Node(logo, "Title"); Place(t, Center, Center, new Vector2(0, 40), new Vector2(1000, 420));
-                TitleStyle(Txt(t, "MATCH\nTHEM ALL", 180, Color.white, null), 180f);
-                Motion(t, UISimpleMotion.Mode.Float, 10f, 0.4f);
-            }
+            var logo = GameTitle(root, "Logo");
+            Place(logo, Center, Center, new Vector2(0, 220), new Vector2(983.34f, 520)); // width/title y synced to the hand-tuned scene
+            var li = logo.GetComponent<Image>(); if (li) { li.sprite = null; li.color = Color.clear; li.raycastTarget = false; }
+            StyleGameTitle(logo, Vector2.zero, new Vector2(1000, 800), 0.4f, Vector2.zero, new Vector2(1000, 420), 180f, 10f, 0.4f);
 
             // Spinner + "Loading" label above the bar
             var spinner = Node(root, "Spinner");
@@ -549,6 +533,35 @@ namespace MatchThemAll.EditorTools
             t.raycastTarget = false;
             if (t.text.Contains("Match Them All") || string.IsNullOrWhiteSpace(t.text)) t.text = "MATCH\nTHEM ALL";
             if (!t.text.Contains("\n")) t.text = "MATCH\nTHEM ALL";
+        }
+
+        /// <summary>
+        /// The shared "MATCH THEM ALL" title (GameTitle prefab: Glow + Title). Reuses an existing instance called
+        /// <paramref name="name"/>; a leftover plain copy is replaced by an instance.
+        /// </summary>
+        private static RectTransform GameTitle(Transform parent, string name)
+        {
+            var t = parent.Find(name);
+            if (t && PrefabUtility.IsPartOfPrefabInstance(t.gameObject)) return (RectTransform)t;
+            int index = t ? t.GetSiblingIndex() : parent.childCount;
+            if (t) Object.DestroyImmediate(t.gameObject);
+            var go = (GameObject)PrefabUtility.InstantiatePrefab(AssetDatabase.LoadAssetAtPath<GameObject>(GameTitlePrefabPath), parent);
+            go.name = name;
+            go.transform.SetSiblingIndex(index);
+            return (RectTransform)go.transform;
+        }
+
+        /// <summary>Per-screen look of a GameTitle instance (stored as overrides on that scene's instance).</summary>
+        private static void StyleGameTitle(RectTransform gameTitle, Vector2 glowPos, Vector2 glowSize, float glowAlpha,
+            Vector2 titlePos, Vector2 titleSize, float fontSize, float floatAmount, float floatSpeed)
+        {
+            var glow = (RectTransform)gameTitle.Find("Glow");
+            Place(glow, Center, Center, glowPos, glowSize);
+            Img(glow, Spr("Shapes/Effects/Shine"), new Color(1, 1, 1, glowAlpha));
+            var title = (RectTransform)gameTitle.Find("Title");
+            Place(title, Center, Center, titlePos, titleSize);
+            TitleStyle(title.GetComponent<TextMeshProUGUI>(), fontSize);
+            Motion(title, UISimpleMotion.Mode.Float, floatAmount, floatSpeed);
         }
 
         private static void HeroItem(RectTransform parent, string name, string sprite, Vector2 pos, float size, float rot, float phase)
