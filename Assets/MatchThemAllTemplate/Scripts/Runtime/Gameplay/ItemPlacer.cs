@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using ZLinq;
 using System.Threading.Tasks;
 using NaughtyAttributes;
 using UnityEngine;
@@ -35,13 +36,18 @@ namespace MatchThemAll.Scripts
         public async Task InitializeAsync(LevelDataSO data)
         {
             if (!BeginSpawn(data)) return;
+            var destroyed = destroyCancellationToken; // read while alive; cancels when this object is destroyed (scene left mid-spawn)
             int inBatch = 0;
             foreach (var prefab in Expand(data))
             {
                 Spawn(prefab);
                 if (++inBatch < ItemsPerFrame) continue;
                 inBatch = 0;
-                await Task.Delay(10); // Task.Yield() completes synchronously in Unity; a short delay reaches the next frame
+                // Task.Yield() completes synchronously in Unity; a short delay reaches the next frame.
+                // Check again after the await: the delay can finish just before the scene unloads, and its
+                // continuation then runs after this object (and the item pool) are already destroyed.
+                await Task.Delay(10, destroyed);
+                destroyed.ThrowIfCancellationRequested();
             }
         }
 
@@ -76,22 +82,24 @@ namespace MatchThemAll.Scripts
         private static Item CreateInstance(Item prefab)
         {
 #if UNITY_EDITOR
-            if (!Application.isPlaying)
-                return ((GameObject)PrefabUtility.InstantiatePrefab(prefab.gameObject)).GetComponent<Item>();
-#endif
+            return !Application.isPlaying
+                ? ((GameObject)PrefabUtility.InstantiatePrefab(prefab.gameObject)).GetComponent<Item>()
+                : ItemPoolManager.Instance.GetItem(prefab);
+#else
             return ItemPoolManager.Instance.GetItem(prefab);
+#endif
         }
 
         private void Despawn()
         {
-            foreach (var item in _activeItems)
+            foreach (var item in _activeItems.AsValueEnumerable().Where(item => item))
             {
-                if (!item) continue;
 #if UNITY_EDITOR
                 if (!Application.isPlaying) { DestroyImmediate(item.gameObject); continue; }
 #endif
                 ItemPoolManager.Instance.ReleaseItem(item);
             }
+
             _activeItems.Clear();
         }
 

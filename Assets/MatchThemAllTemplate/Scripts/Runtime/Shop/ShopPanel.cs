@@ -86,7 +86,7 @@ namespace MatchThemAll.Scripts.Shop
         {
             if (!root) return;
             // Delegate to UIAnimator so the zoom-out + fade plays before SetActive(false),
-            // matching the Settings / Daily Reward panel close behaviour.
+            // matching the Settings / Daily Reward panel close behavior.
             if (_animator) _animator.ClosePanel();
             else root.SetActive(false);
         }

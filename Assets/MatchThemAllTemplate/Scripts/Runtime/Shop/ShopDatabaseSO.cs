@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using ZLinq;
 using UnityEngine;
 
 namespace MatchThemAll.Scripts.Shop
@@ -37,8 +38,7 @@ namespace MatchThemAll.Scripts.Shop
         public IEnumerable<ShopProductSO> ProductsByTab(string tabId)
         {
             if (string.IsNullOrEmpty(tabId) || products == null) yield break;
-            foreach (var p in products)
-                if (p != null && p.tabId == tabId) yield return p;
+            foreach (var p in products.AsValueEnumerable().Where(p => p != null && p.tabId == tabId)) yield return p;
         }
 
         // ── Product queries ──────────────────────────────────────────────────
@@ -46,18 +46,14 @@ namespace MatchThemAll.Scripts.Shop
         public ShopProductSO FindById(string id)
         {
             if (string.IsNullOrEmpty(id)) return null;
-            foreach (var p in products)
-                if (p != null && p.id == id) return p;
-            return null;
+            return products.AsValueEnumerable().FirstOrDefault(p => p != null && p.id == id);
         }
 
         /// <summary>Find a tab SO by id. Returns null if not found.</summary>
         public ShopTabSO FindTabById(string tabId)
         {
             if (string.IsNullOrEmpty(tabId) || tabs == null) return null;
-            foreach (var t in tabs)
-                if (t != null && t.id == tabId) return t;
-            return null;
+            return tabs.AsValueEnumerable().FirstOrDefault(t => t != null && t.id == tabId);
         }
     }
 }

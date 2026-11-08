@@ -1,7 +1,6 @@
 using System;
 using PrimeTween;
 using UnityEngine;
-using MatchThemAll.Scripts;
 
 namespace MatchThemAll.Scripts.Power_Ups
 {

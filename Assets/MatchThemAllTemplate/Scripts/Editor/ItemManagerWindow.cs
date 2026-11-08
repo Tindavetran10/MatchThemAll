@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
-using MatchThemAll.Scripts;
 using UnityEditor;
 using UnityEngine;
 using ZLinq;
@@ -525,16 +524,14 @@ namespace MatchThemAll.Scripts.Editor
             // Exactly mirrors ItemSpotManager values from MainScene
             var targetPosition = new Vector3(0.095f, 0f, 0.095f);
             var targetScale    = new Vector3(0.15f, 0.15f, 0.15f);
-            var targetEuler    = Vector3.zero;
 
             if (configItem.UseCustomDockPositionOffset)
                 targetPosition += configItem.CustomDockPositionOffset;
-            if (configItem.UseCustomDockRotation)
-                targetEuler = configItem.CustomDockRotation;
+            targetPosition += configItem.DockPivotShift(targetScale);
 
             _previewItemInstance.transform.localScale    = targetScale;
             _previewItemInstance.transform.localPosition = targetPosition;
-            _previewItemInstance.transform.localRotation = Quaternion.Euler(targetEuler);
+            _previewItemInstance.transform.localRotation = configItem.DockRotation;
 
             // Re-center the framing whenever the item's pose changes (spawn or offset/rotation tweak),
             // so the camera always targets the assembly's bounds center instead of the dock base.

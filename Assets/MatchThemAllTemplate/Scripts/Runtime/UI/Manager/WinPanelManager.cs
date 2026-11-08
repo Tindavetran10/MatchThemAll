@@ -107,7 +107,7 @@ namespace MatchThemAll.Scripts.UI
                 star.SetActive(true);
                 star.transform.localScale = Vector3.zero;
 
-                // Restore the earned look first; AnimateStars swaps unearned stars afterwards.
+                // Restore the earned look first; AnimateStars swaps unearned stars afterward.
                 if (unearnedStarSprite && star.TryGetComponent(out Image img))
                 {
                     _earnedStarSprite ??= img.sprite;

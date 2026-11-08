@@ -264,33 +264,33 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Editor/UIOverhaul/UIOverhaulBuilder.cs": {
-    "mtime": 1793567487.263285,
-    "seen": 1793567762.8358498,
-    "ast_hash": "126369a23adf4d5589640f7c2311404c",
+    "mtime": 1794092524.4582036,
+    "seen": 1794092617.934743,
+    "ast_hash": "05ad56bd0ae86c4d40b596cf5bf29da3",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Editor/CartoonUIBuilder.cs": {
-    "mtime": 1793569549.6132514,
-    "seen": 1793570250.9434338,
-    "ast_hash": "b6178913ac63faab179cd50e44d473b9",
+    "mtime": 1794094939.239,
+    "seen": 1794095723.8516622,
+    "ast_hash": "4fe5c0c5c2e43df4cf98145f24519e89",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Editor/EditorWindowStyles.cs": {
-    "mtime": 1788781045.417448,
-    "seen": 1792067873.7639143,
-    "ast_hash": "9898c0174990ad385d8d68633ad6b2c4",
+    "mtime": 1794093861.735,
+    "seen": 1794094055.264994,
+    "ast_hash": "734d25c66be4bce75b8ae3f0337577ef",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Editor/HierarchySectionHeader.cs": {
-    "mtime": 1793953605.4005513,
-    "seen": 1793954067.295688,
-    "ast_hash": "8d722e1e1a75ec9eada625f8df8efe78",
+    "mtime": 1794090115.889,
+    "seen": 1794092273.7178526,
+    "ast_hash": "7dd2de551b50bbafa867dd7ec6cf8082",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Editor/ItemManagerWindow.cs": {
-    "mtime": 1788798496.2051153,
-    "seen": 1792067873.7639167,
-    "ast_hash": "5813f0d08fc33f21393e995ca9b4158d",
+    "mtime": 1794093861.744,
+    "seen": 1794094055.264999,
+    "ast_hash": "cf40958216399fa7781c81d988c5c2be",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Editor/ItemReferenceOps.cs": {
@@ -324,9 +324,9 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Editor/ShopEditorWindow.cs": {
-    "mtime": 1792074229.18872,
-    "seen": 1792075412.3196266,
-    "ast_hash": "1254edbd24c2bf37c9f93d1b67c58eb0",
+    "mtime": 1794088847.432,
+    "seen": 1794092273.7178698,
+    "ast_hash": "8a4d6b4c18fe53bd7b0fee9396cf03c5",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Editor/ShopSetup.cs": {
@@ -366,9 +366,9 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/Core/InputManager.cs": {
-    "mtime": 1788783911.00319,
-    "seen": 1792067873.7639325,
-    "ast_hash": "11185fad6a0bc53171a481e5536b879b",
+    "mtime": 1794095011.125,
+    "seen": 1794095723.8517005,
+    "ast_hash": "907cb6707749d9fee3154b28fcdf13af",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/Core/MTAInputSystem_Actions.cs": {
@@ -384,15 +384,15 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/Core/SceneLoader.cs": {
-    "mtime": 1784448308.594341,
-    "seen": 1792067873.7639365,
-    "ast_hash": "5b76a57b15ed8767afac9f910305d74b",
+    "mtime": 1794098910.2857869,
+    "seen": 1794099009.2522945,
+    "ast_hash": "70b9bbaf07950a8f36c51cc64736f58a",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/Core/SoundManager.cs": {
-    "mtime": 1793954155.5003636,
-    "seen": 1793954457.9665904,
-    "ast_hash": "27d904dd07eb06d4379b78db466af040",
+    "mtime": 1794079449.607,
+    "seen": 1794080290.141251,
+    "ast_hash": "37fa45f6a4c63ae56c01fafd1d51d203",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/Gameplay/ComboManager.cs": {
@@ -402,9 +402,9 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/Gameplay/GoalManager.cs": {
-    "mtime": 1793953815.3398044,
-    "seen": 1793954067.2957253,
-    "ast_hash": "80c6af0605fd9c0269dc8035478f4d3c",
+    "mtime": 1794084539.5963712,
+    "seen": 1794084628.5275156,
+    "ast_hash": "1502e7e4f74e63faae35d2ec758a391c",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/Gameplay/HintManager.cs": {
@@ -414,15 +414,15 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/Gameplay/Item.cs": {
-    "mtime": 1793953545.2017803,
-    "seen": 1793954067.2957282,
-    "ast_hash": "386368e6fd071fedf10067c523da3e3b",
+    "mtime": 1794095102.988,
+    "seen": 1794095723.8517194,
+    "ast_hash": "d52b08c298642c2c0608bd3a10117dbe",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/Gameplay/ItemPlacer.cs": {
-    "mtime": 1793953579.5927434,
-    "seen": 1793954067.2957294,
-    "ast_hash": "c47008797b6c675dcfc00eb22436895a",
+    "mtime": 1794096668.80824,
+    "seen": 1794096854.891445,
+    "ast_hash": "3929289fbdb293646a0242ac18f8eb35",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/Gameplay/ItemSpot.cs": {
@@ -438,27 +438,27 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/Gameplay/ItemSpotManager.cs": {
-    "mtime": 1793959679.6460109,
-    "seen": 1793963685.1238878,
-    "ast_hash": "6225b2df15829f6edd679e5f856234bc",
+    "mtime": 1794095205.61,
+    "seen": 1794095723.8517268,
+    "ast_hash": "c3c25205fda900cda8dc217adb211875",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/Gameplay/MatchSystem.cs": {
-    "mtime": 1793959679.5841682,
-    "seen": 1793963685.1238904,
-    "ast_hash": "ef7e4df04f52e21b40abca731bcf54d3",
+    "mtime": 1794084539.6589148,
+    "seen": 1794084628.5275261,
+    "ast_hash": "ea7dd1620757f151b2752ad988422983",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/Gameplay/MergeManager.cs": {
-    "mtime": 1793953563.6782625,
-    "seen": 1793954067.2957358,
-    "ast_hash": "ea46d962c68fea8505720997f5e2b331",
+    "mtime": 1794084539.6884978,
+    "seen": 1794084628.5275276,
+    "ast_hash": "b748999700899eebf9c3877ef17faa40",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/Gameplay/TimerManager.cs": {
-    "mtime": 1793954188.2510445,
-    "seen": 1793954457.9666023,
-    "ast_hash": "052f74f90884af5bb4ba179d831680f8",
+    "mtime": 1794095617.4426188,
+    "seen": 1794095723.8517327,
+    "ast_hash": "70532604153341a5222d96ee72eea843",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/LevelSystem/ItemLevelData.cs": {
@@ -486,9 +486,9 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/LevelSystem/LevelManager.cs": {
-    "mtime": 1793953856.5248404,
-    "seen": 1793954067.2957428,
-    "ast_hash": "f83c02e23a9c64d5d25c40f246d818b8",
+    "mtime": 1794096668.8649893,
+    "seen": 1794096854.8914633,
+    "ast_hash": "a74b786f41700ad03aee781a5b88de7c",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/Pixelate/PixelizeController.cs": {
@@ -504,9 +504,9 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/Pixelate/PixelizePass.cs": {
-    "mtime": 1793954248.3589802,
-    "seen": 1793954457.9666095,
-    "ast_hash": "4d5ddbccbbb22175917b5127498d5353",
+    "mtime": 1794080810.749,
+    "seen": 1794084628.5275514,
+    "ast_hash": "06256da7451f5716ff16fceb1743d27f",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/PowerUps/ECurrency.cs": {
@@ -522,15 +522,15 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/PowerUps/FanEffect.cs": {
-    "mtime": 1793576163.0137813,
-    "seen": 1793576787.815503,
-    "ast_hash": "2f8d724c3eee4a83817f3c83b0a996b4",
+    "mtime": 1794081992.135,
+    "seen": 1794084628.5275552,
+    "ast_hash": "dfe6f8bae8b34ca72b3a0be6868e2fe5",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/PowerUps/FreezeEffect.cs": {
-    "mtime": 1793575446.8991838,
-    "seen": 1793575762.0284927,
-    "ast_hash": "28122dba7ba3562d1c29d24e2da0bd87",
+    "mtime": 1794082007.562,
+    "seen": 1794084628.5275567,
+    "ast_hash": "141a001e773d32f2d52317d0b3abb164",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/PowerUps/FreezeGun.cs": {
@@ -540,27 +540,27 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/PowerUps/Powerup.cs": {
-    "mtime": 1788780860.004093,
-    "seen": 1792067873.7639716,
-    "ast_hash": "6e0fd4a614c182ad0db85b8fd8e43dab",
+    "mtime": 1794082032.242,
+    "seen": 1794084628.5275595,
+    "ast_hash": "94862944ac82af72c195299d41a5e3e9",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/PowerUps/PowerupContext.cs": {
-    "mtime": 1793572664.6133618,
-    "seen": 1793573574.5150266,
-    "ast_hash": "faac5128f4514838ebab277d115bcacd",
+    "mtime": 1794082032.255,
+    "seen": 1794084628.5275605,
+    "ast_hash": "70b583e17a82e9b03d1dec4c33b1367c",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/PowerUps/PowerupDataSO.cs": {
-    "mtime": 1788780860.0062158,
-    "seen": 1792067873.763974,
-    "ast_hash": "d8b4065bf8d1e1c372ca1a04689a0b60",
+    "mtime": 1794082032.238,
+    "seen": 1794084628.5275617,
+    "ast_hash": "7e622fb89c78189360c85c100de15d6a",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/PowerUps/PowerupDatabaseSO.cs": {
-    "mtime": 1788780860.0062158,
-    "seen": 1792067873.7639751,
-    "ast_hash": "47386eb63142aa5b9456d2c9fdd42188",
+    "mtime": 1794095598.279,
+    "seen": 1794095723.8518226,
+    "ast_hash": "02451cd334835966f919137bb478a772",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/PowerUps/PowerupEffect.cs": {
@@ -570,9 +570,9 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/PowerUps/PowerupManager.cs": {
-    "mtime": 1793576225.5221887,
-    "seen": 1793576787.815515,
-    "ast_hash": "8081ff6caa221fcf3c1feeb3cb163355",
+    "mtime": 1794084539.7539325,
+    "seen": 1794084628.5275657,
+    "ast_hash": "44b5e70d25579d9f924bc1a6b09cfb4a",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/PowerUps/Spring.cs": {
@@ -582,9 +582,9 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/PowerUps/SpringEffect.cs": {
-    "mtime": 1793576219.239614,
-    "seen": 1793576787.81552,
-    "ast_hash": "26f83ac5c81adfea848a5f21e0a06e68",
+    "mtime": 1794095598.284,
+    "seen": 1794095723.8518329,
+    "ast_hash": "88036bf0520ecefac5937e7a9edefbc6",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/PowerUps/Vacuum.cs": {
@@ -594,9 +594,9 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/PowerUps/VacuumEffect.cs": {
-    "mtime": 1793576252.826854,
-    "seen": 1793576787.8155231,
-    "ast_hash": "291c9742b535851600d680c12577bc65",
+    "mtime": 1794082032.292,
+    "seen": 1794084628.5275726,
+    "ast_hash": "0c69f759fd39ea7aab67e255ea4ddc2c",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/SaveSystem/PlayerData.cs": {
@@ -606,9 +606,9 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/SaveSystem/SaveManager.cs": {
-    "mtime": 1793958586.854983,
-    "seen": 1793958928.8944075,
-    "ast_hash": "96113b01e0e3b93e25e3ac98d15480b3",
+    "mtime": 1794082032.261,
+    "seen": 1794084628.527575,
+    "ast_hash": "8446ada6f7a701556abc40919106125f",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/SaveSystem/SaveManagerBootstrapper.cs": {
@@ -636,15 +636,15 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/Shop/ShopDatabaseSO.cs": {
-    "mtime": 1788780860.083869,
-    "seen": 1792067873.7639928,
-    "ast_hash": "a300cb880e38601ccc1c850fe634fa42",
+    "mtime": 1794084539.7811675,
+    "seen": 1794084628.5275817,
+    "ast_hash": "0883379527b855407cefe95c6d5fffbb",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/Shop/ShopManager.cs": {
-    "mtime": 1793957582.4088917,
-    "seen": 1793958928.8944151,
-    "ast_hash": "f6f89212a4c2835008657f7e65631f1c",
+    "mtime": 1794084550.413494,
+    "seen": 1794084628.527583,
+    "ast_hash": "dc2b3813d00815389f5678c2ce19d1f1",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/Shop/ShopOpener.cs": {
@@ -654,9 +654,9 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/Shop/ShopPanel.cs": {
-    "mtime": 1793958587.0798397,
-    "seen": 1793958928.8944175,
-    "ast_hash": "f3ceba65b640e5840803b0d525ca8cd5",
+    "mtime": 1794082032.218,
+    "seen": 1794084628.5275857,
+    "ast_hash": "850091005d615574ab855ca06a5d8889",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/Shop/ShopProductCard.cs": {
@@ -666,9 +666,9 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/Shop/ShopProductSO.cs": {
-    "mtime": 1788780860.0874045,
-    "seen": 1792067873.7640007,
-    "ast_hash": "2b7cda72bd8641f2068351fda86d75c8",
+    "mtime": 1793970660.9300158,
+    "seen": 1794077998.1989236,
+    "ast_hash": "c70f241c2067d1293aed7aec00452dc3",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/Shop/ShopTabSO.cs": {
@@ -756,21 +756,21 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/UI/Manager/ContinuePanelManager.cs": {
-    "mtime": 1793957675.3552537,
-    "seen": 1793958928.8944392,
-    "ast_hash": "ce9d560cb2f940e4650266c032d83361",
+    "mtime": 1794082032.228,
+    "seen": 1794084628.5276086,
+    "ast_hash": "a772088849bbc8b6ec816c2e3c0b8bc9",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/UI/Manager/LevelMapManager.cs": {
-    "mtime": 1792075126.4717262,
-    "seen": 1792075412.3197477,
-    "ast_hash": "48bd418455d68edf94bc9c715a6598f1",
+    "mtime": 1794095487.7717152,
+    "seen": 1794095723.8518882,
+    "ast_hash": "e2fd1b363443df730b726e019838200a",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/UI/Manager/LoadingScreenManager.cs": {
-    "mtime": 1788780928.2891057,
-    "seen": 1792067873.7640195,
-    "ast_hash": "9c197bb6afbe26c6f1164c207fe5ef82",
+    "mtime": 1794098820.553251,
+    "seen": 1794099009.2523997,
+    "ast_hash": "4334a94ff6593a8e17747aadaa5fa1ac",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/UI/Manager/LosePanelManager.cs": {
@@ -798,9 +798,9 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/UI/Manager/WinPanelManager.cs": {
-    "mtime": 1793957675.5809755,
-    "seen": 1793958928.894449,
-    "ast_hash": "2b4826ae4a00ef66329762d3843e9e71",
+    "mtime": 1794082892.293,
+    "seen": 1794084628.5276196,
+    "ast_hash": "2951f93935b95147934f621875ffe7be",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/UI/UIAnimator.cs": {
@@ -810,15 +810,15 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/UI/UIButtonPunch.cs": {
-    "mtime": 1792075148.6564407,
-    "seen": 1792075412.3197584,
-    "ast_hash": "c22aec9beb9004b5201917f965984266",
+    "mtime": 1794093938.9822333,
+    "seen": 1794094055.265139,
+    "ast_hash": "d3f860aa90aab42cbfdfef10ad0dd080",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/UI/UISimpleMotion.cs": {
-    "mtime": 1791370033.34,
-    "seen": 1792067873.764028,
-    "ast_hash": "2b7bd72a74044535865188f70eaf22af",
+    "mtime": 1794093923.9473684,
+    "seen": 1794094055.2651405,
+    "ast_hash": "f77a1f8beb0c4c056093d29520f233fb",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/Utilities/Enums/EGameState.cs": {
@@ -852,9 +852,9 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/VFX/VfxPool.cs": {
-    "mtime": 1788780860.2332566,
-    "seen": 1792067873.76404,
-    "ast_hash": "b0f64fbf547faab0c5a49794d697769a",
+    "mtime": 1794084368.947,
+    "seen": 1794084628.5276358,
+    "ast_hash": "75a1dbc4e6feac4be335c5f92d3ea98a",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/ThirdParty/NaughtyAttributes/Scripts/Core/DrawerAttributes/AllowNestingAttribute.cs": {
@@ -2208,27 +2208,27 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Documentation/API_REFERENCE.md": {
-    "mtime": 1793958878.7728417,
-    "seen": 1793958928.8947656,
-    "ast_hash": "0181088f6bd6ae588b01885301bdb2c2",
+    "mtime": 1793970553.352158,
+    "seen": 1794077998.1992686,
+    "ast_hash": "434e0691bb72890d36d2936e98556543",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Documentation/ARCHITECTURE_OVERVIEW.md": {
-    "mtime": 1789574597.7417793,
-    "seen": 1792067873.764406,
-    "ast_hash": "805fdb6f3be192d46fec0418358842c6",
+    "mtime": 1793970615.9781115,
+    "seen": 1794077998.1992698,
+    "ast_hash": "0225cfffa390ee70995f5454d02f45f4",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Documentation/CODE_STYLE_GUIDELINES.md": {
-    "mtime": 1789574629.5519927,
-    "seen": 1792067873.7644072,
-    "ast_hash": "829d5bbc9e8ff03194575b58ec4f7683",
+    "mtime": 1793970660.778054,
+    "seen": 1794077998.199271,
+    "ast_hash": "bd31dadd00bd617f002421cee259a5c2",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Documentation/COMMON_MISTAKES.md": {
-    "mtime": 1789574763.879517,
-    "seen": 1792067873.7644083,
-    "ast_hash": "b0aa79430254b3532661f6da5ade0843",
+    "mtime": 1793970616.07258,
+    "seen": 1794077998.199272,
+    "ast_hash": "56f12ff596ee8143a21ba60ca38722ae",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/LICENSE.txt": {
@@ -2322,9 +2322,9 @@
     "semantic_hash": ""
   },
   "CLAUDE.md": {
-    "mtime": 1793960919.1091585,
-    "seen": 1793963685.1244736,
-    "ast_hash": "de93175edfd05fb4ab9650981c6c6819",
+    "mtime": 1794098977.0554287,
+    "seen": 1794099009.2529316,
+    "ast_hash": "75a4d48c14b1df501b97be5dfdc2420b",
     "semantic_hash": ""
   },
   "ProjectSettings/ProjectVersion.txt": {
@@ -9876,8 +9876,8 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Art/UI/Gradients/BG_Lobby.png": {
-    "mtime": 1791370742.7084577,
-    "seen": 1792067873.7658777,
+    "mtime": 1794092485.6125796,
+    "seen": 1794092617.9371264,
     "ast_hash": "29879c76913b6580261b55ec045f084c",
     "semantic_hash": ""
   },
@@ -23874,9 +23874,9 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Editor/SoundManagerWindow.cs": {
-    "mtime": 1793209387.890695,
-    "seen": 1793562749.6961684,
-    "ast_hash": "6af4aa6527e685de2ee67c511a40e606",
+    "mtime": 1794088847.439,
+    "seen": 1794092273.7178733,
+    "ast_hash": "04428edec8edd5fad8092b6d8c4e38b1",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/Core/SoundEvent.cs": {
@@ -23886,9 +23886,9 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/Core/SoundLibrarySO.cs": {
-    "mtime": 1792075058.815213,
-    "seen": 1792075412.3196507,
-    "ast_hash": "cef9f8ec7a0a451bd612d98c80ae2f3c",
+    "mtime": 1794084539.5646684,
+    "seen": 1794084628.5275097,
+    "ast_hash": "96e94ebca417832b8fb77cb93bd40b0c",
     "semantic_hash": ""
   },
   "Assets/_AssetGen/Editor/AssetGuidSwap.cs": {
@@ -24684,9 +24684,9 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/UI/Manager/PowerupOfferPanel.cs": {
-    "mtime": 1793957675.5073216,
-    "seen": 1793958928.8944454,
-    "ast_hash": "e0bf040c6f1d0d6001c9df5374c2b7b5",
+    "mtime": 1794082892.289,
+    "seen": 1794084628.5276155,
+    "ast_hash": "f07780c0a38c942a263ffed56a0a7841",
     "semantic_hash": ""
   },
   "docs/decisions/2026-11-02-powerup-tray-layout.md": {
@@ -24768,8 +24768,8 @@
     "semantic_hash": ""
   },
   "Assets/LevelPlay/Editor/LevelPlayVersions.json": {
-    "mtime": 1793958140.1038535,
-    "seen": 1793958928.8943038,
+    "mtime": 1794076708.7104235,
+    "seen": 1794077998.1988018,
     "ast_hash": "19eaa589edb7c04804dace49b41b582f",
     "semantic_hash": ""
   },
@@ -24786,9 +24786,9 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/Monetization/IAdService.cs": {
-    "mtime": 1793957018.3126154,
-    "seen": 1793958928.8943703,
-    "ast_hash": "3ab0175818449ce413aca769fb8c4f2f",
+    "mtime": 1794080610.4446023,
+    "seen": 1794080707.7497218,
+    "ast_hash": "19def2852b97fb8e9b0707f8284ae9cc",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/Monetization/IIapService.cs": {
@@ -24798,9 +24798,9 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/Monetization/LevelPlay/LevelPlayAdService.cs": {
-    "mtime": 1793957078.1184628,
-    "seen": 1793958928.894374,
-    "ast_hash": "469119f8eff8f5a74684377fc7e3e6fe",
+    "mtime": 1794080610.6124501,
+    "seen": 1794080707.7497246,
+    "ast_hash": "0c1057830659f84b1415ddcb593c9477",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/Monetization/MonetizationServices.cs": {
@@ -24822,9 +24822,9 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/Monetization/UnityIAP/UnityIapService.cs": {
-    "mtime": 1793957113.6312337,
-    "seen": 1793958928.894379,
-    "ast_hash": "68f1c597371769140b19d13a75ee4293",
+    "mtime": 1794080610.6700728,
+    "seen": 1794080707.749729,
+    "ast_hash": "879efb9d563eb77ec2a46d537f54265a",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/Utilities/AdManager.cs": {
@@ -24834,9 +24834,9 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/Utilities/ConsentPopup.cs": {
-    "mtime": 1793957657.5902963,
-    "seen": 1793958928.8944554,
-    "ast_hash": "0db9b908abf8aad87c1af1e824b5cdc9",
+    "mtime": 1794084368.919,
+    "seen": 1794084628.5276263,
+    "ast_hash": "80a89e3ff195d7ea1221329a7e957423",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Documentation/MONETIZATION_SETUP.md": {
@@ -24906,9 +24906,9 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Documentation/Images/game-lobby.png": {
-    "mtime": 1793969950.921065,
-    "seen": 1793969993.0261047,
-    "ast_hash": "0a2acbbc1d884aeaf799c73364de712b",
+    "mtime": 1793971063.3710585,
+    "seen": 1794077998.2010338,
+    "ast_hash": "294e0970ada909fad0533b15d230a7f6",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Documentation/Images/game-shop.png": {
@@ -24957,6 +24957,12 @@
     "mtime": 1793969129.6513956,
     "seen": 1793969993.0261133,
     "ast_hash": "3cc92aa47d4385371f9a13e9d7bfcd19",
+    "semantic_hash": ""
+  },
+  "Assets/MatchThemAllTemplate/Scripts/Editor/PlayerDataWindow.cs": {
+    "mtime": 1794085654.4819155,
+    "seen": 1794085856.7220876,
+    "ast_hash": "11b9f494c8c6ab2fc35e696a77dfaf91",
     "semantic_hash": ""
   }
 }

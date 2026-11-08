@@ -33,33 +33,41 @@ namespace MatchThemAll.Scripts.Monetization
 
         public async void Initialize(IReadOnlyList<IapProduct> products, IapGrantHandler grant, Action<bool> onComplete = null)
         {
-            if (_store != null) { onComplete?.Invoke(IsInitialized); return; } // one store connection per app
-            _grant = grant;
-            _onInit = onComplete;
+            try
+            {
+                if (_store != null) { onComplete?.Invoke(IsInitialized); return; } // one store connection per app
+                _grant = grant;
+                _onInit = onComplete;
 
-            _definitions.Clear();
-            foreach (var p in products)
-                _definitions.Add(new ProductDefinition(p.Id, p.IsConsumable ? ProductType.Consumable : ProductType.NonConsumable));
+                _definitions.Clear();
+                foreach (var p in products)
+                    _definitions.Add(new ProductDefinition(p.Id, p.IsConsumable ? ProductType.Consumable : ProductType.NonConsumable));
 
-            _store = UnityIAPServices.StoreController();
+                _store = UnityIAPServices.StoreController();
 
-            // Every event is subscribed before Connect: orders left pending last session arrive right away.
-            _store.OnStoreConnected += OnStoreConnected;
-            _store.OnStoreDisconnected += f => Debug.LogWarning($"[IAP] Store disconnected: {f.Message}");
-            _store.OnProductsFetched += OnProductsFetched;
-            _store.OnProductsFetchFailed += f => { Debug.LogWarning($"[IAP] Product fetch failed: {f.FailureReason}"); FinishInit(); };
-            _store.OnPurchasesFetched += _ => { };
-            _store.OnPurchasesFetchFailed += f => Debug.LogWarning($"[IAP] Purchase fetch failed: {f.Message}");
-            _store.OnPurchasePending += OnPurchasePending;
-            _store.OnPurchaseConfirmed += OnPurchaseConfirmed;
-            _store.OnPurchaseFailed += OnPurchaseFailed;
-            _store.OnPurchaseDeferred += OnPurchaseDeferred;
+                // Every event is subscribed before Connect: orders left pending last session arrive right away.
+                _store.OnStoreConnected += OnStoreConnected;
+                _store.OnStoreDisconnected += f => Debug.LogWarning($"[IAP] Store disconnected: {f.Message}");
+                _store.OnProductsFetched += OnProductsFetched;
+                _store.OnProductsFetchFailed += f => { Debug.LogWarning($"[IAP] Product fetch failed: {f.FailureReason}"); FinishInit(); };
+                _store.OnPurchasesFetched += _ => { };
+                _store.OnPurchasesFetchFailed += f => Debug.LogWarning($"[IAP] Purchase fetch failed: {f.Message}");
+                _store.OnPurchasePending += OnPurchasePending;
+                _store.OnPurchaseConfirmed += OnPurchaseConfirmed;
+                _store.OnPurchaseFailed += OnPurchaseFailed;
+                _store.OnPurchaseDeferred += OnPurchaseDeferred;
 
-            try { await _store.Connect(); }
+                try { await _store.Connect(); }
+                catch (Exception e)
+                {
+                    Debug.LogWarning($"[IAP] Could not connect to the store: {e.Message}");
+                    FinishInit();
+                }
+            }
             catch (Exception e)
             {
-                Debug.LogWarning($"[IAP] Could not connect to the store: {e.Message}");
-                FinishInit();
+                Debug.LogException(e);
+                FinishInit(); // shop still gets its init callback (IsInitialized stays false)
             }
         }
 
@@ -96,16 +104,15 @@ namespace MatchThemAll.Scripts.Monetization
                 onComplete?.Invoke(false);
                 return;
             }
-            if (_inFlight.ContainsKey(productId)) { onComplete?.Invoke(false); return; }
+            if (!_inFlight.TryAdd(productId, onComplete)) { onComplete?.Invoke(false); return; }
 
-            _inFlight[productId] = onComplete;
             _store.PurchaseProduct(product);
         }
 
         private void OnPurchasePending(PendingOrder order)
         {
             string id = FirstProductId(order);
-            bool granted = id != null && _grant != null && _grant(id, order.Info?.TransactionID);
+            bool granted = id != null && _grant != null && _grant(id, order.Info.TransactionID);
             if (granted) _store.ConfirmPurchase(order);
             else Debug.LogWarning($"[IAP] '{id}' not granted yet; it stays pending and will be retried next launch.");
             Complete(id, granted);
@@ -138,8 +145,8 @@ namespace MatchThemAll.Scripts.Monetization
 
         private static string FirstProductId(Order order)
         {
-            var items = order?.CartOrdered?.Items();
-            return items is { Count: > 0 } ? items[0].Product?.definition?.id : null;
+            var items = order?.CartOrdered.Items();
+            return items is { Count: > 0 } ? items[0].Product.definition?.id : null;
         }
 
         #endregion

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using ZLinq;
 using MatchThemAll.Scripts.UI;
 using UnityEngine;
 
@@ -64,8 +65,7 @@ namespace MatchThemAll.Scripts
 
         private void RebuildCards()
         {
-            foreach (var card in _cards)
-                if (card) Destroy(card.gameObject);
+            foreach (var card in _cards.AsValueEnumerable().Where(card => card)) Destroy(card.gameObject);
             _cards.Clear();
 
             foreach (var goal in Goals)
@@ -118,8 +118,10 @@ namespace MatchThemAll.Scripts
             if (FloatingTextSpawner.Instance && _cards[g])
                 FloatingTextSpawner.Instance.Spawn($"+{TimeBonusSeconds}s", _cards[g].transform.position, Color.yellow);
 
-            foreach (var goal in Goals)
-                if (goal.amount > 0) return;
+            if (Goals.AsValueEnumerable().Any(goal => goal.amount > 0))
+            {
+                return;
+            }
             GameManager.Instance.SetGameState(EGameState.LEVELCOMPLETE);
         }
     }

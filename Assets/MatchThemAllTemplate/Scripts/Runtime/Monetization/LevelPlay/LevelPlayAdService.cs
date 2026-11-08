@@ -117,14 +117,21 @@ namespace MatchThemAll.Scripts.Monetization
 
         private async void RetryLoad(LevelPlayAdError error, bool isRewarded)
         {
-            float wait = isRewarded ? _rewardedRetry : _interstitialRetry;
-            Debug.LogWarning($"[LevelPlay] {(isRewarded ? "Rewarded" : "Interstitial")} load failed ({error.ErrorMessage}); retrying in {wait:0}s.");
-            if (isRewarded) _rewardedRetry = Mathf.Min(wait * 2f, MaxRetrySeconds);
-            else _interstitialRetry = Mathf.Min(wait * 2f, MaxRetrySeconds);
+            try
+            {
+                float wait = isRewarded ? _rewardedRetry : _interstitialRetry;
+                Debug.LogWarning($"[LevelPlay] {(isRewarded ? "Rewarded" : "Interstitial")} load failed ({error.ErrorMessage}); retrying in {wait:0}s.");
+                if (isRewarded) _rewardedRetry = Mathf.Min(wait * 2f, MaxRetrySeconds);
+                else _interstitialRetry = Mathf.Min(wait * 2f, MaxRetrySeconds);
 
-            await Task.Delay(TimeSpan.FromSeconds(wait));
-            if (isRewarded) _rewarded?.LoadAd();
-            else _interstitial?.LoadAd();
+                await Task.Delay(TimeSpan.FromSeconds(wait));
+                if (isRewarded) _rewarded?.LoadAd();
+                else _interstitial?.LoadAd();
+            }
+            catch (Exception e)
+            {
+                Debug.LogException(e);
+            }
         }
 
         #endregion
@@ -145,8 +152,16 @@ namespace MatchThemAll.Scripts.Monetization
 
         private async void OnRewardedClosed()
         {
-            if (!_rewardEarned) await Task.Delay(LateRewardGraceMs);
-            EndRewarded(_rewardEarned ? AdResult.Rewarded : AdResult.Skipped);
+            try
+            {
+                if (!_rewardEarned) await Task.Delay(LateRewardGraceMs);
+                EndRewarded(_rewardEarned ? AdResult.Rewarded : AdResult.Skipped);
+            }
+            catch (Exception e)
+            {
+                Debug.LogException(e);
+                if (_rewardedDone != null) EndRewarded(AdResult.Failed); // never leave the caller waiting
+            }
         }
 
         private void EndRewarded(AdResult result, string error = null)

@@ -61,7 +61,7 @@ namespace MatchThemAll.Scripts.UI
 
             // Prioritize Coins. If they don't have enough, show Ads (if allowed by settings and not removed).
             bool allowAds = !gameSettings || gameSettings.allowAdContinue;
-            bool adsRemoved = SaveManager.OwnsEntitlement(MatchThemAll.Scripts.Shop.EntitlementIds.RemoveAds);
+            bool adsRemoved = SaveManager.OwnsEntitlement(Shop.EntitlementIds.RemoveAds);
 
             payCoinsButton.gameObject.SetActive(hasCoins);
             watchAdButton.gameObject.SetActive(!hasCoins && allowAds && !adsRemoved);

@@ -1,10 +1,12 @@
+using System;
+using PrimeTween;
 using UnityEngine;
 
 namespace MatchThemAll.Scripts.UI
 {
     /// <summary>
     /// Lightweight decorative motion for menu art (rotating shines, floating titles, pulsing buttons).
-    /// Uses unscaled time so menus animate even when Time.timeScale is 0.
+    /// Driven by an infinite PrimeTween started in OnEnable. Uses unscaled time so menus animate even when Time.timeScale is 0.
     /// </summary>
     public class UISimpleMotion : MonoBehaviour
     {
@@ -19,6 +21,7 @@ namespace MatchThemAll.Scripts.UI
 
         private Vector3 _basePos;
         private Vector3 _baseScale;
+        private Tween _tween;
 
         public void Setup(Mode m, float amt, float spd, float ph = 0f)
         {
@@ -29,29 +32,51 @@ namespace MatchThemAll.Scripts.UI
         {
             _basePos = transform.localPosition;
             _baseScale = transform.localScale;
-        }
 
-        private void OnDisable()
-        {
-            if (mode == Mode.Float) transform.localPosition = _basePos;
-            if (mode == Mode.Pulse) transform.localScale = _baseScale;
-        }
-
-        private void Update()
-        {
-            float t = Time.unscaledTime;
             switch (mode)
             {
                 case Mode.Rotate:
-                    transform.Rotate(0f, 0f, -amount * Time.unscaledDeltaTime);
+                    if (amount == 0f) return;
+                    var start = transform.localEulerAngles;
+                    _tween = Tween.LocalEulerAngles(transform, start, start + new Vector3(0f, 0f, -360f * Mathf.Sign(amount)),
+                        360f / Mathf.Abs(amount), Ease.Linear, cycles: -1, useUnscaledTime: true);
                     break;
                 case Mode.Float:
-                    transform.localPosition = _basePos + Vector3.up * (Mathf.Sin((t * speed + phase) * Mathf.PI * 2f) * amount);
+                    if (speed <= 0f) return;
+                    _tween = Tween.LocalPositionY(transform, _basePos.y - amount, _basePos.y + amount,
+                        0.5f / speed, Ease.InOutSine, cycles: -1, CycleMode.Yoyo, useUnscaledTime: true);
+                    SetPhase();
                     break;
                 case Mode.Pulse:
-                    float s = 1f + Mathf.Sin((t * speed + phase) * Mathf.PI * 2f) * amount;
-                    transform.localScale = _baseScale * s;
+                    if (speed <= 0f) return;
+                    _tween = Tween.Scale(transform, _baseScale * (1f - amount), _baseScale * (1f + amount),
+                        0.5f / speed, Ease.InOutSine, cycles: -1, CycleMode.Yoyo, useUnscaledTime: true);
+                    SetPhase();
                     break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        // An InOutSine yoyo between -amount and +amount traces -cos; a quarter period ahead it matches
+        // the original sin((t * speed + phase) * 2π) curve, so existing phase values keep their timing.
+        private void SetPhase() => _tween.elapsedTimeTotal = Mathf.Repeat(phase + 0.25f, 1f) / speed;
+
+        private void OnDisable()
+        {
+            _tween.Stop();
+            switch (mode)
+            {
+                case Mode.Float:
+                    transform.localPosition = _basePos;
+                    break;
+                case Mode.Pulse:
+                    transform.localScale = _baseScale;
+                    break;
+                case Mode.Rotate:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
         }
     }

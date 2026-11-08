@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Audio;
 using UnityEngine.SceneManagement;
-using MatchThemAll.Scripts.Shop;
 
 namespace MatchThemAll.Scripts
 {
@@ -92,7 +91,7 @@ namespace MatchThemAll.Scripts
         {
             _voices = new AudioSource[sfxPoolSize];
             _voiceStartedAt = new float[sfxPoolSize];
-            for (int i = 0; i < _voices.Length; i++) _voices[i] = NewSource(loop: false);
+            for (var i = 0; i < _voices.Length; i++) _voices[i] = NewSource(loop: false);
             _music = NewSource(loop: true);
         }
 

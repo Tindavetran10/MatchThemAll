@@ -1,7 +1,6 @@
 using System;
 using UnityEngine;
 using PrimeTween;
-using MatchThemAll.Scripts;
 using Random = UnityEngine.Random;
 
 namespace MatchThemAll.Scripts.Power_Ups
@@ -46,7 +45,7 @@ namespace MatchThemAll.Scripts.Power_Ups
             spot.Clear();
             item.UnassignSpot();
             item.transform.parent = LevelManager.Instance.ItemParent;
-            item.DisablePhysics(); // kinematic + no colliders while it flies (can't be tapped mid-air)
+            item.DisablePhysics(); // kinematic + no colliders while it flies (can't be tapped midair)
 
             var pad = ctx.Source;
             Vector3 onPad = pad ? PadTop(pad, cam) : item.transform.position;

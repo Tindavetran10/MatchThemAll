@@ -22,6 +22,8 @@ namespace MatchThemAll.EditorTools
         private const string Art = "Assets/MatchThemAllTemplate/Art/UI/";
         private const string Scenes = "Assets/MatchThemAllTemplate/Scenes/";
         private const string NodePrefabPath = "Assets/MatchThemAllTemplate/Prefabs/UI/Level/LevelMapNode.prefab";
+        private const string GemPillPrefabPath = "Assets/MatchThemAllTemplate/Prefabs/UI/GemPill.prefab";
+        private const string BubblePrefabPath = "Assets/MatchThemAllTemplate/Prefabs/UI/Bubble.prefab";
         private const string FontPath = "Assets/MatchThemAllTemplate/Art/UI/Fonts/LilitaOne-Regular SDF.asset";
 
         // ──────────────────────────────── Palette ────────────────────────────────
@@ -139,11 +141,14 @@ namespace MatchThemAll.EditorTools
             Img(shine, Spr("Shapes/Effects/Radial Shine"), new Color(1, 1, 1, 0.22f));
             Motion(shine, UISimpleMotion.Mode.Rotate, 6f, 0f);
             Bubbles(decor, 21, 8, 0.75f);
+            // These bubbles land behind the buttons/hero; keep only the ones on clear background.
+            foreach (var n in new[] { "Bubble_0", "Bubble_1", "Bubble_2", "Bubble_3", "Bubble_7" })
+                decor.Find("Bubbles/" + n).gameObject.SetActive(false);
             Clouds(decor);
 
             // Logo
             var logo = Node(root, "Logo"); logo.SetSiblingIndex(2);
-            Place(logo, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -170), new Vector2(1000, 420));
+            Place(logo, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -263), new Vector2(1000, 420));
             var lt = Node(logo, "Title"); Place(lt, Center, Center, new Vector2(0, 30), new Vector2(1000, 340));
             TitleStyle(Txt(lt, "MATCH\nTHEM ALL", 150, Color.white, null), 150f);
             Motion(lt, UISimpleMotion.Mode.Float, 8f, 0.35f);
@@ -165,22 +170,34 @@ namespace MatchThemAll.EditorTools
 
             // Coin pill (top-left) – reuses CoinDisplay
             var coin = Node(buttons, "CoinPill");
-            Place(coin, new Vector2(0, 1), new Vector2(0, 1), new Vector2(70, -70), new Vector2(300, 96));
+            Place(coin, new Vector2(0, 1), new Vector2(0, 1), new Vector2(53, -28), new Vector2(220, 96));
             Pill(coin);
-            var coinIcon = Node(coin, "Icon"); Place(coinIcon, new Vector2(0, 0.5f), Center, new Vector2(4, 0), new Vector2(124, 124));
+            var coinIcon = Node(coin, "Icon"); Place(coinIcon, new Vector2(0, 0.5f), Center, new Vector2(6, 0), new Vector2(112, 112));
             Img(coinIcon, Spr("Icons/Icons Colored/Coins/Coin"), Color.white, preserve: true);
-            var coinTxt = Node(coin, "CoinText"); Stretch(coinTxt, 70, 20, 0, 4);
-            Txt(coinTxt, "0", 54, Color.white, OutlineMat("Navy", Navy));
+            var coinTxt = Node(coin, "CoinText"); Stretch(coinTxt, 64, 22, 0, 4);
+            var coinTmp = Txt(coinTxt, "0", 54, Color.white, OutlineMat("Navy", Navy));
+            coinTmp.enableAutoSizing = true; coinTmp.fontSizeMin = 30; coinTmp.fontSizeMax = 54;
             if (!coinTxt.GetComponent<CoinDisplay>()) coinTxt.gameObject.AddComponent<CoinDisplay>();
+
+            // Gem pill (under the coin pill) – instance of the shared GemPill prefab
+            var gem = buttons.Find("GemPill") as RectTransform;
+            if (!gem)
+            {
+                var gemPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(GemPillPrefabPath);
+                gem = (RectTransform)((GameObject)PrefabUtility.InstantiatePrefab(gemPrefab, buttons)).transform;
+            }
+            gem.SetSiblingIndex(coin.GetSiblingIndex() + 1);
+            Place(gem, new Vector2(0, 1), new Vector2(0, 1), new Vector2(53, -118.48f), new Vector2(220, 96));
+            ((RectTransform)gem.Find("Icon")).anchoredPosition = new Vector2(6, 8);
 
             // Settings (top-right)
             var settings = FindDeep(root, "SettingsButton") as RectTransform;
             if (settings)
             {
                 settings.SetParent(buttons, false);
-                Place(settings, new Vector2(1, 1), new Vector2(1, 1), new Vector2(-40, -50), new Vector2(140, 140));
+                Place(settings, new Vector2(1, 1), new Vector2(1, 1), new Vector2(-23, -20), new Vector2(106, 106));
                 Img(settings, Spr("Buttons/Square/Blue"), Color.white, raycast: true, preserve: true);
-                var ic = Node(settings, "Icon"); Stretch(ic, 32, 32, 30, 34);
+                var ic = Node(settings, "Icon"); Stretch(ic, 22, 22, 20, 24);
                 Img(ic, Spr("Icons/Icons White/Basic/Settings"), Color.white, preserve: true);
                 Punch(settings);
             }
@@ -196,7 +213,7 @@ namespace MatchThemAll.EditorTools
             if (play)
             {
                 play.SetParent(buttons, false);
-                Place(play, new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 200), new Vector2(640, 210));
+                Place(play, new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 150), new Vector2(600, 196));
                 Img(play, Spr("Buttons/Rectangles/Green"), Color.white, raycast: true, type: Image.Type.Sliced, ppum: 0.48f);
                 var t = play.Find("Text (TMP)") as RectTransform;
                 if (t)
@@ -475,7 +492,7 @@ namespace MatchThemAll.EditorTools
                 Place(coinPanel, new Vector2(0, 1), new Vector2(0, 1), new Vector2(36, -34), new Vector2(250, 96));
                 coinPanel.pivot = new Vector2(0, 1); coinPanel.anchoredPosition = new Vector2(36, -34);
                 var p = Pill(coinPanel); p.SetSiblingIndex(0);
-                var icon = coinPanel.Find("CoinIcon") as RectTransform;
+                var icon = coinPanel.Find("Icon") as RectTransform; // CoinPill prefab instance (was "CoinIcon")
                 Place(icon, new Vector2(0, 0.5f), Center, new Vector2(30, 0), new Vector2(118, 118));
                 Img(icon, Spr("Icons/Icons Colored/Coins/Coin"), Color.white, preserve: true);
                 var txt = coinPanel.Find("CoinText") as RectTransform;
@@ -548,15 +565,15 @@ namespace MatchThemAll.EditorTools
         {
             if (!btn) return;
             btn.SetParent(parent, false);
-            var anchor = left ? new Vector2(0, 0.5f) : new Vector2(1, 0.5f);
-            Place(btn, anchor, anchor, new Vector2(left ? 50 : -50, -420), new Vector2(230, 230));
+            var anchor = left ? new Vector2(0, 0) : new Vector2(1, 0);
+            Place(btn, anchor, anchor, new Vector2(left ? 56 : -56, 430), new Vector2(210, 210));
             Img(btn, Spr("Buttons/Square/Light"), Color.white, raycast: true, preserve: true);
 
-            var ic = Node(btn, "Icon"); Place(ic, Center, Center, new Vector2(0, 18), new Vector2(170, 170));
+            var ic = Node(btn, "Icon"); Place(ic, Center, Center, new Vector2(0, 16), new Vector2(150, 150));
             Img(ic, Spr(icon), Color.white, preserve: true);
             Motion(ic, UISimpleMotion.Mode.Float, 6f, 0.6f, left ? 0f : 0.5f);
 
-            var pill = Node(btn, "LabelPill"); Place(pill, new Vector2(0.5f, 0), Center, new Vector2(0, 6), new Vector2(left ? 300 : 230, 86));
+            var pill = Node(btn, "LabelPill"); Place(pill, new Vector2(0.5f, 0), Center, new Vector2(0, 4), new Vector2(250, 76));
             Img(pill, Spr(pillSprite), Color.white, type: Image.Type.Sliced, ppum: 1.17f);
 
             var lbl = btn.Find(labelName) as RectTransform ?? pill.Find(labelName) as RectTransform ?? Node(pill, labelName);
@@ -594,9 +611,11 @@ namespace MatchThemAll.EditorTools
             for (int i = holder.childCount - 1; i >= 0; i--) Object.DestroyImmediate(holder.GetChild(i).gameObject);
             string[] colors = { "Green", "Yellow", "Blue", "Purple", "Orange", "Pink", "Red", "Teal" };
             var rnd = new System.Random(seed);
+            var bubblePrefab = AssetDatabase.LoadAssetAtPath<GameObject>(BubblePrefabPath);
             for (int i = 0; i < count; i++)
             {
-                var b = Node(holder, "Bubble_" + i);
+                var b = (RectTransform)((GameObject)PrefabUtility.InstantiatePrefab(bubblePrefab, holder)).transform;
+                b.name = "Bubble_" + i;
                 bool leftSide = (i % 2) == 0;
                 float x = leftSide ? Mathf.Lerp(0.03f, 0.2f, (float)rnd.NextDouble()) : Mathf.Lerp(0.8f, 0.97f, (float)rnd.NextDouble());
                 float y = Mathf.Lerp(0.12f, 0.95f, (i + (float)rnd.NextDouble()) / count);

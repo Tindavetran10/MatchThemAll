@@ -28,6 +28,32 @@ namespace MatchThemAll.Scripts
 
         public bool UseCustomDockRotation => useCustomDockRotation;
         public Vector3 CustomDockRotation => customDockRotation;
+
+        /// <summary>
+        /// Local rotation for this item in a tray slot. The custom rotation turns the visible model
+        /// around its own axes (the Renderer's), not around the item root's.
+        /// </summary>
+        public Quaternion DockRotation
+        {
+            get
+            {
+                if (!useCustomDockRotation) return Quaternion.identity;
+                var model = Quaternion.Inverse(transform.rotation) * _renderer.transform.rotation;
+                return model * Quaternion.Euler(customDockRotation) * Quaternion.Inverse(model);
+            }
+        }
+
+        /// <summary>
+        /// Local position shift that keeps the model's center in place while <see cref="DockRotation"/>
+        /// turns it, so the model spins where it stands instead of swinging around the item root.
+        /// </summary>
+        public Vector3 DockPivotShift(Vector3 localScale)
+        {
+            var centre = transform.InverseTransformPoint(_renderer.transform.TransformPoint(_renderer.localBounds.center));
+            centre = Vector3.Scale(localScale, centre);
+            return centre - DockRotation * centre;
+        }
+
         public bool UseCustomDockPositionOffset => useCustomDockPositionOffset;
         public Vector3 CustomDockPositionOffset => customDockPositionOffset;
 

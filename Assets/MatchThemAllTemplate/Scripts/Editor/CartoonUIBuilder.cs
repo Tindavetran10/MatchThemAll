@@ -60,7 +60,7 @@ namespace MatchThemAll.Scripts.Editor
         /// <summary>Loads a UI sprite by file name; <paramref name="hint"/> disambiguates same-named files by folder.</summary>
         private static Sprite Sp(string name, string hint = null)
         {
-            string key = name + "|" + hint;
+            var key = name + "|" + hint;
             if (SpriteCache.TryGetValue(key, out var cached) && cached) return cached;
 
             _spritePaths ??= AssetDatabase.FindAssets("t:Sprite", new[] { PACK_SPRITES })
@@ -96,11 +96,11 @@ namespace MatchThemAll.Scripts.Editor
             return r;
         }
 
-        /// <summary>Rect centered on its parent. <paramref name="y"/> is offset from the parent's centre (up positive).</summary>
+        /// <summary>Rect centered on its parent. <paramref name="y"/> is offset from the parent's center (up positive).</summary>
         private static RectTransform Ctr(Transform parent, string name, float x, float y, float w, float h) =>
             At(parent, name, Mid, new Vector2(x, y), new Vector2(w, h));
 
-        /// <summary>Rect hanging from the parent's top-centre. <paramref name="y"/> is the distance DOWN to the rect's centre.</summary>
+        /// <summary>Rect hanging from the parent's top-center. <paramref name="y"/> is the distance DOWN to the rect's center.</summary>
         private static RectTransform Top(Transform parent, string name, float x, float y, float w, float h) =>
             At(parent, name, TopMid, new Vector2(x, -y), new Vector2(w, h));
 
@@ -178,7 +178,7 @@ namespace MatchThemAll.Scripts.Editor
         private static TMP_FontAsset _font;
         private static TMP_FontAsset Font => _font ? _font : _font = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(FONT_PATH);
 
-        /// <summary>mat = Green / Orange / Pink / Navy / Title (white text with a coloured outline), or null for the plain font material.</summary>
+        /// <summary>mat = Green / Orange / Pink / Navy / Title (white text with a colored outline), or null for the plain font material.</summary>
         private static TextMeshProUGUI Tx(Transform parent, string name, string text, float size, Color color,
             string mat = null, TextAlignmentOptions align = TextAlignmentOptions.Center, bool auto = false)
         {
@@ -262,7 +262,7 @@ namespace MatchThemAll.Scripts.Editor
             return b;
         }
 
-        /// <summary>Rectangle button in one of the pack's colours (Green, Orange, Pink, Yellow, Blue (Teal)...) with a label.</summary>
+        /// <summary>Rectangle button in one of the pack's colors (Green, Orange, Pink, Yellow, Blue (Teal)...) with a label.</summary>
         private static Button RectButton(Transform parent, string name, string color, Vector2 size, string label,
             string mat, float fontSize, Vector2? pos = null, Vector2? anchor = null)
         {
@@ -420,7 +420,7 @@ namespace MatchThemAll.Scripts.Editor
             return t;
         }
 
-        /// <summary>A round coloured icon (circle button art + white glyph) used as the row icon.</summary>
+        /// <summary>A round colored icon (circle button art + white glyph) used as the row icon.</summary>
         private static void RoundIcon(Transform parent, string circleColor, Sprite glyph, Vector2 pos, float size)
         {
             var root = Ctr(parent, "Icon", pos.x, pos.y, size, size);

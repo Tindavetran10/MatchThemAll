@@ -1,10 +1,14 @@
 using System;
 using System.Collections.Generic;
+using ZLinq;
+using System.Threading.Tasks;
 using MatchThemAll.Scripts.SaveSystem;
 using NaughtyAttributes;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 using UnityEngine;
 using UnityEngine.AddressableAssets;
-using System.Threading.Tasks;
 
 namespace MatchThemAll.Scripts
 {
@@ -26,24 +30,24 @@ namespace MatchThemAll.Scripts
         public List<Item> Items        => _currentLevel.GetItems();
         public Transform ItemParent    => _currentLevel.ItemParent;
         public int CurrentLevelIndex { get; private set; }
-        public LevelDataSO CurrentLevelData => levels != null && levels.Length > 0 ? levels[CurrentLevelIndex % levels.Length] : null;
+        public LevelDataSO CurrentLevelData => levels is { Length: > 0 } ? levels[CurrentLevelIndex % levels.Length] : null;
 
         public int TotalLevelDuration  => _currentLevel != null ? _currentLevel.Duration : 1;
-        public int TotalLevelCount     => levels != null ? levels.Length : 0;
+        public int TotalLevelCount     => levels?.Length ?? 0;
 
         /// <summary>Ordered list of level ids (LevelDataSO.Id), matching the play sequence. Source of truth for keyed save data.
         /// Empty until LoadDataAsync completes. Safe to call at any time (never throws).</summary>
-        public System.Collections.Generic.IReadOnlyList<string> OrderedLevelIds
+        public IReadOnlyList<string> OrderedLevelIds
         {
             get
             {
                 // Cached & valid only after LoadDataAsync finishes. Before that, `levels` may be the
                 // serialized Inspector array (possibly with null/missing entries), so return empty.
                 if (_idsReady && _orderedIds != null) return _orderedIds;
-                return System.Array.Empty<string>();
+                return Array.Empty<string>();
             }
         }
-        private System.Collections.Generic.List<string> _orderedIds;
+        private List<string> _orderedIds;
         private bool _idsReady;
 
         [Header("Actions")]
@@ -74,8 +78,10 @@ namespace MatchThemAll.Scripts
             try
             {
                 IsLevelReady = false;
-            
+
+                var destroyed = destroyCancellationToken; // read while alive; cancels if the scene is left
                 if (LoadTask != null) await LoadTask;
+                destroyed.ThrowIfCancellationRequested(); // scene left while the level list was loading
 
                 int requested = SceneLoader.RequestedLevelIndex;
                 CurrentLevelIndex = requested >= 0 && requested < levels.Length
@@ -95,13 +101,13 @@ namespace MatchThemAll.Scripts
                 //    This will automatically release old items back to the ItemPoolManager.
 #if UNITY_EDITOR
                 LevelDataSO overrideLevel = null;
-                if (UnityEditor.EditorPrefs.HasKey("EditorTestLevelPath"))
+                if (EditorPrefs.HasKey("EditorTestLevelPath"))
                 {
-                    string path = UnityEditor.EditorPrefs.GetString("EditorTestLevelPath");
-                    UnityEditor.EditorPrefs.DeleteKey("EditorTestLevelPath"); // Consume it
+                    string path = EditorPrefs.GetString("EditorTestLevelPath");
+                    EditorPrefs.DeleteKey("EditorTestLevelPath"); // Consume it
                     if (!string.IsNullOrEmpty(path))
                     {
-                        overrideLevel = UnityEditor.AssetDatabase.LoadAssetAtPath<LevelDataSO>(path);
+                        overrideLevel = AssetDatabase.LoadAssetAtPath<LevelDataSO>(path);
                     }
                 }
 
@@ -119,11 +125,16 @@ namespace MatchThemAll.Scripts
 
                 // 3. Notify listeners (TimerManager, GoalManager, etc.)
                 LevelSpawned?.Invoke(_currentLevel);
-            
+
                 IsLevelReady = true;
+            }
+            catch (OperationCanceledException)
+            {
+                // The scene was left mid-spawn (LevelManager / ItemPlacer destroyed). Nothing to report.
             }
             catch (Exception e)
             {
+                // ponytail: IsLevelReady stays false and LevelSpawned never fires, so a half-spawned level is never reported as loaded.
                 Debug.LogException(e);
             }
             finally
@@ -147,7 +158,9 @@ namespace MatchThemAll.Scripts
 
                     // Build the id cache from the fully-loaded list and mark it ready.
                     _orderedIds = new List<string>(levels.Length);
-                    for (int i = 0; i < levels.Length; i++) _orderedIds.Add(levels[i].Id);
+                    foreach (var levelData in levels)
+                        _orderedIds.Add(levelData.Id);
+
                     _idsReady = true;
                 }
             }
@@ -156,7 +169,7 @@ namespace MatchThemAll.Scripts
                 Debug.LogError($"Failed to load LevelData from Addressable: {e.Message}");
             }
 
-            // Read saved progress AFTER Addressables load so OrderedLevelIds is populated.
+            // Read saved progress AFTER Addressable load so OrderedLevelIds is populated.
             // GetCurrentLevelIndex() looks up furthestLevelId in OrderedLevelIds; if called
             // before _idsReady it always returns 0, causing the player to re-play Level 1.
             _savedProgressIndex = SaveManager.GetCurrentLevelIndex();
@@ -173,14 +186,14 @@ namespace MatchThemAll.Scripts
             int idx = CurrentLevelIndex % levels.Length;
             string id = levels[idx].Id;
 
-            // OrderedLevelIds is only populated after LoadDataAsync (Addressables) finishes.
+            // OrderedLevelIds is only populated after LoadDataAsync (Addressable) finishes.
             // If it's still empty (rare async race), fall back to the local levels array so
             // SetLevelComplete always receives a valid ordered list and can advance furthestLevelId.
             IReadOnlyList<string> ids = OrderedLevelIds;
             if (ids == null || ids.Count == 0)
             {
-                var fallback = new System.Collections.Generic.List<string>(levels.Length);
-                for (int i = 0; i < levels.Length; i++) fallback.Add(levels[i].Id);
+                var fallback = new List<string>(levels.Length);
+                foreach (var levelId in levels.AsValueEnumerable().Select(t => t.Id)) fallback.Add(levelId);
                 ids = fallback;
             }
 
@@ -196,7 +209,7 @@ namespace MatchThemAll.Scripts
             CurrentLevelIndex = _savedProgressIndex;
         }
 
-        private static int IndexOfId(System.Collections.Generic.IReadOnlyList<string> ids, string id)
+        private static int IndexOfId(IReadOnlyList<string> ids, string id)
         {
             if (ids == null || string.IsNullOrEmpty(id)) return -1;
             for (int i = 0; i < ids.Count; i++)

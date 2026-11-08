@@ -1,3 +1,4 @@
+using System;
 using TMPro;
 using UnityEngine;
 
@@ -123,6 +124,11 @@ namespace MatchThemAll.Scripts
                     Halt();
                     if (IsFrozen) EndFreeze(restartClock: false);
                     break;
+                case EGameState.MENU:
+                case EGameState.GAME: // fresh start (MENU/LEVELCOMPLETE → GAME): the clock starts from LevelSpawned, not here
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
         }
 

@@ -5,7 +5,7 @@ using UnityEngine.UI;
 namespace MatchThemAll.Scripts.Utilities
 {
     /// <summary>
-    /// First-launch GDPR question ("personalised ads?"). Spawned by AdManager from
+    /// First-launch GDPR question ("personalized ads?"). Spawned by AdManager from
     /// Resources/Monetization/ConsentPopup before the ad SDK starts; the answer is saved and the popup
     /// never appears again. Restyle the prefab freely; only the two buttons are required.
     /// </summary>

@@ -19,11 +19,14 @@ namespace MatchThemAll.Scripts
             if (!TryMerge(evt.Item.ItemNameKey)) CheckTrayFull();
         }
 
-        /// <summary>Called by ItemSpotManager once nothing in the tray is moving any more.</summary>
+        /// <summary>Called by ItemSpotManager once nothing in the tray is moving anymore.</summary>
         public static void CheckSettledTray()
         {
-            foreach (var kind in ItemSpotManager.Instance.GetOccupiedItemTypes())
-                if (TryMerge(kind)) return;
+            if (ItemSpotManager.Instance.GetOccupiedItemTypes().AsValueEnumerable().Any(TryMerge))
+            {
+                return;
+            }
+
             CheckTrayFull();
         }
 

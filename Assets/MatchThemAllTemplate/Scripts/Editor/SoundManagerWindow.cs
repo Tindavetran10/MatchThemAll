@@ -1,11 +1,14 @@
 #if UNITY_EDITOR
+using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Audio;
+using Random = UnityEngine.Random;
 
 namespace MatchThemAll.Scripts.Editor
 {
@@ -63,7 +66,7 @@ namespace MatchThemAll.Scripts.Editor
         {
             StopPreview();
             _stylesInitialized = false;
-            foreach (var t in _ownedTextures) if (t) DestroyImmediate(t);
+            foreach (var t in _ownedTextures.Where(t => t)) DestroyImmediate(t);
             _ownedTextures.Clear();
         }
 
@@ -113,7 +116,7 @@ namespace MatchThemAll.Scripts.Editor
         private bool SyncEntries()
         {
             bool added = false;
-            foreach (SoundEvent e in System.Enum.GetValues(typeof(SoundEvent)))
+            foreach (SoundEvent e in Enum.GetValues(typeof(SoundEvent)))
             {
                 if (e == SoundEvent.None || IndexOf(e) >= 0) continue;
                 var entries = _so.FindProperty("entries");
@@ -290,7 +293,7 @@ namespace MatchThemAll.Scripts.Editor
         private int CountMissing()
         {
             int n = 0;
-            foreach (SoundEvent e in System.Enum.GetValues(typeof(SoundEvent)))
+            foreach (SoundEvent e in Enum.GetValues(typeof(SoundEvent)))
             {
                 var en = Entry(e);
                 if (e == SoundEvent.None || en == null) continue;
@@ -311,7 +314,7 @@ namespace MatchThemAll.Scripts.Editor
 
             string lastCategory = null;
             SoundEvent pick = SoundEvent.None;
-            foreach (SoundEvent e in System.Enum.GetValues(typeof(SoundEvent)))
+            foreach (SoundEvent e in Enum.GetValues(typeof(SoundEvent)))
             {
                 if (e == SoundEvent.None) continue;
                 var en = Entry(e);
@@ -359,7 +362,7 @@ namespace MatchThemAll.Scripts.Editor
             GUILayout.FlexibleSpace();
             EditorGUI.DrawRect(GUILayoutUtility.GetRect(0, 1), DividerColor);
             GUI.color = TextMuted;
-            GUILayout.Label($"  {System.Enum.GetValues(typeof(SoundEvent)).Length - 1} sound events", EditorStyles.miniLabel, GUILayout.Height(22));
+            GUILayout.Label($"  {Enum.GetValues(typeof(SoundEvent)).Length - 1} sound events", EditorStyles.miniLabel, GUILayout.Height(22));
             GUI.color = Color.white;
         }
 
@@ -525,7 +528,7 @@ namespace MatchThemAll.Scripts.Editor
         //  Preview (UnityEditor.AudioUtil is internal, hence reflection)
         // ═════════════════════════════════════════════════════════════════════
 
-        private static readonly System.Type AudioUtil = typeof(AudioImporter).Assembly.GetType("UnityEditor.AudioUtil");
+        private static readonly Type AudioUtil = typeof(AudioImporter).Assembly.GetType("UnityEditor.AudioUtil");
 
         private static void Preview(SerializedProperty en, SoundEvent e)
         {
@@ -605,7 +608,7 @@ namespace MatchThemAll.Scripts.Editor
                 lib.entries.Add(new SoundLibrarySO.Entry
                 {
                     id = kv.Key,
-                    clips = clip ? new[] { clip } : new AudioClip[0],
+                    clips = clip ? new[] { clip } : Array.Empty<AudioClip>(),
                     volume = kv.Value.vol,
                     pitchMin = kv.Value.p0,
                     pitchMax = kv.Value.p1,

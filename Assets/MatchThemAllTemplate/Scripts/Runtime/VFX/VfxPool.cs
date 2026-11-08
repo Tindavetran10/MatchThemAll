@@ -43,7 +43,7 @@ namespace MatchThemAll.Scripts
             if (prefab == null) return;
 
             var pool = GetOrCreatePool(prefab.transform.root.gameObject);
-            GameObject instance = pool.Get();
+            var instance = pool.Get();
             instance.transform.position = pos;
 
             int layer = LayerMask.NameToLayer(InputManager.IsTutorialActive ? "Tutorial" : "Default");
@@ -68,7 +68,7 @@ namespace MatchThemAll.Scripts
                 createFunc:      () => Instantiate(prefabRoot, transform),
                 actionOnGet:     go => go.SetActive(true),
                 actionOnRelease: go => go.SetActive(false),
-                actionOnDestroy: go => Destroy(go),
+                actionOnDestroy: Destroy,
                 collectionCheck: false,
                 defaultCapacity: 4,
                 maxSize:         16

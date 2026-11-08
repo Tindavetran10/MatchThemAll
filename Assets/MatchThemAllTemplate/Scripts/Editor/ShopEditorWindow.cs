@@ -60,7 +60,7 @@ namespace MatchThemAll.Scripts.Editor
 
         private void OnEnable()
         {
-            wantsMouseMove = true; // hover colours update instantly
+            wantsMouseMove = true; // hover colors update instantly
             LoadDatabase();
         }
 
@@ -421,7 +421,7 @@ namespace MatchThemAll.Scripts.Editor
             }
             if (pendingDelete && EditorUtility.DisplayDialog("Remove Product", $"Remove '{pendingDelete.DisplayName}' from the shop?", "Remove", "Cancel"))
             {
-                _db.products.Remove(pendingDelete);
+                _db.products?.Remove(pendingDelete);
                 if (_selectedProduct == pendingDelete) { _selectedProduct = null; _productSO = null; }
                 SaveAll();
                 GUIUtility.ExitGUI();

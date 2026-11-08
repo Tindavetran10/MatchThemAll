@@ -57,18 +57,32 @@ namespace MatchThemAll.Scripts.Monetization
 
         public async void ShowRewarded(string placement, Action<AdResult> onComplete)
         {
-            if (!IsRewardedReady) { onComplete?.Invoke(AdResult.Failed); return; }
-            Debug.Log($"[MockAds] Rewarded '{placement}'…");
-            await Play();
-            onComplete?.Invoke(AdResult.Rewarded);
+            try
+            {
+                if (!IsRewardedReady) { onComplete?.Invoke(AdResult.Failed); return; }
+                Debug.Log($"[MockAds] Rewarded '{placement}'…");
+                await Play();
+                onComplete?.Invoke(AdResult.Rewarded);
+            }
+            catch (Exception e)
+            {
+                Debug.LogException(e);
+            }
         }
 
         public async void ShowInterstitial(string placement, Action onClosed)
         {
-            if (!IsInterstitialReady) { onClosed?.Invoke(); return; }
-            Debug.Log($"[MockAds] Interstitial '{placement}'…");
-            await Play();
-            onClosed?.Invoke();
+            try
+            {
+                if (!IsInterstitialReady) { onClosed?.Invoke(); return; }
+                Debug.Log($"[MockAds] Interstitial '{placement}'…");
+                await Play();
+                onClosed?.Invoke();
+            }
+            catch (Exception e)
+            {
+                Debug.LogException(e);
+            }
         }
 
         private async Task Play()

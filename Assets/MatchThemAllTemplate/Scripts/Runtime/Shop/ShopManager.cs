@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using ZLinq;
 using MatchThemAll.Scripts.SaveSystem;
 using UnityEngine;
 
@@ -61,8 +62,8 @@ namespace MatchThemAll.Scripts.Shop
         {
             var list = new List<IapProduct>();
             if (!Database) return list;
-            foreach (var p in Database.products)
-                if (p && p.IsIap) list.Add(new IapProduct(p.iapProductId, isConsumable: !p.isOneTime));
+            foreach (var p in Database.products.AsValueEnumerable().Where(p => p && p.IsIap))
+                list.Add(new IapProduct(p.iapProductId, isConsumable: !p.isOneTime));
             return list;
         }
 
@@ -83,8 +84,10 @@ namespace MatchThemAll.Scripts.Shop
 
             ShopProductSO product = null;
             if (Database)
-                foreach (var p in Database.products)
-                    if (p && p.iapProductId == iapProductId) { product = p; break; }
+                foreach (var p in Database.products.AsValueEnumerable().Where(p => p && p.iapProductId == iapProductId))
+                {
+                    product = p; break;
+                }
             if (!product)
             {
                 Debug.LogError($"[Shop] Store sold '{iapProductId}', but no ShopProductSO has that iapProductId.");

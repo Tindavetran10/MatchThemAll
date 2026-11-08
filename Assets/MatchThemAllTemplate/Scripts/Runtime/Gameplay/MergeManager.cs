@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using ZLinq;
 using UnityEngine;
 using UnityEngine.Pool;
 using PrimeTween;
@@ -8,7 +9,7 @@ namespace MatchThemAll.Scripts
 {
     /// <summary>
     /// Plays the merge for three matched items: they lift out of the tray, collapse into their
-    /// common centre while shrinking, then return to the pool with a particle burst.
+    /// common center while shrinking, then return to the pool with a particle burst.
     /// </summary>
     public class MergeManager : MonoBehaviour
     {
@@ -70,8 +71,7 @@ namespace MatchThemAll.Scripts
 
         private void Collapse(List<Item> items)
         {
-            Vector3 centre = Vector3.zero;
-            foreach (var item in items) centre += item.transform.position;
+            Vector3 centre = items.AsValueEnumerable().Aggregate(Vector3.zero, (current, item) => current + item.transform.position);
             centre /= items.Count;
 
             for (int i = 0; i < items.Count; i++)

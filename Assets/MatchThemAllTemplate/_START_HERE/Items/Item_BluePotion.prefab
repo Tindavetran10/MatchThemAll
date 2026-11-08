@@ -184,7 +184,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemNameKey: 1
   icon: {fileID: 21300000, guid: 66d12d0c6c2f40746a49ea91f0c95697, type: 3}
-  useCustomDockRotation: 0
+  useCustomDockRotation: 1
   customDockRotation: {x: 0, y: 0, z: 0}
   useCustomDockPositionOffset: 0
   customDockPositionOffset: {x: 0, y: 0, z: 0}

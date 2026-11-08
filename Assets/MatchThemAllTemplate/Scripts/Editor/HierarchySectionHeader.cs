@@ -26,7 +26,7 @@ public static class HierarchySectionHeader
 
         EditorGUI.DrawRect(row, Bar);
         EditorGUI.DrawRect(new Rect(row.x, row.y, 3f, row.height), Accent);
-        var text = go.name.Substring(Prefix.Length).Trim().ToUpperInvariant();
+        var text = go.name[Prefix.Length..].Trim().ToUpperInvariant();
         _label.Draw(new Rect(row.x + 8f, row.y, row.width - 8f, row.height), text, false, false, false, false);
     }
 }

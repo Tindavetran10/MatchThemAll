@@ -143,7 +143,7 @@ namespace MatchThemAll.Scripts
                 if (_spots[i].Item) _row.Add(_spots[i].Item);
         }
 
-        /// <summary>Makes slot i hold _row[i]; anything that changed slot (or is new) slides there.</summary>
+        /// <summary>Makes slot I hold _row[i]; anything that changed slot (or is new) slides there.</summary>
         private void ApplyRow()
         {
             for (int i = 0; i < _activeSpotCount; i++)
@@ -172,8 +172,9 @@ namespace MatchThemAll.Scripts
             Vector3 fromPos = t.localPosition, fromScale = t.localScale;
             Quaternion fromRot = t.localRotation;
             Vector3 toPos = itemLocalPositionOnSpot + (item.UseCustomDockPositionOffset ? item.CustomDockPositionOffset : Vector3.zero);
-            Quaternion toRot = Quaternion.Euler(item.UseCustomDockRotation ? item.CustomDockRotation : Vector3.zero);
+            Quaternion toRot = item.DockRotation;
             Vector3 toScale = itemLocalScaleOnSpot;
+            toPos += item.DockPivotShift(toScale);
 
             Tween.Custom(t, 0f, 1f, animationDuration, (tr, p) =>
                 {

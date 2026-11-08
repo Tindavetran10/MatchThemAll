@@ -2,7 +2,6 @@ using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using NaughtyAttributes;
 
 namespace MatchThemAll.Scripts.Power_Ups
 {

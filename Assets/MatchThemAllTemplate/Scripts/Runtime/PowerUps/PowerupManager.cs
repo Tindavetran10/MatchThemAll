@@ -1,12 +1,10 @@
 using System;
-using System.Collections.Generic;
 using ZLinq;
 using MatchThemAll.Scripts.Power_Ups;
 using MatchThemAll.Scripts.SaveSystem;
 using MatchThemAll.Scripts.Settings;
 using NaughtyAttributes;
 using UnityEngine;
-using PrimeTween;
 
 namespace MatchThemAll.Scripts
 {
@@ -170,9 +168,7 @@ namespace MatchThemAll.Scripts
         private Transform FindSource(PowerupDataSO so)
         {
             if (_powerupUIElements == null) return null;
-            foreach (var pu in _powerupUIElements)
-                if (pu && pu.Data == so) return pu.transform;
-            return null;
+            return (from pu in _powerupUIElements.AsValueEnumerable() where pu && pu.Data == so select pu.transform).FirstOrDefault();
         }
 
         private void InvokeItemPickup(Item item) => OnItemPickup?.Invoke(item);

@@ -61,7 +61,7 @@ namespace MatchThemAll.Scripts.UI
         {
             if (evt.NewState == EGameState.POWERUPOFFER) return;
 
-            // Left the popup (closed, paid, ad watched, or the level ended meanwhile): nothing is pending any more.
+            // Left the popup (closed, paid, ad watched, or the level ended meanwhile): nothing is pending anymore.
             _offer = null;
             if (!offerPanel || !offerPanel.activeSelf) return;
             var anim = offerPanel.GetComponent<UIAnimator>();

@@ -6,8 +6,8 @@ using UnityEngine.Rendering.Universal;
 namespace MatchThemAll.Scripts.Pixelate
 {
     /// <summary>
-    /// Pixel-art look in two point-filtered blits: camera colour → a texture 1/pixelSize the size
-    /// → back onto the camera colour. Nearest-neighbour sampling both ways gives hard square blocks.
+    /// Pixel-art look in two point-filtered bits: camera color → a texture 1/pixelSize the size
+    /// → back onto the camera color. Nearest-neighbor sampling both ways gives hard square blocks.
     /// </summary>
     public class PixelizePass : ScriptableRenderPass
     {
@@ -29,7 +29,7 @@ namespace MatchThemAll.Scripts.Pixelate
             if (!PixelizeFeature.IsActive || block < 2) return; // a 1-pixel block is the unmodified image
 
             var resources = frameData.Get<UniversalResourceData>();
-            if (resources.isActiveTargetBackBuffer) return; // we need an intermediate colour texture to read
+            if (resources.isActiveTargetBackBuffer) return; // we need an intermediate colo r texture to read
 
             var desc = frameData.Get<UniversalCameraData>().cameraTargetDescriptor;
             desc.depthBufferBits = 0;

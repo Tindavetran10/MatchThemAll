@@ -1,5 +1,4 @@
 using UnityEngine;
-using NaughtyAttributes;
 
 namespace MatchThemAll.Scripts.Power_Ups
 {

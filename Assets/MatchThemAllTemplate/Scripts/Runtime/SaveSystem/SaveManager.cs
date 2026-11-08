@@ -266,7 +266,7 @@ namespace MatchThemAll.Scripts.SaveSystem
                 int idx = IndexOfId(orderedIds, id);
                 if (idx >= 0 && idx + 1 < orderedIds.Count)
                     Data.furthestLevelId = orderedIds[idx + 1];
-                // last level cleared → furthest stays (campaign complete)
+                // last level cleared → the furthest stays (campaign complete)
             }
             MarkDirty();
             Flush(); // Level complete = natural save point
@@ -354,7 +354,7 @@ namespace MatchThemAll.Scripts.SaveSystem
         public static bool TryFlush()
         {
             try { Flush(); return true; }
-            catch (System.Exception e)
+            catch (Exception e)
             {
                 Debug.LogError($"[SaveManager] Save failed: {e.Message}");
                 return false;

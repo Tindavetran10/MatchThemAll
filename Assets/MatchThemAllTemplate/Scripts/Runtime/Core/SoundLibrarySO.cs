@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using ZLinq;
 using UnityEngine;
 using UnityEngine.Audio;
 
@@ -25,7 +26,10 @@ namespace MatchThemAll.Scripts
 
             public bool HasClip
             {
-                get { foreach (var c in clips) if (c) return true; return false; }
+                get
+                {
+                    return clips.AsValueEnumerable().Any(c => c);
+                }
             }
 
             public AudioClip PickClip()

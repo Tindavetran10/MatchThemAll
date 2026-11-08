@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using MatchThemAll.Scripts;
 using UnityEngine;
 using MatchThemAll.Scripts.Settings;
 
