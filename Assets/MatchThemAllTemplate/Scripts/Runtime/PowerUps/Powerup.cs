@@ -54,12 +54,17 @@ namespace MatchThemAll.Scripts.Power_Ups
             powerupId = so.id;
             if (iconImage && so.Icon) iconImage.sprite = so.Icon;
 
-            if (!modelAnchor) return; // built-in slot: its prop is part of the prefab
+            if (!modelAnchor)
+            {
+                ApplyModelPose(transform, so.ModelOffset, so.ModelRotation); // built-in slot: this object is the prop
+                return;
+            }
             bool hasModel = so.TrayModel;
             if (hasModel)
             {
                 var model = Instantiate(so.TrayModel, modelAnchor, false);
                 foreach (var c in model.GetComponentsInChildren<Collider>(true)) c.enabled = false; // the slot's own collider takes taps
+                ApplyModelPose(model.transform, so.ModelOffset, so.ModelRotation);
             }
             if (iconSprite)
             {
@@ -67,7 +72,34 @@ namespace MatchThemAll.Scripts.Power_Ups
                 iconSprite.sprite = so.Icon;
                 if (so.Icon) // fit any icon size to the slot
                     iconSprite.transform.localScale = Vector3.one * (IconSize / Mathf.Max(so.Icon.bounds.size.x, so.Icon.bounds.size.y));
+                if (!hasModel) ApplyModelPose(iconSprite.transform, so.ModelOffset, so.ModelRotation);
             }
+        }
+
+        /// <summary>
+        /// Turns <paramref name="t"/> around its own visual centre, on its own axes, by <paramref name="euler"/>,
+        /// then moves it by <paramref name="offset"/> in its parent's space (the slot). Zero values leave it untouched.
+        /// </summary>
+        private static void ApplyModelPose(Transform t, Vector3 offset, Vector3 euler)
+        {
+            if (offset == Vector3.zero && euler == Vector3.zero) return;
+
+            var renderers = t.GetComponentsInChildren<Renderer>();
+            Vector3 centre = t.position;
+            if (renderers.Length > 0)
+            {
+                var b = renderers[0].bounds;
+                foreach (var r in renderers) b.Encapsulate(r.bounds);
+                centre = b.center;
+            }
+
+            var parent = t.parent;
+            Vector3 c = parent ? parent.InverseTransformPoint(centre) : centre;  // centre in parent space
+            Vector3 toCentre = c - t.localPosition;
+            var baseRot = t.localRotation;
+            var turn = baseRot * Quaternion.Euler(euler) * Quaternion.Inverse(baseRot); // own-axes turn, in parent space
+            t.localRotation = baseRot * Quaternion.Euler(euler);
+            t.localPosition = c - turn * toCentre + offset;                     // keeps the centre in place, then offsets
         }
 
         public void UpdateVisuals(int amount, bool locked)

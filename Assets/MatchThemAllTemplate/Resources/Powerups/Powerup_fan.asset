@@ -22,6 +22,8 @@ MonoBehaviour:
   buyCost: 50
   uiPrefab: {fileID: 3148643626629016852, guid: 2f53cdf4cd7ebab44bc37025b8144c0b, type: 3}
   trayModel: {fileID: 0}
+  modelOffset: {x: 0, y: 0, z: 0}
+  modelRotation: {x: 0, y: 0, z: 0}
   effect:
     rid: 1442196544509706361
   activateSound: {fileID: 8300000, guid: a5b5375d08cd06a439bde4aaafa95b7f, type: 3}

@@ -360,6 +360,17 @@ namespace MatchThemAll.Scripts.Editor
                 GUI.color = Color.white;
             }
             GUILayout.Space(4);
+            EditorGUILayout.PropertyField(_so.FindProperty("modelOffset"), new GUIContent("Model offset", "Moves the model inside its slot: X right, Y up, Z away from the camera."));
+            EditorGUILayout.PropertyField(_so.FindProperty("modelRotation"), new GUIContent("Model rotation", "Turns the model around its own centre, on its own axes (degrees)."));
+            GUILayout.BeginHorizontal();
+            GUILayout.FlexibleSpace();
+            if (GUILayout.Button("Reset offset & rotation", GUILayout.Width(160)))
+            {
+                _so.FindProperty("modelOffset").vector3Value = Vector3.zero;
+                _so.FindProperty("modelRotation").vector3Value = Vector3.zero;
+            }
+            GUILayout.EndHorizontal();
+            GUILayout.Space(4);
             GUILayout.BeginHorizontal();
             GUILayout.Label("Preview", _subHeaderStyle);
             GUILayout.FlexibleSpace();

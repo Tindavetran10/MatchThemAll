@@ -94,6 +94,8 @@ namespace MatchThemAll.Scripts
             if (so == null || so.Effect == null) return;
             if (_isBusy) return;
             if (GameManager.Instance.State != EGameState.GAME) return;
+            // The state is GAME before the level finishes spawning (async); effects need its items.
+            if (!LevelManager.Instance || !LevelManager.Instance.IsLevelReady) return;
 
             int playerLevel = SaveManager.GetCurrentLevelIndex();
             if (so.IsLockedAt(playerLevel)) return;

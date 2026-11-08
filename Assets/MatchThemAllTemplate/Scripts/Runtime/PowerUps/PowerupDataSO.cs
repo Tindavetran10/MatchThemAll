@@ -31,6 +31,10 @@ namespace MatchThemAll.Scripts.Power_Ups
         [SerializeField] private GameObject uiPrefab;          // slot prefab (name kept for serialization)
         [Tooltip("Optional 3D model shown in a PowerupSlot. Empty = the icon is shown instead.")]
         [SerializeField] private GameObject trayModel;
+        [Tooltip("Moves the model inside its tray slot: X right, Y up, Z away from the camera.")]
+        [SerializeField] private Vector3 modelOffset;
+        [Tooltip("Turns the model around its own centre, on its own axes (degrees).")]
+        [SerializeField] private Vector3 modelRotation;
         [SerializeReference] private PowerupEffect effect;     // polymorphic behavior
 
         [Header("Sound")]
@@ -50,6 +54,8 @@ namespace MatchThemAll.Scripts.Power_Ups
         public Sprite Icon => icon;
         public GameObject UIPrefab => uiPrefab;
         public GameObject TrayModel => trayModel;
+        public Vector3 ModelOffset => modelOffset;
+        public Vector3 ModelRotation => modelRotation;
         public AudioClip ActivateSound => activateSound;
         public float ActivateVolume => activateVolume;
         public float ActivatePitch => activatePitch;

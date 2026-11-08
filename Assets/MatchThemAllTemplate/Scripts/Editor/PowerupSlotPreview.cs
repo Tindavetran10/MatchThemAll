@@ -79,9 +79,11 @@ namespace MatchThemAll.Scripts.Editor
                 hash = hash * 31 + (so.TrayModel ? so.TrayModel.GetInstanceID() : 0);
                 hash = hash * 31 + (so.Icon ? so.Icon.GetInstanceID() : 0);
                 hash = hash * 31 + so.defaultAmount;
+                hash = hash * 31 + so.ModelOffset.GetHashCode();
+                hash = hash * 31 + so.ModelRotation.GetHashCode();
             }
             if (so == _shown && hash == _shownHash && _instance) return;
-            bool selectionChanged = so != _shown;
+            bool selectionChanged = so != _shown || !_instance; // only refit the camera for a new selection, not for pose tweaks
             _shown = so;
             _shownHash = hash;
             if (_instance) Object.DestroyImmediate(_instance);
