@@ -540,9 +540,9 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/PowerUps/Powerup.cs": {
-    "mtime": 1794116817.2745173,
-    "seen": 1794117173.0274148,
-    "ast_hash": "300ab5de5559ff87641ef3953b96af1f",
+    "mtime": 1794119039.5457358,
+    "seen": 1794119327.80241,
+    "ast_hash": "e79c1e5139c4bdf260fc3efcee7c1a94",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/PowerUps/PowerupContext.cs": {
@@ -2322,9 +2322,9 @@
     "semantic_hash": ""
   },
   "CLAUDE.md": {
-    "mtime": 1794117132.7276812,
-    "seen": 1794117173.0278475,
-    "ast_hash": "324eb9c0c083e2fdee0d84aa13278d08",
+    "mtime": 1794119282.6855845,
+    "seen": 1794119327.8028805,
+    "ast_hash": "93d218faa6434a3715fe37820101e9dd",
     "semantic_hash": ""
   },
   "ProjectSettings/ProjectVersion.txt": {

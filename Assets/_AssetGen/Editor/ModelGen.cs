@@ -310,15 +310,16 @@ static class ModelGen
             b.Torus(T(0, .9f, 0), "Teal", .645f, .05f, 24, 6);
             b.Torus(TRS(new Vector3(0, 1.95f, -.3f), new Vector3(90, 0, 0), Vector3.one), "Steel", .3f, .06f, 18, 6);
         });
+        // Corrugated hose curving up and forward, in two rigid halves so the animation can bend it at HoseJoint:
+        // Prop_VacuumNozzle = lower half (pivot at the hose base), Prop_VacuumNozzleTip = upper half + mouth (pivot at the joint).
         yield return ("Prop_VacuumNozzle", Vector3.zero, Vector3.zero, b =>
         {
-            for (int i = 0; i <= 10; i++) // corrugated hose curving up and forward
-            {
-                float t = i / 10f;
-                var p = new Vector3(0, t * 1.2f, Mathf.Sin(t * Mathf.PI * .5f) * .35f);
-                b.Torus(TRS(p, new Vector3(t * 25, 0, 0), Vector3.one), "Teal", .15f, .06f, 14, 6);
-            }
-            b.Lathe(TRS(new Vector3(0, 1.22f, .38f), new Vector3(25, 0, 0), Vector3.one), 16, (0, 0, "Steel"), (.17f, 0, "Steel"), (.19f, .22f, "Teal"),
+            for (int i = 0; i <= 5; i++) HoseRing(b, i, Vector3.zero);
+        });
+        yield return ("Prop_VacuumNozzleTip", Vector3.zero, Vector3.zero, b =>
+        {
+            for (int i = 5; i <= 10; i++) HoseRing(b, i, HoseJoint); // ring 5 in both halves hides the seam
+            b.Lathe(TRS(new Vector3(0, 1.22f, .38f) - HoseJoint, new Vector3(25, 0, 0), Vector3.one), 16, (0, 0, "Steel"), (.17f, 0, "Steel"), (.19f, .22f, "Teal"),
                 (.44f, .52f, "Teal"), (.44f, .6f, "Glow"), (0, .6f, "Glow"));
         });
 
@@ -361,14 +362,30 @@ static class ModelGen
         });
     }
 
+    // Vacuum hose ring i of 10 along the curve, shifted so `origin` becomes the mesh pivot.
+    static Vector3 HosePoint(float t) => new(0, t * 1.2f, Mathf.Sin(t * Mathf.PI * .5f) * .35f);
+    static readonly Vector3 HoseJoint = HosePoint(.5f);
+    static void HoseRing(MB b, int i, Vector3 origin)
+    {
+        float t = i / 10f;
+        b.Torus(TRS(HosePoint(t) - origin, new Vector3(t * 25, 0, 0), Vector3.one), "Teal", .15f, .06f, 14, 6);
+    }
+
     [MenuItem("Tools/AssetGen/Generate Models")]
-    static void Generate()
+    static void Generate() => GenerateModels(null);
+
+    // Regenerates only the two vacuum hose meshes (palette and every other mesh untouched).
+    [MenuItem("Tools/AssetGen/Generate Vacuum Hose")]
+    static void GenerateVacuumHose() => GenerateModels(n => n.StartsWith("Prop_VacuumNozzle"));
+
+    static void GenerateModels(Func<string, bool> only)
     {
         System.IO.Directory.CreateDirectory(MeshDir);
         System.IO.Directory.CreateDirectory(MatDir);
-        BuildPalette();
+        if (only == null) BuildPalette();
         foreach (var (name, size, center, build) in Models())
         {
+            if (only != null && !only(name)) continue;
             var b = new MB();
             build(b);
             var mesh = b.Build(name, size, center);
@@ -437,8 +454,16 @@ static class ModelGen
         AssetDatabase.SaveAssets();
     }
 
-    // Swaps the course's skinned vacuum for our two rigid parts and rewrites its two clips in place
-    // (same .anim GUIDs, so Vacuum.controller is untouched). Keeps the TriggerPowerupStart event timing.
+    // Rest pose of the vacuum hose (degrees around the hose's own Z, i.e. sideways on screen): bent over beside the
+    // body like the original rigged vacuum; Activate straightens it to 0 before the suck event.
+    const float HoseRestLower = 45f, HoseRestTip = 115f; // mouth hangs beside the body, inside the slot (picked from renders)
+    const float HoseSwayLower = 8f, HoseSwayTip = 14f;
+    const float VacuumHop = .5f;
+
+    // Our vacuum: Rig (hops/spins; the root stays free for PowerupDataSO model offset/rotation) → Body + Nozzle (lower
+    // hose) → Tip (upper hose + mouth, bends at the joint) → SuckPoint. Rewrites Idle/Activate in place (same .anim GUIDs,
+    // so Vacuum.controller is untouched) with the original choreography: bent at rest; on use hop + spin, the hose
+    // straightens by the TriggerPowerupStart event (0.667 s), sways while sucking, then bends back.
     [MenuItem("Tools/AssetGen/Wire Vacuum")]
     static void WireVacuum()
     {
@@ -449,32 +474,46 @@ static class ModelGen
         var root = PrefabUtility.LoadPrefabContents(prefab);
         foreach (var old in new[] { "Armature", "Vacuum Complete" })
             if (root.transform.Find(old)) UnityEngine.Object.DestroyImmediate(root.transform.Find(old).gameObject);
-        GameObject Part(string name, string model, Vector3 pos)
+        root.GetComponent<Animator>().avatar = null; // generic transform paths, no avatar
+
+        var rig = root.transform.Find("Rig");
+        if (!rig) rig = new GameObject("Rig").transform;
+        rig.SetParent(root.transform, false);
+        rig.localPosition = Vector3.zero;
+        rig.localRotation = Quaternion.identity;
+        rig.gameObject.layer = root.layer;
+
+        // Reuses existing parts (wherever they sit) so their fileIDs survive reruns.
+        GameObject Part(string name, Transform parent, string model, Vector3 pos)
         {
-            var t = root.transform.Find(name);
+            var t = parent.Find(name);
+            if (!t) t = root.transform.Find(name);
             var go = t ? t.gameObject : new GameObject(name, typeof(MeshFilter), typeof(MeshRenderer));
-            go.transform.SetParent(root.transform, false);
+            go.transform.SetParent(parent, false);
             go.transform.localPosition = pos;
+            go.transform.localRotation = Quaternion.identity;
             go.layer = root.layer;
             Apply(go, model);
             return go;
         }
-        root.GetComponent<Animator>().avatar = null; // old avatar came from the course model; our clips are generic transform paths
-        Part("Body", "Prop_VacuumBody", Vector3.zero);
-        var nozzle = Part("Nozzle", "Prop_VacuumNozzle", nozzlePivot);
+        Part("Body", rig, "Prop_VacuumBody", Vector3.zero);
+        var nozzle = Part("Nozzle", rig, "Prop_VacuumNozzle", nozzlePivot);
+        var tip = Part("Tip", nozzle.transform, "Prop_VacuumNozzleTip", HoseJoint);
 
-        // Suck point = centre of the nozzle mouth (its Glow cap), parented to the nozzle so it follows the animation
-        // like the old rig's end bone did. Reused by name so its fileID (and the scene reference) survives reruns.
-        var suck = nozzle.transform.Find("SuckPoint") ?? new GameObject("SuckPoint").transform;
-        suck.SetParent(nozzle.transform, false);
-        var nozzleMesh = MeshFor("Prop_VacuumNozzle");
-        Vector3[] nv = nozzleMesh.vertices;
-        Vector2[] nuv = nozzleMesh.uv;
+        // Suck point = centre of the mouth (its Glow cap), on the tip so it follows the bend. Reused by name so its
+        // fileID survives; PowerupManager finds it by name under the tapped slot.
+        var suck = tip.transform.Find("SuckPoint");
+        if (!suck) suck = nozzle.transform.Find("SuckPoint");
+        if (!suck) suck = new GameObject("SuckPoint").transform;
+        suck.SetParent(tip.transform, false);
+        var tipMesh = MeshFor("Prop_VacuumNozzleTip");
+        Vector3[] tv = tipMesh.vertices;
+        Vector2[] tuv = tipMesh.uv;
         var glow = Cell("Glow");
         var mouth = Vector3.zero;
         int mouthVerts = 0;
-        for (int i = 0; i < nv.Length; i++)
-            if (nuv[i] == glow) { mouth += nv[i]; mouthVerts++; }
+        for (int i = 0; i < tv.Length; i++)
+            if (tuv[i] == glow) { mouth += tv[i]; mouthVerts++; }
         suck.localPosition = mouth / mouthVerts;
         PrefabUtility.SaveAsPrefabAsset(root, prefab);
         PrefabUtility.UnloadPrefabContents(root);
@@ -483,68 +522,42 @@ static class ModelGen
         {
             var curve = new AnimationCurve();
             foreach (var (t, v) in keys) curve.AddKey(t, v);
+            // ClampedAuto: smooth but never overshoots a key (default Auto tangents drifted past the 360° spin hold).
+            for (int i = 0; i < curve.length; i++)
+            {
+                AnimationUtility.SetKeyLeftTangentMode(curve, i, AnimationUtility.TangentMode.ClampedAuto);
+                AnimationUtility.SetKeyRightTangentMode(curve, i, AnimationUtility.TangentMode.ClampedAuto);
+            }
             clip.SetCurve(path, typeof(Transform), prop, curve);
         }
 
+        // Idle: hold the bent pose (the original idle was a still pose too).
         var idle = AssetDatabase.LoadAssetAtPath<AnimationClip>(anims + "Idle.anim");
         idle.ClearCurves();
-        Key(idle, "Body", "m_LocalScale.y", (0, 1), (1, 1.025f), (2, 1));
-        Key(idle, "Body", "m_LocalScale.x", (0, 1), (1, .99f), (2, 1));
-        Key(idle, "Body", "m_LocalScale.z", (0, 1), (1, .99f), (2, 1));
-        Key(idle, "Nozzle", "localEulerAnglesRaw.x", (0, 0), (1, -4), (2, 0));
-        Key(idle, "Nozzle", "m_LocalPosition.y", (0, nozzlePivot.y), (1, nozzlePivot.y * 1.025f), (2, nozzlePivot.y)); // rides the body squash
+        Key(idle, "Rig", "m_LocalPosition.y", (0, 0), (1, 0));
+        Key(idle, "Rig", "localEulerAnglesRaw.y", (0, 0), (1, 0));
+        Key(idle, "Rig/Nozzle", "localEulerAnglesRaw.z", (0, HoseRestLower), (1, HoseRestLower));
+        Key(idle, "Rig/Nozzle/Tip", "localEulerAnglesRaw.z", (0, HoseRestTip), (1, HoseRestTip));
         var idleSettings = AnimationUtility.GetAnimationClipSettings(idle);
         idleSettings.loopTime = true;
         AnimationUtility.SetAnimationClipSettings(idle, idleSettings);
         AnimationUtility.SetAnimationEvents(idle, new AnimationEvent[0]);
 
+        // Activate (2.167 s): hop + full spin (0–0.5), hose straightens (0.5–0.667, suck event at 0.667),
+        // sways while sucking (to 1.733), bends back to rest (2.167).
         var act = AssetDatabase.LoadAssetAtPath<AnimationClip>(anims + "Activate.anim");
         act.ClearCurves();
-        // Wind-up squash, snap forward at the event, suction shake, settle.
-        var bodyY = new List<(float, float)> { (0, 1), (.45f, .86f), (.62f, 1.12f), (.7f, 1) };
-        var bodyXZ = new List<(float, float)> { (0, 1), (.45f, 1.09f), (.62f, .95f), (.7f, 1) };
-        var noz = new List<(float, float)> { (0, 0), (.45f, -22), (.62f, 14), (.7f, 10) };
-        for (float t = .8f; t < 1.8f; t += .1f)
-        {
-            bool odd = Mathf.RoundToInt(t * 10) % 2 == 1;
-            bodyY.Add((t, odd ? 1.025f : .985f));
-            noz.Add((t, odd ? 12 : 7));
-        }
-        bodyY.Add((1.95f, 1)); bodyY.Add((2.167f, 1));
-        bodyXZ.Add((1.95f, 1)); bodyXZ.Add((2.167f, 1));
-        noz.Add((1.95f, 0)); noz.Add((2.167f, 0));
-        Key(act, "Body", "m_LocalScale.y", bodyY.ToArray());
-        Key(act, "Body", "m_LocalScale.x", bodyXZ.ToArray());
-        Key(act, "Body", "m_LocalScale.z", bodyXZ.ToArray());
-        Key(act, "Nozzle", "localEulerAnglesRaw.x", noz.ToArray());
-        Key(act, "Nozzle", "m_LocalPosition.y", bodyY.ConvertAll(k => (k.Item1, k.Item2 * nozzlePivot.y)).ToArray()); // rides the body squash
+        const float end = 2.1666667f;
+        Key(act, "Rig", "m_LocalPosition.y", (0, 0), (.25f, VacuumHop), (.5f, 0), (end, 0));
+        Key(act, "Rig", "localEulerAnglesRaw.y", (0, 0), (.5f, 360), (end, 360));
+        Key(act, "Rig/Nozzle", "localEulerAnglesRaw.z", (0, HoseRestLower), (.5f, HoseRestLower), (.667f, 0),
+            (.883f, HoseSwayLower), (1.317f, -HoseSwayLower), (1.733f, HoseSwayLower), (end, HoseRestLower));
+        Key(act, "Rig/Nozzle/Tip", "localEulerAnglesRaw.z", (0, HoseRestTip), (.5f, HoseRestTip), (.667f, 0),
+            (.883f, HoseSwayTip), (1.317f, -HoseSwayTip), (1.733f, HoseSwayTip), (end, HoseRestTip));
         AnimationUtility.SetAnimationEvents(act, new[] { new AnimationEvent { functionName = "TriggerPowerupStart", time = .667f } });
         EditorUtility.SetDirty(idle);
         EditorUtility.SetDirty(act);
         AssetDatabase.SaveAssets();
-        // PowerupManager.vacuumSuckPosition used to point at the old rig's end bone; point it at our SuckPoint.
-        const string scenePath = "Assets/MatchThemAllTemplate/Scenes/MainScene.unity";
-        var scene = UnityEditor.SceneManagement.EditorSceneManager.GetSceneByPath(scenePath);
-        bool openedHere = !scene.isLoaded;
-        if (openedHere) scene = UnityEditor.SceneManagement.EditorSceneManager.OpenScene(scenePath, UnityEditor.SceneManagement.OpenSceneMode.Additive);
-        Transform sceneSuck = null;
-        MonoBehaviour manager = null;
-        foreach (var go in scene.GetRootGameObjects())
-        foreach (var mb in go.GetComponentsInChildren<MonoBehaviour>(true))
-        {
-            if (!mb) continue;
-            if (mb.GetType().Name == "Vacuum") sceneSuck = mb.transform.Find("Nozzle/SuckPoint");
-            if (mb.GetType().Name == "PowerupManager") manager = mb;
-        }
-        if (!sceneSuck || !manager) Debug.LogError($"[ModelGen] Couldn't wire vacuumSuckPosition (suck point {sceneSuck}, manager {manager}).");
-        else
-        {
-            var so = new SerializedObject(manager);
-            so.FindProperty("vacuumSuckPosition").objectReferenceValue = sceneSuck;
-            so.ApplyModifiedPropertiesWithoutUndo();
-            UnityEditor.SceneManagement.EditorSceneManager.SaveScene(scene);
-        }
-        if (openedHere) UnityEditor.SceneManagement.EditorSceneManager.CloseScene(scene, true);
         Debug.Log("[ModelGen] Vacuum rewired + clips rewritten.");
     }
 
