@@ -75,10 +75,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemNameKey: 4
   icon: {fileID: 21300000, guid: 8344713d123e12d4aae70d58c49e4070, type: 3}
-  useCustomDockRotation: 0
-  customDockRotation: {x: 0, y: 0, z: 0}
-  useCustomDockPositionOffset: 0
-  customDockPositionOffset: {x: 0, y: 0, z: 0}
+  useCustomDockRotation: 1
+  customDockRotation: {x: -15, y: 0, z: 0}
+  useCustomDockPositionOffset: 1
+  customDockPositionOffset: {x: 0, y: -0.01, z: -0.06}
   maxSpeed: 12
   _renderer: {fileID: 9037013893777222118}
 --- !u!1 &7379447269989533747

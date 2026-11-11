@@ -77,8 +77,8 @@ MonoBehaviour:
   icon: {fileID: 21300000, guid: 46031e2642a8f0741a01d511e8bcecb5, type: 3}
   useCustomDockRotation: 0
   customDockRotation: {x: 0, y: 0, z: 0}
-  useCustomDockPositionOffset: 0
-  customDockPositionOffset: {x: 0, y: 0, z: 0}
+  useCustomDockPositionOffset: 1
+  customDockPositionOffset: {x: 0, y: 0, z: -0.06}
   maxSpeed: 12
   _renderer: {fileID: 8135376211236221340}
 --- !u!1 &7774996362928214089
