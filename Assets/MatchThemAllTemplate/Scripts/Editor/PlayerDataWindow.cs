@@ -85,7 +85,7 @@ namespace MatchThemAll.Scripts.Editor
             EditorGUILayout.Space();
             EditorGUILayout.LabelField("Level Progress", EditorStyles.boldLabel);
             _furthest = EditorGUILayout.Popup(new GUIContent("Furthest level",
-                "Highest unlocked level. Power-ups unlock from it, so Level 1 locks them all again. Stars are kept."), _furthest, _levelLabels);
+                "Highest unlocked level. Power-ups unlock from it, so Level 1 locks them all again. Stars of this level and later ones are cleared."), _furthest, _levelLabels);
 
             EditorGUILayout.Space();
             using (new EditorGUILayout.HorizontalScope())
@@ -94,7 +94,7 @@ namespace MatchThemAll.Scripts.Editor
                 if (GUILayout.Button("Apply"))
                 {
                     // Only when changed, so editing coins never touches progress. Level 1 = empty, like a fresh save.
-                    if (_furthest != _loadedFurthest) SaveManager.SetFurthestLevel(_furthest == 0 ? "" : _levelIds[_furthest]);
+                    if (_furthest != _loadedFurthest) SaveManager.SetFurthestLevel(_furthest == 0 ? "" : _levelIds[_furthest], _levelIds);
                     Apply(_coins, _gems, _charges);
                     Reload();
                 }

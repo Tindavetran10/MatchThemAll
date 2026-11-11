@@ -244,12 +244,17 @@ namespace MatchThemAll.Scripts.SaveSystem
         public static string GetFurthestLevelId() => Data.furthestLevelId ?? "";
 
         /// <summary>
-        /// Sets the furthest unlocked level (empty = only the first level). Power-up locks follow it, so the
-        /// tray redraws through OnPowerupsChanged. Stars are kept. For dev tools (Player Data window).
+        /// Sets the furthest unlocked level (empty = only the first level) and forgets the stars of that level
+        /// and every later one, so they read as not yet completed. Earlier levels keep their stars.
+        /// Power-up locks follow the furthest level, so the tray redraws through OnPowerupsChanged.
+        /// For dev tools (Player Data window).
         /// </summary>
-        public static void SetFurthestLevel(string id)
+        public static void SetFurthestLevel(string id, IReadOnlyList<string> orderedIds)
         {
             Data.furthestLevelId = id ?? "";
+            int from = string.IsNullOrEmpty(id) ? 0 : IndexOfId(orderedIds, id);
+            if (orderedIds != null && from >= 0 && Data.levelProgress != null)
+                Data.levelProgress.RemoveAll(e => IndexOfId(orderedIds, e.id) >= from);
             MarkDirty();
             OnPowerupsChanged?.Invoke();
         }
