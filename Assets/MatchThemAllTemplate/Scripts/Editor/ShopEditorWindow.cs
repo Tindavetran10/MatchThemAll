@@ -521,7 +521,13 @@ namespace MatchThemAll.Scripts.Editor
             EditorGUILayout.PropertyField(_productSO.FindProperty("bestValue"));
             EditorGUILayout.PropertyField(_productSO.FindProperty("mostPopular"));
             EditorGUILayout.PropertyField(_productSO.FindProperty("isOneTime"));
-            EditorGUILayout.PropertyField(_productSO.FindProperty("description"));
+            // Drawn by hand: the [TextArea] property drawer also painted its "Description" label at the
+            // window's top-left, over the dock tab bar.
+            var description = _productSO.FindProperty("description");
+            EditorGUILayout.LabelField("Description");
+            EditorGUI.BeginChangeCheck();
+            string text = EditorGUILayout.TextArea(description.stringValue, EditorStyles.textArea, GUILayout.MinHeight(54));
+            if (EditorGUI.EndChangeCheck()) description.stringValue = text;
             EndSection();
 
             GUILayout.EndScrollView();

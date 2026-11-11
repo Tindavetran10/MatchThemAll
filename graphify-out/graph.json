@@ -40454,31 +40454,31 @@
             "callee": "BeginHorizontal",
             "receiver_type": "GUILayout",
             "lang": "csharp",
-            "line": "L556"
+            "line": "L562"
           },
           {
             "callee": "Space",
             "receiver_type": "GUILayout",
             "lang": "csharp",
-            "line": "L557"
+            "line": "L563"
           },
           {
             "callee": "BeginVertical",
             "receiver_type": "GUILayout",
             "lang": "csharp",
-            "line": "L558"
+            "line": "L564"
           },
           {
             "callee": "Label",
             "receiver_type": "GUILayout",
             "lang": "csharp",
-            "line": "L559"
+            "line": "L565"
           }
         ]
       },
       "norm_label": ".beginsection()",
       "source_file": "Assets/MatchThemAllTemplate/Scripts/Editor/ShopEditorWindow.cs",
-      "source_location": "L554"
+      "source_location": "L560"
     },
     {
       "id": "assets_matchthemalltemplate_scripts_editor_shopeditorwindow_matchthemall_scripts_editor_shopeditorwindow_createproduct",
@@ -40498,31 +40498,31 @@
             "callee": "LoadAssetAtPath",
             "receiver_type": "AssetDatabase",
             "lang": "csharp",
-            "line": "L619"
+            "line": "L625"
           },
           {
             "callee": "CreateAsset",
             "receiver_type": "AssetDatabase",
             "lang": "csharp",
-            "line": "L620"
+            "line": "L626"
           },
           {
             "callee": "FindProperty",
             "receiver_type": "SerializedObject",
             "lang": "csharp",
-            "line": "L622"
+            "line": "L628"
           },
           {
             "callee": "ApplyModifiedPropertiesWithoutUndo",
             "receiver_type": "SerializedObject",
             "lang": "csharp",
-            "line": "L627"
+            "line": "L633"
           }
         ]
       },
       "norm_label": ".createproduct()",
       "source_file": "Assets/MatchThemAllTemplate/Scripts/Editor/ShopEditorWindow.cs",
-      "source_location": "L614"
+      "source_location": "L620"
     },
     {
       "id": "assets_matchthemalltemplate_scripts_editor_shopeditorwindow_matchthemall_scripts_editor_shopeditorwindow_createtab",
@@ -40542,31 +40542,31 @@
             "callee": "LoadAssetAtPath",
             "receiver_type": "AssetDatabase",
             "lang": "csharp",
-            "line": "L599"
+            "line": "L605"
           },
           {
             "callee": "CreateAsset",
             "receiver_type": "AssetDatabase",
             "lang": "csharp",
-            "line": "L600"
+            "line": "L606"
           },
           {
             "callee": "FindProperty",
             "receiver_type": "SerializedObject",
             "lang": "csharp",
-            "line": "L602"
+            "line": "L608"
           },
           {
             "callee": "ApplyModifiedPropertiesWithoutUndo",
             "receiver_type": "SerializedObject",
             "lang": "csharp",
-            "line": "L605"
+            "line": "L611"
           }
         ]
       },
       "norm_label": ".createtab()",
       "source_file": "Assets/MatchThemAllTemplate/Scripts/Editor/ShopEditorWindow.cs",
-      "source_location": "L594"
+      "source_location": "L600"
     },
     {
       "id": "assets_matchthemalltemplate_scripts_editor_shopeditorwindow_matchthemall_scripts_editor_shopeditorwindow_drawaddtabstrip",
@@ -40660,25 +40660,25 @@
             "callee": "Label",
             "receiver_type": "GUILayout",
             "lang": "csharp",
-            "line": "L574"
+            "line": "L580"
           },
           {
             "callee": "Height",
             "receiver_type": "GUILayout",
             "lang": "csharp",
-            "line": "L574"
+            "line": "L580"
           },
           {
             "callee": "Space",
             "receiver_type": "GUILayout",
             "lang": "csharp",
-            "line": "L576"
+            "line": "L582"
           }
         ]
       },
       "norm_label": ".drawbadge()",
       "source_file": "Assets/MatchThemAllTemplate/Scripts/Editor/ShopEditorWindow.cs",
-      "source_location": "L571"
+      "source_location": "L577"
     },
     {
       "id": "assets_matchthemalltemplate_scripts_editor_shopeditorwindow_matchthemall_scripts_editor_shopeditorwindow_drawdetail",
@@ -40791,16 +40791,40 @@
             "line": "L512"
           },
           {
+            "callee": "BeginChangeCheck",
+            "receiver_type": "EditorGUI",
+            "lang": "csharp",
+            "line": "L528"
+          },
+          {
+            "callee": "TextArea",
+            "receiver_type": "EditorGUILayout",
+            "lang": "csharp",
+            "line": "L529"
+          },
+          {
+            "callee": "MinHeight",
+            "receiver_type": "GUILayout",
+            "lang": "csharp",
+            "line": "L529"
+          },
+          {
+            "callee": "EndChangeCheck",
+            "receiver_type": "EditorGUI",
+            "lang": "csharp",
+            "line": "L530"
+          },
+          {
             "callee": "EndScrollView",
             "receiver_type": "GUILayout",
             "lang": "csharp",
-            "line": "L527"
+            "line": "L533"
           },
           {
             "callee": "ApplyModifiedProperties",
             "receiver_type": "SerializedObject",
             "lang": "csharp",
-            "line": "L529"
+            "line": "L535"
           }
         ]
       },
@@ -40888,31 +40912,31 @@
             "callee": "FlexibleSpace",
             "receiver_type": "GUILayout",
             "lang": "csharp",
-            "line": "L581"
+            "line": "L587"
           },
           {
             "callee": "BeginHorizontal",
             "receiver_type": "GUILayout",
             "lang": "csharp",
-            "line": "L582"
+            "line": "L588"
           },
           {
             "callee": "Label",
             "receiver_type": "GUILayout",
             "lang": "csharp",
-            "line": "L584"
+            "line": "L590"
           },
           {
             "callee": "EndHorizontal",
             "receiver_type": "GUILayout",
             "lang": "csharp",
-            "line": "L586"
+            "line": "L592"
           }
         ]
       },
       "norm_label": ".drawnodatabase()",
       "source_file": "Assets/MatchThemAllTemplate/Scripts/Editor/ShopEditorWindow.cs",
-      "source_location": "L579"
+      "source_location": "L585"
     },
     {
       "id": "assets_matchthemalltemplate_scripts_editor_shopeditorwindow_matchthemall_scripts_editor_shopeditorwindow_drawproductlist",
@@ -41060,19 +41084,19 @@
             "callee": "FindProperty",
             "receiver_type": "SerializedObject",
             "lang": "csharp",
-            "line": "L536"
+            "line": "L542"
           },
           {
             "callee": "Popup",
             "receiver_type": "EditorGUILayout",
             "lang": "csharp",
-            "line": "L546"
+            "line": "L552"
           }
         ]
       },
       "norm_label": ".drawtabpopup()",
       "source_file": "Assets/MatchThemAllTemplate/Scripts/Editor/ShopEditorWindow.cs",
-      "source_location": "L533"
+      "source_location": "L539"
     },
     {
       "id": "assets_matchthemalltemplate_scripts_editor_shopeditorwindow_matchthemall_scripts_editor_shopeditorwindow_drawtoolbar",
@@ -41196,25 +41220,25 @@
             "callee": "EndVertical",
             "receiver_type": "GUILayout",
             "lang": "csharp",
-            "line": "L565"
+            "line": "L571"
           },
           {
             "callee": "Space",
             "receiver_type": "GUILayout",
             "lang": "csharp",
-            "line": "L566"
+            "line": "L572"
           },
           {
             "callee": "EndHorizontal",
             "receiver_type": "GUILayout",
             "lang": "csharp",
-            "line": "L567"
+            "line": "L573"
           }
         ]
       },
       "norm_label": ".endsection()",
       "source_file": "Assets/MatchThemAllTemplate/Scripts/Editor/ShopEditorWindow.cs",
-      "source_location": "L563"
+      "source_location": "L569"
     },
     {
       "id": "assets_matchthemalltemplate_scripts_editor_shopeditorwindow_matchthemall_scripts_editor_shopeditorwindow_ensuredir",
@@ -41234,13 +41258,13 @@
             "callee": "CreateDirectory",
             "receiver_type": "Directory",
             "lang": "csharp",
-            "line": "L686"
+            "line": "L692"
           }
         ]
       },
       "norm_label": ".ensuredir()",
       "source_file": "Assets/MatchThemAllTemplate/Scripts/Editor/ShopEditorWindow.cs",
-      "source_location": "L684"
+      "source_location": "L690"
     },
     {
       "id": "assets_matchthemalltemplate_scripts_editor_shopeditorwindow_matchthemall_scripts_editor_shopeditorwindow_formatprice",
@@ -41258,7 +41282,7 @@
       },
       "norm_label": ".formatprice()",
       "source_file": "Assets/MatchThemAllTemplate/Scripts/Editor/ShopEditorWindow.cs",
-      "source_location": "L692"
+      "source_location": "L698"
     },
     {
       "id": "assets_matchthemalltemplate_scripts_editor_shopeditorwindow_matchthemall_scripts_editor_shopeditorwindow_loaddatabase",
@@ -41310,13 +41334,13 @@
             "callee": "Add",
             "receiver_type": "List",
             "lang": "csharp",
-            "line": "L657"
+            "line": "L663"
           }
         ]
       },
       "norm_label": ".moveproductwithintab()",
       "source_file": "Assets/MatchThemAllTemplate/Scripts/Editor/ShopEditorWindow.cs",
-      "source_location": "L653"
+      "source_location": "L659"
     },
     {
       "id": "assets_matchthemalltemplate_scripts_editor_shopeditorwindow_matchthemall_scripts_editor_shopeditorwindow_movetab",
@@ -41336,25 +41360,25 @@
             "callee": "FindProperty",
             "receiver_type": "SerializedObject",
             "lang": "csharp",
-            "line": "L645"
+            "line": "L651"
           },
           {
             "callee": "ApplyModifiedPropertiesWithoutUndo",
             "receiver_type": "SerializedObject",
             "lang": "csharp",
-            "line": "L646"
+            "line": "L652"
           },
           {
             "callee": "SetDirty",
             "receiver_type": "EditorUtility",
             "lang": "csharp",
-            "line": "L647"
+            "line": "L653"
           }
         ]
       },
       "norm_label": ".movetab()",
       "source_file": "Assets/MatchThemAllTemplate/Scripts/Editor/ShopEditorWindow.cs",
-      "source_location": "L635"
+      "source_location": "L641"
     },
     {
       "id": "assets_matchthemalltemplate_scripts_editor_shopeditorwindow_matchthemall_scripts_editor_shopeditorwindow_ondisable",
@@ -41484,7 +41508,7 @@
       },
       "norm_label": ".removetab()",
       "source_file": "Assets/MatchThemAllTemplate/Scripts/Editor/ShopEditorWindow.cs",
-      "source_location": "L667"
+      "source_location": "L673"
     },
     {
       "id": "assets_matchthemalltemplate_scripts_editor_shopeditorwindow_matchthemall_scripts_editor_shopeditorwindow_rowlabel",
@@ -41522,25 +41546,25 @@
             "callee": "SetDirty",
             "receiver_type": "EditorUtility",
             "lang": "csharp",
-            "line": "L679"
+            "line": "L685"
           },
           {
             "callee": "SaveAssets",
             "receiver_type": "AssetDatabase",
             "lang": "csharp",
-            "line": "L680"
+            "line": "L686"
           },
           {
             "callee": "Refresh",
             "receiver_type": "AssetDatabase",
             "lang": "csharp",
-            "line": "L681"
+            "line": "L687"
           }
         ]
       },
       "norm_label": ".saveall()",
       "source_file": "Assets/MatchThemAllTemplate/Scripts/Editor/ShopEditorWindow.cs",
-      "source_location": "L677"
+      "source_location": "L683"
     },
     {
       "id": "assets_matchthemalltemplate_scripts_editor_shopeditorwindow_matchthemall_scripts_editor_shopeditorwindow_showdialog",
@@ -41560,13 +41584,13 @@
             "callee": "DisplayDialog",
             "receiver_type": "EditorUtility",
             "lang": "csharp",
-            "line": "L690"
+            "line": "L696"
           }
         ]
       },
       "norm_label": ".showdialog()",
       "source_file": "Assets/MatchThemAllTemplate/Scripts/Editor/ShopEditorWindow.cs",
-      "source_location": "L690"
+      "source_location": "L696"
     },
     {
       "id": "assets_matchthemalltemplate_scripts_editor_shopeditorwindow_matchthemall_scripts_editor_shopeditorwindow_showwindow",
@@ -114560,7 +114584,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "Assets/MatchThemAllTemplate/Scripts/Editor/ShopEditorWindow.cs",
-      "source_location": "L616",
+      "source_location": "L622",
       "weight": 1.0
     },
     {
@@ -114572,7 +114596,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "Assets/MatchThemAllTemplate/Scripts/Editor/ShopEditorWindow.cs",
-      "source_location": "L617",
+      "source_location": "L623",
       "weight": 1.0
     },
     {
@@ -114584,7 +114608,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "Assets/MatchThemAllTemplate/Scripts/Editor/ShopEditorWindow.cs",
-      "source_location": "L632",
+      "source_location": "L638",
       "weight": 1.0
     },
     {
@@ -114596,7 +114620,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "Assets/MatchThemAllTemplate/Scripts/Editor/ShopEditorWindow.cs",
-      "source_location": "L596",
+      "source_location": "L602",
       "weight": 1.0
     },
     {
@@ -114608,7 +114632,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "Assets/MatchThemAllTemplate/Scripts/Editor/ShopEditorWindow.cs",
-      "source_location": "L597",
+      "source_location": "L603",
       "weight": 1.0
     },
     {
@@ -114620,7 +114644,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "Assets/MatchThemAllTemplate/Scripts/Editor/ShopEditorWindow.cs",
-      "source_location": "L611",
+      "source_location": "L617",
       "weight": 1.0
     },
     {
@@ -114824,7 +114848,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "Assets/MatchThemAllTemplate/Scripts/Editor/ShopEditorWindow.cs",
-      "source_location": "L664",
+      "source_location": "L670",
       "weight": 1.0
     },
     {
@@ -114836,7 +114860,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "Assets/MatchThemAllTemplate/Scripts/Editor/ShopEditorWindow.cs",
-      "source_location": "L650",
+      "source_location": "L656",
       "weight": 1.0
     },
     {
@@ -114944,7 +114968,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "Assets/MatchThemAllTemplate/Scripts/Editor/ShopEditorWindow.cs",
-      "source_location": "L674",
+      "source_location": "L680",
       "weight": 1.0
     },
     {
@@ -150013,7 +150037,7 @@
         "ref_token": "ShopProductSO"
       },
       "source_file": "Assets/MatchThemAllTemplate/Scripts/Editor/ShopEditorWindow.cs",
-      "source_location": "L620",
+      "source_location": "L626",
       "weight": 1.0
     },
     {
@@ -150163,7 +150187,7 @@
         "ref_token": "ShopTabSO"
       },
       "source_file": "Assets/MatchThemAllTemplate/Scripts/Editor/ShopEditorWindow.cs",
-      "source_location": "L600",
+      "source_location": "L606",
       "weight": 1.0
     },
     {
@@ -157473,7 +157497,7 @@
         "ref_token": "Color"
       },
       "source_file": "Assets/MatchThemAllTemplate/Scripts/Editor/ShopEditorWindow.cs",
-      "source_location": "L571",
+      "source_location": "L577",
       "weight": 1.0
     },
     {
@@ -166218,7 +166242,7 @@
         "ref_token": "ShopProductSO"
       },
       "source_file": "Assets/MatchThemAllTemplate/Scripts/Editor/ShopEditorWindow.cs",
-      "source_location": "L692",
+      "source_location": "L698",
       "weight": 1.0
     },
     {
@@ -210526,7 +210550,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "Assets/MatchThemAllTemplate/Scripts/Editor/ShopEditorWindow.cs",
-      "source_location": "L533",
+      "source_location": "L539",
       "weight": 1.0
     },
     {
@@ -210537,7 +210561,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "Assets/MatchThemAllTemplate/Scripts/Editor/ShopEditorWindow.cs",
-      "source_location": "L554",
+      "source_location": "L560",
       "weight": 1.0
     },
     {
@@ -210548,7 +210572,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "Assets/MatchThemAllTemplate/Scripts/Editor/ShopEditorWindow.cs",
-      "source_location": "L563",
+      "source_location": "L569",
       "weight": 1.0
     },
     {
@@ -210559,7 +210583,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "Assets/MatchThemAllTemplate/Scripts/Editor/ShopEditorWindow.cs",
-      "source_location": "L571",
+      "source_location": "L577",
       "weight": 1.0
     },
     {
@@ -210570,7 +210594,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "Assets/MatchThemAllTemplate/Scripts/Editor/ShopEditorWindow.cs",
-      "source_location": "L579",
+      "source_location": "L585",
       "weight": 1.0
     },
     {
@@ -210581,7 +210605,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "Assets/MatchThemAllTemplate/Scripts/Editor/ShopEditorWindow.cs",
-      "source_location": "L594",
+      "source_location": "L600",
       "weight": 1.0
     },
     {
@@ -210603,7 +210627,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "Assets/MatchThemAllTemplate/Scripts/Editor/ShopEditorWindow.cs",
-      "source_location": "L614",
+      "source_location": "L620",
       "weight": 1.0
     },
     {
@@ -210614,7 +210638,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "Assets/MatchThemAllTemplate/Scripts/Editor/ShopEditorWindow.cs",
-      "source_location": "L635",
+      "source_location": "L641",
       "weight": 1.0
     },
     {
@@ -210625,18 +210649,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "Assets/MatchThemAllTemplate/Scripts/Editor/ShopEditorWindow.cs",
-      "source_location": "L653",
-      "weight": 1.0
-    },
-    {
-      "source": "assets_matchthemalltemplate_scripts_editor_shopeditorwindow_matchthemall_scripts_editor_shopeditorwindow",
-      "target": "assets_matchthemalltemplate_scripts_editor_shopeditorwindow_matchthemall_scripts_editor_shopeditorwindow_removetab",
-      "relation": "method",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "Assets/MatchThemAllTemplate/Scripts/Editor/ShopEditorWindow.cs",
-      "source_location": "L667",
+      "source_location": "L659",
       "weight": 1.0
     },
     {
@@ -210652,13 +210665,24 @@
     },
     {
       "source": "assets_matchthemalltemplate_scripts_editor_shopeditorwindow_matchthemall_scripts_editor_shopeditorwindow",
+      "target": "assets_matchthemalltemplate_scripts_editor_shopeditorwindow_matchthemall_scripts_editor_shopeditorwindow_removetab",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "Assets/MatchThemAllTemplate/Scripts/Editor/ShopEditorWindow.cs",
+      "source_location": "L673",
+      "weight": 1.0
+    },
+    {
+      "source": "assets_matchthemalltemplate_scripts_editor_shopeditorwindow_matchthemall_scripts_editor_shopeditorwindow",
       "target": "assets_matchthemalltemplate_scripts_editor_shopeditorwindow_matchthemall_scripts_editor_shopeditorwindow_saveall",
       "relation": "method",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "Assets/MatchThemAllTemplate/Scripts/Editor/ShopEditorWindow.cs",
-      "source_location": "L677",
+      "source_location": "L683",
       "weight": 1.0
     },
     {
@@ -210669,7 +210693,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "Assets/MatchThemAllTemplate/Scripts/Editor/ShopEditorWindow.cs",
-      "source_location": "L684",
+      "source_location": "L690",
       "weight": 1.0
     },
     {
@@ -210680,7 +210704,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "Assets/MatchThemAllTemplate/Scripts/Editor/ShopEditorWindow.cs",
-      "source_location": "L690",
+      "source_location": "L696",
       "weight": 1.0
     },
     {
@@ -210691,7 +210715,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "Assets/MatchThemAllTemplate/Scripts/Editor/ShopEditorWindow.cs",
-      "source_location": "L692",
+      "source_location": "L698",
       "weight": 1.0
     },
     {
@@ -224973,7 +224997,7 @@
       "confidence_score": 0.85,
       "context": "call",
       "source_file": "Assets/MatchThemAllTemplate/Scripts/Editor/ShopEditorWindow.cs",
-      "source_location": "L620",
+      "source_location": "L626",
       "weight": 1.0
     },
     {
@@ -224985,7 +225009,7 @@
       "confidence_score": 0.85,
       "context": "call",
       "source_file": "Assets/MatchThemAllTemplate/Scripts/Editor/ShopEditorWindow.cs",
-      "source_location": "L600",
+      "source_location": "L606",
       "weight": 1.0
     },
     {
@@ -226178,5 +226202,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "b0019644db7ff2ee6013a8e3cdd3127c7b975446"
+  "built_at_commit": "7138a455d1523043597132b6dae0486c23d29bc9"
 }
