@@ -300,9 +300,9 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Editor/LevelEditorWindow.cs": {
-    "mtime": 1788798475.185644,
-    "seen": 1792067873.7639194,
-    "ast_hash": "4db9556b98fc56c5bd91ea9bfe1e2e94",
+    "mtime": 1794370598.0804672,
+    "seen": 1794370650.1007004,
+    "ast_hash": "7e813071dd2b4aae37bb78a97061067c",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Editor/LevelMapBuilder.cs": {
@@ -324,9 +324,9 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Editor/ShopEditorWindow.cs": {
-    "mtime": 1794088847.432,
-    "seen": 1794092273.7178698,
-    "ast_hash": "8a4d6b4c18fe53bd7b0fee9396cf03c5",
+    "mtime": 1794370592.3919365,
+    "seen": 1794370650.100715,
+    "ast_hash": "817532a402d814d2bc4e1962f0b0dbb7",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Editor/ShopSetup.cs": {
@@ -23874,9 +23874,9 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Editor/SoundManagerWindow.cs": {
-    "mtime": 1794115015.277194,
-    "seen": 1794115226.3567827,
-    "ast_hash": "e3af4b9f07c3edc17ce5b8e2597c374b",
+    "mtime": 1794370012.6201866,
+    "seen": 1794370650.1007178,
+    "ast_hash": "16340cf5285105c8dfe9deb7dd3c6233",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/Core/SoundEvent.cs": {
@@ -24978,9 +24978,9 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Editor/PowerupManagerWindow.cs": {
-    "mtime": 1794116829.5213504,
-    "seen": 1794117173.0273418,
-    "ast_hash": "2fc64dbdc50c54d1f0fd77ee1ee86646",
+    "mtime": 1794370584.1510663,
+    "seen": 1794370650.1007094,
+    "ast_hash": "3747b900dc1c0a8ddeb45323d4c085f8",
     "semantic_hash": ""
   },
   "docs/superpowers/plans/2026-11-08-powerup-editor.md": {

@@ -390,9 +390,9 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/Core/SoundManager.cs": {
-    "mtime": 1794111709.330711,
-    "seen": 1794112000.2712617,
-    "ast_hash": "ebfb4b45c66966b54ba5d024c4a83acf",
+    "mtime": 1794369075.8822677,
+    "seen": 1794369167.4963489,
+    "ast_hash": "ce7ea07cbb941d998f04e19322dd4ed7",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/Gameplay/ComboManager.cs": {
@@ -540,9 +540,9 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/PowerUps/Powerup.cs": {
-    "mtime": 1794119039.5457358,
-    "seen": 1794119327.80241,
-    "ast_hash": "e79c1e5139c4bdf260fc3efcee7c1a94",
+    "mtime": 1794138479.671,
+    "seen": 1794369167.4963756,
+    "ast_hash": "f05dd940730eb55fcbc6c8bcab5431bb",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/PowerUps/PowerupContext.cs": {
@@ -2166,8 +2166,8 @@
     "semantic_hash": ""
   },
   "ProjectSettings/ScriptableBuildPipeline.json": {
-    "mtime": 1794136734.6707454,
-    "seen": 1794137522.190142,
+    "mtime": 1794137666.4397964,
+    "seen": 1794369167.4965837,
     "ast_hash": "4499d0efefbbb64353d6bec6a237209b",
     "semantic_hash": ""
   },
@@ -2322,9 +2322,9 @@
     "semantic_hash": ""
   },
   "CLAUDE.md": {
-    "mtime": 1794137486.3381662,
-    "seen": 1794137522.1901727,
-    "ast_hash": "b5dfe624bfb9728a693ec9bc5fe48462",
+    "mtime": 1794369144.5187886,
+    "seen": 1794369167.4966133,
+    "ast_hash": "d1cff7148f311d02ec830f9bcca80a48",
     "semantic_hash": ""
   },
   "ProjectSettings/ProjectVersion.txt": {
@@ -24768,9 +24768,9 @@
     "semantic_hash": ""
   },
   "Assets/LevelPlay/Editor/LevelPlayVersions.json": {
-    "mtime": 1794076708.7104235,
-    "seen": 1794077998.1988018,
-    "ast_hash": "19eaa589edb7c04804dace49b41b582f",
+    "mtime": 1794368392.5206954,
+    "seen": 1794369167.4963167,
+    "ast_hash": "d025094e7ffe58db0b20aefff71cfcab",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Plugins/iOS/ATTRequester.mm": {

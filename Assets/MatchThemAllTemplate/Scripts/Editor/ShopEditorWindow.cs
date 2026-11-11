@@ -272,20 +272,25 @@ namespace MatchThemAll.Scripts.Editor
 
             GUILayout.FlexibleSpace();
 
+            // The Save button is always drawn (disabled when clean): adding a control mid-drag shifts the
+            // control IDs of everything after it, which made sliders drop the drag on their first change.
             if (_isDirty)
             {
                 GUI.color = AccentOrange;
                 GUILayout.Label("● Unsaved Changes", EditorStyles.boldLabel, GUILayout.Height(38));
-                GUI.color = AccentGreen;
+            }
+            GUI.color = AccentGreen;
+            using (new EditorGUI.DisabledScope(!_isDirty))
+            {
                 if (GUILayout.Button("💾 Save", GUILayout.Height(28), GUILayout.Width(80)))
                 {
                     SaveAll();
                     _isDirty = false;
                     GUIUtility.ExitGUI();
                 }
-                GUI.color = Color.white;
-                GUILayout.Space(8);
             }
+            GUI.color = Color.white;
+            GUILayout.Space(8);
 
             GUI.color = new Color(0.7f, 0.7f, 0.7f);
             if (GUILayout.Button("↻ Reload", GUILayout.Height(28), GUILayout.Width(80)))
