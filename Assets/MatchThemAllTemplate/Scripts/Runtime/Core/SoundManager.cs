@@ -37,6 +37,7 @@ namespace MatchThemAll.Scripts
         private AudioSource[] _voices;
         private float[] _voiceStartedAt;
         private AudioSource _music;
+        private SoundEvent _musicId;
         private readonly Dictionary<SoundEvent, float> _lastPlayed = new();
 
         #region Lifecycle
@@ -74,6 +75,12 @@ namespace MatchThemAll.Scripts
 
         // Starting music inside Awake is unreliable (the source may not be ready yet), so wait for the first frame.
         private void Start() { if (Instance == this) PlaySceneMusic(SceneManager.GetActiveScene().name); }
+
+        // Keeps the playing track at its library volume, so Sound Manager edits are heard live in Play mode.
+        private void Update()
+        {
+            if (_music && _music.isPlaying && library && library.TryGet(_musicId, out var entry)) _music.volume = entry.volume;
+        }
 
         private void OnDestroy()
         {
@@ -199,6 +206,7 @@ namespace MatchThemAll.Scripts
             var clip = entry.PickClip();
             if (!clip || (_music.clip == clip && _music.isPlaying)) return;
 
+            _musicId = id;
             _music.clip = clip;
             _music.volume = entry.volume;
             _music.pitch = 1f;
