@@ -57,6 +57,13 @@ namespace MatchThemAll.Scripts
         public PowerupClickedEvent(PowerupDataSO powerup) => Powerup = powerup;
     }
 
+    /// <summary>A power-up passed its checks, spent a charge and started. Unlike PowerupClickedEvent, ignored taps don't send it.</summary>
+    public struct PowerupActivatedEvent
+    {
+        public PowerupDataSO Powerup;
+        public PowerupActivatedEvent(PowerupDataSO powerup) => Powerup = powerup;
+    }
+
     /// <summary>The Freeze power-up stopped the clock for Duration seconds of play time.</summary>
     public struct TimerFrozenEvent
     {

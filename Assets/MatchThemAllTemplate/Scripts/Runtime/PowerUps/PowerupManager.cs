@@ -96,17 +96,8 @@ namespace MatchThemAll.Scripts
         private void OnPowerupClickedEvent(PowerupClickedEvent evt)
         {
             PowerupDataSO so = evt.Powerup;
-            if (so == null || so.Effect == null) return;
-            if (_isBusy) return;
-            if (GameManager.Instance.State != EGameState.GAME) return;
-            // The state is GAME before the level finishes spawning (async); effects need its items.
-            if (!LevelManager.Instance || !LevelManager.Instance.IsLevelReady) return;
-
-            int playerLevel = SaveManager.GetCurrentLevelIndex();
-            if (so.IsLockedAt(playerLevel)) return;
-
+            if (!CanActivateNow(so)) return;
             var ctx = BuildContext(so);
-            if (!so.Effect.CanActivate(ctx)) return;
 
             // Use a charge; if none, let the player choose coins or an ad (PowerupOfferPanel) — never spend silently.
             if (!SaveManager.UsePowerupCharge(so.id))
@@ -114,6 +105,8 @@ namespace MatchThemAll.Scripts
                 EventBus.Publish(new PowerupOfferRequestedEvent(so));
                 return;
             }
+
+            EventBus.Publish(new PowerupActivatedEvent(so));
 
             SoundManager.Sfx(so.ActivateSound, so.ActivateVolume, so.ActivatePitch);
 
@@ -148,6 +141,18 @@ namespace MatchThemAll.Scripts
         }
 
         /// <summary>Builds the per-activation dependency context handed to an effect.</summary>
+        /// <summary>True when a tap on <paramref name="so"/> would start it now (charges aside): level ready, unlocked, not busy, effect can run.</summary>
+        public bool CanActivateNow(PowerupDataSO so)
+        {
+            if (so == null || so.Effect == null) return false;
+            if (_isBusy) return false;
+            if (GameManager.Instance.State != EGameState.GAME) return false;
+            // The state is GAME before the level finishes spawning (async); effects need its items.
+            if (!LevelManager.Instance || !LevelManager.Instance.IsLevelReady) return false;
+            if (so.IsLockedAt(SaveManager.GetCurrentLevelIndex())) return false;
+            return so.Effect.CanActivate(BuildContext(so));
+        }
+
         private PowerupContext BuildContext(PowerupDataSO so)
         {
             var source = FindSource(so);
