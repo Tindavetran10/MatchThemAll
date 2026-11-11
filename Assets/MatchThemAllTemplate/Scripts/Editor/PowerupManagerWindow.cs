@@ -21,6 +21,7 @@ namespace MatchThemAll.Scripts.Editor
         private const string DatabasePath = "Assets/MatchThemAllTemplate/Resources/Powerups/PowerupDatabase.asset";
         private const string AssetFolder = "Assets/MatchThemAllTemplate/Resources/Powerups";
         private const string SlotPrefabPath = "Assets/MatchThemAllTemplate/Prefabs/PowerUps/Slots/PowerupSlot.prefab";
+        private const string SlotBackgroundPath = "Assets/MatchThemAllTemplate/Prefabs/UI/Power Up/Slot Background.prefab";
 
         private static readonly Color PanelBg      = new(0.18f, 0.18f, 0.20f);
         private static readonly Color CardBg       = new(0.22f, 0.22f, 0.25f);
@@ -364,6 +365,7 @@ namespace MatchThemAll.Scripts.Editor
                 GUILayout.Label("Empty tray model = the icon is shown.", _descStyle);
                 GUI.color = Color.white;
             }
+            DrawSlotBackgroundField();
             GUILayout.Space(4);
             EditorGUILayout.PropertyField(_so.FindProperty("modelOffset"), new GUIContent("Model offset", "Moves the model inside its slot: X right, Y up, Z away from the camera."));
             EditorGUILayout.PropertyField(_so.FindProperty("modelRotation"), new GUIContent("Model rotation", "Turns the model around its own centre, on its own axes (degrees)."));
@@ -422,6 +424,27 @@ namespace MatchThemAll.Scripts.Editor
             GUILayout.EndScrollView();
 
             if (_so.ApplyModifiedProperties()) { EditorUtility.SetDirty(_selected); _isDirty = true; }
+        }
+
+        /// <summary>
+        /// The sprite behind every power-up slot. All slot prefabs nest the one Slot Background prefab,
+        /// so this edits (and saves) that prefab directly — it is shared, not part of the selected power-up.
+        /// </summary>
+        private void DrawSlotBackgroundField()
+        {
+            var root = AssetDatabase.LoadAssetAtPath<GameObject>(SlotBackgroundPath);
+            var sr = root ? root.GetComponentInChildren<SpriteRenderer>(true) : null;
+            using (new EditorGUI.DisabledScope(!sr))
+            {
+                var next = (Sprite)EditorGUILayout.ObjectField(new GUIContent("Slot background",
+                    "Shared by all power-ups (edits the Slot Background prefab, saved at once)."), sr ? sr.sprite : null, typeof(Sprite), false);
+                if (sr && next != sr.sprite)
+                {
+                    Undo.RecordObject(sr, "Change power-up slot background");
+                    sr.sprite = next;
+                    PrefabUtility.SavePrefabAsset(root);
+                }
+            }
         }
 
         private void DrawIdField()

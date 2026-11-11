@@ -288,9 +288,9 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Editor/ItemManagerWindow.cs": {
-    "mtime": 1794093861.744,
-    "seen": 1794094055.264999,
-    "ast_hash": "cf40958216399fa7781c81d988c5c2be",
+    "mtime": 1794373034.5053413,
+    "seen": 1794373094.1197531,
+    "ast_hash": "7b2c1fd0f860ed3787a5d657f3ebe0f1",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Editor/ItemReferenceOps.cs": {
@@ -24978,9 +24978,9 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Editor/PowerupManagerWindow.cs": {
-    "mtime": 1794370584.1510663,
-    "seen": 1794370650.1007094,
-    "ast_hash": "3747b900dc1c0a8ddeb45323d4c085f8",
+    "mtime": 1794372997.5249586,
+    "seen": 1794373094.1197665,
+    "ast_hash": "a9e1d5ca3ba75b4fac3203686ca594a6",
     "semantic_hash": ""
   },
   "docs/superpowers/plans/2026-11-08-powerup-editor.md": {
