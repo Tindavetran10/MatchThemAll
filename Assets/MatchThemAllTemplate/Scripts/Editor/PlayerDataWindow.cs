@@ -8,7 +8,7 @@ using UnityEngine;
 namespace MatchThemAll.Scripts.Editor
 {
     /// <summary>
-    /// Developer tool: view and set coins, gems and power-up charges in the save file.
+    /// Developer tool: view and set coins, gems, power-up charges and the furthest level (which drives power-up locks) in the save file.
     /// Works in and out of Play mode; every change goes through SaveManager, then Flush().
     /// Open via: Match Them All → Player Data
     /// </summary>
@@ -17,6 +17,9 @@ namespace MatchThemAll.Scripts.Editor
         private int _coins, _gems;
         private readonly Dictionary<string, int> _charges = new();
         private PowerupDatabaseSO _db;
+        private readonly List<string> _levelIds = new();
+        private string[] _levelLabels = System.Array.Empty<string>();
+        private int _furthest, _loadedFurthest;
 
         [MenuItem("Match Them All/Player Data")]
         private static void Open() => GetWindow<PlayerDataWindow>("Player Data");
@@ -44,6 +47,20 @@ namespace MatchThemAll.Scripts.Editor
             if (_db)
                 foreach (var so in _db.Ordered)
                     if (so) _charges[so.id] = SaveManager.GetPowerupCount(so.id);
+
+            // Same order as LevelManager: LevelDataSO assets sorted by name.
+            var levels = new List<LevelDataSO>();
+            foreach (var guid in AssetDatabase.FindAssets("t:LevelDataSO"))
+                levels.Add(AssetDatabase.LoadAssetAtPath<LevelDataSO>(AssetDatabase.GUIDToAssetPath(guid)));
+            levels.Sort((a, b) => string.CompareOrdinal(a.name, b.name));
+            _levelIds.Clear();
+            _levelLabels = new string[levels.Count];
+            for (int i = 0; i < levels.Count; i++)
+            {
+                _levelIds.Add(levels[i].Id);
+                _levelLabels[i] = $"Level {i + 1}  ({levels[i].name})";
+            }
+            _furthest = _loadedFurthest = Mathf.Max(0, _levelIds.IndexOf(SaveManager.GetFurthestLevelId()));
             Repaint();
         }
 
@@ -66,11 +83,18 @@ namespace MatchThemAll.Scripts.Editor
                         string.IsNullOrEmpty(so.DisplayName) ? so.id : so.DisplayName, _charges[so.id]));
 
             EditorGUILayout.Space();
+            EditorGUILayout.LabelField("Level Progress", EditorStyles.boldLabel);
+            _furthest = EditorGUILayout.Popup(new GUIContent("Furthest level",
+                "Highest unlocked level. Power-ups unlock from it, so Level 1 locks them all again. Stars are kept."), _furthest, _levelLabels);
+
+            EditorGUILayout.Space();
             using (new EditorGUILayout.HorizontalScope())
             {
                 if (GUILayout.Button("Reload")) Reload();
                 if (GUILayout.Button("Apply"))
                 {
+                    // Only when changed, so editing coins never touches progress. Level 1 = empty, like a fresh save.
+                    if (_furthest != _loadedFurthest) SaveManager.SetFurthestLevel(_furthest == 0 ? "" : _levelIds[_furthest]);
                     Apply(_coins, _gems, _charges);
                     Reload();
                 }

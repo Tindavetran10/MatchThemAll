@@ -354,9 +354,9 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/Core/GameEvents.cs": {
-    "mtime": 1794101003.860956,
-    "seen": 1794101825.355327,
-    "ast_hash": "1b94a88a0eb2aa7bb421525e15ffcc6c",
+    "mtime": 1794374971.4284632,
+    "seen": 1794375198.3865566,
+    "ast_hash": "a06b44e930c723b78a34d573505a1d6e",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/Core/GameManager.cs": {
@@ -570,9 +570,9 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/PowerUps/PowerupManager.cs": {
-    "mtime": 1794137393.4674492,
-    "seen": 1794137522.1899211,
-    "ast_hash": "3536b14d8afcc15191577b98d47db5b9",
+    "mtime": 1794374971.9317906,
+    "seen": 1794375198.386597,
+    "ast_hash": "8617f6ce7746031afe55063c0be36a38",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/PowerUps/Spring.cs": {
@@ -684,9 +684,9 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/Tutorial/TutorialManager.cs": {
-    "mtime": 1793969890.9756548,
-    "seen": 1793969993.0238373,
-    "ast_hash": "50027c3d6751b6e89b3a7deca7064841",
+    "mtime": 1794375008.0839415,
+    "seen": 1794375198.3866136,
+    "ast_hash": "8fb591d301a6fb7d2e4c8b2dca2f7427",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/Tutorial/TutorialStep.cs": {
@@ -2322,9 +2322,9 @@
     "semantic_hash": ""
   },
   "CLAUDE.md": {
-    "mtime": 1794369144.5187886,
-    "seen": 1794369167.4966133,
-    "ast_hash": "d1cff7148f311d02ec830f9bcca80a48",
+    "mtime": 1794374567.2549474,
+    "seen": 1794375198.3868408,
+    "ast_hash": "54dcac4bd82ac4407543cfcc9bba268b",
     "semantic_hash": ""
   },
   "ProjectSettings/ProjectVersion.txt": {
