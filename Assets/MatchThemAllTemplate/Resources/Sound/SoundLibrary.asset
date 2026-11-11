@@ -108,13 +108,13 @@ MonoBehaviour:
   - id: 40
     clips:
     - {fileID: 8300000, guid: 493dae3af40bdab4498dc94f534f397f, type: 3}
-    volume: 0.5
+    volume: 0.15
     pitchMin: 1
     pitchMax: 1
   - id: 41
     clips:
     - {fileID: 8300000, guid: 61efcd5b1d4a93e4494b6f757ceaca83, type: 3}
-    volume: 0.5
+    volume: 0.168
     pitchMin: 1
     pitchMax: 1
   - id: 21

@@ -82,7 +82,7 @@ namespace MatchThemAll.Scripts.Power_Ups
         }
 
         /// <summary>
-        /// Turns <paramref name="t"/> around its own visual centre, on its own axes, by <paramref name="euler"/>,
+        /// Turns <paramref name="t"/> around its own visual center, on its own axes, by <paramref name="euler"/>,
         /// then moves it by <paramref name="offset"/> in its parent's space (the slot). Zero values leave it untouched.
         /// </summary>
         private static void ApplyModelPose(Transform t, Vector3 offset, Vector3 euler)
@@ -99,12 +99,12 @@ namespace MatchThemAll.Scripts.Power_Ups
             }
 
             var parent = t.parent;
-            Vector3 c = parent ? parent.InverseTransformPoint(centre) : centre;  // centre in parent space
+            Vector3 c = parent ? parent.InverseTransformPoint(centre) : centre;  // center in parent space
             Vector3 toCentre = c - t.localPosition;
             var baseRot = t.localRotation;
             var turn = baseRot * Quaternion.Euler(euler) * Quaternion.Inverse(baseRot); // own-axes turn, in parent space
             t.localRotation = baseRot * Quaternion.Euler(euler);
-            t.localPosition = c - turn * toCentre + offset;                     // keeps the centre in place, then offsets
+            t.localPosition = c - turn * toCentre + offset;                     // keeps the center in place, then offsets
         }
 
         public void UpdateVisuals(int amount, bool locked)
