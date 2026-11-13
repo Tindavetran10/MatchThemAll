@@ -204,7 +204,8 @@ namespace MatchThemAll.Scripts.Editor
             GUI.color = Color.white;
             GUI.enabled = true;
             GUI.color = new Color(0.7f, 0.7f, 0.7f);
-            if (GUILayout.Button("New Mechanic…", GUILayout.Height(28), GUILayout.Width(110))) _showNewMechanic = !_showNewMechanic;
+            // The bar comes and goes; a focused name field would hand its text to the next control.
+            if (GUILayout.Button("New Mechanic…", GUILayout.Height(28), GUILayout.Width(110))) { _showNewMechanic = !_showNewMechanic; GUI.FocusControl(null); }
             GUI.color = Color.white;
             GUILayout.Space(12);
             GUILayout.EndHorizontal();
@@ -228,10 +229,11 @@ namespace MatchThemAll.Scripts.Editor
                     _newMechanicName = "";
                     _showNewMechanic = false;
                 }
+                GUI.FocusControl(null);
                 GUIUtility.ExitGUI();
             }
             GUI.color = Color.white;
-            if (GUILayout.Button("Cancel", GUILayout.Width(60))) _showNewMechanic = false;
+            if (GUILayout.Button("Cancel", GUILayout.Width(60))) { _showNewMechanic = false; GUI.FocusControl(null); }
             GUILayout.EndHorizontal();
         }
 

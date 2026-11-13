@@ -245,6 +245,7 @@ namespace MatchThemAll.Scripts.Editor
             if (GUILayout.Button(new GUIContent("+", "Add tab"), GUILayout.Width(26), GUILayout.Height(28)))
             {
                 _addingTab = !_addingTab;
+                GUI.FocusControl(null); // the tab id field comes and goes; a focused field would hand its text to the next control
                 GUIUtility.ExitGUI();
             }
             GUI.color = Color.white;
@@ -316,12 +317,14 @@ namespace MatchThemAll.Scripts.Editor
                 CreateTab(_newTabId.Trim(), _newTabId.Trim());
                 _newTabId = "";
                 _addingTab = false;
+                GUI.FocusControl(null);
                 GUIUtility.ExitGUI();
             }
             GUI.color = AccentRed;
             if (GUILayout.Button("✕", GUILayout.Width(26), GUILayout.Height(22)))
             {
                 _addingTab = false;
+                GUI.FocusControl(null);
                 GUIUtility.ExitGUI();
             }
             GUI.color = Color.white;

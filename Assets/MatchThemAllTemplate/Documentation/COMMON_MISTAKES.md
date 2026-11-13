@@ -1,7 +1,7 @@
 # Common Mistakes & Troubleshooting
 
 Pitfalls to avoid when you extend or modify Match Them All. For problems while using the editor tools,
-see also the troubleshooting table in [USER_GUIDE.md](USER_GUIDE.md#12-troubleshooting).
+see also the troubleshooting table in [User Guide ▸ Troubleshooting](UserGuide/07-Troubleshooting/README.md).
 
 ---
 

@@ -441,6 +441,7 @@ namespace MatchThemAll.Scripts.Editor
             if (GUILayout.Button("+ New", GUILayout.Width(55), GUILayout.Height(22)))
             {
                 _showNewLevelField = !_showNewLevelField;
+                GUI.FocusControl(null); // the name field comes and goes; a focused field would hand its text to the next control
                 GUIUtility.ExitGUI();
             }
             GUI.color = Color.white;
@@ -456,6 +457,7 @@ namespace MatchThemAll.Scripts.Editor
                 GUI.color = AccentGreen;
                 if (GUILayout.Button("✓", GUILayout.Width(26), GUILayout.Height(22)))
                 {
+                    GUI.FocusControl(null);
                     CreateNewLevel();
                     GUIUtility.ExitGUI();
                 }
@@ -463,6 +465,7 @@ namespace MatchThemAll.Scripts.Editor
                 if (GUILayout.Button("✕", GUILayout.Width(26), GUILayout.Height(22)))
                 {
                     _showNewLevelField = false;
+                    GUI.FocusControl(null); // otherwise the Random Seed field took over the typed name, and Enter/Escape set the seed to 0
                     GUIUtility.ExitGUI();
                 }
                 GUI.color = Color.white;
