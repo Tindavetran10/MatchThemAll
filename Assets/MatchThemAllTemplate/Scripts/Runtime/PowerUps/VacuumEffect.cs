@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using PrimeTween;
 using ZLinq;
-using MatchThemAll.Scripts;
 
 namespace MatchThemAll.Scripts.Power_Ups
 {
@@ -18,6 +17,15 @@ namespace MatchThemAll.Scripts.Power_Ups
     [System.Serializable]
     public class VacuumEffect : PowerupEffect
     {
+        public override bool WaitsForSlotAnimation => true;
+
+        [Tooltip("Seconds each item takes to spiral into the nozzle.")]
+        public float spiralTime = 0.9f;
+        [Tooltip("Turns of the spiral on the way in.")]
+        public float spiralTurns = 2.5f;
+        [Tooltip("Starting width of the spiral (world units); it tightens to 0 at the nozzle.")]
+        public float spiralRadius = 0.8f;
+
         // Pre-allocated, reused per call to avoid GC allocations (mirrors PowerupManager).
         private readonly List<Item> _itemsToCollect = new(3);
 
@@ -35,7 +43,7 @@ namespace MatchThemAll.Scripts.Power_Ups
                 return;
             }
 
-            // Portal opens at the suck position.
+            // Tornado funnel at the suck position (lasts the whole 2.5 s).
             if (ctx.ActivateVfx != null && ctx.VacuumSuckPosition != null && VfxPool.Instance != null)
                 VfxPool.Instance.Play(ctx.ActivateVfx, ctx.VacuumSuckPosition.position);
 
@@ -72,21 +80,26 @@ namespace MatchThemAll.Scripts.Power_Ups
                 return;
             }
 
+            var camForward = Camera.main ? Camera.main.transform.forward : Vector3.down;
             foreach (var itemToCollect in _itemsToCollect.AsValueEnumerable().Where(itemToCollect => itemToCollect != null))
             {
                 itemToCollect.DisablePhysics();
 
                 var collect = itemToCollect;
-                // 1. Vortex move to vacuum suck position
-                Tween.Position(itemToCollect.transform, ctx.VacuumSuckPosition.position, 0.5f, Ease.InCubic)
-                    .OnComplete(() => ItemReachedVacuum(collect));
-
-                // 2. Shrink down to 0
-                Tween.Scale(itemToCollect.transform, Vector3.zero, 0.5f, Ease.InCubic);
-
-                // 3. Dynamic spin for aesthetic vortex feel
-                Tween.LocalEulerAngles(itemToCollect.transform, itemToCollect.transform.localEulerAngles,
-                    itemToCollect.transform.localEulerAngles + new Vector3(0, 720f, 0), 0.5f, Ease.InCubic);
+                // Tornado: spiral into the suck point — a helix around the travel line (as seen on screen) whose
+                // radius tightens as the item speeds up, shrinks and spins.
+                Vector3 from = collect.transform.position, to = ctx.VacuumSuckPosition.position;
+                Vector3 side = Vector3.Cross(to - from, camForward).normalized;
+                Vector3 startScale = collect.transform.localScale;
+                Quaternion startRot = collect.transform.rotation;
+                float phase = Random.Range(0f, Mathf.PI * 2f);
+                Tween.Custom(collect.transform, 0f, 1f, spiralTime, (t, e) =>
+                {
+                    float swirl = phase + e * spiralTurns * Mathf.PI * 2f;
+                    t.position = Vector3.Lerp(from, to, e) + side * (Mathf.Sin(swirl) * spiralRadius * (1f - e));
+                    t.localScale = startScale * (1f - e);
+                    t.rotation = Quaternion.AngleAxis(e * 900f, camForward) * startRot;
+                }, Ease.InQuad).OnComplete(() => ItemReachedVacuum(collect));
             }
 
             for (int i = _itemsToCollect.Count - 1; i >= 0; i--)

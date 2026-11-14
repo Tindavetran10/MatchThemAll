@@ -1,4 +1,6 @@
+using MatchThemAll.Scripts.Power_Ups;
 using MatchThemAll.Scripts.SaveSystem;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using PrimeTween;
@@ -22,12 +24,25 @@ namespace MatchThemAll.Scripts.UI
         [Tooltip("Optional. Sprite swapped onto stars that were not earned (e.g. a gray star).")]
         [SerializeField] private Sprite unearnedStarSprite;
 
+        [Header("Rewards")]
+        [Tooltip("Shows the coins granted for this level (\"+60\"). The coin burst starts here.")]
+        [SerializeField] private TextMeshProUGUI coinRewardText;
+
         [Header("Animation")]
         [SerializeField] private float starPopDuration = 0.3f;
         [SerializeField] private float starPopDelay    = 0.25f;
         [SerializeField] private float starOvershoot   = 1.25f;
 
         private Sprite _earnedStarSprite;
+        private CurrencyGrantedEvent? _pendingCoinEvent;
+        private int _nextLevelIndex = -1; // the level after the one just won; -1 = saved progress
+
+        private void LateUpdate()
+        {
+            if (_pendingCoinEvent is not { } evt) return;
+            _pendingCoinEvent = null;
+            EventBus.Publish(evt);
+        }
 
         private void OnEnable()
         {
@@ -59,7 +74,25 @@ namespace MatchThemAll.Scripts.UI
             }
             
             SaveManager.AddCoins(coinsEarned);
-            Tween.Delay(starPopDelay * stars + 0.6f, () => SoundManager.Sfx(SoundEvent.CoinReward));
+            float coinDelay = starPopDelay * stars + 0.6f; // coins burst after the stars; CurrencyFlyEffect plays the clinks
+
+            // Show the amount that was just granted, and burst the coins from it to the counter.
+            Vector2 burstFrom = CurrencyGrantedEvent.ScreenCenter;
+            if (coinRewardText)
+            {
+                coinRewardText.text = $"+{coinsEarned:N0}";
+                var canvas = coinRewardText.canvas;
+                Camera cam = canvas && canvas.renderMode != RenderMode.ScreenSpaceOverlay ? canvas.worldCamera : null;
+                burstFrom = RectTransformUtility.WorldToScreenPoint(cam, coinRewardText.transform.position);
+            }
+            // Published in LateUpdate: the panel's own CoinPill (a child) is enabled after this OnEnable and
+            // would miss the event. LateUpdate is still before this frame renders, so the counter never flickers.
+            _pendingCoinEvent = new CurrencyGrantedEvent(ECurrency.Coins, coinsEarned, burstFrom, coinDelay);
+
+            // Next Level plays the level after this one (also when replaying an old level).
+            // Read before SaveLevelComplete, which moves CurrentLevelIndex. Last level → saved progress.
+            var lm = LevelManager.Instance;
+            _nextLevelIndex = lm && lm.CurrentLevelIndex + 1 < lm.TotalLevelCount ? lm.CurrentLevelIndex + 1 : -1;
 
             // Save progress (advances level index if this was a new level)
             LevelManager.Instance?.SaveLevelComplete(stars);
@@ -107,7 +140,7 @@ namespace MatchThemAll.Scripts.UI
                 star.SetActive(true);
                 star.transform.localScale = Vector3.zero;
 
-                // Restore the earned look first; AnimateStars swaps unearned stars afterwards.
+                // Restore the earned look first; AnimateStars swaps unearned stars afterward.
                 if (unearnedStarSprite && star.TryGetComponent(out Image img))
                 {
                     _earnedStarSprite ??= img.sprite;
@@ -162,8 +195,9 @@ namespace MatchThemAll.Scripts.UI
         /// <summary>Called by the Next Level button.</summary>
         public void OnNextLevelClicked()
         {
-            // -1 = use saved progress (which was already advanced by SaveLevelComplete)
-            SceneLoader.LoadLevel(-1);
+            int next = _nextLevelIndex;
+            if (Utilities.AdManager.Instance) Utilities.AdManager.Instance.ShowInterstitialThen(() => SceneLoader.LoadLevel(next));
+            else SceneLoader.LoadLevel(next);
         }
 
         /// <summary>Called by the Level Select button.</summary>

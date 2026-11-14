@@ -43,7 +43,7 @@ namespace MatchThemAll.Scripts.SaveSystem
         public int gems;
 
         // ── Powerup Charges ────────────────────────────────────────────────
-        public bool hasInitializedPowerups;
+        public bool hasInitializedPowerups;               // kept for save compatibility; seeding now checks per-id entries
         public List<PowerupSaveEntry> powerups = new();   // id-keyed map
 
         // ── Shop (first-purchase bonus tracking) ───────────────────────────
@@ -53,6 +53,12 @@ namespace MatchThemAll.Scripts.SaveSystem
         // ── Entitlements (permanent unlocks, e.g. "remove_ads") ─────────────
         /// <summary>Entitlement keys the player owns (one-time unlocks granted by shop products).</summary>
         public List<string> ownedEntitlements = new();
+
+        // ── Monetization ────────────────────────────────────────────────────
+        /// <summary>Store transaction ids already granted, so a re-delivered purchase is never granted twice.</summary>
+        public List<string> processedIapTransactions = new();
+        /// <summary>GDPR answer: -1 not asked yet, 0 declined, 1 accepted.</summary>
+        public int gdprConsent = -1;
 
         /// <summary>True if the player owns the given entitlement key.</summary>
         public bool OwnsEntitlement(string id)
@@ -105,6 +111,10 @@ namespace MatchThemAll.Scripts.SaveSystem
             if (powerups == null || string.IsNullOrEmpty(id)) return 0;
             return powerups.AsValueEnumerable().FirstOrDefault(t => t.id == id)?.count ?? 0;
         }
+
+        /// <summary>True if this save has a charge entry (even 0) for the id — i.e. it has been given its starting charges.</summary>
+        public bool HasPowerupEntry(string id)
+            => powerups != null && !string.IsNullOrEmpty(id) && powerups.AsValueEnumerable().Any(t => t.id == id);
 
         /// <summary>Sets (or inserts) the count for an id.</summary>
         public void SetPowerupCount(string id, int count)

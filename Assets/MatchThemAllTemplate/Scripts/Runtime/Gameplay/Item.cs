@@ -4,14 +4,15 @@ using NaughtyAttributes;
 
 namespace MatchThemAll.Scripts
 {
+    /// <summary>A collectable board piece: identity + icon, tray placement overrides, physics and selection look.</summary>
     [RequireComponent(typeof(Rigidbody))]
     public class Item : MonoBehaviour
     {
-        [Header("Data")]
+        [Header("Identity")]
         [SerializeField] private EItemName itemNameKey;
-        public EItemName ItemNameKey => itemNameKey;
-
         [SerializeField] private Sprite icon;
+
+        public EItemName ItemNameKey => itemNameKey;
         public Sprite Icon => icon;
 
         [Header("Dock Placement Overrides")]
@@ -27,40 +28,65 @@ namespace MatchThemAll.Scripts
 
         public bool UseCustomDockRotation => useCustomDockRotation;
         public Vector3 CustomDockRotation => customDockRotation;
+
+        /// <summary>
+        /// Local rotation for this item in a tray slot. The custom rotation turns the visible model
+        /// around its own axes (the Renderer's), not around the item root's.
+        /// </summary>
+        public Quaternion DockRotation
+        {
+            get
+            {
+                if (!useCustomDockRotation) return Quaternion.identity;
+                var model = Quaternion.Inverse(transform.rotation) * _renderer.transform.rotation;
+                return model * Quaternion.Euler(customDockRotation) * Quaternion.Inverse(model);
+            }
+        }
+
+        /// <summary>
+        /// Local position shift that keeps the model's center in place while <see cref="DockRotation"/>
+        /// turns it, so the model spins where it stands instead of swinging around the item root.
+        /// </summary>
+        public Vector3 DockPivotShift(Vector3 localScale)
+        {
+            var centre = transform.InverseTransformPoint(_renderer.transform.TransformPoint(_renderer.localBounds.center));
+            centre = Vector3.Scale(localScale, centre);
+            return centre - DockRotation * centre;
+        }
+
         public bool UseCustomDockPositionOffset => useCustomDockPositionOffset;
         public Vector3 CustomDockPositionOffset => customDockPositionOffset;
 
+        /// <summary>The tray slot holding this item, or null while it is on the board.</summary>
         public ItemSpot Spot { get; private set; }
+        /// <summary>True while the tray is tweening this item into a slot.</summary>
         public bool IsMovingToSpot { get; set; }
 
         [Header("Physics Safety")]
         [Tooltip("Hard cap on rigidbody speed (m/s). Prevents force-spam (e.g. Fan) from flinging items through boundary colliders.")]
         [SerializeField] private float maxSpeed = 12f;
 
-        [Header("Elements")]
+        [Header("Rendering")]
         [SerializeField] private Renderer _renderer;
 
-        // Cached in Awake — avoids GetComponent call at runtime inside DisablePhysics()
         private Rigidbody _rigidbody;
+        private Collider[] _colliders;
         private Material _baseMaterial;
-
-        // Pre-allocated material arrays — reused on every Select/Deselect call to avoid GC allocations
+        // Built once so Select/Deselect never allocate.
         private Material[] _selectedMaterials;
         private Material[] _deselectedMaterials;
-        private Collider[] _colliders;
 
         private void Awake()
         {
-            _baseMaterial = _renderer.sharedMaterial; // sharedMaterial avoids cloning — preserves GPU batching
             _rigidbody = GetComponent<Rigidbody>();
             // Speculative CCD: cheap, catches fast movers against the static boundary walls.
             _rigidbody.collisionDetectionMode = CollisionDetectionMode.ContinuousSpeculative;
-
-            _deselectedMaterials = new[] { _baseMaterial };
-            _selectedMaterials = new Material[2];
-            _selectedMaterials[0] = _baseMaterial;
-
             _colliders = GetComponentsInChildren<Collider>(true);
+
+            // sharedMaterial (not .material) so items keep batching.
+            _baseMaterial = _renderer.sharedMaterial;
+            _deselectedMaterials = new[] { _baseMaterial };
+            _selectedMaterials = new[] { _baseMaterial, null };
         }
 
         // Failsafe clamp: no force source (Fan spam, gravity, bounce chains) can push an item past maxSpeed,
@@ -106,49 +132,37 @@ namespace MatchThemAll.Scripts
         }
 
         public void AssignSpot(ItemSpot spot) => Spot = spot;
-        
         public void UnassignSpot() => Spot = null;
-        
-        public void EnableShadow() =>
-            _renderer.shadowCastingMode = ShadowCastingMode.On;
 
-        public void DisableShadow() =>
-            _renderer.shadowCastingMode = ShadowCastingMode.Off;
+        public void EnableShadow() => SetShadow(true);
+        public void DisableShadow() => SetShadow(false);
+        private void SetShadow(bool on) => _renderer.shadowCastingMode = on ? ShadowCastingMode.On : ShadowCastingMode.Off;
 
-        public void EnablePhysics()
+        public void EnablePhysics() => SetSimulated(true);
+        public void DisablePhysics() => SetSimulated(false);
+
+        /// <summary>Simulated = dynamic rigidbody + colliders on. Off while the item flies to or sits in the tray.</summary>
+        private void SetSimulated(bool simulated)
         {
-            if (_rigidbody) 
-                _rigidbody.isKinematic = false;
-            if (_colliders != null)
-            {
-                foreach (var itemCollider in _colliders)
-                {
-                    if (itemCollider) itemCollider.enabled = true;
-                }
-            }
-        }
-        
-        public void DisablePhysics()
-        {
-            if (_rigidbody) 
-                _rigidbody.isKinematic = true;
-            if (_colliders != null)
-            {
-                foreach (var itemCollider in _colliders)
-                {
-                    if (itemCollider) itemCollider.enabled = false;
-                }
-            }
+            if (_rigidbody) _rigidbody.isKinematic = !simulated;
+            SetCollidersEnabled(simulated);
         }
 
+        private void SetCollidersEnabled(bool on)
+        {
+            if (_colliders == null) return;
+            foreach (var c in _colliders)
+                if (c) c.enabled = on;
+        }
+
+        /// <summary>Adds the outline as a second material pass (the model must have exactly one submesh).</summary>
         public void Select(Material outlineMaterial)
         {
             _selectedMaterials[1] = outlineMaterial;
             _renderer.sharedMaterials = _selectedMaterials;
         }
 
-        public void Deselect() =>
-            _renderer.sharedMaterials = _deselectedMaterials;
+        public void Deselect() => _renderer.sharedMaterials = _deselectedMaterials;
 
         public void ApplyRandomForce(float magnitude)
         {
@@ -162,12 +176,12 @@ namespace MatchThemAll.Scripts
         {
             UnassignSpot();
             IsMovingToSpot = false;
-            
+
             Deselect();
             EnableShadow();
             transform.localScale = Vector3.one;
             transform.rotation = Quaternion.identity;
-            
+
             if (_rigidbody)
             {
                 _rigidbody.isKinematic = false;
@@ -175,11 +189,7 @@ namespace MatchThemAll.Scripts
                 _rigidbody.angularVelocity = Vector3.zero;
             }
 
-            if (_colliders == null) return;
-            foreach (var itemCollider in _colliders)
-            {
-                if (itemCollider) itemCollider.enabled = true;
-            }
+            SetCollidersEnabled(true);
         }
     }
 }

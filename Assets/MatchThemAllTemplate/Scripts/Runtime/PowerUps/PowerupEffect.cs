@@ -9,6 +9,9 @@ namespace MatchThemAll.Scripts.Power_Ups
     [Serializable]
     public abstract class PowerupEffect
     {
+        /// <summary>True if activation waits for the slot's "Activate" animation to fire its Started event (vacuum suck).</summary>
+        public virtual bool WaitsForSlotAnimation => false;
+
         public abstract bool CanActivate(PowerupContext ctx);
 
         public abstract void Activate(PowerupContext ctx);

@@ -4,17 +4,12 @@ namespace MatchThemAll.Scripts.Extensions
 {
     public static class TransformExtensions
     {
-        public static void Clear(this Transform transform)
+        /// <summary>Destroys every child. They are detached at once, so childCount is 0 straight after the call.</summary>
+        public static void Clear(this Transform parent)
         {
-            while (transform.childCount > 0)
-            {
-                var child = transform.GetChild(0);
-                child.parent = null;
-                Object.Destroy(child.gameObject);
-            }
+            for (int i = parent.childCount - 1; i >= 0; i--)
+                Object.Destroy(parent.GetChild(i).gameObject);
+            parent.DetachChildren();
         }
-        
-        public static Transform GetLast(this Transform transform) => 
-            transform.childCount <= 0 ? null : transform.GetChild(transform.childCount - 1);
     }
 }

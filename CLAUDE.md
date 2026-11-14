@@ -16,7 +16,7 @@ Before implementing:
 - If multiple interpretations exist, present them — don't pick silently.
 - If a simpler approach exists, say so. Push back when warranted.
 - If something is unclear, stop. Name what's confusing. Ask.
-- For Unity-specific tasks, verify the API exists via `unity_reflect` or `unity_docs` before writing code — training data may be stale.
+- For Unity-specific tasks, verify the API exists (Unity docs, or reflection via `Unity_RunCommand`) before writing code — training data may be stale.
 
 ---
 
@@ -127,7 +127,7 @@ These classes have the most edges in the graph. Changes here have wide ripple ef
 ### No Import Cycles
 - Graph confirms **0 import cycles** — keep it that way
 - `MatchThemAll.Scripts` namespace: gameplay only
-- `Match_Them_All.Scripts.Editor` namespace: editor tools only (never reference from runtime)
+- `MatchThemAll.Scripts.Editor` namespace: editor tools only (never reference from runtime)
 
 ### Save System
 - `SaveManager` is bootstrapped via `RuntimeInitializeOnLoadMethod` in `SaveManagerBootstrapper`
@@ -141,6 +141,47 @@ These classes have the most edges in the graph. Changes here have wide ripple ef
 ### Performance (ZLinq)
 - LINQ is replaced with ZLinq (`AsValueEnumerable()`) in hot paths — maintain this pattern in new code inside managers
 - Avoid allocations in `Update()` / per-frame callbacks
+
+### Known Pitfalls
+- Item/prop models must stay **one submesh + one material** (`M_Palette`, built by `Tools ▸ AssetGen ▸ Generate Models`). `Item.Select` swaps in `[baseMaterial, outline]`, so a multi-material renderer loses its colours when tapped/hinted.
+- Unity MCP `RunCommand` refuses `AssetDatabase.DeleteAsset(s)` ("user interaction"). Delete with `git rm` (file + `.meta`), then `AssetDatabase.Refresh()`.
+- **Verify the real state path, never a forced one.** For anything that depends on game state (e.g. the video icon at 0 charges), reproduce the state through gameplay/`SaveManager` (drain charges with `UsePowerupCharge`) and tap through `PowerupClickedEvent` — don't just `SetActive(true)` the object. If something looks hidden or wrong during a check, it is a bug until proven otherwise; never write it off as "expected". Record and restore any save data a test changes, then call `SaveManager.Flush()` — stopping Play mode from a tool does not reliably write the save, so an unflushed restore is silently lost.
+- **Merging stacked sprites keeps the top layer's sorting order.** When collapsing several SpriteRenderers into one baked sprite, give it the highest order of the old stack, and check every sibling at the same position. `Video Icon` (order 1) must stay above `Container` (order 0), which is never hidden at 0 charges.
+- **No silent spending.** Anything that costs currency must be an explicit player choice (`PowerupOfferPanel` popup), never an automatic fallback inside a click handler.
+- **`#if UNITY_EDITOR` code is never compiled by the Editor's `#else` side.** A clean Editor console proves nothing about player builds (`@await` typo and a `CreateInstance` with no `#else` return both slipped in this way). After touching code with editor-only branches, compile player scripts: `PlayerBuildInterface.CompilePlayerScripts(new ScriptCompilationSettings { target, group }, "Temp/PlayerScriptCheck")` from `RunCommand`.
+- **No `default: throw` in `GameStateChangedEvent` switches.** `GAME` arrives from many states (fresh start, resume, after offer); `case GAME when …` guards leave the rest to `default`, and a throw there fires on every level start (Error Pause, timer never starts). List the do-nothing states explicitly. Also delete IDE "wrap in try/catch" stubs (`catch { throw; // TODO }`) — they handle nothing.
+- **Async work must stop when its object is destroyed (scene left mid-spawn).** Read `destroyCancellationToken` into a local while the object is alive, pass it to the await (`Task.Delay(10, token)`), and call `token.ThrowIfCancellationRequested()` *after* each await — a delay that finished just before the unload still runs its continuation on destroyed objects. Catch `OperationCanceledException` silently in the `async void` caller (`LevelManager.SpawnLevel`). Test with a coroutine on the DDOL `DebugCheats` object that calls `SceneLoader.LoadLevel` at set spawn counts; tool-call polling is too slow to hit the window.
+- **Unscaled tweens count load hitches.** A tween started right after a scene switch loses its first few hundred ms to the load frames (the old fade-in from black was over before it was drawn). Scene fades go through `SceneLoader.FadeToBlack` / `FadeFromBlack`, which holds black until 3 normal frames in a row (`LoadScene` loads a frame late, so one calm frame proves nothing). Measure fades with a per-frame alpha + frame-time trace (coroutine on `DebugCheats`), not by eye.
+- **Adding an `EGameState`:** audit every `GameStateChangedEvent` subscriber. `LevelManager` throws on unknown states and only skips the level re-spawn for the states it lists; `TimerManager` must only resume a timer that was actually running (frozen / tutorial-paused / level not started).
+- **`AdManager` bootstraps itself** (`RuntimeInitializeOnLoadMethod`) — no scene contains it. Never assume a manager exists because a script references it; grep scenes/prefabs for its script GUID.
+- **Monetization is optional at compile time.** `Scripts/Runtime/Monetization` is its own assembly; the `LevelPlay` and `UnityIAP` sub-assemblies compile only when their package is installed (asmdef `versionDefines`) and register in `MonetizationServices`. Never reference SDK types (`Unity.Services.LevelPlay`, `UnityEngine.Purchasing`) from Assembly-CSharp, or the template stops compiling for buyers without the SDKs. LevelPlay registers only on Android/iOS targets; on Standalone the Editor uses `MockAdService`.
+- **Tray checks must not depend on which slide finishes first.** Merge / tray-full checks skip items still `IsMovingToSpot`, and equal-length slides complete in the same frame in creation order. `ItemSpotManager.Arrived` therefore runs `MatchSystem.CheckSettledTray()` when the last mover settles; without it a middle insert into the last free slot froze the game (tray full, no Game Over, taps ignored, timer running). Reproduce tray bugs with a fast random-tap loop that flags "nothing moving + (tray full or 3 of a kind) for 1 s".
+- **Store purchases: grant + save before confirm.** `ShopManager.GrantStorePurchase` is the only place store orders are granted; it records the transaction id (re-delivered orders are skipped) and returns `SaveManager.TryFlush()`. Never grant inside the `TryPurchase` callback. To test a purchase in the Editor without clicking the fake store's IMGUI dialog, add the `IAP_FAKE_STORE_DEFAULT` define temporarily (auto-approve), then remove it.
+- **Capturing Play-mode checks:** `ScreenCapture.CaptureScreenshot` silently writes nothing unless the Game view is the visible tab, and `EditorApplication.update` timers can stall while Unity is unfocused. If Play mode sits on frame 2 (`Time.time` stuck at 0.02), set `Application.runInBackground = true` from `RunCommand` — in the Editor this **writes `PlayerSettings.runInBackground`** to ProjectSettings.asset, so set `PlayerSettings.runInBackground = false` again after the test. **Never call `AssetDatabase.SaveAssets()` while in Play mode — including in the same `RunCommand` that sets `EditorApplication.isPlaying = false`** (Play mode only ends later that frame). It writes the Play-mode copies of ProjectSettings: `runInBackground: 1`, and QualitySettings stripped to the current platform's levels (the Mobile level vanished twice this way). Exit Play mode in one command, save in the next; `git diff ProjectSettings` after any Play-mode test. Time captures with a coroutine on a scene object (`VfxPool.Instance.StartCoroutine`), render `Camera.main` into a RenderTexture for images, and prefer numeric checks (e.g. barrel-vs-laser angle). `RunCommand` scripts can't reference PrimeTween. Make sure the level isn't OUTOFTIME (60 s levels) before tapping.
+- **State panels must be saved inactive.** `WinPanelManager.OnEnable` grants coins and saves level progress, so a `Level Complete` panel left active in MainScene paid out on every level load. After editing a panel by hand, set it inactive again (`UIManager` turns it on).
+- **Currency grants publish `CurrencyGrantedEvent`** right after `SaveManager.AddCoins/AddGems`. `CurrencyFlyEffect` on the pill prefabs plays the coin flight and counts up from it. A new grant site that skips the event just snaps the counter. **Never publish an event from a panel's `OnEnable` to its own children.** Unity enables the parent before the children, so they haven't subscribed yet (the win screen's CoinPill missed its coins this way). `WinPanelManager` grants in `OnEnable` and publishes in `LateUpdate`.
+- **Daily reward: the saved date is the last *claim* date**, written in `DailyRewardManager.GrantReward`. The Lobby's Daily Rewards button opens the panel with Claim disabled once today's reward is claimed.
+- **Power-ups are data-driven.** `PowerupManager` spawns the tray from `PowerupDatabase` at runtime (`trayRoot` = `Powerup Zone`, slots sorted by `order`); MainScene has no power-up spots. Add/edit/reorder in `Match Them All ▸ Power-up Manager`. Built-ins use `Slot_*` prefabs (prop baked in); custom ones use `PowerupSlot` (`trayModel` or `icon`). `unlockLevel` is a 0-based index (players see index + 1; the window shows player numbers). A slot's `Powerup` must reference the badge/label/counter under its *own* slot (Fan once pointed at Vacuum's badge). Activation sounds live on the `PowerupDataSO` (clip/volume/pitch); `SoundEvent` 15–18 are retired. Effects that sync to a slot animation override `WaitsForSlotAnimation`. Never key behaviour on `so.id` strings. Test locks with a high unlock level in Play mode, then restore it. `modelOffset` / `modelRotation` (window: Tray card) are applied once in `Powerup.Configure` — rotation turns the prop / tray model / icon around its own centre on its own axes, offset is in slot space; effects that move the prop (Freeze aim, Fan shake, Spring squash) start from that adjusted pose. While locked, `Powerup.UpdateVisuals` hides the number, video icon and `counterBadge` (the `Amount Container/Container` badge), shows `Lock Badge` + `Level Label`, and darkens the model through a per-renderer `MaterialPropertyBlock` (`_BaseColor`) / sprite colour — never by editing the shared `M_Palette`. Lock badges sit at the shared `Amount Container` position; don't override it per slot (Slot_Vacuum once carried y -3.75 from the old scene spot). Lock state uses `SaveManager.GetCurrentLevelIndex()`, which is 0 until `LevelManager` finishes its async Addressables load. `PowerupManager` therefore redraws the tray on `LevelManager.LevelSpawned`; before that fix, every lock stayed on after the player reached the unlock level. Power-up taps are ignored until `LevelManager.IsLevelReady` — the state is already GAME while the level spawns, and `LevelManager.Items` throws before it exists.
+- **Vacuum rig:** `Vacuum.prefab` = root (Animator, PowerupDataSO offset/rotation) → `Rig` (hop + spin) → `Body` + `Nozzle` (lower hose) → `Tip` (upper hose + mouth) → `SuckPoint`. Idle holds the hose bent (45° / 115° around Z); Activate straightens it to 0 by the `TriggerPowerupStart` event (0.667 s), sways, bends back. Rebuild with `Tools ▸ AssetGen ▸ Generate Vacuum Hose` then `Wire Vacuum` (dev-only `ModelGen.cs`; constants `HoseRest*`). Generated clip keys use **ClampedAuto** tangents — Unity's default Auto tangents overshoot holds (the 360° spin drifted past 360). In `RunCommand`, `Mesh` also collides with the AI Assistant namespace: `using UMesh = UnityEngine.Mesh;`.
+- **No free space under the timer.** The goal-card row starts right below `Timer Container` (cards' visible top = stopwatch bottom), so anything hung under the clock overlaps the cards. The freeze display therefore lives *inside* the timer: `FreezeBar` (prefab `Prefabs/UI/Power Up/FreezeBar.prefab`) is under `PillBg/Fill` (behind digits and stopwatch, below `Shine`) and drains via `FreezeFx.barFill`; `FreezeBadge` (snowflake) sits after `TimerIcon`, faded by `FreezeFx.badge`. Check overlaps against the card's visible graphics (`Front`), not its RectTransform — the row stretches card rects to full row height. Make structural changes to `FreezeBar` in the prefab asset, not as instance overrides.
+- **`RunCommand` keeps going after Unity *logs* an error** (e.g. "Setting the parent of a transform which resides in a Prefab instance is not possible" doesn't throw), so later steps — including `SaveScene` — still run on a half-applied state. Check `PrefabUtility.IsPartOfPrefabInstance` before reparenting, and verify after saving.
+- **Don't save a script while Play mode is running** in a test: Unity recompiles in Play mode, every static (`*.Instance`) resets, and the managers' `Update`s throw NREs that are artifacts, not bugs. Exit Play mode, edit, recompile, re-enter.
+- **Power-up starting charges are seeded per id.** `SaveManager.InitializePowerups` gives `defaultAmount` to any power-up the save has no entry for (first launch *and* power-ups added later); the entry (even 0) marks it as seeded, so nothing is granted twice. `hasInitializedPowerups` is only kept for save compatibility. Renaming a power-up's id therefore re-grants its starting charges.
+- **Effect objects keep private fields across Play sessions.** `PowerupEffect` instances live inside the `PowerupDataSO` asset, and Unity's domain-reload backup restores their private fields — `FanEffect._nextAllowedTime` (a `Time.time` cooldown) once carried over and blocked Fan taps until `Time.time` caught up. Runtime-only state on an effect must be `[NonSerialized]` (Fan, Freeze and Spring now are).
+- **The project targets Unity 6000.0 (URP 17.0.4) but was once opened in 6000.4 (URP 17.4).** Assets saved by the newer URP carry a version 6.0 doesn't know. `Mobile_RPAsset` had `k_AssetVersion: 13` (17.0 knows up to 12), and the build failed with "is not at last version". Don't open the project in a newer editor and commit; if you do, check `k_AssetVersion` in `Settings/*RPAsset.asset` before building.
+- In Unity MCP `RunCommand` scripts, `Image` resolves to the AI Assistant's `Unity.AI.Image` namespace — alias it: `using UiImage = UnityEngine.UI.Image;`.
+- Power-up VFX are generated (`Tools ▸ AssetGen ▸ Generate Powerup FX`) and the `Powerup_*.asset` / `FreezeOverlay` references point into them. Regenerating keeps the prefab GUIDs and internal IDs (checked), but use *Generate Powerup FX*, not *Generate VFX*, unless you also mean to rebuild `FX_MergeBurst`.
+- **No leftover objects after a model swap.** When replacing a model, delete the old model's empty children (e.g. `Cylinder.074` under the freeze blaster) unless something references them — and if a point is needed (gun tip), name it for its job (`Muzzle`). Grep for references before deleting.
+- **Layering: overlay UI always draws over 3D.** Anything full-screen that must sit *behind* some 3D objects (e.g. the freeze frost behind the ice spheres and tray) needs its own Screen Space - Camera canvas with a `planeDistance` between them (`FreezeOverlay`: 10.6). Animated tray props must move toward the camera (tray-local -Z) to clear the item spots (camera-local z 4) — see `FreezeEffect.shootLift`.
+- **Button Color Tint `Normal Color` must stay white.** The tint multiplies the Image only in Play mode, so a coloured Normal Color looks fine in the Editor and dark at runtime (Lobby `SettingsButton` was purple). Colour the sprite/Image, not the ColorBlock.
+- Don't use `??` / `?.` on `UnityEngine.Object`s (`GetComponent<T>() ?? AddComponent<T>()` never adds — Unity's fake null isn't C# null). Use `TryGetComponent`.
+- **Asset references belong on the prefab, scene references on the instance.** After `SaveAsPrefabAssetAndConnect`, references you set on the scene object are only instance overrides — new copies of the prefab come without them. Set asset references (other prefabs, sprites, VFX) on the prefab asset itself (`FreezeOverlay` once shipped with null ice-sphere/shatter refs this way); only scene objects (e.g. the HUD bar) stay as instance overrides.
+- **Repeated scene objects must be prefab instances.** When the same object goes into several places (e.g. one `Slot Background` per power-up spot), save it once as a prefab (`PrefabUtility.SaveAsPrefabAsset`) and place instances (`PrefabUtility.InstantiatePrefab`) — never `new GameObject` copies per place. Copies drift and must be edited one by one. To turn existing copies into instances, use `PrefabUtility.ConvertToPrefabInstance` (keeps the objects, so onClick and other references survive); child names must match (`ObjectMatchMode.ByHierarchy`). Editor builders that generate repeated objects (`UIOverhaulBuilder.Bubbles`) must instantiate the prefab too.
+- **The "MATCH THEM ALL" title is the `Prefabs/UI/GameTitle.prefab` (Glow + Title)** in OpenScene (`TitleGroup/GameTitle`, between `Shine` and `Banner`), Lobby (`Logo`) and LoadingScene (`Logo`). Text, font, material, gradient and sprite live only on the prefab; each scene overrides just position/size, font size, glow alpha/size and float motion. `UIOverhaulBuilder.GameTitle()` / `StyleGameTitle()` place it with those per-scene values.
+- **The user edits scenes by hand — never run a scene builder blind.** `Tools ▸ Match Them All ▸ UI Overhaul` hardcodes positions and overwrites hand edits. Before running one (even as a test), snapshot the scene's RectTransforms, run it, diff, and restore anything the user changed (then sync the builder's values to theirs).
+- **Never call `EditorApplication.Step()` from `RunCommand`** — it re-enters the PlayerLoop ("PlayerLoop internal function has been called recursively" + a Missing Profiler.EndSample error). To advance frames, use the `runInBackground` route above and read results in a later command.
+- **Custom IMGUI windows: draw no control only while dirty, and skip `[TextArea]` fields in `PropertyField`.** A Save button that appears on the first change shifts every later control ID and drops the active slider drag — draw it always, disabled when clean. A text field that appears and disappears (new level name, new tab id, new mechanic name) must call `GUI.FocusControl(null)` when it hides, or the next field inherits the typed text and Enter/Escape writes it (LevelData02's seed became 0 this way). The `[TextArea]` drawer painted its label at the window's top-left over the dock tabs (Shop Manager "Description"); draw `LabelField` + `EditorGUILayout.TextArea` instead.
+- **Sound volumes live in `SoundLibrary.asset`, per event**, and are read on every play; the playing music track re-reads its entry each frame (`SoundManager.Update`). The mixer's `SFXVolume`/`MusicVolume` are the player's Settings sliders (saved), not a design-time level.
 
 ---
 
@@ -160,7 +201,7 @@ These classes have the most edges in the graph. Changes here have wide ripple ef
 | Timer Management | `TimerManager` | Game-state-aware countdown |
 | Item Behavior | `Item` | Core item physics + state |
 | Item Placement | `ItemPlacer` | Spawn, preview, placement |
-| Audio Manager | `SoundManager`, `SoundDataSO` | Audio playback |
+| Audio Manager | `SoundManager`, `SoundLibrarySO` | Audio playback |
 | Game Manager | `GameManager` | Game state machine |
 | Level Data Management | `LevelDataSO` | Level config (ScriptableObject) |
 | Pixelate Render Feature | `PixelizeFeature`, `PixelizePass` | Custom URP render pass |
@@ -196,30 +237,27 @@ When you make an architectural decision, log it in Obsidian under `docs/decision
 
 ## 11. Unity Plugin Skills
 
-This project has the official Unity plugin for Claude Code installed with 29+ skills.
+Only Unity's official tooling is installed: the `unity@unity-agent-plugin` plugin (skills such as `unity:ui-ugui`, `unity:urp-postprocessing`) and the official `unity-mcp` server (relay from `com.unity.ai.assistant`).
 
 **Use Unity MCP tools BEFORE writing custom code** — many common tasks are already covered:
 
-| Task | Skill/Command |
+| Task | Tool (`mcp__unity-mcp__…`) |
 |------|---------------|
-| Find GameObjects | `find_gameobjects`, `find_gameobjects_tag`, `find_gameobjects_by_name` |
-| Create/Modify objects | `gameobject-create`, `gameobject-modify` |
-| Add components | `gameobject-component-add`, `script-update-or-create` |
-| Asset operations | `assets-*` (find, copy, move, delete, material-create, prefab-*) |
-| Animation | `animation-*`, `animator-*` |
-| Scene ops | `scene-open`, `scene-save`, `scene-get-data` |
-| Package management | `package-add`, `package-list`, `package-search` |
-| Profiler | `profiler-*` (memory, rendering, script stats) |
-| Screenshots | `screenshot-scene-view`, `screenshot-game-view` |
-| Console logs | `console-get-logs`, `console-clear-logs` |
-| Run tests | `tests-run` |
+| GameObjects | `Unity_ManageGameObject` |
+| Scenes | `Unity_ManageScene` |
+| Assets / prefabs | `Unity_ManageAsset`, `Unity_FindProjectAssets` |
+| Scripts | `Unity_CreateScript`, `Unity_ScriptApplyEdits`, `Unity_ValidateScript` |
+| Packages | `Unity_PackageManager_GetData`, `Unity_PackageManager_ExecuteAction` |
+| Profiler | `Unity_Profiler_*` |
+| Screenshots | `Unity_Camera_Capture`, `Unity_SceneView_Capture2DScene` |
+| Console logs | `Unity_ReadConsole`, `Unity_GetConsoleLogs` |
+| Editor state / play mode | `Unity_ManageEditor` |
+| Anything else (incl. API reflection) | `Unity_RunCommand` |
 
 **Quick workflow:**
-1. Check editor state: `editor-application-get-state`
-2. Find existing assets/objects via Unity skills
-3. Only write custom code when no existing skill covers it
-
-**Full skill list:** Run `/skill-doctor` or check `.claude/settings.json` → `skills`.
+1. Check editor state: `Unity_ManageEditor`
+2. Find existing assets/objects via the tools above
+3. Only write custom code when no existing tool covers it
 
 ---
 

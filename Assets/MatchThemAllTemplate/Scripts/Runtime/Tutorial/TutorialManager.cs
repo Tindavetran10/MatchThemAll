@@ -46,6 +46,9 @@ namespace MatchThemAll.Scripts.Managers
         // Auto-timer handle
         private Coroutine _timerCoroutine;
 
+        // Step start (delay / wait for the power-up) — stopped when the level respawns in the same scene
+        private Coroutine _stepCoroutine;
+
         // ─────────────────────────────────────────────────────────────────
         // Unity lifecycle
         // ─────────────────────────────────────────────────────────────────
@@ -69,7 +72,7 @@ namespace MatchThemAll.Scripts.Managers
         {
             LevelManager.LevelSpawned += OnLevelSpawned;
             EventBus.Subscribe<ItemClickedEvent>(OnItemClickedEvent);
-            EventBus.Subscribe<PowerupClickedEvent>(OnPowerupClickedEvent);
+            EventBus.Subscribe<PowerupActivatedEvent>(OnPowerupActivated);
             EventBus.Subscribe<MergeStartedEvent>(OnMergeStarted);
         }
 
@@ -77,7 +80,7 @@ namespace MatchThemAll.Scripts.Managers
         {
             LevelManager.LevelSpawned -= OnLevelSpawned;
             EventBus.Unsubscribe<ItemClickedEvent>(OnItemClickedEvent);
-            EventBus.Unsubscribe<PowerupClickedEvent>(OnPowerupClickedEvent);
+            EventBus.Unsubscribe<PowerupActivatedEvent>(OnPowerupActivated);
             EventBus.Unsubscribe<MergeStartedEvent>(OnMergeStarted);
         }
 
@@ -86,12 +89,13 @@ namespace MatchThemAll.Scripts.Managers
         // ─────────────────────────────────────────────────────────────────
         private void OnLevelSpawned(Level level)
         {
+            if (_stepCoroutine != null) StopCoroutine(_stepCoroutine);
             _currentSteps = level.GetTutorialSteps();
-            
+
             if (_currentSteps == null || _currentSteps.Count == 0) return;
 
             _currentStepIndex = 0;
-            StartCoroutine(RunStepDelayed(_currentStepIndex));
+            _stepCoroutine = StartCoroutine(RunStepDelayed(_currentStepIndex));
         }
 
         private IEnumerator RunStepDelayed(int index)
@@ -108,6 +112,14 @@ namespace MatchThemAll.Scripts.Managers
             {
                 Debug.LogWarning($"[TutorialManager] Step {index} found no valid targets – skipping.");
                 yield break;
+            }
+
+            // A power-up step waits until the power-up can really be used (Spring needs an item in the tray),
+            // so the player is never asked to tap something that would do nothing.
+            if (step.highlightTarget == EHighlightTarget.Powerup && PowerupManager.Instance)
+            {
+                var powerup = _targetPowerup.Data;
+                yield return new WaitUntil(() => PowerupManager.Instance.CanActivateNow(powerup));
             }
 
             BeginStep(step, targets);
@@ -289,7 +301,9 @@ namespace MatchThemAll.Scripts.Managers
         // ─────────────────────────────────────────────────────────────────
         private static void OnItemClickedEvent(ItemClickedEvent evt) { /* merge detection handles completion */ }
 
-        private void OnPowerupClickedEvent(PowerupClickedEvent evt)
+        // Activated, not clicked: a tap the power-up ignores (Spring with an empty tray) or that opens the
+        // buy offer (0 charges) must not end the step.
+        private void OnPowerupActivated(PowerupActivatedEvent evt)
         {
             if (_currentStep == null) return;
             if (_currentStep.completionCondition != ECompletionCondition.OnPowerupUsed) return;
@@ -316,7 +330,7 @@ namespace MatchThemAll.Scripts.Managers
         /// Completes the current step and advances to the next.
         /// Call this when using <see cref="ECompletionCondition.Manual"/>.
         /// </summary>
-        private void CompleteCurrentStep()
+        public void CompleteCurrentStep()
         {
             if (_currentStep == null) return;
 
@@ -326,7 +340,7 @@ namespace MatchThemAll.Scripts.Managers
 
             _currentStepIndex++;
             if (_currentSteps != null && _currentStepIndex < _currentSteps.Count)
-                StartCoroutine(RunStepDelayed(_currentStepIndex));
+                _stepCoroutine = StartCoroutine(RunStepDelayed(_currentStepIndex));
         }
 
         // ─────────────────────────────────────────────────────────────────

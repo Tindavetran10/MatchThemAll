@@ -64,40 +64,27 @@ namespace MatchThemAll.Scripts
         [Tooltip("Time remaining (in seconds) required to earn 2 stars.")]
         public int timeFor2Stars = 20;
 
-        /// <summary>
-        /// Snaps every item's amount to the nearest multiple of 3.
-        /// Unity calls this automatically whenever a value changes in the Inspector.
-        /// </summary>
         private void OnValidate()
         {
             if (string.IsNullOrEmpty(levelId) && !string.IsNullOrEmpty(name))
                 levelId = name; // auto-seed the save key from the asset filename
+
+            // Items merge in threes, so every amount is kept a positive multiple of 3.
             if (itemData == null) return;
             for (int i = 0; i < itemData.Count; i++)
             {
-                var entry = itemData[i];
-                int snapped = Mathf.RoundToInt(entry.amount / 3f) * 3;
-                snapped = Mathf.Max(3, snapped); // minimum 3
-                if (entry.amount != snapped)
-                {
-                    entry.amount = snapped;
-                    itemData[i] = entry;
-                }
+                var row = itemData[i];
+                int fixedAmount = Mathf.Max(3, (row.amount + 1) / 3 * 3);
+                if (row.amount == fixedAmount) continue;
+                row.amount = fixedAmount;
+                itemData[i] = row;
             }
         }
 
-        public ItemLevelData[] GetGoals()
-        {
-            // IMPORTANT: Do NOT cache this array. ItemLevelData is a struct, so GoalManager
-            // mutates goal amounts in-place (Goals[i].amount--). If we returned a cached
-            // reference, those mutations would corrupt the SO's data across level loads,
-            // causing every subsequent level to see goals with amount = 0.
-            // A fresh copy is returned each time so the SO's source data is never touched.
-            var goals = new List<ItemLevelData>();
-            for (int i = 0; i < itemData.Count; i++)
-                if (itemData[i].isGoal)
-                    goals.Add(itemData[i]);
-            return goals.ToArray();
-        }
+        /// <summary>
+        /// A fresh array of the goal rows. Never cache it: GoalManager counts the amounts down in place,
+        /// and because ItemLevelData is a struct the copy keeps this asset's values intact.
+        /// </summary>
+        public ItemLevelData[] GetGoals() => itemData.FindAll(row => row.isGoal).ToArray();
     }
 }

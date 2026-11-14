@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
-using MatchThemAll.Scripts;
 using UnityEditor;
 using UnityEngine;
 using ZLinq;
@@ -368,6 +367,16 @@ namespace MatchThemAll.Scripts.Editor
                 EditorGUI.indentLevel--;
             }
 
+            GUILayout.BeginHorizontal();
+            GUILayout.FlexibleSpace();
+            if (GUILayout.Button("Reset offset & rotation", GUILayout.Width(160)))
+            {
+                useRotation = useOffset = false;
+                rot = offset = Vector3.zero;
+                GUI.changed = true;
+            }
+            GUILayout.EndHorizontal();
+
             if (EditorGUI.EndChangeCheck())
             {
                 useRotProp.boolValue    = useRotation;
@@ -379,6 +388,8 @@ namespace MatchThemAll.Scripts.Editor
             }
             EndCard();
             GUILayout.Space(8);
+
+            DrawTraySlotCard();
 
             // \u2500\u2500 Preview section \u2014 fills all remaining vertical space \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
             BeginCard();
@@ -449,6 +460,44 @@ namespace MatchThemAll.Scripts.Editor
 
             _previewFocus = ComputePreviewFocus();
             _isDockPreviewInitialized = true;
+        }
+
+        /// <summary>
+        /// Mesh and material of the tray slot items land on. Every slot in MainScene is an instance of
+        /// Item Spot.prefab, so this edits (and saves) that prefab directly — shared by all items.
+        /// </summary>
+        private void DrawTraySlotCard()
+        {
+            var mf = _dockPrefab ? _dockPrefab.GetComponentInChildren<MeshFilter>(true) : null;
+            var mr = _dockPrefab ? _dockPrefab.GetComponentInChildren<MeshRenderer>(true) : null;
+
+            BeginCard();
+            GUILayout.Label("Tray Slot (all items)", _subHeaderStyle);
+            GUILayout.Space(6);
+            using (new EditorGUI.DisabledScope(!mf || !mr))
+            {
+                EditorGUI.BeginChangeCheck();
+                var mesh = (Mesh)EditorGUILayout.ObjectField(new GUIContent("Slot mesh",
+                    "Shared by every tray slot (edits Item Spot.prefab, saved at once)."), mf ? mf.sharedMesh : null, typeof(Mesh), false);
+                var mat = (Material)EditorGUILayout.ObjectField(new GUIContent("Slot material",
+                    "Shared by every tray slot (edits Item Spot.prefab, saved at once)."), mr ? mr.sharedMaterial : null, typeof(Material), false);
+                if (EditorGUI.EndChangeCheck() && mf && mr)
+                {
+                    Undo.RecordObjects(new UnityEngine.Object[] { mf, mr }, "Change tray slot look");
+                    mf.sharedMesh = mesh;
+                    mr.sharedMaterial = mat;
+                    PrefabUtility.SavePrefabAsset(_dockPrefab);
+
+                    // The preview holds its own copy of the slot — update it so the change shows right away.
+                    if (_previewDockInstance)
+                    {
+                        _previewDockInstance.GetComponentInChildren<MeshFilter>(true).sharedMesh = mesh;
+                        _previewDockInstance.GetComponentInChildren<MeshRenderer>(true).sharedMaterial = mat;
+                    }
+                }
+            }
+            EndCard();
+            GUILayout.Space(8);
         }
 
         private void ResetPreviewCamera()
@@ -525,16 +574,14 @@ namespace MatchThemAll.Scripts.Editor
             // Exactly mirrors ItemSpotManager values from MainScene
             var targetPosition = new Vector3(0.095f, 0f, 0.095f);
             var targetScale    = new Vector3(0.15f, 0.15f, 0.15f);
-            var targetEuler    = Vector3.zero;
 
             if (configItem.UseCustomDockPositionOffset)
                 targetPosition += configItem.CustomDockPositionOffset;
-            if (configItem.UseCustomDockRotation)
-                targetEuler = configItem.CustomDockRotation;
+            targetPosition += configItem.DockPivotShift(targetScale);
 
             _previewItemInstance.transform.localScale    = targetScale;
             _previewItemInstance.transform.localPosition = targetPosition;
-            _previewItemInstance.transform.localRotation = Quaternion.Euler(targetEuler);
+            _previewItemInstance.transform.localRotation = configItem.DockRotation;
 
             // Re-center the framing whenever the item's pose changes (spawn or offset/rotation tweak),
             // so the camera always targets the assembly's bounds center instead of the dock base.

@@ -5,10 +5,17 @@ using UnityEngine.Rendering.Universal;
 
 namespace MatchThemAll.Scripts.Pixelate
 {
+    /// <summary>
+    /// Pixel-art look in two point-filtered bits: camera color → a texture 1/pixelSize the size
+    /// → back onto the camera color. Nearest-neighbor sampling both ways gives hard square blocks.
+    /// </summary>
     public class PixelizePass : ScriptableRenderPass
     {
-        private static readonly int PixelizeSize = Shader.PropertyToID("_PixelizeSize");
+        private static readonly Vector4 FullScaleBias = new(1f, 1f, 0f, 0f);
+
         private readonly PixelizeFeature.CustomPassSettings _settings;
+
+        private class BlitData { public TextureHandle From; }
 
         public PixelizePass(PixelizeFeature.CustomPassSettings settings)
         {
@@ -16,70 +23,34 @@ namespace MatchThemAll.Scripts.Pixelate
             renderPassEvent = settings.renderPassEvent;
         }
 
-        // ── Render Graph pass data ────────────────────────────────────────────────
-        private class PassData { public TextureHandle Src; }
-
-        // ── URP 17 entry point ────────────────────────────────────────────────────
-        // Crispness strategy: downscale to (resolution ÷ pixelSize) with POINT
-        // sampling → upscale back to full res with POINT sampling.
-        // Hardware nearest-neighbor gives perfectly hard block edges —
-        // no UV-snapping math needed.
         public override void RecordRenderGraph(RenderGraph renderGraph, ContextContainer frameData)
         {
-            if (!PixelizeFeature.IsActive)
-            {
-                Shader.SetGlobalFloat(PixelizeSize, 1.0f);
-                return;
-            }
+            int block = _settings.pixelSize;
+            if (!PixelizeFeature.IsActive || block < 2) return; // a 1-pixel block is the unmodified image
 
-            var ps = Mathf.Max(2, _settings.pixelSize); // pixelSize=1 = no visible effect, skip
-            Shader.SetGlobalFloat(PixelizeSize, ps);
+            var resources = frameData.Get<UniversalResourceData>();
+            if (resources.isActiveTargetBackBuffer) return; // we need an intermediate colo r texture to read
 
-            var resourceData = frameData.Get<UniversalResourceData>();
-            if (resourceData.isActiveTargetBackBuffer) return;
-
-            var cameraData = frameData.Get<UniversalCameraData>();
-            var desc = cameraData.cameraTargetDescriptor;
+            var desc = frameData.Get<UniversalCameraData>().cameraTargetDescriptor;
             desc.depthBufferBits = 0;
+            desc.width = Mathf.Max(1, desc.width / block);
+            desc.height = Mathf.Max(1, desc.height / block);
 
-            // Small texture at exact pixel-block resolution
-            var smallDesc = desc;
-            smallDesc.width  = Mathf.Max(1, desc.width  / ps);
-            smallDesc.height = Mathf.Max(1, desc.height / ps);
+            var camera = resources.activeColorTexture;
+            var lowRes = UniversalRenderer.CreateRenderGraphTexture(renderGraph, desc, "_PixelizeLowRes", false);
 
-            var source   = resourceData.activeColorTexture;
-            var smallTex = UniversalRenderer.CreateRenderGraphTexture(
-                renderGraph, smallDesc, "_PixelizeSmall", false);
-
-            // ── Pass 1: Downscale (point) → block resolution ─────────────────────
-            // Point sampling lands at each block's center UV automatically,
-            // because the fragment UVs tile perfectly into the source blocks.
-            using (var builder = renderGraph.AddRasterRenderPass<PassData>(
-                "Pixelize Downscale", out var passData))
-            {
-                passData.Src = source;
-                builder.UseTexture(source);
-                builder.SetRenderAttachment(smallTex, 0);
-                builder.SetRenderFunc((PassData data, RasterGraphContext ctx) =>
-                    Blitter.BlitTexture(ctx.cmd, data.Src,
-                        new Vector4(1f, 1f, 0f, 0f), 0, false));   // bilinear=false → nearest
-            }
-
-            // ── Pass 2: Upscale (point) → screen resolution ──────────────────────
-            // Nearest upscale magnifies each block pixel uniformly → hard square edges.
-            using (var builder = renderGraph.AddRasterRenderPass<PassData>(
-                "Pixelize Upscale", out var passData))
-            {
-                passData.Src = smallTex;
-                builder.UseTexture(smallTex);
-                builder.SetRenderAttachment(source, 0);
-                builder.SetRenderFunc((PassData data, RasterGraphContext ctx) =>
-                    Blitter.BlitTexture(ctx.cmd, data.Src,
-                        new Vector4(1f, 1f, 0f, 0f), 0, false));   // bilinear=false → nearest
-            }
+            PointBlit(renderGraph, "Pixelize ↓", camera, lowRes);
+            PointBlit(renderGraph, "Pixelize ↑", lowRes, camera);
         }
 
-        // Nothing to dispose — no material created in this pass.
-        public void Dispose() { }
+        private static void PointBlit(RenderGraph renderGraph, string name, TextureHandle from, TextureHandle to)
+        {
+            using var builder = renderGraph.AddRasterRenderPass<BlitData>(name, out var data);
+            data.From = from;
+            builder.UseTexture(from);
+            builder.SetRenderAttachment(to, 0);
+            builder.SetRenderFunc(static (BlitData d, RasterGraphContext ctx) =>
+                Blitter.BlitTexture(ctx.cmd, d.From, FullScaleBias, 0, false)); // bilinear: false → nearest
+        }
     }
 }

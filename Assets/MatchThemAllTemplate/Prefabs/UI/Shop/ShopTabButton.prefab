@@ -67,7 +67,7 @@ MonoBehaviour:
       m_Calls: []
   m_text: Tab
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 015573da50ed04390be9f20287a541d6, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 81ce5b7d49a37504084d09546ebcdb2a, type: 2}
   m_sharedMaterial: {fileID: 2100000, guid: fdf881a01254750429a622a3fcf5fb9c, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
@@ -202,7 +202,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 0d02c955b35ed40599bb4aca60216d75, type: 3}
+  m_Sprite: {fileID: 21300000, guid: da60971e01e39d541ae3d7c45584bf33, type: 3}
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -406,7 +406,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: c6f7f2587b2024024b877d386899ebd4, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 28070dfe7a263a24d97c9b8959849d49, type: 3}
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1

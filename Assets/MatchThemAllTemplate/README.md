@@ -1,64 +1,42 @@
 # Match Them All - Complete Game Template
 
-A fully-featured, mobile-ready match-3 game template for Unity. Built for beginners with a powerful no-code level editor.
+A mobile-ready 3D "tap and match three" puzzle game template for Unity, with no-code editor tools for levels,
+items, the shop and sounds.
 
 ## Quick Start
 
-1. **Import** this package into your Unity project
-2. **Open** `Scenes/MainMenu.unity`
-3. **Press Play** - the game works immediately!
-4. **Create your first level** using the Template Editor (Window > Match Them All > Template Editor)
+1. Import **PrimeTween** (free, Asset Store) and **ZLinq** (see the guide), then this package.
+2. Open `Scenes/OpenScene.unity` and set the Game view to a portrait phone resolution.
+3. Press **Play**.
+4. Open **Match Them All ▸ Template Editor** to make your own levels.
+
+**Read next: [Documentation/USER_GUIDE.md](Documentation/USER_GUIDE.md)**, an illustrated, step-by-step guide to every tool.
 
 ## What's Included
 
-- ✅ Complete match-3 gameplay system (merge, match, clear)
-- ✅ 6 example levels ready to play
-- ✅ Power-up system (Fan, Freeze, Spring, Vacuum)
-- ✅ Level editor - create custom levels without coding
-- ✅ Save system with player progress tracking
-- ✅ Shop and currency system (Gems, Ads)
-- ✅ Daily rewards system
-- ✅ UI and animations
-- ✅ VFX effects
-- ✅ Mobile-ready (touch controls, responsive UI)
+- Tap-to-tray matching: three alike merge, with goals, a timer, stars and coin rewards
+- 10 example levels and 7 example items
+- 4 power-ups (Vacuum, Spring, Fan, Freeze Gun), with charges and a buy/watch-ad offer at 0 charges
+- Editor tools: Template Editor (levels), Item Manager, Shop Manager, Sound Manager
+- Save system, daily rewards, saga level map, optional tutorial steps
+- Shop with coin products, plus real-money products when Unity IAP is installed
+- Rewarded and interstitial ads via LevelPlay (mock ads when it isn't installed), GDPR/CCPA/COPPA settings
+- VFX, UI animations, sounds and music
 
 ## Requirements
 
-- **Unity Version:** 2021.3 LTS or later (recommended)
-- **URP (Universal Render Pipeline):** Required
-- **Input System:** Required
-- **TextMesh Pro:** Required
-- For detailed setup instructions, see `Documentation/SYSTEM_REQUIREMENTS.md`
+- Unity 6000.0 LTS (Unity 6) or newer, URP, Input System, Addressables
+- PrimeTween and ZLinq (not bundled, both free)
+- Optional: Ads Mediation (LevelPlay) and In-App Purchasing
 
-## Package Structure
+## Documentation
 
-```
-Assets/MatchThemAllTemplate/
-├── Scripts/                (Runtime + Editor)
-├── Prefabs/               (Gameplay, UI, VFX)
-├── Scenes/                (Demo levels)
-├── Resources/             (Database assets)
-├── Settings/              (Project settings)
-├── Art/                   (Sprites, Models, Materials)
-├── Audio/                 (Sound effects)
-├── Shaders/               (Shader graphs)
-└── Documentation/         (This folder)
-```
-
-## Next Steps
-
-1. **Getting Started:** See `Documentation/GETTING_STARTED.pdf` for a guided tutorial
-2. **Customization:** See `Documentation/CUSTOMIZATION_GUIDE.md` to add your content
-3. **API Reference:** See `Documentation/API_REFERENCE.md` for programming reference
-
-## Support
-
-For issues, questions, or feature requests, please contact the developer.
+| File | For |
+|---|---|
+| `Documentation/USER_GUIDE.md` | Everyone: setup, tools, building |
+| `Documentation/MONETIZATION_SETUP.md` | Ads, in-app purchases, privacy |
+| `Documentation/ARCHITECTURE_OVERVIEW.md`, `API_REFERENCE.md` | Programmers |
 
 ## License
 
-This template is provided under the MIT License. See `LICENSE.txt` for details.
-
----
-
-**Made with Unity**
+This template is licensed under the Unity Asset Store EULA. See `LICENSE.txt` for details and `THIRD_PARTY_NOTICES.txt` for bundled third-party components.
