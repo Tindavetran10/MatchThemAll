@@ -251,12 +251,6 @@
     "ast_hash": "f1464b1031231562a50242bab8c27cc9",
     "semantic_hash": ""
   },
-  "Assets/MatchThemAllTemplate/Editor/AdjustLobbyAnchors.cs": {
-    "mtime": 1790797142.141,
-    "seen": 1792067873.7639093,
-    "ast_hash": "737753b9111aa2e8589aedd2351ddec6",
-    "semantic_hash": ""
-  },
   "Assets/MatchThemAllTemplate/Editor/UIOverhaul/SceneCaptureUtil.cs": {
     "mtime": 1791370448.837124,
     "seen": 1792067873.7639108,
@@ -486,9 +480,9 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/LevelSystem/LevelManager.cs": {
-    "mtime": 1794096668.8649893,
-    "seen": 1794096854.8914633,
-    "ast_hash": "a74b786f41700ad03aee781a5b88de7c",
+    "mtime": 1794746615.9372785,
+    "seen": 1794754018.9663641,
+    "ast_hash": "676cf4faa5913198a8af75de9baf3972",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/Pixelate/PixelizeController.cs": {
@@ -684,9 +678,9 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/Tutorial/TutorialManager.cs": {
-    "mtime": 1794375008.0839415,
-    "seen": 1794375198.3866136,
-    "ast_hash": "8fb591d301a6fb7d2e4c8b2dca2f7427",
+    "mtime": 1794753887.080635,
+    "seen": 1794754018.9664,
+    "ast_hash": "9f51949ec66a16b3483fdf1c443d8888",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Runtime/Tutorial/TutorialStep.cs": {
@@ -2166,8 +2160,8 @@
     "semantic_hash": ""
   },
   "ProjectSettings/ScriptableBuildPipeline.json": {
-    "mtime": 1794137666.4397964,
-    "seen": 1794369167.4965837,
+    "mtime": 1794743022.952622,
+    "seen": 1794754018.9666111,
     "ast_hash": "4499d0efefbbb64353d6bec6a237209b",
     "semantic_hash": ""
   },
@@ -2202,9 +2196,9 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/CHANGELOG.md": {
-    "mtime": 1790793019.8572743,
-    "seen": 1792067873.7644026,
-    "ast_hash": "ce50ee28d80222cb22845e8f2d3d28b7",
+    "mtime": 1794753996.7333846,
+    "seen": 1794754018.9666183,
+    "ast_hash": "a43d2354f7126e965ecc89e6b13e37f0",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Documentation/API_REFERENCE.md": {
@@ -2322,9 +2316,9 @@
     "semantic_hash": ""
   },
   "CLAUDE.md": {
-    "mtime": 1794393713.9430306,
-    "seen": 1794393756.3008456,
-    "ast_hash": "e725f5605a3d779688b75b3afa2166c7",
+    "mtime": 1794753996.993116,
+    "seen": 1794754018.966684,
+    "ast_hash": "22a2d89b427577735dbde0b0ae4be0d0",
     "semantic_hash": ""
   },
   "ProjectSettings/ProjectVersion.txt": {
@@ -24768,9 +24762,9 @@
     "semantic_hash": ""
   },
   "Assets/LevelPlay/Editor/LevelPlayVersions.json": {
-    "mtime": 1794368392.5206954,
-    "seen": 1794369167.4963167,
-    "ast_hash": "d025094e7ffe58db0b20aefff71cfcab",
+    "mtime": 1794730835.4442148,
+    "seen": 1794754018.966313,
+    "ast_hash": "9d167922038c0a9d2d417bdefbc9b21e",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Plugins/iOS/ATTRequester.mm": {
@@ -24864,63 +24858,9 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Documentation/USER_GUIDE.md": {
-    "mtime": 1794377980.282794,
-    "seen": 1794393756.3007488,
-    "ast_hash": "f983e093989d3ba7eca2de20761326c8",
-    "semantic_hash": ""
-  },
-  "Assets/MatchThemAllTemplate/Documentation/Images/diagram-game-loop.svg": {
-    "mtime": 1793969730.983174,
-    "seen": 1793969993.026097,
-    "ast_hash": "d64c3d89549ecd2d3c483ba733f289b3",
-    "semantic_hash": ""
-  },
-  "Assets/MatchThemAllTemplate/Documentation/Images/diagram-scene-flow.svg": {
-    "mtime": 1793969709.240437,
-    "seen": 1793969993.0260987,
-    "ast_hash": "045eb62a32bd3f10a17fa14d95e43071",
-    "semantic_hash": ""
-  },
-  "Assets/MatchThemAllTemplate/Documentation/Images/diagram-tools.svg": {
-    "mtime": 1793969731.0287514,
-    "seen": 1793969993.0261,
-    "ast_hash": "2f4f9ae43a6a1598d36c722ed49fff4d",
-    "semantic_hash": ""
-  },
-  "Assets/MatchThemAllTemplate/Documentation/Images/item-manager.png": {
-    "mtime": 1793969197.4875336,
-    "seen": 1793969993.0261073,
-    "ast_hash": "1971cf548d821787a82c86b1fc648dfa",
-    "semantic_hash": ""
-  },
-  "Assets/MatchThemAllTemplate/Documentation/Images/monetization-settings.png": {
-    "mtime": 1793969271.475519,
-    "seen": 1793969993.0261087,
-    "ast_hash": "5edcc15dae11e41defc5334309157625",
-    "semantic_hash": ""
-  },
-  "Assets/MatchThemAllTemplate/Documentation/Images/shop-manager.png": {
-    "mtime": 1793969221.334684,
-    "seen": 1793969993.0261097,
-    "ast_hash": "f3c0f7173017499c8ef9673703650cd3",
-    "semantic_hash": ""
-  },
-  "Assets/MatchThemAllTemplate/Documentation/Images/sound-manager.png": {
-    "mtime": 1793969238.5626853,
-    "seen": 1793969993.026111,
-    "ast_hash": "f8c3a0f54bb677d29583493c43d46429",
-    "semantic_hash": ""
-  },
-  "Assets/MatchThemAllTemplate/Documentation/Images/template-editor-items.png": {
-    "mtime": 1793969161.6054578,
-    "seen": 1793969993.026112,
-    "ast_hash": "d682ab7e1e6741014b6c9cfdad79bfe7",
-    "semantic_hash": ""
-  },
-  "Assets/MatchThemAllTemplate/Documentation/Images/template-editor-level.png": {
-    "mtime": 1793969129.6513956,
-    "seen": 1793969993.0261133,
-    "ast_hash": "3cc92aa47d4385371f9a13e9d7bfcd19",
+    "mtime": 1794734157.611568,
+    "seen": 1794754018.9666243,
+    "ast_hash": "1e878f568c7b49d4435290b329dd45e2",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Scripts/Editor/PlayerDataWindow.cs": {
@@ -24990,261 +24930,261 @@
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Documentation/UserGuide/01-Getting-Started/First-Run.md": {
-    "mtime": 1794377661.5196164,
-    "seen": 1794393756.3007505,
-    "ast_hash": "07d4da63a194ee67faa6fe56cae4fcda",
+    "mtime": 1794734159.4532528,
+    "seen": 1794754018.9666257,
+    "ast_hash": "a609ef73d383a73f4a18deee7cefe055",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Documentation/UserGuide/01-Getting-Started/README.md": {
-    "mtime": 1794377646.9188344,
-    "seen": 1794393756.3007524,
-    "ast_hash": "c200df3f91133b4c0ca8f31bee0f2bb0",
+    "mtime": 1794734158.3512547,
+    "seen": 1794754018.966627,
+    "ast_hash": "b2672017dbff4dbce97baeec4d6634c2",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Documentation/UserGuide/01-Getting-Started/Requirements.md": {
-    "mtime": 1794377647.169,
-    "seen": 1794393756.3007538,
-    "ast_hash": "1bb76a211aaa27d23c22f550b1641ad7",
+    "mtime": 1794753044.7397995,
+    "seen": 1794754018.9666278,
+    "ast_hash": "b340f88aa1764e252b111d0858d8bb1f",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Documentation/UserGuide/02-How-The-Game-Plays/Power-ups.md": {
-    "mtime": 1794377684.0720665,
-    "seen": 1794393756.3007553,
-    "ast_hash": "e2409912eb15446f2eccc257683b164e",
+    "mtime": 1794734161.490025,
+    "seen": 1794754018.9666286,
+    "ast_hash": "308a6aaff06d4792fa5bcc4ab8d0e20d",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Documentation/UserGuide/02-How-The-Game-Plays/README.md": {
-    "mtime": 1794377683.5813193,
-    "seen": 1794393756.3007567,
-    "ast_hash": "a93e6ef3a65e988edb836a85b94e38b7",
+    "mtime": 1794734160.1077313,
+    "seen": 1794754018.9666293,
+    "ast_hash": "018c03066dad87d9bbd4bfe42025a9e6",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Documentation/UserGuide/02-How-The-Game-Plays/Tap-and-Match.md": {
-    "mtime": 1794377683.8298247,
-    "seen": 1794393756.3007586,
-    "ast_hash": "d8a88e3074baae885a4caccc05ac1a99",
+    "mtime": 1794734160.715411,
+    "seen": 1794754018.9666305,
+    "ast_hash": "b2af139eeaed90e274b9240cc612fc3f",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Documentation/UserGuide/02-How-The-Game-Plays/Win-and-Lose.md": {
-    "mtime": 1794377684.3083706,
-    "seen": 1794393756.30076,
-    "ast_hash": "fd0753931f7b9864ce8d009620b966c1",
+    "mtime": 1794734161.924241,
+    "seen": 1794754018.9666314,
+    "ast_hash": "50808c7b754d1dc0aac9cfab9ac5a041",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Documentation/UserGuide/03-Editor-Tools/Item-Manager/Create-an-Item.md": {
-    "mtime": 1794381848.4127455,
-    "seen": 1794393756.3007615,
-    "ast_hash": "7247bdefee4ec9dd037cf6e54125001e",
+    "mtime": 1794734232.9586227,
+    "seen": 1794754018.9666326,
+    "ast_hash": "e8fb2b05266e418af6a3c8a5dd3d1f28",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Documentation/UserGuide/03-Editor-Tools/Item-Manager/Dock-Placement.md": {
-    "mtime": 1794377791.8441105,
-    "seen": 1794393756.300763,
-    "ast_hash": "af9671bcd7a69ea92fea1b88386b579b",
+    "mtime": 1794734233.59646,
+    "seen": 1794754018.966634,
+    "ast_hash": "d1a0eedc71dae9e55e568006f4de48a7",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Documentation/UserGuide/03-Editor-Tools/Item-Manager/README.md": {
-    "mtime": 1794377791.3760214,
-    "seen": 1794393756.300764,
-    "ast_hash": "3c8168a43734d1ef08cac7f614286dd4",
+    "mtime": 1794734232.3349354,
+    "seen": 1794754018.966635,
+    "ast_hash": "2ecc205840cabb2b46d5cec94416faa4",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Documentation/UserGuide/03-Editor-Tools/Item-Manager/Tray-Slot-Look.md": {
-    "mtime": 1794377792.0933154,
-    "seen": 1794393756.3007655,
-    "ast_hash": "14fbe31fbaf378b28d45a8a72c7b79af",
+    "mtime": 1794734234.0306263,
+    "seen": 1794754018.9666357,
+    "ast_hash": "22936be27c34ee52e69248fca6416c26",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Documentation/UserGuide/03-Editor-Tools/Player-Data/README.md": {
-    "mtime": 1794381835.9554083,
-    "seen": 1794393756.3007667,
-    "ast_hash": "21f0d52f7066f95de9588393f1ac3508",
+    "mtime": 1794734234.5186992,
+    "seen": 1794754018.9666367,
+    "ast_hash": "8408f6a472abb1c93ecc6eae724c4efe",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Documentation/UserGuide/03-Editor-Tools/Power-up-Manager/Add-a-Power-up.md": {
-    "mtime": 1794381636.1402416,
-    "seen": 1794393756.300768,
-    "ast_hash": "e39abed52b5c31059f1781580a3fa335",
+    "mtime": 1794734235.792047,
+    "seen": 1794754018.9666376,
+    "ast_hash": "364077492ea72669177f82880bd7aa86",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Documentation/UserGuide/03-Editor-Tools/Power-up-Manager/Edit-a-Power-up.md": {
-    "mtime": 1794377900.474036,
-    "seen": 1794393756.3007693,
-    "ast_hash": "783d82bb2fb10a2fba64716b6c3a07bb",
+    "mtime": 1794734236.0809937,
+    "seen": 1794754018.9666383,
+    "ast_hash": "734a88d010676e699acb8f3e850479b3",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Documentation/UserGuide/03-Editor-Tools/Power-up-Manager/New-Mechanic.md": {
-    "mtime": 1794382068.3567183,
-    "seen": 1794393756.3007708,
-    "ast_hash": "677970a57c53d0a1c070677723702dee",
+    "mtime": 1794734236.839955,
+    "seen": 1794754018.9666393,
+    "ast_hash": "61bf844e5a700a95c68cffb004558ff5",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Documentation/UserGuide/03-Editor-Tools/Power-up-Manager/README.md": {
-    "mtime": 1794381635.931843,
-    "seen": 1794393756.3007722,
-    "ast_hash": "13df713676975a05df353fe628c9cdce",
+    "mtime": 1794734235.0089836,
+    "seen": 1794754018.9666402,
+    "ast_hash": "03e88272df7308aff69a1c84e6e20a6a",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Documentation/UserGuide/03-Editor-Tools/README.md": {
-    "mtime": 1794377734.487947,
-    "seen": 1794393756.3007734,
-    "ast_hash": "e33901bff062012d892141b2ed4f3fef",
+    "mtime": 1794734162.360042,
+    "seen": 1794754018.966641,
+    "ast_hash": "7fe9fc842fb5941f5a9b59c18a47077e",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Documentation/UserGuide/03-Editor-Tools/Shop-Manager/Products.md": {
-    "mtime": 1794381645.4271083,
-    "seen": 1794393756.3007746,
-    "ast_hash": "e0efdcbc0328c48442e1c4ac766c9bb4",
+    "mtime": 1794734288.5604582,
+    "seen": 1794754018.966642,
+    "ast_hash": "0d4b67d1189c9f1835e27732ed0da729",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Documentation/UserGuide/03-Editor-Tools/Shop-Manager/README.md": {
-    "mtime": 1794377824.4025962,
-    "seen": 1794393756.300776,
-    "ast_hash": "0dc6c26b7d3edcda499c0ed44eda3f21",
+    "mtime": 1794734288.0443141,
+    "seen": 1794754018.966643,
+    "ast_hash": "b6f2a83400ce9cf50b3224176d3766db",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Documentation/UserGuide/03-Editor-Tools/Shop-Manager/Shop-Tabs.md": {
-    "mtime": 1794377824.6496944,
-    "seen": 1794393756.3007774,
-    "ast_hash": "720c0bdfd68c870ad832bc64e7933b7b",
+    "mtime": 1794734289.2012424,
+    "seen": 1794754018.9666443,
+    "ast_hash": "f3f2e1f1c24a70cc4ceeafd04c7d0ac3",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Documentation/UserGuide/03-Editor-Tools/Sound-Manager/Clips-and-Playback.md": {
-    "mtime": 1794377851.8826733,
-    "seen": 1794393756.3007789,
-    "ast_hash": "d0224afa10ec51fdc02c9a847fcc1f65",
+    "mtime": 1794734290.030671,
+    "seen": 1794754018.966645,
+    "ast_hash": "ea0d362429a7db4cc0344ee393fb9219",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Documentation/UserGuide/03-Editor-Tools/Sound-Manager/README.md": {
-    "mtime": 1794381621.1611135,
-    "seen": 1794393756.3007812,
-    "ast_hash": "917a30bb939425c5c156f05edbe2f6bf",
+    "mtime": 1794734289.602218,
+    "seen": 1794754018.9666455,
+    "ast_hash": "04e549f45ca4c74d9bb604e79b6338db",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Documentation/UserGuide/03-Editor-Tools/Template-Editor/Create-and-Test-a-Level.md": {
-    "mtime": 1794381586.9763124,
-    "seen": 1794393756.3007836,
-    "ast_hash": "b5be69551fce1aea8a7e6abf91ebbd9f",
+    "mtime": 1794734193.6455326,
+    "seen": 1794754018.9666471,
+    "ast_hash": "8e5328a6b6e6a9fb46b2b3b969690dfb",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Documentation/UserGuide/03-Editor-Tools/Template-Editor/Global-Settings-Tab.md": {
-    "mtime": 1794377761.2246492,
-    "seen": 1794393756.300785,
-    "ast_hash": "b83cf35367d87fbcb2a17890df2ce0b7",
+    "mtime": 1794734194.3082902,
+    "seen": 1794754018.966648,
+    "ast_hash": "b7a908251b312d4a5e961e2e78b679f9",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Documentation/UserGuide/03-Editor-Tools/Template-Editor/Items-in-a-Level.md": {
-    "mtime": 1794377735.4224389,
-    "seen": 1794393756.3007863,
-    "ast_hash": "a98e6645cae9926be5f7aeddee8ae15b",
+    "mtime": 1794734194.7864206,
+    "seen": 1794754018.966649,
+    "ast_hash": "902862f69a641b3d4d150fa6bb26ce95",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Documentation/UserGuide/03-Editor-Tools/Template-Editor/Level-Settings-and-Rewards.md": {
-    "mtime": 1794377735.2032378,
-    "seen": 1794393756.3007877,
-    "ast_hash": "d837fb81c5b4f82982b555ed0797ed8a",
+    "mtime": 1794734195.3231373,
+    "seen": 1794754018.96665,
+    "ast_hash": "b696562d81bd3671496054999425e80f",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Documentation/UserGuide/03-Editor-Tools/Template-Editor/Library-Trash-and-Health.md": {
-    "mtime": 1794381600.460649,
-    "seen": 1794393756.3007889,
-    "ast_hash": "f5fd80afcfe79ea2f411ce041bf23a99",
+    "mtime": 1794734195.9833996,
+    "seen": 1794754018.9666507,
+    "ast_hash": "9d87409225811afb36137dac5607ecae",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Documentation/UserGuide/03-Editor-Tools/Template-Editor/README.md": {
-    "mtime": 1794377734.726772,
-    "seen": 1794393756.3007905,
-    "ast_hash": "4a4d1fafff103f56548874011dbef5ed",
+    "mtime": 1794734193.1785274,
+    "seen": 1794754018.9666517,
+    "ast_hash": "add36c7ffaa71bdd917e5a8d6000f150",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Documentation/UserGuide/03-Editor-Tools/Template-Editor/Tutorial-Steps.md": {
-    "mtime": 1794381611.6219516,
-    "seen": 1794393756.3007917,
-    "ast_hash": "874a0e3f5dfc5864b1b054b1b15c603b",
+    "mtime": 1794734196.5888307,
+    "seen": 1794754018.9666524,
+    "ast_hash": "75321ec007e519c8e90ab12c4f2b316b",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Documentation/UserGuide/04-Daily-Rewards-and-Settings/Continue-Settings.md": {
-    "mtime": 1794377933.054884,
-    "seen": 1794393756.3007932,
-    "ast_hash": "c07e063d3c57803b741452086e7005e9",
+    "mtime": 1794734291.8027894,
+    "seen": 1794754018.966653,
+    "ast_hash": "ec5a641e041326787e0af3bd6bf73ae2",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Documentation/UserGuide/04-Daily-Rewards-and-Settings/Daily-Rewards.md": {
-    "mtime": 1794377932.8336928,
-    "seen": 1794393756.3007948,
-    "ast_hash": "9bc60f1dba94744a814d4eb5970eedc0",
+    "mtime": 1794734291.268112,
+    "seen": 1794754018.9666543,
+    "ast_hash": "ab6753a5850491989f6c0e3175256f43",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Documentation/UserGuide/04-Daily-Rewards-and-Settings/README.md": {
-    "mtime": 1794377932.58989,
-    "seen": 1794393756.3007958,
+    "mtime": 1794734290.4517002,
+    "seen": 1794754018.966655,
     "ast_hash": "43713b99daa9dde5b2bc5e40a642a12e",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Documentation/UserGuide/05-Ads-and-In-App-Purchases/Ads.md": {
-    "mtime": 1794377933.5281804,
-    "seen": 1794393756.3007972,
-    "ast_hash": "bd1084bc7b7c344ecc4375c696600bd6",
+    "mtime": 1794734293.1303153,
+    "seen": 1794754018.9666557,
+    "ast_hash": "31c6ac6cfeda92b73df02c2f54762b55",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Documentation/UserGuide/05-Ads-and-In-App-Purchases/In-App-Purchases.md": {
-    "mtime": 1794377933.7569954,
-    "seen": 1794393756.3007984,
-    "ast_hash": "9f8b862ecc391e5bfd55dcebb3104d27",
+    "mtime": 1794734293.8894098,
+    "seen": 1794754018.9666564,
+    "ast_hash": "e7a065550ed50cf5239c8eda0c53279b",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Documentation/UserGuide/05-Ads-and-In-App-Purchases/README.md": {
-    "mtime": 1794377933.2905962,
-    "seen": 1794393756.3007998,
-    "ast_hash": "8aed65f58e41f3a12ed9b2c28244355e",
+    "mtime": 1794734292.7498112,
+    "seen": 1794754018.9666572,
+    "ast_hash": "a279706cac6d8175c65dd8abc185ff5f",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Documentation/UserGuide/06-Build-for-Android-and-iOS/Build-the-Level-Data.md": {
-    "mtime": 1794377968.20861,
-    "seen": 1794393756.300801,
-    "ast_hash": "a623bf229760c8297f453b8dd63aed6d",
+    "mtime": 1794753044.7397995,
+    "seen": 1794754018.966658,
+    "ast_hash": "48457848704f68a3c897e9cf25a1b219",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Documentation/UserGuide/06-Build-for-Android-and-iOS/Make-the-Build.md": {
-    "mtime": 1794377968.4283357,
-    "seen": 1794393756.300802,
-    "ast_hash": "e871f459a459ab05fe9bc5e81fe55e20",
+    "mtime": 1794734295.3915763,
+    "seen": 1794754018.9666588,
+    "ast_hash": "4d2b3f63dff14a809b8088b3a28c07f1",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Documentation/UserGuide/06-Build-for-Android-and-iOS/README.md": {
-    "mtime": 1794377967.9671426,
-    "seen": 1794393756.3008037,
-    "ast_hash": "d76161281f02ff7cdad4dff2635fa2f9",
+    "mtime": 1794734294.3325577,
+    "seen": 1794754018.9666595,
+    "ast_hash": "ad5186a8e6293d94c9a176fd59077a95",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Documentation/UserGuide/07-Troubleshooting/Items-and-Visuals.md": {
-    "mtime": 1794377969.1171398,
-    "seen": 1794393756.300805,
-    "ast_hash": "fa3b3b8319c35b169d9859b71d8a5a98",
+    "mtime": 1794734296.51918,
+    "seen": 1794754018.9666605,
+    "ast_hash": "207c3b13ae0e1e131cc3e8c2ab98b241",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Documentation/UserGuide/07-Troubleshooting/Levels-and-Map.md": {
-    "mtime": 1794378874.9470348,
-    "seen": 1794393756.3008063,
-    "ast_hash": "8f4a3a90d3b237efc8aac7e3abc9a740",
+    "mtime": 1794734297.1193914,
+    "seen": 1794754018.9666615,
+    "ast_hash": "f890372f9c3f0b13ec4d84bf0d467bf2",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Documentation/UserGuide/07-Troubleshooting/README.md": {
-    "mtime": 1794377968.644251,
-    "seen": 1794393756.300808,
-    "ast_hash": "30b94c08c784d61eb66350d0ff235b37",
+    "mtime": 1794734295.9707863,
+    "seen": 1794754018.9666622,
+    "ast_hash": "568c9e9758d6bf4389feea9fc9f5e787",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Documentation/UserGuide/07-Troubleshooting/Shop-Ads-and-Testing.md": {
-    "mtime": 1794377969.3511345,
-    "seen": 1794393756.300809,
-    "ast_hash": "c9c33834f98d278e332c101ac16208c1",
+    "mtime": 1794734297.7036211,
+    "seen": 1794754018.9666631,
+    "ast_hash": "db4d33a0287cba43c8636769a7066aaa",
     "semantic_hash": ""
   },
   "Assets/MatchThemAllTemplate/Documentation/UserGuide/README.md": {
-    "mtime": 1794377646.6633458,
-    "seen": 1794393756.3008103,
-    "ast_hash": "34061d076c4de30039ee733558edffd3",
+    "mtime": 1794734156.8700573,
+    "seen": 1794754018.966664,
+    "ast_hash": "46c2915b1d54babc99d0fbe8e983b0e8",
     "semantic_hash": ""
   },
   "docs/user-guide-shot-list.md": {
@@ -25641,6 +25581,12 @@
     "mtime": 1794380407.0579388,
     "seen": 1794393756.306592,
     "ast_hash": "e7ec5f5c319524926718b57b8fa6fee9",
+    "semantic_hash": ""
+  },
+  "Assets/MatchThemAllTemplate/Scripts/Editor/ProjectSetup.cs": {
+    "mtime": 1794752748.2647083,
+    "seen": 1794754018.966335,
+    "ast_hash": "5a9ca5c177cbf7d9dced5da485148ba4",
     "semantic_hash": ""
   }
 }
