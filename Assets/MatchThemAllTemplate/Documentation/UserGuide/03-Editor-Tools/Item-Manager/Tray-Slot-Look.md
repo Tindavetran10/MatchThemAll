@@ -1,7 +1,7 @@
 # Tray Slot Look
 
-The tray slots are the round pads items sit on at the bottom of the screen. All slots share one look, which you
-can change from any item in the Item Manager.
+The tray slots are the round pads the items sit on at the bottom of the screen. They all share one look, and you
+can change it from any item in the Item Manager.
 
 ![The Tray Slot card](../../Images/tools/im-overview.png)
 
@@ -12,10 +12,10 @@ The **Tray Slot (all items)** card (6) has two fields:
 | **Slot mesh** | The shape of the slot. Drag in any mesh from your project. |
 | **Slot material** | The colour or texture of the slot. Drag in any material. |
 
-The change is saved straight away, and applies to **every** slot in every level. The preview below shows it
+The change is saved straight away and applies to every slot in every level. The preview below shows it
 immediately.
 
-> To undo, pick the previous mesh or material again. The originals are the **Sphere** mesh and the
+> To undo it, pick the previous mesh or material again. The originals are the **Sphere** mesh and the
 > **Item Spot** material (`Art/Materials/Item Spot`).
 
 ---

@@ -1,7 +1,7 @@
 # Power-up Manager
 
-**Open it:** *Match Them All ▸ Power-up Manager*. Everything about the power-ups is here: price, starting
-charges, unlock level, look, sound and order in the bar. You can also add your own.
+Open it from *Match Them All ▸ Power-up Manager*. Everything about the power-ups is here: price, starting
+charges, unlock level, look, sound and position in the bar. You can add your own too.
 
 ![The Power-up Manager with Freeze Gun selected](../../Images/tools/pu-overview.png)
 
@@ -12,13 +12,15 @@ charges, unlock level, look, sound and order in the bar. You can also add your o
 | 3 | **Duplicate** | Copies the selected power-up. |
 | 4 | **Delete** | Deletes the selected power-up, after asking. |
 | 5 | **New Mechanic…** | For programmers: makes a script for a brand-new power-up behaviour ([New Mechanic](New-Mechanic.md)). |
-| 6 | **TRAY ORDER list** | The power-ups in bar order, left to right. Shows each one's unlock level. Click one to edit it. |
+| 6 | **TRAY ORDER list** | The power-ups in bar order, left to right, each with its unlock level. Click one to edit it. |
 | 7 | **▲ / ▼** | Moves a power-up left or right in the bar. |
 | 8 | **Ping Asset** | Highlights the power-up's file in the Project window. |
 | 9 | **Settings** | Identity, Tray, Progression, Economy, Mechanic, Effects & Sound ([Edit a Power-up](Edit-a-Power-up.md)). |
-| 10 | **Preview** | The power-up's button as it looks in the game. **Left-drag** to turn, **middle-drag** to move, **scroll** to zoom. **⌂ Reset Camera** resets the view. |
+| 10 | **Preview** | The power-up's button as it looks in the game. Left-drag to turn, middle-drag to move, scroll to zoom, and **⌂ Reset Camera** resets the view. |
 
-If a power-up is missing something (an id, a mechanic, or a picture), the toolbar shows **⚠ … problem(s)**, the power-up shows ⚠ in the list, and the problem is explained at the top of its page. See the picture in [Add a Power-up](Add-a-Power-up.md).
+If a power-up is missing something (an id, a mechanic or a picture), the toolbar shows **⚠ … problem(s)**, the
+power-up gets a ⚠ in the list, and the top of its page explains what's wrong. There's a picture in
+[Add a Power-up](Add-a-Power-up.md).
 
 ## Pages
 

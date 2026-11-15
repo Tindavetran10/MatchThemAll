@@ -1,6 +1,6 @@
 # 1. Getting Started
 
-Two short steps get the game running in the Unity Editor.
+Getting the game running in the Unity Editor takes two steps.
 
 | Page | What it covers |
 |---|---|

@@ -6,10 +6,10 @@
 
 | # | Field | What it does |
 |---|---|---|
-| 1 | **Spot Count** | How many slots the tray has, from 5 to 7. **Fewer slots make the level harder.** |
+| 1 | **Spot Count** | How many slots the tray has, from 5 to 7. Fewer slots make the level harder. |
 | 2 | **Duration (seconds)** | How long the timer runs, from 15 to 300 seconds. |
 | 3 | **Random Seed** | Decides where the items fall. The same number always gives the same pile. |
-| 4 | **🎲 Random** | Picks a new random seed, for a new layout. |
+| 4 | **🎲 Random** | Picks a new random seed, which gives you a new layout. |
 
 ### Rewards & Monetization
 
@@ -23,11 +23,11 @@
 
 | # | Field | What it does |
 |---|---|---|
-| 8 | **Time For 3 Stars** | Seconds that must be **left on the timer** for 3 stars. |
+| 8 | **Time For 3 Stars** | Seconds that must be left on the timer for 3 stars. |
 | 9 | **Time For 2 Stars** | Seconds that must be left for 2 stars. Any win gets at least 1 star. |
 
-**Example:** Duration 60, 3 stars at 40, 2 stars at 20. Win with 45 seconds left: 3 stars. With 25 left:
-2 stars. With 5 left: 1 star.
+For example, say Duration is 60, 3 stars needs 40 seconds left, and 2 stars needs 20. Winning with 45 seconds
+left gives 3 stars, with 25 left gives 2 stars, and with 5 left gives 1 star.
 
 ---
 [↑ Template Editor](README.md) · Next: [Items in a Level →](Items-in-a-Level.md)

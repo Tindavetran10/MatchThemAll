@@ -1,15 +1,14 @@
 # 2. How the Game Plays
 
-A level is a pile of 3D items. The player taps items to move them into a tray at the bottom. **Three of the
-same item in the tray merge and disappear.** Collect every item shown on the goal cards before the timer runs
-out to win.
+A level is a pile of 3D items. The player taps items to send them to a tray at the bottom, and any three of the
+same item in the tray merge and disappear. To win, collect every item on the goal cards before the timer runs out.
 
 <p align="center">
   <img src="../Images/game/game-level-start.png" width="260" alt="A level at the start">
 </p>
 
-*A level at the start: coins and gems (top left), the **timer**, the **goal cards** (what to collect), the
-**pile** of items, the empty **tray**, and the **power-up bar** at the bottom.*
+*A level at the start. Top left are the coins and gems, then the timer and the goal cards (what to collect).
+Below them are the pile of items, the empty tray, and the power-up bar at the bottom.*
 
 | Page | What it shows |
 |---|---|

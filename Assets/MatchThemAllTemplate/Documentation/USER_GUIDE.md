@@ -1,6 +1,6 @@
 # Match Them All: User Guide
 
-The user guide has moved to its own folder, with a page for every tool and step:
+The user guide now lives in its own folder, with a page for each tool and step:
 
 **➜ [Open the User Guide](UserGuide/README.md)**
 

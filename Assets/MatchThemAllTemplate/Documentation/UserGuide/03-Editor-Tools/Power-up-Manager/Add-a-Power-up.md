@@ -1,16 +1,16 @@
 # Add a Power-up
 
-You can add a power-up that uses one of the four built-in behaviours with different settings, for example a
-"Big Freeze" that freezes the clock for longer and costs more.
+You can add a power-up that uses one of the four built-in behaviours with different settings. A "Big Freeze", for
+example, could freeze the clock for longer and cost more.
 
 ![A new power-up using PowerupSlot](../../Images/tools/pu-custom.png)
 
 ### Step 1: Make it
 
-- **+ New Power-up** makes an empty one: 3 starting charges, unlocked from level 1, using **PowerupSlot**. **Or**
-- Select a power-up and click **Duplicate** to start from a copy of it.
+- **+ New Power-up** makes an empty one: 3 starting charges, unlocked from level 1, using **PowerupSlot**.
+- Or select a power-up and click **Duplicate** to start from a copy of it.
 
-It's added to the end of the bar, with a temporary id such as `new_powerup`.
+It goes at the end of the bar with a temporary id such as `new_powerup`.
 
 ### Step 2: Fill it in
 
@@ -22,7 +22,7 @@ It's added to the end of the bar, with a temporary id such as `new_powerup`.
 5. Choose an **Activate sound** and effects.
 6. Click **💾 Save**.
 
-Until everything needed is filled in, the toolbar counts it as a problem (5) and the power-up shows a ⚠ warning,
+Until everything it needs is filled in, the toolbar counts it as a problem (5) and the power-up shows a ⚠ warning,
 such as *No mechanic* or *No icon or tray model*.
 
 ### Change the order of the bar
@@ -35,8 +35,8 @@ Select it and click **Delete**. The window asks first, then moves the file to yo
 
 ### Add a tutorial for it
 
-Add a step on its unlock level in the [Template Editor](../Template-Editor/Tutorial-Steps.md): Highlight Target
-*Powerup*, its **Id**, and Completion Condition *On Powerup Used*.
+Add a step on its unlock level in the [Template Editor](../Template-Editor/Tutorial-Steps.md). Set Highlight Target
+to *Powerup*, use the power-up's **Id**, and set Completion Condition to *On Powerup Used*.
 
 ---
 [↑ Power-up Manager](README.md) · Next: [New Mechanic →](New-Mechanic.md)

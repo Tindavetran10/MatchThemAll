@@ -1,6 +1,6 @@
 # 7. Troubleshooting
 
-Find your problem by topic.
+Look up your problem by topic.
 
 | Page | Problems about… |
 |---|---|
