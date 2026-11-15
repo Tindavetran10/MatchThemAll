@@ -77,7 +77,7 @@ namespace MatchThemAll.Scripts
             return pool;
         }
 
-        private IEnumerator ReturnToPool(IObjectPool<GameObject> pool, GameObject go, float delay)
+        private static IEnumerator ReturnToPool(IObjectPool<GameObject> pool, GameObject go, float delay)
         {
             yield return new WaitForSeconds(delay);
             // Scene may have reloaded and destroyed this object while waiting.
