@@ -19,6 +19,7 @@ namespace MatchThemAll.Scripts.Editor
     {
         private const string Root = "Assets/MatchThemAllTemplate";
         private const string LevelLabel = "LevelData";
+        private const string MobileRpGuid = "5e6cbd92db86f4b18aec3ed561671858"; // Settings/Mobile_RPAsset.asset.meta
         private static readonly string[] SceneNames = { "OpenScene", "Lobby", "LevelSelect", "LoadingScene", "MainScene" };
 
         [MenuItem("Match Them All/Set Up Project")]
@@ -30,6 +31,7 @@ namespace MatchThemAll.Scripts.Editor
                 ImportTmpEssentials(),
                 AssignRenderPipeline(),
                 EnableInputSystem(ref restart),
+                EnsureLayers(),
                 RegisterLevels(),
                 AddBuildScenes(),
             };
@@ -55,12 +57,12 @@ namespace MatchThemAll.Scripts.Editor
 
         private static string AssignRenderPipeline()
         {
-            var rp = AssetDatabase.FindAssets("Mobile_RPAsset t:RenderPipelineAsset", new[] { Root })
-                .Select(AssetDatabase.GUIDToAssetPath)
-                .Select(AssetDatabase.LoadAssetAtPath<RenderPipelineAsset>)
-                .FirstOrDefault(a => a != null);
+            // Look it up by GUID, not by folder: this is the same GUID as Unity's Universal 3D template's Mobile_RPAsset,
+            // so in such a project Unity imports the template's copy over Assets/Settings/Mobile_RPAsset.asset
+            // and nothing exists at MatchThemAllTemplate/Settings.
+            var rp = AssetDatabase.LoadAssetAtPath<RenderPipelineAsset>(AssetDatabase.GUIDToAssetPath(MobileRpGuid));
             if (rp == null)
-                return "✖ Render pipeline: Mobile_RPAsset not found. Install Universal RP in the Package Manager.";
+                return "✖ Render pipeline: Mobile_RPAsset not found or not readable. Check that Universal RP is installed and the template imported completely.";
 
             bool changed = false;
             if (GraphicsSettings.defaultRenderPipeline == null)
@@ -79,7 +81,9 @@ namespace MatchThemAll.Scripts.Editor
             }
             QualitySettings.SetQualityLevel(current, false);
 
-            return changed ? "✔ Render pipeline: Mobile_RPAsset assigned where none was set" : "• Render pipeline: already assigned";
+            if (changed) return "✔ Render pipeline: Mobile_RPAsset assigned where none was set";
+            var assigned = GraphicsSettings.defaultRenderPipeline;
+            return "• Render pipeline: already assigned" + (assigned != null ? " (" + assigned.name + ")" : "");
         }
 
         private static string EnableInputSystem(ref bool restart)
@@ -94,6 +98,39 @@ namespace MatchThemAll.Scripts.Editor
             so.ApplyModifiedPropertiesWithoutUndo();
             restart = true;
             return "✔ Input: Active Input Handling set to Both";
+        }
+
+        // Scenes and prefabs store layers by number (items on 6, power-up props on 7, masks in MainScene), and the code
+        // looks "Tutorial" up by name, so the names must sit at exactly these numbers.
+        private static readonly (int index, string name)[] Layers = { (6, "Match Stuff"), (7, "Power Ups"), (8, "Tutorial") };
+
+        private static string EnsureLayers()
+        {
+            var tagManager = new SerializedObject(AssetDatabase.LoadAssetAtPath<Object>("ProjectSettings/TagManager.asset"));
+            var layers = tagManager.FindProperty("layers");
+            if (layers == null || layers.arraySize < 32) return "✖ Layers: couldn't read the layer list. Add Match Stuff (6), Power Ups (7) and Tutorial (8) by hand.";
+
+            var added = new List<string>();
+            var problems = new List<string>();
+            foreach (var (index, name) in Layers)
+            {
+                string at = layers.GetArrayElementAtIndex(index).stringValue;
+                if (at == name) continue;
+                if (!string.IsNullOrEmpty(at)) { problems.Add($"layer {index} is \"{at}\", the template needs \"{name}\" there"); continue; }
+
+                int elsewhere = -1;
+                for (int i = 0; i < layers.arraySize && elsewhere < 0; i++)
+                    if (layers.GetArrayElementAtIndex(i).stringValue == name) elsewhere = i;
+                if (elsewhere >= 0) { problems.Add($"\"{name}\" is on layer {elsewhere}, the template needs it on {index}"); continue; }
+
+                layers.GetArrayElementAtIndex(index).stringValue = name;
+                added.Add(name);
+            }
+            if (added.Count > 0) tagManager.ApplyModifiedProperties();
+
+            if (problems.Count > 0)
+                return "✖ Layers: " + string.Join("; ", problems) + ". Change it in Project Settings ▸ Tags and Layers." + (added.Count > 0 ? " Added: " + string.Join(", ", added) + "." : "");
+            return added.Count > 0 ? "✔ Layers: added " + string.Join(", ", added) : "• Layers: already in place";
         }
 
         private static string RegisterLevels()
