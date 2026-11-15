@@ -93,7 +93,9 @@ namespace MatchThemAll.Scripts
                 // 1. Instantiate the generic Level prefab only if it doesn't exist yet
                 if (_currentLevel == null)
                 {
-                    transform.Clear();
+                    // Fully qualified on purpose: a plain `using` is ambiguous in projects that also have a
+                    // global-namespace TransformExtensions.Clear, and a bare call only compiled here thanks to one.
+                    Extensions.TransformExtensions.Clear(transform);
                     _currentLevel = Instantiate(levelPrefab, transform);
                 }
 
