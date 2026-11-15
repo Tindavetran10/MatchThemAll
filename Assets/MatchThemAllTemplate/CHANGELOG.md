@@ -22,6 +22,7 @@
 
 ### Fixed
 - The template failed to compile in a fresh project: `LevelManager` relied on a course helper outside the package, and a one-off AI Assistant script sat in the Editor folder.
+- The highlighted power-up could not be tapped during its tutorial step (levels 2 to 5), so the step could never be finished.
 - The tray froze when the last free slot was filled by an item landing mid-row.
 - Power-up locks stayed on after the player reached the unlock level.
 - The Lobby settings button turned dark in Play mode.

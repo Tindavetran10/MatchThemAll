@@ -264,11 +264,14 @@ namespace MatchThemAll.Scripts.Managers
                 _highlightedObjects.Add(go);
             }
 
-            // Wire InputManager for item-based steps
-            if (step.highlightTarget is EHighlightTarget.AutoFindItems or EHighlightTarget.SpecificItem)
+            // Wire InputManager: while the step runs, only the highlighted objects can be tapped. The targets were just
+            // moved to the Tutorial layer, and InputManager only raycasts that layer while IsTutorialActive is set,
+            // so a power-up step must set it too or the highlighted power-up can't be tapped.
+            if (step.highlightTarget is EHighlightTarget.AutoFindItems or EHighlightTarget.SpecificItem or EHighlightTarget.Powerup)
             {
                 InputManager.IsTutorialActive = true;
-                InputManager.TutorialTargets = _targetItems.ToArray();
+                // A power-up step highlights no item, so no item is tappable (and an earlier step's item list can't leak in).
+                InputManager.TutorialTargets = step.highlightTarget == EHighlightTarget.Powerup ? Array.Empty<Item>() : _targetItems.ToArray();
             }
 
             // Pause timer
