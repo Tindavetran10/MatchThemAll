@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: powerup_fan_pack
   displayName: Fan Pack
-  icon: {fileID: 21300000, guid: 15ae0515e5fb548aa887ba66ad17fdbb, type: 3}
+  icon: {fileID: 21300000, guid: 197e436c110f75b4a9df631a370a4518, type: 3}
   tabId: powerups
   priceCurrency: 0
   priceAmount: 120

@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using ZLinq;
+using MatchThemAll.Scripts.Power_Ups;
 using MatchThemAll.Scripts.SaveSystem;
 using UnityEngine;
 
@@ -7,34 +9,96 @@ namespace MatchThemAll.Scripts.Shop
 {
     /// <summary>
     /// Drives shop purchases. For soft-currency products: checks funds, spends, grants rewards.
-    /// For real-money (IAP) products: routes through <see cref="IIapService"/> and grants only on success.
+    /// For real-money (IAP) products: routes through <see cref="IIapService"/> (Unity IAP when installed,
+    /// otherwise <see cref="NullIapService"/>). Store purchases are granted by <see cref="GrantStorePurchase"/>,
+    /// which saves before the store is told to confirm, and never grants one transaction twice.
     /// One-time first-purchase bonus is granted + persisted on the first buy of a product.
-    ///
-    /// Singleton style mirrors PowerupManager. Assign the ShopDatabaseSO + (optional) IIapService in
-    /// the Inspector; the service defaults to NullIapService so Phase 1 runs without the IAP package.
     /// </summary>
     public class ShopManager : MonoBehaviour
     {
         public static ShopManager Instance { get; private set; }
 
-        // Phase 1: default NullIapService (no package). Phase 2: call SetIapService(...) with the Unity IAP impl.
-        private IIapService _iap = new NullIapService();
+        private const string DatabasePath = "Shop/ShopDatabase";
+
+        [Tooltip("Product registry. Loaded from Resources/" + DatabasePath + " if empty.")]
+        [SerializeField] private ShopDatabaseSO database;
+
+        private static ShopDatabaseSO _database;
+        private IIapService _iap;
 
         // In-flight IAP purchases keyed by product id — prevents double-tap → double-charge with an async service.
         private readonly HashSet<string> _purchasing = new();
+
+        /// <summary>Raised when store prices arrive, so cards can show the local price.</summary>
+        public event Action PricesUpdated;
 
         private void Awake()
         {
             if (Instance && Instance != this) { Destroy(gameObject); return; }
             Instance = this;
-            _iap.Initialize();
+            if (database) _database = database;
+            SetIapService(Monetization.MonetizationServices.Iap);
         }
 
-        /// <summary>Inject the real IAP service (Phase 2). Initializes the new service (Awake only initialized the default).</summary>
+        private void OnDestroy()
+        {
+            if (_iap != null) _iap.PricesUpdated -= OnPricesUpdated;
+        }
+
+        /// <summary>Uses a different purchase backend. The store connection is made once per app.</summary>
         public void SetIapService(IIapService service)
         {
+            if (_iap != null) _iap.PricesUpdated -= OnPricesUpdated;
             _iap = service ?? new NullIapService();
-            _iap.Initialize();
+            _iap.PricesUpdated += OnPricesUpdated;
+            _iap.Initialize(CollectIapProducts(), GrantStorePurchase, _ => OnPricesUpdated());
+        }
+
+        private void OnPricesUpdated() => PricesUpdated?.Invoke();
+
+        private static ShopDatabaseSO Database => _database ? _database : _database = Resources.Load<ShopDatabaseSO>(DatabasePath);
+
+        /// <summary>Every product with an iapProductId; one-time products are non-consumable (restorable).</summary>
+        private static List<IapProduct> CollectIapProducts()
+        {
+            var list = new List<IapProduct>();
+            if (!Database) return list;
+            foreach (var p in Database.products.AsValueEnumerable().Where(p => p && p.IsIap))
+                list.Add(new IapProduct(p.iapProductId, isConsumable: !p.isOneTime));
+            return list;
+        }
+
+        /// <summary>The store's price string for an IAP product, or null while unknown.</summary>
+        public string GetLocalizedPrice(ShopProductSO product) =>
+            product && product.IsIap ? _iap.GetLocalizedPrice(product.iapProductId) : null;
+
+        /// <summary>Re-delivers non-consumables bought on another install (the iOS "Restore Purchases" button).</summary>
+        public void RestorePurchases(Action<bool> onComplete = null) => _iap.RestorePurchases(onComplete);
+
+        /// <summary>
+        /// Grant handler for store purchases (new, re-delivered or restored). True = granted and saved
+        /// (or already granted), so the store may confirm it; false keeps it pending for a later retry.
+        /// </summary>
+        private static bool GrantStorePurchase(string iapProductId, string transactionId)
+        {
+            if (SaveManager.IsIapTransactionProcessed(transactionId)) return true; // delivered again
+
+            ShopProductSO product = null;
+            if (Database)
+                foreach (var p in Database.products.AsValueEnumerable().Where(p => p && p.iapProductId == iapProductId))
+                {
+                    product = p; break;
+                }
+            if (!product)
+            {
+                Debug.LogError($"[Shop] Store sold '{iapProductId}', but no ShopProductSO has that iapProductId.");
+                return false;
+            }
+
+            // A restored one-time product the player already owns: nothing to grant again.
+            if (!(product.isOneTime && product.IsFulfilled())) GrantProduct(product);
+            SaveManager.MarkIapTransactionProcessed(transactionId);
+            return SaveManager.TryFlush();
         }
 
         // ── Purchase ──────────────────────────────────────────────────────────
@@ -56,10 +120,10 @@ namespace MatchThemAll.Scripts.Shop
                     return false;
                 }
 
+                // The reward is granted by GrantStorePurchase before the store confirms; this only reports back.
                 _iap.Purchase(product.iapProductId, success =>
                 {
                     _purchasing.Remove(product.iapProductId);
-                    if (success) GrantProduct(product);
                     onComplete?.Invoke(success);
                 });
                 return false; // async — caller should rely on onComplete for the real result
@@ -83,7 +147,7 @@ namespace MatchThemAll.Scripts.Shop
         }
 
         /// <summary>Grants a product's rewards (+ first-purchase bonus if unclaimed). No fund check.</summary>
-        private void GrantProduct(ShopProductSO product)
+        private static void GrantProduct(ShopProductSO product)
         {
             if (!product) return;
             GrantRewards(product.Rewards);
@@ -113,8 +177,14 @@ namespace MatchThemAll.Scripts.Shop
             {
                 switch (r.kind)
                 {
-                    case ShopReward.EKind.Coins:         SaveManager.AddCoins(r.amount); break;
-                    case ShopReward.EKind.Gems:          SaveManager.AddGems(r.amount); break;
+                    case ShopReward.EKind.Coins:
+                        SaveManager.AddCoins(r.amount);
+                        EventBus.Publish(new CurrencyGrantedEvent(ECurrency.Coins, r.amount, CurrencyGrantedEvent.ScreenCenter));
+                        break;
+                    case ShopReward.EKind.Gems:
+                        SaveManager.AddGems(r.amount);
+                        EventBus.Publish(new CurrencyGrantedEvent(ECurrency.Gems, r.amount, CurrencyGrantedEvent.ScreenCenter));
+                        break;
                     case ShopReward.EKind.PowerupCharge: SaveManager.AddPowerupCharge(r.powerupId, r.amount); break;
                     // powerupId is reused as the entitlement key (tagged union — field name is cosmetic).
                     case ShopReward.EKind.Entitlement:   SaveManager.GrantEntitlement(r.powerupId); break;
@@ -122,9 +192,5 @@ namespace MatchThemAll.Scripts.Shop
                 }
             }
         }
-
-        // ── Restore (IAP) ─────────────────────────────────────────────────────
-
-        public void RestorePurchases(Action<bool> onComplete = null) => _iap.RestorePurchases(onComplete);
     }
 }

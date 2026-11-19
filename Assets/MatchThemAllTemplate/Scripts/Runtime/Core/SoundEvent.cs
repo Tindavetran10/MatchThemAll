@@ -24,12 +24,10 @@ namespace MatchThemAll.Scripts
         Merge = 12,
         Combo = 13,
         GoalComplete = 14,
-        PowerupVacuum = 15,
-        PowerupSpring = 16,
-        PowerupFan = 17,
-        PowerupFreeze = 18,
+        // 15–18 retired (were the power-up sounds; each PowerupDataSO now carries its own clip) — don't reuse.
         StarPop = 19,
         CoinReward = 20,
+        SpringLand = 21,
 
         // Results
         LevelComplete = 30,

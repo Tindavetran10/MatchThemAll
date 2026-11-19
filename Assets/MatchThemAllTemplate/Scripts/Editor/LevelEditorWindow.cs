@@ -398,16 +398,18 @@ namespace MatchThemAll.Scripts.Editor
                 GUILayout.Space(8);
             }
 
-            if (_isDirty && _selectedLevel)
+            // Always drawn (disabled when clean): adding a control mid-drag shifts the control IDs of
+            // everything after it, which made sliders drop the drag on their first change.
+            GUI.color = AccentGreen;
+            using (new EditorGUI.DisabledScope(!(_isDirty && _selectedLevel)))
             {
-                GUI.color = AccentGreen;
                 if (GUILayout.Button("💾 Save", GUILayout.Height(28), GUILayout.Width(80)))
                 {
                     SaveLevel();
                     GUIUtility.ExitGUI();
                 }
-                GUI.color = Color.white;
             }
+            GUI.color = Color.white;
 
             GUILayout.Space(8);
 
@@ -439,6 +441,7 @@ namespace MatchThemAll.Scripts.Editor
             if (GUILayout.Button("+ New", GUILayout.Width(55), GUILayout.Height(22)))
             {
                 _showNewLevelField = !_showNewLevelField;
+                GUI.FocusControl(null); // the name field comes and goes; a focused field would hand its text to the next control
                 GUIUtility.ExitGUI();
             }
             GUI.color = Color.white;
@@ -454,6 +457,7 @@ namespace MatchThemAll.Scripts.Editor
                 GUI.color = AccentGreen;
                 if (GUILayout.Button("✓", GUILayout.Width(26), GUILayout.Height(22)))
                 {
+                    GUI.FocusControl(null);
                     CreateNewLevel();
                     GUIUtility.ExitGUI();
                 }
@@ -461,6 +465,7 @@ namespace MatchThemAll.Scripts.Editor
                 if (GUILayout.Button("✕", GUILayout.Width(26), GUILayout.Height(22)))
                 {
                     _showNewLevelField = false;
+                    GUI.FocusControl(null); // otherwise the Random Seed field took over the typed name, and Enter/Escape set the seed to 0
                     GUIUtility.ExitGUI();
                 }
                 GUI.color = Color.white;

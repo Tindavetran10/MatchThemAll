@@ -1,42 +1,28 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
 
 namespace MatchThemAll.Scripts
 {
+    /// <summary>The generic level prefab: holds the ItemPlacer and exposes the active LevelDataSO's settings.</summary>
     public class Level : MonoBehaviour
     {
-        [Header("Elements")]
         [SerializeField] private ItemPlacer itemPlacer;
-
-        public Transform ItemParent => itemPlacer.transform;
 
         private LevelDataSO _data;
 
-        /// <summary>
-        /// Called by LevelManager immediately after instantiation.
-        /// Sets the level's data and triggers runtime item spawning.
-        /// </summary>
-        public void Initialize(LevelDataSO data)
-        {
-            _data = data;
-            itemPlacer.Initialize(data);
-        }
-
-        public async Task InitializeAsync(LevelDataSO data)
-        {
-            _data = data;
-            await itemPlacer.InitializeAsync(data);
-        }
-
+        public Transform ItemParent => itemPlacer.transform;
         public int Duration => _data ? _data.duration : 0;
         public int SpotCount => _data ? _data.spotCount : 7;
 
-        public ItemLevelData[] GetGoals() =>
-            _data ? _data.GetGoals() : System.Array.Empty<ItemLevelData>();
+        public void Initialize(LevelDataSO data) => itemPlacer.Initialize(_data = data);
 
-        public System.Collections.Generic.List<Tutorial.TutorialStep> GetTutorialSteps() =>
-            _data ? _data.tutorialSteps : null;
+        public Task InitializeAsync(LevelDataSO data) => itemPlacer.InitializeAsync(_data = data);
 
-        public System.Collections.Generic.List<Item> GetItems() => itemPlacer.GetItems();
+        public ItemLevelData[] GetGoals() => _data ? _data.GetGoals() : System.Array.Empty<ItemLevelData>();
+
+        public List<Tutorial.TutorialStep> GetTutorialSteps() => _data ? _data.tutorialSteps : null;
+
+        public List<Item> GetItems() => itemPlacer.GetItems();
     }
 }

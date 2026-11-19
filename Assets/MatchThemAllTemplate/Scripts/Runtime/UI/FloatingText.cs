@@ -71,15 +71,16 @@ namespace MatchThemAll.Scripts.UI
             float startY = _rect.anchoredPosition.y;
             float targetY = startY + riseDistance;
 
-            Tween.Custom(startY, targetY, riseAndFadeDuration,
-                onValueChange: v => _rect.anchoredPosition = new Vector2(_rect.anchoredPosition.x, v),
-                ease: Ease.OutSine);
+            // Bound to _rect so PrimeTween drops them if the scene unloads mid-animation (e.g. Next right after a win).
+            Tween.Custom(_rect, startY, targetY, riseAndFadeDuration,
+                (rect, v) => rect.anchoredPosition = new Vector2(rect.anchoredPosition.x, v),
+                Ease.OutSine);
 
-            Tween.Custom(1f, 0f, riseAndFadeDuration, onValueChange: alpha =>
+            Tween.Custom(_rect, 1f, 0f, riseAndFadeDuration, (_, alpha) =>
                 {
                     if (textMesh) textMesh.alpha = alpha;
-                }, ease: Ease.InQuad)
-                .OnComplete(() => _onCompleteCallback?.Invoke(this));
+                }, Ease.InQuad)
+                .OnComplete(this, t => t._onCompleteCallback?.Invoke(t));
         }
     }
 }

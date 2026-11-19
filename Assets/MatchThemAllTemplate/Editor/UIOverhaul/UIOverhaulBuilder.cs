@@ -10,7 +10,7 @@ using UnityEngine.UI;
 namespace MatchThemAll.EditorTools
 {
     /// <summary>
-    /// Re-skins the five game scenes with the GUIPackCartoon art set.
+    /// Re-skins the five game scenes with the template's cartoon UI art set.
     /// Every step is idempotent (find-or-create by name) and restyles the EXISTING objects in place,
     /// so all serialized references and Button.onClick bindings keep working.
     /// Menu: Tools ▸ Match Them All ▸ UI Overhaul.
@@ -18,11 +18,14 @@ namespace MatchThemAll.EditorTools
     public static class UIOverhaulBuilder
     {
         // ───────────────────────────────── Paths ─────────────────────────────────
-        private const string Gui = "Assets/GUIPackCartoon/Demo/Sprites/";
+        private const string Gui = "Assets/MatchThemAllTemplate/Art/UI/Sprites/";
         private const string Art = "Assets/MatchThemAllTemplate/Art/UI/";
         private const string Scenes = "Assets/MatchThemAllTemplate/Scenes/";
         private const string NodePrefabPath = "Assets/MatchThemAllTemplate/Prefabs/UI/Level/LevelMapNode.prefab";
-        private const string FontPath = "Assets/GUIPackCartoon/Demo/Fonts/LilitaOne - Regular SDF.asset";
+        private const string GemPillPrefabPath = "Assets/MatchThemAllTemplate/Prefabs/UI/GemPill.prefab";
+        private const string BubblePrefabPath = "Assets/MatchThemAllTemplate/Prefabs/UI/Bubble.prefab";
+        private const string GameTitlePrefabPath = "Assets/MatchThemAllTemplate/Prefabs/UI/GameTitle.prefab";
+        private const string FontPath = "Assets/MatchThemAllTemplate/Art/UI/Fonts/LilitaOne-Regular SDF.asset";
 
         // ──────────────────────────────── Palette ────────────────────────────────
         private static readonly Color Navy       = Hex("1B2A6B");
@@ -95,20 +98,12 @@ namespace MatchThemAll.EditorTools
             Motion(shine, UISimpleMotion.Mode.Rotate, 8f, 0f);
             shine.SetSiblingIndex(0);
 
-            var glow = Node(group, "Glow"); Place(glow, Center, Center, new Vector2(0, 20), new Vector2(1000, 800));
-            Img(glow, Spr("Shapes/Effects/Shine"), new Color(1, 1, 1, 0.45f));
-            glow.SetSiblingIndex(1);
+            // Shared GameTitle prefab (Glow + Title) between the Shine and the Banner
+            var gameTitle = GameTitle(group, "GameTitle"); gameTitle.SetSiblingIndex(1);
+            Place(gameTitle, Center, Center, Vector2.zero, new Vector2(1000, 760));
+            StyleGameTitle(gameTitle, new Vector2(0, 20), new Vector2(1000, 800), 0.45f, new Vector2(0, 90), new Vector2(1000, 460), 200f, 10f, 0.35f);
 
-            // Existing TitleText (child of Banner) → becomes the main title
-            var title = FindDeep(root, "TitleText") as RectTransform;
             var banner = FindDeep(root, "Banner") as RectTransform;
-            if (title)
-            {
-                title.SetParent(group, false);
-                Place(title, Center, Center, new Vector2(0, 90), new Vector2(1000, 460));
-                TitleStyle(title.GetComponent<TextMeshProUGUI>(), 200f);
-                Motion(title, UISimpleMotion.Mode.Float, 10f, 0.35f);
-            }
             if (banner)
             {
                 banner.SetParent(group, false);
@@ -139,14 +134,15 @@ namespace MatchThemAll.EditorTools
             Img(shine, Spr("Shapes/Effects/Radial Shine"), new Color(1, 1, 1, 0.22f));
             Motion(shine, UISimpleMotion.Mode.Rotate, 6f, 0f);
             Bubbles(decor, 21, 8, 0.75f);
+            // These bubbles land behind the buttons/hero; keep only the ones on clear background.
+            foreach (var n in new[] { "Bubble_0", "Bubble_1", "Bubble_2", "Bubble_3", "Bubble_7" })
+                decor.Find("Bubbles/" + n).gameObject.SetActive(false);
             Clouds(decor);
 
             // Logo
-            var logo = Node(root, "Logo"); logo.SetSiblingIndex(2);
-            Place(logo, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -170), new Vector2(1000, 420));
-            var lt = Node(logo, "Title"); Place(lt, Center, Center, new Vector2(0, 30), new Vector2(1000, 340));
-            TitleStyle(Txt(lt, "MATCH\nTHEM ALL", 150, Color.white, null), 150f);
-            Motion(lt, UISimpleMotion.Mode.Float, 8f, 0.35f);
+            var logo = GameTitle(root, "Logo"); logo.SetSiblingIndex(2);
+            Place(logo, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -263), new Vector2(1000, 420));
+            StyleGameTitle(logo, new Vector2(0, 30), new Vector2(1000, 800) * (150f / 180f), 0.4f, new Vector2(0, 30), new Vector2(1000, 340), 150f, 8f, 0.35f);
 
             // Hero: a pile of colourful items (what you match in-game)
             var hero = Node(root, "Hero"); hero.SetSiblingIndex(3);
@@ -165,22 +161,34 @@ namespace MatchThemAll.EditorTools
 
             // Coin pill (top-left) – reuses CoinDisplay
             var coin = Node(buttons, "CoinPill");
-            Place(coin, new Vector2(0, 1), new Vector2(0, 1), new Vector2(70, -70), new Vector2(300, 96));
+            Place(coin, new Vector2(0, 1), new Vector2(0, 1), new Vector2(53, -28), new Vector2(220, 96));
             Pill(coin);
-            var coinIcon = Node(coin, "Icon"); Place(coinIcon, new Vector2(0, 0.5f), Center, new Vector2(4, 0), new Vector2(124, 124));
+            var coinIcon = Node(coin, "Icon"); Place(coinIcon, new Vector2(0, 0.5f), Center, new Vector2(6, 0), new Vector2(112, 112));
             Img(coinIcon, Spr("Icons/Icons Colored/Coins/Coin"), Color.white, preserve: true);
-            var coinTxt = Node(coin, "CoinText"); Stretch(coinTxt, 70, 20, 0, 4);
-            Txt(coinTxt, "0", 54, Color.white, OutlineMat("Navy", Navy));
+            var coinTxt = Node(coin, "CoinText"); Stretch(coinTxt, 64, 22, 0, 4);
+            var coinTmp = Txt(coinTxt, "0", 54, Color.white, OutlineMat("Navy", Navy));
+            coinTmp.enableAutoSizing = true; coinTmp.fontSizeMin = 30; coinTmp.fontSizeMax = 54;
             if (!coinTxt.GetComponent<CoinDisplay>()) coinTxt.gameObject.AddComponent<CoinDisplay>();
+
+            // Gem pill (under the coin pill) – instance of the shared GemPill prefab
+            var gem = buttons.Find("GemPill") as RectTransform;
+            if (!gem)
+            {
+                var gemPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(GemPillPrefabPath);
+                gem = (RectTransform)((GameObject)PrefabUtility.InstantiatePrefab(gemPrefab, buttons)).transform;
+            }
+            gem.SetSiblingIndex(coin.GetSiblingIndex() + 1);
+            Place(gem, new Vector2(0, 1), new Vector2(0, 1), new Vector2(53, -118.48f), new Vector2(220, 96));
+            ((RectTransform)gem.Find("Icon")).anchoredPosition = new Vector2(6, 8);
 
             // Settings (top-right)
             var settings = FindDeep(root, "SettingsButton") as RectTransform;
             if (settings)
             {
                 settings.SetParent(buttons, false);
-                Place(settings, new Vector2(1, 1), new Vector2(1, 1), new Vector2(-40, -50), new Vector2(140, 140));
+                Place(settings, new Vector2(1, 1), new Vector2(1, 1), new Vector2(-23, -20), new Vector2(106, 106));
                 Img(settings, Spr("Buttons/Square/Blue"), Color.white, raycast: true, preserve: true);
-                var ic = Node(settings, "Icon"); Stretch(ic, 32, 32, 30, 34);
+                var ic = Node(settings, "Icon"); Stretch(ic, 22, 22, 20, 24);
                 Img(ic, Spr("Icons/Icons White/Basic/Settings"), Color.white, preserve: true);
                 Punch(settings);
             }
@@ -196,7 +204,7 @@ namespace MatchThemAll.EditorTools
             if (play)
             {
                 play.SetParent(buttons, false);
-                Place(play, new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 200), new Vector2(640, 210));
+                Place(play, new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 150), new Vector2(600, 196));
                 Img(play, Spr("Buttons/Rectangles/Green"), Color.white, raycast: true, type: Image.Type.Sliced, ppum: 0.48f);
                 var t = play.Find("Text (TMP)") as RectTransform;
                 if (t)
@@ -229,17 +237,10 @@ namespace MatchThemAll.EditorTools
             Clouds(decor);
 
             // Logo → title
-            var logo = root.Find("Logo") as RectTransform;
-            if (logo)
-            {
-                Place(logo, Center, Center, new Vector2(0, 220), new Vector2(1000, 520));
-                var li = logo.GetComponent<Image>(); if (li) { li.sprite = null; li.color = Color.clear; li.raycastTarget = false; }
-                var glow = Node(logo, "Glow"); Place(glow, Center, Center, Vector2.zero, new Vector2(1000, 800));
-                Img(glow, Spr("Shapes/Effects/Shine"), new Color(1, 1, 1, 0.4f)); glow.SetSiblingIndex(0);
-                var t = Node(logo, "Title"); Place(t, Center, Center, new Vector2(0, 40), new Vector2(1000, 420));
-                TitleStyle(Txt(t, "MATCH\nTHEM ALL", 180, Color.white, null), 180f);
-                Motion(t, UISimpleMotion.Mode.Float, 10f, 0.4f);
-            }
+            var logo = GameTitle(root, "Logo");
+            Place(logo, Center, Center, new Vector2(0, 220), new Vector2(983.34f, 520)); // width/title y synced to the hand-tuned scene
+            var li = logo.GetComponent<Image>(); if (li) { li.sprite = null; li.color = Color.clear; li.raycastTarget = false; }
+            StyleGameTitle(logo, Vector2.zero, new Vector2(1000, 800), 0.4f, Vector2.zero, new Vector2(1000, 420), 180f, 10f, 0.4f);
 
             // Spinner + "Loading" label above the bar
             var spinner = Node(root, "Spinner");
@@ -345,7 +346,7 @@ namespace MatchThemAll.EditorTools
             }
         }
 
-        /// <summary>Re-skins the level node prefab as glossy GUIPack circles with state art.</summary>
+        /// <summary>Re-skins the level node prefab as glossy circles with state art.</summary>
         public static void BuildNodePrefab()
         {
             var rootGo = PrefabUtility.LoadPrefabContents(NodePrefabPath);
@@ -448,35 +449,14 @@ namespace MatchThemAll.EditorTools
             fmr.receiveShadows = true;
 
             // ── Power-up tray background ──
+            // Each power-up spot carries its own "Slot Background" card and PowerupTrayLayout lays the row out,
+            // so only the old container mesh is hidden here.
             var cam = FindDeep(env.transform, "Main Camera");
             var zone = cam ? cam.Find("Powerup Zone") : null;
             if (zone)
             {
                 var old = zone.Find("Renderer");
                 if (old && old.TryGetComponent(out MeshRenderer omr)) omr.enabled = false;
-
-                // NOTE: Powerup Zone runs ItemSpotLayout over its children, so the tray lives on the camera instead.
-                var stray = zone.Find("PowerupBackground");
-                if (stray) stray.SetParent(cam, true);
-                var tray = cam.Find("PowerupBackground");
-                if (!tray)
-                {
-                    var q = GameObject.CreatePrimitive(PrimitiveType.Quad);
-                    q.name = "PowerupBackground";
-                    Object.DestroyImmediate(q.GetComponent<Collider>());
-                    q.transform.SetParent(cam, false);
-                    tray = q.transform;
-                }
-                tray.SetSiblingIndex(zone.GetSiblingIndex() + 1);
-                // Old container top face: centre (0, 8.95, 3.65), 4.65 x 1.0 on XZ.
-                tray.position = new Vector3(0f, 8.6f, 3.93f);
-                tray.rotation = Quaternion.Euler(90, 180, 0);
-                tray.localScale = new Vector3(5.3f, 1.15f, 1f);
-                var trayTex = BakePowerupTray();
-                var tmr = tray.GetComponent<MeshRenderer>();
-                tmr.sharedMaterial = UnlitTransparent("M_PowerupTray", trayTex);
-                tmr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
-                tmr.receiveShadows = false;
             }
 
             // ── HUD ──
@@ -496,7 +476,7 @@ namespace MatchThemAll.EditorTools
                 Place(coinPanel, new Vector2(0, 1), new Vector2(0, 1), new Vector2(36, -34), new Vector2(250, 96));
                 coinPanel.pivot = new Vector2(0, 1); coinPanel.anchoredPosition = new Vector2(36, -34);
                 var p = Pill(coinPanel); p.SetSiblingIndex(0);
-                var icon = coinPanel.Find("CoinIcon") as RectTransform;
+                var icon = coinPanel.Find("Icon") as RectTransform; // CoinPill prefab instance (was "CoinIcon")
                 Place(icon, new Vector2(0, 0.5f), Center, new Vector2(30, 0), new Vector2(118, 118));
                 Img(icon, Spr("Icons/Icons Colored/Coins/Coin"), Color.white, preserve: true);
                 var txt = coinPanel.Find("CoinText") as RectTransform;
@@ -555,6 +535,35 @@ namespace MatchThemAll.EditorTools
             if (!t.text.Contains("\n")) t.text = "MATCH\nTHEM ALL";
         }
 
+        /// <summary>
+        /// The shared "MATCH THEM ALL" title (GameTitle prefab: Glow + Title). Reuses an existing instance called
+        /// <paramref name="name"/>; a leftover plain copy is replaced by an instance.
+        /// </summary>
+        private static RectTransform GameTitle(Transform parent, string name)
+        {
+            var t = parent.Find(name);
+            if (t && PrefabUtility.IsPartOfPrefabInstance(t.gameObject)) return (RectTransform)t;
+            int index = t ? t.GetSiblingIndex() : parent.childCount;
+            if (t) Object.DestroyImmediate(t.gameObject);
+            var go = (GameObject)PrefabUtility.InstantiatePrefab(AssetDatabase.LoadAssetAtPath<GameObject>(GameTitlePrefabPath), parent);
+            go.name = name;
+            go.transform.SetSiblingIndex(index);
+            return (RectTransform)go.transform;
+        }
+
+        /// <summary>Per-screen look of a GameTitle instance (stored as overrides on that scene's instance).</summary>
+        private static void StyleGameTitle(RectTransform gameTitle, Vector2 glowPos, Vector2 glowSize, float glowAlpha,
+            Vector2 titlePos, Vector2 titleSize, float fontSize, float floatAmount, float floatSpeed)
+        {
+            var glow = (RectTransform)gameTitle.Find("Glow");
+            Place(glow, Center, Center, glowPos, glowSize);
+            Img(glow, Spr("Shapes/Effects/Shine"), new Color(1, 1, 1, glowAlpha));
+            var title = (RectTransform)gameTitle.Find("Title");
+            Place(title, Center, Center, titlePos, titleSize);
+            TitleStyle(title.GetComponent<TextMeshProUGUI>(), fontSize);
+            Motion(title, UISimpleMotion.Mode.Float, floatAmount, floatSpeed);
+        }
+
         private static void HeroItem(RectTransform parent, string name, string sprite, Vector2 pos, float size, float rot, float phase)
         {
             var rt = Node(parent, name);
@@ -564,20 +573,20 @@ namespace MatchThemAll.EditorTools
             Motion(rt, UISimpleMotion.Mode.Float, 10f, 0.4f, phase);
         }
 
-        /// <summary>Square GUIPack tile with an icon and a coloured label pill underneath (lobby side buttons).</summary>
+        /// <summary>Square tile with an icon and a coloured label pill underneath (lobby side buttons).</summary>
         private static void Tile(RectTransform btn, RectTransform parent, string labelName, string label, string icon, string pillSprite, Color outline, bool left)
         {
             if (!btn) return;
             btn.SetParent(parent, false);
-            var anchor = left ? new Vector2(0, 0.5f) : new Vector2(1, 0.5f);
-            Place(btn, anchor, anchor, new Vector2(left ? 50 : -50, -420), new Vector2(230, 230));
+            var anchor = left ? new Vector2(0, 0) : new Vector2(1, 0);
+            Place(btn, anchor, anchor, new Vector2(left ? 56 : -56, 430), new Vector2(210, 210));
             Img(btn, Spr("Buttons/Square/Light"), Color.white, raycast: true, preserve: true);
 
-            var ic = Node(btn, "Icon"); Place(ic, Center, Center, new Vector2(0, 18), new Vector2(170, 170));
+            var ic = Node(btn, "Icon"); Place(ic, Center, Center, new Vector2(0, 16), new Vector2(150, 150));
             Img(ic, Spr(icon), Color.white, preserve: true);
             Motion(ic, UISimpleMotion.Mode.Float, 6f, 0.6f, left ? 0f : 0.5f);
 
-            var pill = Node(btn, "LabelPill"); Place(pill, new Vector2(0.5f, 0), Center, new Vector2(0, 6), new Vector2(left ? 300 : 230, 86));
+            var pill = Node(btn, "LabelPill"); Place(pill, new Vector2(0.5f, 0), Center, new Vector2(0, 4), new Vector2(250, 76));
             Img(pill, Spr(pillSprite), Color.white, type: Image.Type.Sliced, ppum: 1.17f);
 
             var lbl = btn.Find(labelName) as RectTransform ?? pill.Find(labelName) as RectTransform ?? Node(pill, labelName);
@@ -608,16 +617,18 @@ namespace MatchThemAll.EditorTools
             Img(c, Spr("Backgrounds/Level Scene/Clouds Bottom"), new Color(1, 1, 1, 0.95f));
         }
 
-        /// <summary>Glossy GUIPack circles scattered down the screen edges, gently floating (like gumballs).</summary>
+        /// <summary>Glossy circles scattered down the screen edges, gently floating (like gumballs).</summary>
         private static void Bubbles(RectTransform parent, int seed, int count, float alpha)
         {
             var holder = Node(parent, "Bubbles"); Stretch(holder);
             for (int i = holder.childCount - 1; i >= 0; i--) Object.DestroyImmediate(holder.GetChild(i).gameObject);
             string[] colors = { "Green", "Yellow", "Blue", "Purple", "Orange", "Pink", "Red", "Teal" };
             var rnd = new System.Random(seed);
+            var bubblePrefab = AssetDatabase.LoadAssetAtPath<GameObject>(BubblePrefabPath);
             for (int i = 0; i < count; i++)
             {
-                var b = Node(holder, "Bubble_" + i);
+                var b = (RectTransform)((GameObject)PrefabUtility.InstantiatePrefab(bubblePrefab, holder)).transform;
+                b.name = "Bubble_" + i;
                 bool leftSide = (i % 2) == 0;
                 float x = leftSide ? Mathf.Lerp(0.03f, 0.2f, (float)rnd.NextDouble()) : Mathf.Lerp(0.8f, 0.97f, (float)rnd.NextDouble());
                 float y = Mathf.Lerp(0.12f, 0.95f, (i + (float)rnd.NextDouble()) / count);
@@ -869,98 +880,6 @@ namespace MatchThemAll.EditorTools
             m.globalIlluminationFlags = MaterialGlobalIlluminationFlags.None;
             EditorUtility.SetDirty(m);
             return m;
-        }
-
-        private static Material UnlitTransparent(string name, Texture2D tex)
-        {
-            EnsureFolder(Art + "Materials");
-            string p = Art + "Materials/" + name + ".mat";
-            var m = AssetDatabase.LoadAssetAtPath<Material>(p);
-            if (!m) { m = new Material(Shader.Find("Universal Render Pipeline/Unlit")); AssetDatabase.CreateAsset(m, p); }
-            m.SetTexture("_BaseMap", tex);
-            m.SetColor("_BaseColor", Color.white);
-            m.SetFloat("_Surface", 1f);   // Transparent
-            m.SetFloat("_Blend", 0f);     // Alpha
-            m.SetFloat("_SrcBlend", (float)UnityEngine.Rendering.BlendMode.SrcAlpha);
-            m.SetFloat("_DstBlend", (float)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
-            m.SetFloat("_ZWrite", 0f);
-            m.SetOverrideTag("RenderType", "Transparent");
-            m.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
-            m.renderQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent - 10;
-            EditorUtility.SetDirty(m);
-            return m;
-        }
-
-        /// <summary>
-        /// Bakes the power-up tray: renders a small GUIPack UI composition (rounded panel + 4 slots)
-        /// to a transparent PNG which is shown on a quad under the 3D power-ups.
-        /// </summary>
-        private static Texture2D BakePowerupTray()
-        {
-            EnsureFolder(Art + "Baked");
-            string p = Art + "Baked/PowerupTray.png";
-            const int W = 1060, H = 230;
-
-            var holder = new GameObject("__TrayBake");
-            holder.hideFlags = HideFlags.HideAndDontSave;
-            var camGo = new GameObject("__TrayCam"); camGo.hideFlags = HideFlags.HideAndDontSave;
-            camGo.transform.SetParent(holder.transform);
-            camGo.transform.position = new Vector3(5000, 5000, -10);
-            var cam = camGo.AddComponent<Camera>();
-            cam.orthographic = true; cam.clearFlags = CameraClearFlags.SolidColor; cam.backgroundColor = new Color(0, 0, 0, 0);
-            cam.cullingMask = 1 << 31; cam.nearClipPlane = 0.1f; cam.farClipPlane = 100f; cam.enabled = false;
-            var rtx = new RenderTexture(W, H, 24, RenderTextureFormat.ARGB32);
-            cam.targetTexture = rtx;
-
-            var cgo = new GameObject("__TrayCanvas", typeof(RectTransform)); cgo.hideFlags = HideFlags.HideAndDontSave;
-            cgo.transform.SetParent(holder.transform);
-            cgo.layer = 31;
-            var canvas = cgo.AddComponent<Canvas>();
-            canvas.renderMode = RenderMode.ScreenSpaceCamera; canvas.worldCamera = cam; canvas.planeDistance = 5;
-            var root = (RectTransform)cgo.transform;
-
-            void SetLayer(Transform t) { t.gameObject.layer = 31; foreach (Transform c in t) SetLayer(c); }
-
-            var rr = Spr("Shapes/Shapes/Rectangle/Rounded Rectangle - 256px");
-            var shadow = Node(root, "Shadow"); Stretch(shadow, 6, 6, 14, 0);
-            Img(shadow, rr, new Color(0.05f, 0.08f, 0.25f, 0.35f), type: Image.Type.Sliced, ppum: 1.15f);
-            var rim = Node(root, "Rim"); Stretch(rim, 6, 6, 6, 12);
-            Img(rim, rr, Color.white, type: Image.Type.Sliced, ppum: 1.15f);
-            var fill = Node(rim, "Fill"); Stretch(fill, 10, 10, 10, 10);
-            Img(fill, rr, Hex("3558C8"), type: Image.Type.Sliced, ppum: 1.25f);
-            var lower = Node(fill, "LowerShade"); Stretch(lower, 0, 0, 110, 0);
-            Img(lower, rr, new Color(0.15f, 0.25f, 0.7f, 0.35f), type: Image.Type.Sliced, ppum: 1.25f);
-            var gloss = Node(fill, "Gloss"); Stretch(gloss, 22, 22, 10, 120);
-            Img(gloss, rr, new Color(1, 1, 1, 0.16f), type: Image.Type.Sliced, ppum: 2.2f);
-            // Four slots centred under the power-ups (spot X = ±0.58, ±1.73 on a 5.3-wide tray).
-            float[] xs = { -1.73f, -0.58f, 0.58f, 1.73f };
-            for (int i = 0; i < xs.Length; i++)
-            {
-                var slot = Node(fill, "Slot" + i);
-                float nx = 0.5f + xs[i] / 5.3f * (W / (W - 32f));
-                Place(slot, new Vector2(nx, 0.5f), Center, new Vector2(0, -2), new Vector2(180, 180));
-                Img(slot, Spr("Shapes/Shapes/Circle/Circle - 256px"), new Color(0.75f, 0.88f, 1f, 0.28f), preserve: true);
-                var ring = Node(slot, "Ring"); Stretch(ring, -6, -6, -6, -6);
-                Img(ring, Spr("Shapes/Shapes/Circle/Circle Cartoon - With Border"), new Color(1, 1, 1, 0.3f), preserve: true);
-            }
-            SetLayer(root);
-            Canvas.ForceUpdateCanvases();
-            cam.Render();
-            var prev = RenderTexture.active; RenderTexture.active = rtx;
-            var tex = new Texture2D(W, H, TextureFormat.RGBA32, false);
-            tex.ReadPixels(new Rect(0, 0, W, H), 0, 0); tex.Apply();
-            RenderTexture.active = prev;
-            File.WriteAllBytes(p, tex.EncodeToPNG());
-            Object.DestroyImmediate(tex);
-            cam.targetTexture = null; rtx.Release(); Object.DestroyImmediate(rtx);
-            Object.DestroyImmediate(holder);
-
-            AssetDatabase.ImportAsset(p, ImportAssetOptions.ForceUpdate);
-            var imp = (TextureImporter)AssetImporter.GetAtPath(p);
-            imp.textureType = TextureImporterType.Default; imp.alphaIsTransparency = true; imp.mipmapEnabled = true; imp.npotScale = TextureImporterNPOTScale.None;
-            imp.wrapMode = TextureWrapMode.Clamp; imp.textureCompression = TextureImporterCompression.CompressedHQ;
-            imp.SaveAndReimport();
-            return AssetDatabase.LoadAssetAtPath<Texture2D>(p);
         }
     }
 }

@@ -87,3 +87,7 @@ Assets/Match Them All/graphify-out.meta
 
 Assets/Match Them All/switch-model.ps1
 Assets/Match Them All/switch-model.ps1.meta
+
+# Microsoft GDK package auto-generates this; never ship it in the template
+/Assets/Resources/GDKEditionAutoGen/
+/Assets/Resources/GDKEditionAutoGen.meta

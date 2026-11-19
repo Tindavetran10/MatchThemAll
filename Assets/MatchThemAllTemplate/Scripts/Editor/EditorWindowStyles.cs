@@ -84,8 +84,8 @@ namespace MatchThemAll.Scripts.Editor
 
                         if (cx < RndRadius && cy < RndRadius)
                         {
-                            // SDF: distance from the corner arc's centre to this pixel.
-                            // The arc centre sits RndRadius-0.5 px in from the corner of the texture.
+                            // SDF: distance from the corner arc's center to this pixel.
+                            // The arc center sits RndRadius-0.5 px in from the corner of the texture.
                             float dx   = RndRadius - 0.5f - cx;
                             float dy   = RndRadius - 0.5f - cy;
                             float dist = Mathf.Sqrt(dx * dx + dy * dy);

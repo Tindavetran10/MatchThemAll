@@ -3,43 +3,46 @@ using PrimeTween;
 
 namespace MatchThemAll.Scripts
 {
+    /// <summary>
+    /// Holds the current <see cref="EGameState"/> and broadcasts every change as a
+    /// <see cref="GameStateChangedEvent"/>. The game scene starts in GAME; a full tray ends it.
+    /// </summary>
     public class GameManager : MonoBehaviour
     {
         public static GameManager Instance;
+
         public EGameState State { get; private set; }
 
         /// <summary>The state the game was in before the most recent SetGameState call.</summary>
         public EGameState PreviousState { get; private set; }
 
+        public bool IsGame() => State == EGameState.GAME;
+
         private void Awake()
         {
-            if (!Instance)
-                Instance = this;
-            else { Destroy(gameObject); return; }
+            if (Instance && Instance != this) { Destroy(gameObject); return; }
+            Instance = this;
 
-            EventBus.Subscribe<SpotFilledEvent>(OnSpotFilled);
-
-            // Disable PrimeTween warning for tweening to current value (e.g., when merging items already at target scale)
-            PrimeTweenConfig.warnEndValueEqualsCurrent = false;
-
-            // Mobile: cap framerate and disable vSync to reduce battery drain
-            // and prevent GPU thermal throttling on mid-range devices.
+            // Mobile: 60 fps without vSync keeps battery use and thermal throttling down on mid-range phones.
             Application.targetFrameRate = 60;
             QualitySettings.vSyncCount = 0;
+
+            // Merges tween items to a scale they may already have; that is expected, not worth a warning.
+            PrimeTweenConfig.warnEndValueEqualsCurrent = false;
+
+            EventBus.Subscribe<SpotFilledEvent>(OnTrayFull);
         }
-
-        private void OnDestroy() => EventBus.Unsubscribe<SpotFilledEvent>(OnSpotFilled);
-
-        private void OnSpotFilled(SpotFilledEvent evt) => SetGameState(EGameState.GAMEOVER);
 
         private void Start() => StartGame();
 
-        public void SetGameState(EGameState gameState)
-        {
-            PreviousState = State;
-            State = gameState;
+        private void OnDestroy() => EventBus.Unsubscribe<SpotFilledEvent>(OnTrayFull);
 
-            EventBus.Publish(new GameStateChangedEvent(gameState));
+        private void OnTrayFull(SpotFilledEvent _) => SetGameState(EGameState.GAMEOVER);
+
+        public void SetGameState(EGameState next)
+        {
+            (PreviousState, State) = (State, next);
+            EventBus.Publish(new GameStateChangedEvent(next));
         }
 
         public void StartGame()  => SetGameState(EGameState.GAME);
@@ -48,18 +51,12 @@ namespace MatchThemAll.Scripts
 
         public void QuitToMenuCallback()
         {
-            ResumeGame(); // Resumes game state which smoothly closes the Pause panel
+            ResumeGame(); // leaving PAUSED lets the Pause panel close itself
             SceneLoader.Load(SceneLoader.Lobby);
         }
 
-        private static void RetryLevelCallback() =>
-            // Just reload the current level from the Game Over or Pause menu
-            SceneLoader.LoadLevel(SceneLoader.RequestedLevelIndex);
-
-        // Keep these for backward compatibility if any old buttons use them
+        // Button hooks kept for scenes that still reference them.
         public void NextButtonCallback()  => SceneLoader.LoadLevel(-1);
-        public void RetryButtonCallback() => RetryLevelCallback();
-
-        public bool IsGame() => State == EGameState.GAME;
+        public void RetryButtonCallback() => SceneLoader.LoadLevel(SceneLoader.RequestedLevelIndex);
     }
 }

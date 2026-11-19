@@ -1,114 +1,11 @@
 # MatchThemAll — Claude Code Context
 
-Behavioral guidelines adapted for this Unity project. These rules reduce common LLM coding mistakes
-and encode architecture knowledge specific to MatchThemAll.
+Hyper-casual match-3D template (Unity 6000.0, URP 17.0.4). Shared rules (how to work, memory, Unity workflow and pitfalls, model routing, skill map) live in `~/.claude/CLAUDE.md`. This file is only what is specific to this game.
 
-**Tradeoff:** These guidelines bias toward caution over speed. For trivial tasks, use judgment.
+Art and mobile skills: `lowpoly-style`, `cartoon-style`, `genre-card-party-idle`; mobile budgets via `unity:optimize-*`, `unity:manage-sprite-atlas`; monetisation via `unity:implement-in-app-purchases`, `unity:levelplay-unity-integration`.
 
----
-
-## 1. Think Before Coding
-
-**Don't assume. Don't hide confusion. Surface tradeoffs.**
-
-Before implementing:
-- State your assumptions explicitly. If uncertain, ask.
-- If multiple interpretations exist, present them — don't pick silently.
-- If a simpler approach exists, say so. Push back when warranted.
-- If something is unclear, stop. Name what's confusing. Ask.
-- For Unity-specific tasks, verify the API exists via `unity_reflect` or `unity_docs` before writing code — training data may be stale.
-
----
-
-## 2. Simplicity First
-
-**Minimum code that solves the problem. Nothing speculative.**
-
-- No features beyond what was asked.
-- No abstractions for single-use MonoBehaviours or ScriptableObjects.
-- No "flexibility" or "configurability" that wasn't requested.
-- No error handling for impossible Unity lifecycle scenarios.
-- If you write 200 lines and it could be 50, rewrite it.
-- Prefer extending existing managers (e.g. `PowerupManager`, `GoalManager`) over creating new ones.
-
-Ask yourself: "Would a senior Unity engineer say this is overcomplicated?" If yes, simplify.
-
----
-
-## 3. Surgical Changes
-
-**Touch only what you must. Clean up only your own mess.**
-
-When editing existing Unity scripts:
-- Don't "improve" adjacent code, serialized fields, or Inspector labels.
-- Don't refactor things that aren't broken.
-- Match existing style (field naming, region layout, event subscription pattern).
-- If you notice unrelated dead code, mention it — don't delete it.
-- Never rename public fields or serialized properties without flagging it — this breaks Inspector references and prefab overrides.
-
-When your changes create orphans:
-- Remove `using` directives, variables, and methods that YOUR changes made unused.
-- Don't remove pre-existing dead code unless asked.
-
-The test: Every changed line should trace directly to the user's request.
-
----
-
-## 4. Goal-Driven Execution
-
-**Define success criteria. Loop until verified.**
-
-Transform tasks into verifiable goals:
-- "Add a power-up" → "Wire up the new type in `PowerupManager`, subscribe to events in `GameEvents.cs`, test in Play mode"
-- "Fix the bug" → "Reproduce it first, identify the root cause, then fix — don't guess"
-- "Refactor X" → "Confirm all call sites compile and behavior is unchanged"
-
-For multi-step tasks, state a brief plan:
-```
-1. [Step] → verify: [check]
-2. [Step] → verify: [check]
-3. [Step] → verify: [check]
-```
-
-Strong success criteria let you loop independently. Weak criteria ("make it work") require constant clarification.
-
-**Mandatory Verification Before Finalizing:**
-- ALWAYS check the Unity console (via the Unity MCP tool or any console reading tool) for compilation or runtime errors before telling the user the task is complete. If you spot common Unity errors (e.g., missing references, compiler errors, null references), fix them automatically and update this file with any new common mistakes you discover before finalizing your response.
-
----
-
-## 5. graphify
-
-This project has a knowledge graph at `graphify-out/` with god nodes, community structure, and cross-file relationships.
-
-Rules:
-- For codebase questions, first run `graphify query "<question>"` when `graphify-out/graph.json` exists. Use `graphify path "<A>" "<B>"` for relationships and `graphify explain "<concept>"` for focused concepts. These return a scoped subgraph, usually much smaller than `GRAPH_REPORT.md` or raw grep output.
-- If `graphify-out/wiki/index.md` exists, use it for broad navigation instead of raw source browsing.
-- Read `graphify-out/GRAPH_REPORT.md` only for broad architecture review or when query/path/explain do not surface enough context.
-- After modifying code, run `graphify update .` to keep the graph current (AST-only, no API cost).
-
----
-
-## 6. God Nodes (most connected — touch with extreme care)
-
-These classes have the most edges in the graph. Changes here have wide ripple effects.
-
-| Rank | Class | Edges | Role |
-|------|-------|-------|------|
-| 1 | `LevelEditorWindow` | 46 | Hub of all Editor tooling |
-| 2 | `ItemManagerWindow` | 45 | Item configuration + 3D preview |
-| 3 | `ItemSpotManager` | 34 | Cross-community bridge (Gameplay ↔ Save ↔ UI) |
-| 4 | `SaveManager` | 26 | Singleton persistence — no direct refs from gameplay |
-| 5 | `TutorialManager` | 26 | Cross-community bridge (Events ↔ Lose Panel) |
-| 6 | `PowerupManager` | 22 | Cross-community bridge (Power-Ups ↔ Lose Panel) |
-| 7 | `Item` | 21 | Core gameplay object, referenced everywhere |
-| 8 | `TimerManager` | 20 | Game-state-aware timing |
-| 9 | `InputManager` | 19 | Input routing hub |
-| 10 | `GoalManager` | 18 | Goal tracking + GoalCard UI |
-
-> Before touching any God Node, run: `graphify query "What depends on <ClassName>?"`
-
----
+## 6. Hot spots
+Most connected classes (query `graphify query "What depends on <Class>?"` before touching them): `LevelEditorWindow`, `ItemManagerWindow`, `ItemSpotManager`, `SaveManager`, `TutorialManager`, `PowerupManager`, `Item`, `TimerManager`, `InputManager`, `GoalManager`. Bridge nodes (change ripples across communities): `ItemSpotManager`, `PowerupManager`, `TutorialManager`.
 
 ## 7. Architecture Rules
 
@@ -127,7 +24,7 @@ These classes have the most edges in the graph. Changes here have wide ripple ef
 ### No Import Cycles
 - Graph confirms **0 import cycles** — keep it that way
 - `MatchThemAll.Scripts` namespace: gameplay only
-- `Match_Them_All.Scripts.Editor` namespace: editor tools only (never reference from runtime)
+- `MatchThemAll.Scripts.Editor` namespace: editor tools only (never reference from runtime)
 
 ### Save System
 - `SaveManager` is bootstrapped via `RuntimeInitializeOnLoadMethod` in `SaveManagerBootstrapper`
@@ -142,46 +39,38 @@ These classes have the most edges in the graph. Changes here have wide ripple ef
 - LINQ is replaced with ZLinq (`AsValueEnumerable()`) in hot paths — maintain this pattern in new code inside managers
 - Avoid allocations in `Update()` / per-frame callbacks
 
----
-
-## 8. Community Map (key communities)
-
-| Community | Key Class(es) | What it owns |
-|-----------|--------------|--------------|
-| Level Editor Tools | `LevelEditorWindow` | Level CRUD, editor UI |
-| Item Manager Editor | `ItemManagerWindow` | Item config, 3D preview |
-| Item Spot Management | `ItemSpotManager` | Spot grid, placement logic |
-| Save System & Player Data | `SaveManager`, `PlayerData` | Persistence, player state |
-| Core Game Events | `EventBus<T>`, `GameEvents` | All inter-system events |
-| Power-Up Types & Settings | `PowerupManager`, `GameSettingsSO` | Power-up logic + settings SO |
-| Merge System | `MergeManager` | Match-3 merge, VFX |
-| Input Handling | `InputManager`, `MTAInputSystem_Actions` | Input routing, raycasting |
-| Goal Management | `GoalManager`, `GoalCard` | Goal tracking + UI |
-| Timer Management | `TimerManager` | Game-state-aware countdown |
-| Item Behavior | `Item` | Core item physics + state |
-| Item Placement | `ItemPlacer` | Spawn, preview, placement |
-| Audio Manager | `SoundManager`, `SoundDataSO` | Audio playback |
-| Game Manager | `GameManager` | Game state machine |
-| Level Data Management | `LevelDataSO` | Level config (ScriptableObject) |
-| Pixelate Render Feature | `PixelizeFeature`, `PixelizePass` | Custom URP render pass |
-| UI Manager | `UIManager` | Panel switching via GameState |
-| Tutorial Steps | `TutorialManager` | Step-based tutorial logic |
-| Combo System | `ComboManager` | Combo tracking + multiplier |
-| Hint System | `HintManager` | Item highlight hints |
-| Shop & Gems | `ShopManager`, `ShopProductCard` | IAP-style shop, gem economy |
-
-> Full list: see `graphify-out/GRAPH_REPORT.md` → Community Hubs section
-
----
-
-## 9. Cross-Community Bridge Nodes (high betweenness — careful!)
-
-These nodes connect otherwise separate communities. Breaking them breaks multiple systems:
-- `ItemSpotManager` — bridges Item Spot Management ↔ Lose Panel (betweenness: 0.050)
-- `PowerupManager` — bridges Power-Ups ↔ Lose Panel (betweenness: 0.037)
-- `TutorialManager` — bridges Core Game Events ↔ Lose Panel (betweenness: 0.037)
-
----
+### Known Pitfalls (index; full text + repro steps in `docs/claude-pitfalls.md`)
+Shared Unity pitfalls (real state path, `#if UNITY_EDITOR`, async cancellation, game-state switches, prefab refs, model swaps, overlay layering, RunCommand aliases/Step) are in the global file; the project-specific detail for them is in the doc.
+- Items/props: one submesh + one material `M_Palette` (`Item.Select` swaps materials).
+- Tests that change the save: restore it, then `SaveManager.Flush()` (stopping Play mode doesn't write it).
+- Merged sprites keep the top layer's sorting order (`Video Icon` above `Container`).
+- No silent spending: every currency cost is an explicit choice (`PowerupOfferPanel`).
+- Player builds: after editor-only branches, run `PlayerBuildInterface.CompilePlayerScripts` from RunCommand.
+- `GameStateChangedEvent`: list do-nothing states explicitly; `TimerManager` resumes only a timer that was running.
+- Scene fades: only `SceneLoader.FadeToBlack` / `FadeFromBlack`; measure with a frame trace on `DebugCheats`.
+- `AdManager` self-bootstraps (no scene has it); grep GUIDs before assuming a manager exists.
+- Monetization is compile-optional: never reference LevelPlay/IAP SDK types from Assembly-CSharp.
+- Tray: `ItemSpotManager.Arrived` runs `MatchSystem.CheckSettledTray()` after the last mover settles.
+- Store: grant + save only in `ShopManager.GrantStorePurchase`, never in the `TryPurchase` callback.
+- State panels (`Level Complete` etc.) must be saved inactive (`WinPanelManager.OnEnable` pays out).
+- Currency grants publish `CurrencyGrantedEvent`; never publish from a panel's `OnEnable` to its own children.
+- Daily reward date = last *claim* date (`DailyRewardManager.GrantReward`).
+- Power-ups are data-driven (`PowerupDatabase`, `Match Them All > Power-up Manager`): never key on `so.id`, darken via `MaterialPropertyBlock` not `M_Palette`, taps wait for `LevelManager.IsLevelReady`, tray redraws on `LevelSpawned`. Read the doc before any power-up change.
+- Starting charges are seeded per id: renaming an id re-grants them. Effect runtime state must be `[NonSerialized]`.
+- Vacuum rig: rebuild with `Generate Vacuum Hose` + `Wire Vacuum`; clip keys use ClampedAuto tangents. RunCommand: `using UMesh = UnityEngine.Mesh;`.
+- Power-up VFX: regenerate with *Generate Powerup FX*, not *Generate VFX*.
+- Timer: nothing hangs below `Timer Container`; freeze UI lives inside it (`FreezeBar`, `FreezeBadge`); `FreezeOverlay` planeDistance 10.6.
+- RunCommand keeps going after a logged error: check `IsPartOfPrefabInstance` before reparenting, verify after saving.
+- Don't save scripts during Play mode (statics reset, NREs are artifacts).
+- Unity 6000.0 / URP 17.0.4 only; never commit from a newer editor (`k_AssetVersion` in `Settings/*RPAsset.asset`).
+- Button Color Tint `Normal Color` stays white.
+- `GameTitle.prefab` owns text/font/material; scenes override only position/size/glow.
+- The user edits scenes by hand: never run `UI Overhaul` (or any builder) blind; snapshot, run, diff, restore.
+- IMGUI windows: always draw the Save button (disabled when clean), `GUI.FocusControl(null)` when a field hides, no `[TextArea]` in `PropertyField`.
+- Template must compile alone: test via clean-project import of `Assets/MatchThemAllTemplate` only; no scratch scripts in it.
+- `ProjectSetup.cs` owns buyer setup; layers by number (Match Stuff 6, Power Ups 7, Tutorial 8); find the RP asset by GUID.
+- Tutorial steps must set `InputManager.IsTutorialActive` for items AND power-ups; test through real input (see doc), back up `save.json`.
+- Sound volumes live per event in `SoundLibrary.asset`; mixer volumes are the player's settings.
 
 ## 10. Obsidian Second Brain
 
@@ -191,35 +80,6 @@ The vault root is the project root (where `.obsidian/` lives). In Obsidian:
 - `docs/` — architecture decision records, specs, plans
 
 When you make an architectural decision, log it in Obsidian under `docs/decisions/`.
-
----
-
-## 11. Unity Plugin Skills
-
-This project has the official Unity plugin for Claude Code installed with 29+ skills.
-
-**Use Unity MCP tools BEFORE writing custom code** — many common tasks are already covered:
-
-| Task | Skill/Command |
-|------|---------------|
-| Find GameObjects | `find_gameobjects`, `find_gameobjects_tag`, `find_gameobjects_by_name` |
-| Create/Modify objects | `gameobject-create`, `gameobject-modify` |
-| Add components | `gameobject-component-add`, `script-update-or-create` |
-| Asset operations | `assets-*` (find, copy, move, delete, material-create, prefab-*) |
-| Animation | `animation-*`, `animator-*` |
-| Scene ops | `scene-open`, `scene-save`, `scene-get-data` |
-| Package management | `package-add`, `package-list`, `package-search` |
-| Profiler | `profiler-*` (memory, rendering, script stats) |
-| Screenshots | `screenshot-scene-view`, `screenshot-game-view` |
-| Console logs | `console-get-logs`, `console-clear-logs` |
-| Run tests | `tests-run` |
-
-**Quick workflow:**
-1. Check editor state: `editor-application-get-state`
-2. Find existing assets/objects via Unity skills
-3. Only write custom code when no existing skill covers it
-
-**Full skill list:** Run `/skill-doctor` or check `.claude/settings.json` → `skills`.
 
 ---
 
@@ -237,7 +97,3 @@ graphify update .
 # Full re-cluster (regenerates GRAPH_REPORT.md)
 graphify cluster-only .
 ```
-
----
-
-**These guidelines are working if:** fewer unnecessary changes in diffs, fewer rewrites due to overcomplication, clarifying questions come before implementation rather than after mistakes, and no broken Inspector references or prefab overrides from silent renames.

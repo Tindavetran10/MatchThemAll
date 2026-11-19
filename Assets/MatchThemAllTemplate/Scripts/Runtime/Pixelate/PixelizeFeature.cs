@@ -1,7 +1,9 @@
+using UnityEngine;
 using UnityEngine.Rendering.Universal;
 
 namespace MatchThemAll.Scripts.Pixelate
 {
+    /// <summary>URP renderer feature that adds <see cref="PixelizePass"/> to game cameras (never the Scene view).</summary>
     public class PixelizeFeature : ScriptableRendererFeature
     {
         [System.Serializable]
@@ -9,31 +11,24 @@ namespace MatchThemAll.Scripts.Pixelate
         {
             public RenderPassEvent renderPassEvent = RenderPassEvent.BeforeRenderingPostProcessing;
 
-            [UnityEngine.Range(1, 32)]
-            [UnityEngine.Tooltip("Size of each pixel block in screen pixels. Higher = chunkier pixelation.")]
+            [Range(1, 32)]
+            [Tooltip("Size of each pixel block in screen pixels. Higher = chunkier pixelation.")]
             public int pixelSize = 4;
         }
 
-        [UnityEngine.SerializeField] private CustomPassSettings settings = new CustomPassSettings();
-        private PixelizePass _customPass;
+        [SerializeField] private CustomPassSettings settings = new();
 
-        /// <summary>Toggled at runtime by PixelizeController to match game state.</summary>
+        /// <summary>Global on/off switch, e.g. flipped by PixelizeController from the game state.</summary>
         public static bool IsActive { get; set; } = true;
 
-        public override void Create()
-        {
-            _customPass = new PixelizePass(settings);
-        }
+        private PixelizePass _pass;
 
-        // URP 17: use the parameterless override — RenderingData is gone.
+        public override void Create() => _pass = new PixelizePass(settings);
+
         public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
         {
-#if UNITY_EDITOR
-            if (renderingData.cameraData.isSceneViewCamera) return;
-#endif
-            renderer.EnqueuePass(_customPass);
+            if (renderingData.cameraData.cameraType == CameraType.SceneView) return;
+            renderer.EnqueuePass(_pass);
         }
-
-        protected override void Dispose(bool disposing) => _customPass?.Dispose();
     }
 }

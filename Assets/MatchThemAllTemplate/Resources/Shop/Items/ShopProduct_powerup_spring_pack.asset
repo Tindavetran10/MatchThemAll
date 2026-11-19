@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: powerup_spring_pack
   displayName: Spring Pack
-  icon: {fileID: 21300000, guid: 6d3f62398865c47498a28f88408ac354, type: 3}
+  icon: {fileID: 21300000, guid: b65daf41af15272428957992a27b269c, type: 3}
   tabId: powerups
   priceCurrency: 0
   priceAmount: 120

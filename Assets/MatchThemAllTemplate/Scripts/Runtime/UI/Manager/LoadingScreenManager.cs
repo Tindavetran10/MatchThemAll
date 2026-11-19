@@ -4,7 +4,6 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-using PrimeTween;
 using Random = UnityEngine.Random;
 
 namespace MatchThemAll.Scripts
@@ -67,33 +66,9 @@ namespace MatchThemAll.Scripts
                 // Activate scene only when both loading and minimum time are done
                 if (op.progress >= 0.9f && elapsed >= minimumLoadTime && !op.allowSceneActivation)
                 {
-                    // Create a fader to transition out of the loading screen smoothly
-                    var go = new GameObject("LoadingTransitionFader");
-                    DontDestroyOnLoad(go);
-
-                    var canvas = go.AddComponent<Canvas>();
-                    canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-                    canvas.sortingOrder = 999;
-
-                    var img = go.AddComponent<Image>();
-                    img.color = new Color(0, 0, 0, 0);
-
-                    Tween.Custom(0f,
-                            1f,
-                            0.4f,
-                            onValueChange: val =>
-                            {
-                                img.color = new Color(0,
-                                    0,
-                                    0,
-                                    val);
-                            },
-                            ease: Ease.OutQuad,
-                            useUnscaledTime: true)
-                        .OnComplete(() =>
-                        {
-                            ActivateAndFadeIn(op, img, go);
-                        });
+                    // Fade out of the loading screen with the same fader as SceneLoader
+                    var img = SceneLoader.CreateFader("LoadingTransitionFader");
+                    SceneLoader.FadeToBlack(img).OnComplete(() => ActivateAndFadeIn(op, img));
 
                     // Break out of the loop since we handle activation via PrimeTween now
                     break;
@@ -102,7 +77,7 @@ namespace MatchThemAll.Scripts
             }
         }
 
-        private static async void ActivateAndFadeIn(AsyncOperation op, Image img, GameObject faderGo)
+        private static async void ActivateAndFadeIn(AsyncOperation op, Image img)
         {
             try
             {
@@ -121,12 +96,8 @@ namespace MatchThemAll.Scripts
                     await LevelManager.Instance.LoadTask;
                 }
 
-                // Fade back in
-                await Tween.Custom(1f, 0f, 0.6f, onValueChange: val =>
-                    {
-                        if (img) img.color = new Color(0, 0, 0, val);
-                    }, startDelay: 0.15f, ease: Ease.OutQuad, useUnscaledTime: true)
-                    .OnComplete(() => { Destroy(faderGo); });
+                // Fade back in (waits out the new scene's heavy first frames, then destroys the fader)
+                await SceneLoader.FadeFromBlack(img);
             }
             catch (Exception e)
             {

@@ -1,22 +1,24 @@
+using NaughtyAttributes;
 using UnityEngine;
-using NaughtyAttributes; // Critical: Added missing namespace!
 
 namespace MatchThemAll.Scripts
 {
+    /// <summary>
+    /// One row of a level's item list. <see cref="amount"/> is the goal size (a multiple of 3);
+    /// the board spawns amount × multiplier copies so extra sets can act as decoys.
+    /// </summary>
     [System.Serializable]
     public struct ItemLevelData
     {
-        [SerializeField] public Item itemPrefab; // Explicit serialization
-        [SerializeField] public bool isGoal;
-        [SerializeField] public int multiplier;
+        public Item itemPrefab;
+        [Tooltip("Show this item as a goal card. Non-goal items are filler.")]
+        public bool isGoal;
+        [Tooltip("Board copies = amount × multiplier (values below 1 count as 1).")]
+        public int multiplier;
 
+        [ValidateInput(nameof(ValidateAmount), "Amount must be a multiple of 3")]
+        [Range(1, 100)] public int amount;
 
-        [Header("Data Configuration")] // Optional: Groups fields in Inspector
-        // ⬜Restores the slider UI in Unity Editor
-        [ValidateInput(nameof(ValidateAmount), "Amount must be a multiple of 3")] // ✅Validation callback
-        [SerializeField] [Range(1, 100)] public int amount;
-
-        public bool ValidateAmount(int value) // ✅Public method with required signature
-            => value % 3 == 0;
+        public bool ValidateAmount(int value) => value % 3 == 0;
     }
 }

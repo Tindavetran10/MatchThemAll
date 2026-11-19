@@ -12,6 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6555fd2a693358d43a48520c3eaaa4b4, type: 3}
   m_Name: LevelData05
   m_EditorClassIdentifier: 
+  levelId: LevelData05
+  themeBackground: {fileID: 0}
+  themeName: 
   spotCount: 7
   duration: 60
   seed: 45062
@@ -40,7 +43,18 @@ MonoBehaviour:
     isGoal: 0
     multiplier: 2
     amount: 3
-  tutorialSteps: []
+  tutorialSteps:
+  - message: 'New power-up: Vacuum!
+
+      Tap it to suck up items you still need.'
+    highlightTarget: 2
+    itemName: 0
+    powerupId: vacuum
+    manualTargets: []
+    completionCondition: 1
+    autoCompleteDelay: 3
+    startDelay: 1.5
+    pauseTimer: 1
   rewardMode: 1
   baseCoinReward: 50
   coinsPerStar: 10

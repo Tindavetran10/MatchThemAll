@@ -58,29 +58,33 @@ namespace MatchThemAll.Scripts.UI
 
         // Reset the in-session static at the start of every Play session so a fresh launch always
         // falls through to PlayerPrefs (or SnapToFurthest) rather than a stale Editor-run value.
-        [UnityEngine.RuntimeInitializeOnLoadMethod(UnityEngine.RuntimeInitializeLoadType.SubsystemRegistration)]
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void ResetSessionStatics() => _rememberedNormalizedY = null;
 
         private async void Start()
         {
-            if (backButton)
-                backButton.onClick.AddListener(OnBackClicked);
-
-            EnsureViewportRaycastImage();
-
-            // Clamped = no elastic bounce/snap-back, ever.
-            if (scrollRect)
+            try
             {
-                scrollRect.movementType = ScrollRect.MovementType.Clamped;
-                scrollRect.elasticity   = 0f;
-                scrollRect.onValueChanged.AddListener(OnScrollChanged);
-            }
+                if (backButton)
+                    backButton.onClick.AddListener(OnBackClicked);
 
-            try { await LoadLevelsAsync(); }
+                EnsureViewportRaycastImage();
+
+                // Clamped = no elastic bounce/snap-back, ever.
+                if (scrollRect)
+                {
+                    scrollRect.movementType = ScrollRect.MovementType.Clamped;
+                    scrollRect.elasticity   = 0f;
+                    scrollRect.onValueChanged.AddListener(OnScrollChanged);
+                }
+
+                await LoadLevelsAsync();
+            }
             catch (Exception e) { Debug.LogException(e); }
 
             // Hand off to a coroutine so we can yield until layout is ready.
-            StartCoroutine(BuildAfterLayout());
+            // (`this` is false if the scene was left during the await — StartCoroutine would throw outside the catch.)
+            if (this) StartCoroutine(BuildAfterLayout());
         }
 
 

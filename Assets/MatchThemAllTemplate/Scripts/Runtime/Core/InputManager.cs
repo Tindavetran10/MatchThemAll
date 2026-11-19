@@ -1,5 +1,4 @@
 using MatchThemAll.Scripts.Power_Ups;
-using MatchThemAll.Scripts;
 using UnityEngine;
 
 namespace MatchThemAll.Scripts

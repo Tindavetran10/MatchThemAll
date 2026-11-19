@@ -1,3 +1,4 @@
+using PrimeTween;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -12,14 +13,15 @@ namespace MatchThemAll.Scripts.UI
     public class UIButtonPunch : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerExitHandler
     {
         [SerializeField] private float pressedScale = 0.92f;
+        [Tooltip("Higher = snappier. The squash/release tween lasts 3 / speed seconds.")]
         [SerializeField] private float speed = 18f;
         [Tooltip("Sound played when the button is pressed. Set to None for silent buttons.")]
         [SerializeField] private SoundEvent clickSound = SoundEvent.ButtonClick;
 
         private Vector3 _baseScale = Vector3.one;
         private float _target = 1f;
-        private float _current = 1f;
         private Selectable _selectable;
+        private Tween _tween;
 
         private void Awake()
         {
@@ -29,26 +31,27 @@ namespace MatchThemAll.Scripts.UI
 
         private void OnDisable()
         {
-            _target = _current = 1f;
+            _tween.Stop();
+            _target = 1f;
             transform.localScale = _baseScale;
         }
 
         public void OnPointerDown(PointerEventData eventData)
         {
             if (_selectable && !_selectable.IsInteractable()) return;
-            _target = pressedScale;
+            ScaleTo(pressedScale);
             SoundManager.Sfx(clickSound);
         }
 
-        public void OnPointerUp(PointerEventData eventData) => _target = 1f;
-        public void OnPointerExit(PointerEventData eventData) => _target = 1f;
+        public void OnPointerUp(PointerEventData eventData) => ScaleTo(1f);
+        public void OnPointerExit(PointerEventData eventData) => ScaleTo(1f);
 
-        private void Update()
+        private void ScaleTo(float target)
         {
-            if (Mathf.Approximately(_current, _target)) return;
-            _current = Mathf.Lerp(_current, _target, 1f - Mathf.Exp(-speed * Time.unscaledDeltaTime));
-            if (Mathf.Abs(_current - _target) < 0.001f) _current = _target;
-            transform.localScale = _baseScale * _current;
+            if (Mathf.Approximately(_target, target)) return;
+            _target = target;
+            _tween.Stop();
+            _tween = Tween.Scale(transform, _baseScale * target, 3f / speed, Ease.OutCubic, useUnscaledTime: true);
         }
     }
 }

@@ -15,19 +15,29 @@ MonoBehaviour:
   id: freeze
   displayName: Freeze Gun
   icon: {fileID: 0}
-  order: 3
-  unlockLevel: 0
+  order: 0
+  unlockLevel: 1
   defaultAmount: 3
   buyCurrency: 0
   buyCost: 50
-  uiPrefab: {fileID: 2786794367453939414, guid: 73fc18920915a614e9e350ade3a95b05, type: 3}
+  uiPrefab: {fileID: 4122666091598268265, guid: dd8ac3c77c90a474d9f41ae266d13ff6, type: 3}
+  trayModel: {fileID: 0}
+  modelOffset: {x: 0, y: 0.04, z: 0}
+  modelRotation: {x: 0, y: 0, z: 0}
   effect:
     rid: 1442196544509706362
-  activateVfx: {fileID: 8945437913633598229, guid: a130f43e0e870234ab1571b5a00ed018, type: 3}
+  activateSound: {fileID: 8300000, guid: 4493f72758a33a94bac171c6c018e950, type: 3}
+  activateVolume: 1
+  activatePitch: 0.75
+  activateVfx: {fileID: 7071907022378137095, guid: d079ff272ea7a124c9395b4b7a4db584, type: 3}
   endVfx: {fileID: 0}
   references:
     version: 2
     RefIds:
     - rid: 1442196544509706362
       type: {class: FreezeEffect, ns: MatchThemAll.Scripts.Power_Ups, asm: Assembly-CSharp}
-      data: 
+      data:
+        laserPrefab: {fileID: 6132120570328099327, guid: a0b3795d48e205944993164cb57d541b, type: 3}
+        laserTarget: {x: 0.5, y: 0.55}
+        boardHeight: 4
+        shootLift: {x: 0.45, y: 2}

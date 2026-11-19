@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using MatchThemAll.Scripts.Power_Ups;
 using MatchThemAll.Scripts.SaveSystem;
 
 namespace MatchThemAll.Scripts.UI
@@ -10,55 +11,39 @@ namespace MatchThemAll.Scripts.UI
         [SerializeField] private DailyRewardPanel rewardPanelPrefab;
         [SerializeField] private Transform uiCanvas;
 
-        private void Start() => CheckDailyReward();
-
-        private void CheckDailyReward()
+        private void Start()
         {
-            var (lastPlayedStr, loginStreak) = SaveManager.GetDailyRewardData();
-            DateTime currentDate = DateTime.Now.Date;
+            int day = UnclaimedStreakDay();
+            if (day > 0) ShowRewardPopup(day);
+        }
 
-            if (string.IsNullOrEmpty(lastPlayedStr))
-            {
-                // First time ever playing
-                SaveManager.SaveDailyRewardData(1, currentDate.ToString("O"));
-                ShowRewardPopup(1);
-                return;
-            }
+        /// <summary>
+        /// The streak day (1-7) the player can claim today, or 0 if today's reward was already claimed.
+        /// The saved date is the last CLAIM date (written by GrantReward), so closing the popup keeps the reward.
+        /// </summary>
+        private static int UnclaimedStreakDay()
+        {
+            var (lastClaimStr, loginStreak) = SaveManager.GetDailyRewardData();
+            if (string.IsNullOrEmpty(lastClaimStr) || !DateTime.TryParse(lastClaimStr, out DateTime lastClaim))
+                return 1; // First time ever playing
 
-            if (DateTime.TryParse(lastPlayedStr, out DateTime lastPlayedDate))
-            {
-                int daysDifference = (int)(currentDate - lastPlayedDate.Date).TotalDays;
+            int daysDifference = (int)(DateTime.Now.Date - lastClaim.Date).TotalDays;
+            if (daysDifference <= 0) return 0; // Already claimed today
 
-                switch (daysDifference)
-                {
-                    case 0:
-                        // Already played today, no reward.
-                        return;
-                    case 1:
-                        // Played exactly yesterday, increment streak
-                        loginStreak++;
-                        break;
-                    case > 1:
-                        // Missed a day or more, reset streak
-                        loginStreak = 1;
-                        break;
-                }
-                
-                // Cap streak logic (loop back or cap at 7)
-                if (loginStreak > 7)
-                {
-                    loginStreak = 1; // Loop back to 1
-                }
-
-                SaveManager.SaveDailyRewardData(loginStreak, currentDate.ToString("O"));
-                ShowRewardPopup(loginStreak);
-            }
+            // Claimed exactly yesterday: continue the streak. Missed a day or more: start over.
+            int day = daysDifference == 1 ? loginStreak + 1 : 1;
+            return day > 7 ? 1 : day; // Loop back to 1 after day 7
         }
 
         public void ShowRewardPanelManual()
         {
+            int day = UnclaimedStreakDay();
+            if (day > 0) { ShowRewardPopup(day); return; }
+
+            // Already claimed today: show the calendar with Claim disabled.
             var (_, loginStreak) = SaveManager.GetDailyRewardData();
-            ShowRewardPopup(Mathf.Clamp(loginStreak, 1, 7));
+            if (rewardPanelPrefab && uiCanvas)
+                Instantiate(rewardPanelPrefab, uiCanvas).Initialize(Mathf.Clamp(loginStreak, 1, 7), null);
         }
 
         private void ShowRewardPopup(int streakDay)
@@ -77,30 +62,34 @@ namespace MatchThemAll.Scripts.UI
 
         private static void GrantReward(int streakDay)
         {
+            if (UnclaimedStreakDay() == 0) return; // already claimed today (e.g. two panels open)
+            SaveManager.SaveDailyRewardData(streakDay, DateTime.Now.Date.ToString("O"));
+
+            int coins = 0;
             switch (streakDay)
             {
                 case 1:
-                    SaveManager.AddCoins(10);
+                    coins = 10;
                     break;
                 case 2:
-                    SaveManager.AddCoins(25);
+                    coins = 25;
                     break;
                 case 3:
-                    SaveManager.AddCoins(50);
+                    coins = 50;
                     SaveManager.AddPowerupCharge("vacuum", 1);
                     break;
                 case 4:
-                    SaveManager.AddCoins(75);
+                    coins = 75;
                     break;
                 case 5:
-                    SaveManager.AddCoins(100);
+                    coins = 100;
                     SaveManager.AddPowerupCharge("spring", 1);
                     break;
                 case 6:
-                    SaveManager.AddCoins(150);
+                    coins = 150;
                     break;
                 case 7:
-                    SaveManager.AddCoins(300);
+                    coins = 300;
                     SaveManager.AddPowerupCharge("vacuum", 1);
                     SaveManager.AddPowerupCharge("spring", 1);
                     SaveManager.AddPowerupCharge("fan", 1);
@@ -108,7 +97,9 @@ namespace MatchThemAll.Scripts.UI
                     break;
             }
 
+            SaveManager.AddCoins(coins);
             SaveManager.Flush(); // Daily reward = natural save point
+            EventBus.Publish(new CurrencyGrantedEvent(ECurrency.Coins, coins, CurrencyGrantedEvent.ScreenCenter));
             Debug.Log($"[DailyReward] Granted Day {streakDay} reward!");
         }
     }

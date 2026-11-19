@@ -30,9 +30,14 @@ namespace MatchThemAll.Scripts.Shop
         {
             if (buyButton) buyButton.onClick.AddListener(OnBuyClicked);
             EventBus.Subscribe<ShopPurchaseSucceededEvent>(OnPurchaseSucceeded);
+            if (ShopManager.Instance) ShopManager.Instance.PricesUpdated += RefreshOwnedState;
         }
 
-        private void OnDestroy() => EventBus.Unsubscribe<ShopPurchaseSucceededEvent>(OnPurchaseSucceeded);
+        private void OnDestroy()
+        {
+            EventBus.Unsubscribe<ShopPurchaseSucceededEvent>(OnPurchaseSucceeded);
+            if (ShopManager.Instance) ShopManager.Instance.PricesUpdated -= RefreshOwnedState;
+        }
 
         public void Configure(ShopProductSO product)
         {
@@ -57,21 +62,25 @@ namespace MatchThemAll.Scripts.Shop
             if (!_product) return;
 
             bool fulfilled = _product.IsFulfilled();
+            string price = FormatPrice(_product);
+            bool buyable = !fulfilled && price != null; // a store product without a store price can't be bought yet
+
             if (ownedLabel) ownedLabel.SetActive(fulfilled);
             if (priceText)
             {
                 priceText.gameObject.SetActive(!fulfilled);
-                if (!fulfilled) priceText.text = FormatPrice(_product);
+                if (!fulfilled) priceText.text = price ?? "…";
             }
-            if (buyButton) buyButton.interactable = !fulfilled;
+            if (buyButton) buyButton.interactable = buyable;
         }
 
         // Re-check after any purchase (another product may share the entitlement key, or this very card was bought).
         private void OnPurchaseSucceeded(ShopPurchaseSucceededEvent _) => RefreshOwnedState();
 
+        // Real-money prices always come from the store, in the player's own currency (null until fetched).
         private static string FormatPrice(ShopProductSO p) =>
-            p.IsIap ? $"${p.priceAmount / 100f:0.00}" : // IAP prices conventionally stored in cents
-                $"{p.priceAmount} {p.priceCurrency}";
+            p.IsIap ? ShopManager.Instance ? ShopManager.Instance.GetLocalizedPrice(p) : null
+                    : $"{p.priceAmount} {p.priceCurrency}";
 
         private void OnBuyClicked()
         {

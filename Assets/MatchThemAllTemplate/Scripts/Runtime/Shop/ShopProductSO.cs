@@ -61,8 +61,8 @@ namespace MatchThemAll.Scripts.Shop
         [Tooltip("If true, the product can only be bought once (e.g. Remove Ads, Starter Pack). Shows 'Owned' + disables Buy after purchase.")]
         public bool isOneTime;
 
-        [Header("IAP (Phase 2)")]
-        [Tooltip("Store product id for real-money purchases. Leave empty for soft-currency products.")]
+        [Header("Real-money price (IAP)")]
+        [Tooltip("Store product id (same as in Google Play / App Store Connect). Set it to sell this for real money: the card shows the store price and the coin Amount is ignored. Leave empty for coin products.")]
         public string iapProductId;
         public bool IsIap => !string.IsNullOrEmpty(iapProductId);
 

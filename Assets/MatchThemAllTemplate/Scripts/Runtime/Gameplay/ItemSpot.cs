@@ -2,41 +2,34 @@ using UnityEngine;
 
 namespace MatchThemAll.Scripts
 {
+    /// <summary>One slot of the tray. Holds at most one item and plays a small bump when something lands.</summary>
     public class ItemSpot : MonoBehaviour
     {
-        [Header("Elements")]
+        private static readonly int BumpState = Animator.StringToHash("Bump");
+
         [SerializeField] private Animator _animator;
         [SerializeField] private Transform _itemParent;
 
-        // PUBLIC ACCESS: Allows other scripts to see what item is in this spot
-        // Like looking through a window to see what's inside a parking space
-        [field: Header("Settings")]
         public Item Item { get; private set; }
 
-        // SPOT OCCUPIER: Places an item in this parking spot
+        public bool IsEmpty() => Item == null;
+
+        /// <summary>Takes ownership of <paramref name="item"/> and parents it under this slot.</summary>
         public void Populate(Item item)
         {
-            // Remember which item is parked here
             Item = item;
-            // Make the item a child of this spot (like putting it in a folder)
-            item.transform.SetParent(_itemParent);
-            // Tell the item which spot it's now living in
             item.AssignSpot(this);
+            item.transform.SetParent(_itemParent);
         }
-        
-        // SPOT CLEANER: Removes the item reference from this spot
-        // Like erasing the name from a parking space when someone leaves
-        // Note: This doesn't destroy the item, just marks the spot as available
+
+        /// <summary>Forgets the current occupant without touching its GameObject.</summary>
         public void Clear()
         {
-            if (Item) 
-                Item.UnassignSpot();
+            var previous = Item;
             Item = null;
+            if (previous && previous.Spot == this) previous.UnassignSpot();
         }
-        
-        public void BumpDown() => _animator.Play("Bump", 0, 0);
 
-        // AVAILABILITY CHECKER: Returns true if no item is using this spot
-        public bool IsEmpty() => !Item;
+        public void BumpDown() => _animator.Play(BumpState, 0, 0f);
     }
 }

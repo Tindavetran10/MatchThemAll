@@ -53,10 +53,30 @@ namespace MatchThemAll.Scripts
             FadeAndLoad(Loading);
         }
 
-        private static void FadeAndLoad(string nextScene)
+        // ── Transition fade (shared with LoadingScreenManager so both hops look the same) ──
+        private const float FadeDuration = 0.5f;   // to black and back, same length both ways
+        private const float HoldOnBlack  = 0.1f;
+        private const Ease  FadeEase     = Ease.InOutSine;
+
+        private static async void FadeAndLoad(string nextScene)
         {
-            // Create a persistent canvas for the fade
-            var go = new GameObject("SceneTransitionFader");
+            try
+            {
+                var fader = CreateFader("SceneTransitionFader");
+                await FadeToBlack(fader);
+                SceneManager.LoadScene(nextScene); // switch once the screen is fully black
+                await FadeFromBlack(fader);
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogException(e);
+            }
+        }
+
+        /// <summary>Full-screen black overlay that survives the scene change, starting transparent.</summary>
+        public static UnityEngine.UI.Image CreateFader(string name)
+        {
+            var go = new GameObject(name);
             Object.DontDestroyOnLoad(go);
 
             var canvas = go.AddComponent<Canvas>();
@@ -64,29 +84,32 @@ namespace MatchThemAll.Scripts
             canvas.sortingOrder = 999; // Render on top of everything
 
             var img = go.AddComponent<UnityEngine.UI.Image>();
-            img.color = new Color(0, 0, 0, 0); // Start transparent
+            img.color = new Color(0, 0, 0, 0);
+            return img;
+        }
 
-            // Fade to black over 0.4 seconds with OutQuad ease
-            Tween.Custom(0f, 1f, 0.4f, onValueChange: val =>
-                {
-                    img.color = new Color(0, 0, 0, val);
-                }, ease: Ease.OutQuad, useUnscaledTime: true)
-                .OnComplete(() =>
-                {
-                    // Actually switch the scene once it's completely black
-                    SceneManager.LoadScene(nextScene);
+        public static Tween FadeToBlack(UnityEngine.UI.Image fader) =>
+            Tween.Custom(0f, 1f, FadeDuration, val => fader.color = new Color(0, 0, 0, val), ease: FadeEase, useUnscaledTime: true);
 
-                    // Fade back out from black to transparent over 0.6 seconds with OutQuad ease
-                    Tween.Custom(1f, 0f, 0.6f, onValueChange: val =>
-                        {
-                            if (img) img.color = new Color(0, 0, 0, val);
-                        }, startDelay: 0.15f, ease: Ease.OutQuad, useUnscaledTime: true)
-                        .OnComplete(() =>
-                        {
-                            // Clean up the fader when done
-                            Object.Destroy(go);
-                        });
-                });
+        /// <summary>Fades the overlay back to transparent, then destroys it.</summary>
+        public static async Awaitable FadeFromBlack(UnityEngine.UI.Image fader)
+        {
+            // A new scene's first frames can take hundreds of ms (load, Awake/Start, level map build).
+            // Unscaled tweens count that time, so a fade started now would be mostly over before it is
+            // ever drawn. Stay on black until 3 normal frames in a row (or 1.5 s), then fade.
+            // Several frames, not one: SceneManager.LoadScene loads a frame late, so the frame right
+            // after the call is still fast and the slow load frame only comes after it.
+            float waitStart = Time.realtimeSinceStartup;
+            int calmFrames = 0;
+            while (calmFrames < 3 && Time.realtimeSinceStartup - waitStart < 1.5f)
+            {
+                await Awaitable.NextFrameAsync();
+                calmFrames = Time.unscaledDeltaTime <= 0.1f ? calmFrames + 1 : 0;
+            }
+
+            await Tween.Custom(1f, 0f, FadeDuration, val => { if (fader) fader.color = new Color(0, 0, 0, val); },
+                startDelay: HoldOnBlack, ease: FadeEase, useUnscaledTime: true);
+            if (fader) Object.Destroy(fader.gameObject);
         }
     }
 }

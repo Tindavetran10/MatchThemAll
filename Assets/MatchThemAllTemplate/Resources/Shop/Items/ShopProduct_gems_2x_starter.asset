@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: gems_2x_starter
   displayName: "2\xD7 Gem Pack"
-  icon: {fileID: 21300000, guid: 49ce9a232e4fe4f38a6cd83bad8d7072, type: 3}
+  icon: {fileID: 21300000, guid: 3ac70b233fe8d294491394e211b65986, type: 3}
   tabId: offers
   priceCurrency: 1
   priceAmount: 0

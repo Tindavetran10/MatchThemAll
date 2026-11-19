@@ -60,7 +60,7 @@ namespace MatchThemAll.Scripts.Editor
 
         private void OnEnable()
         {
-            wantsMouseMove = true; // hover colours update instantly
+            wantsMouseMove = true; // hover colors update instantly
             LoadDatabase();
         }
 
@@ -245,6 +245,7 @@ namespace MatchThemAll.Scripts.Editor
             if (GUILayout.Button(new GUIContent("+", "Add tab"), GUILayout.Width(26), GUILayout.Height(28)))
             {
                 _addingTab = !_addingTab;
+                GUI.FocusControl(null); // the tab id field comes and goes; a focused field would hand its text to the next control
                 GUIUtility.ExitGUI();
             }
             GUI.color = Color.white;
@@ -272,20 +273,25 @@ namespace MatchThemAll.Scripts.Editor
 
             GUILayout.FlexibleSpace();
 
+            // The Save button is always drawn (disabled when clean): adding a control mid-drag shifts the
+            // control IDs of everything after it, which made sliders drop the drag on their first change.
             if (_isDirty)
             {
                 GUI.color = AccentOrange;
                 GUILayout.Label("● Unsaved Changes", EditorStyles.boldLabel, GUILayout.Height(38));
-                GUI.color = AccentGreen;
+            }
+            GUI.color = AccentGreen;
+            using (new EditorGUI.DisabledScope(!_isDirty))
+            {
                 if (GUILayout.Button("💾 Save", GUILayout.Height(28), GUILayout.Width(80)))
                 {
                     SaveAll();
                     _isDirty = false;
                     GUIUtility.ExitGUI();
                 }
-                GUI.color = Color.white;
-                GUILayout.Space(8);
             }
+            GUI.color = Color.white;
+            GUILayout.Space(8);
 
             GUI.color = new Color(0.7f, 0.7f, 0.7f);
             if (GUILayout.Button("↻ Reload", GUILayout.Height(28), GUILayout.Width(80)))
@@ -311,12 +317,14 @@ namespace MatchThemAll.Scripts.Editor
                 CreateTab(_newTabId.Trim(), _newTabId.Trim());
                 _newTabId = "";
                 _addingTab = false;
+                GUI.FocusControl(null);
                 GUIUtility.ExitGUI();
             }
             GUI.color = AccentRed;
             if (GUILayout.Button("✕", GUILayout.Width(26), GUILayout.Height(22)))
             {
                 _addingTab = false;
+                GUI.FocusControl(null);
                 GUIUtility.ExitGUI();
             }
             GUI.color = Color.white;
@@ -421,7 +429,7 @@ namespace MatchThemAll.Scripts.Editor
             }
             if (pendingDelete && EditorUtility.DisplayDialog("Remove Product", $"Remove '{pendingDelete.DisplayName}' from the shop?", "Remove", "Cancel"))
             {
-                _db.products.Remove(pendingDelete);
+                _db.products?.Remove(pendingDelete);
                 if (_selectedProduct == pendingDelete) { _selectedProduct = null; _productSO = null; }
                 SaveAll();
                 GUIUtility.ExitGUI();
@@ -516,7 +524,13 @@ namespace MatchThemAll.Scripts.Editor
             EditorGUILayout.PropertyField(_productSO.FindProperty("bestValue"));
             EditorGUILayout.PropertyField(_productSO.FindProperty("mostPopular"));
             EditorGUILayout.PropertyField(_productSO.FindProperty("isOneTime"));
-            EditorGUILayout.PropertyField(_productSO.FindProperty("description"));
+            // Drawn by hand: the [TextArea] property drawer also painted its "Description" label at the
+            // window's top-left, over the dock tab bar.
+            var description = _productSO.FindProperty("description");
+            EditorGUILayout.LabelField("Description");
+            EditorGUI.BeginChangeCheck();
+            string text = EditorGUILayout.TextArea(description.stringValue, EditorStyles.textArea, GUILayout.MinHeight(54));
+            if (EditorGUI.EndChangeCheck()) description.stringValue = text;
             EndSection();
 
             GUILayout.EndScrollView();

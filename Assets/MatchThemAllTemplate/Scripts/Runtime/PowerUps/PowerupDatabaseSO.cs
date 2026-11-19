@@ -20,13 +20,10 @@ namespace MatchThemAll.Scripts.Power_Ups
 
             PowerupDataSO match = null;
             int hits = 0;
-            foreach (var p in powerups)
+            foreach (var p in powerups.Where(p => p && p.id == id))
             {
-                if (p && p.id == id)
-                {
-                    if (match == null) match = p;
-                    hits++;
-                }
+                if (match == null) match = p;
+                hits++;
             }
             if (hits > 1)
                 Debug.LogWarning($"[PowerupDatabaseSO] Duplicate powerup id '{id}' found {hits} times — using first match.");

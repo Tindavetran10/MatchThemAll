@@ -1,0 +1,25 @@
+{
+    "name": "MatchThemAll.Monetization.LevelPlay",
+    "rootNamespace": "MatchThemAll.Scripts.Monetization",
+    "references": [
+        "MatchThemAll.Monetization",
+        "Unity.LevelPlay"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "MTA_LEVELPLAY"
+    ],
+    "versionDefines": [
+        {
+            "name": "com.unity.services.levelplay",
+            "expression": "9.5.0",
+            "define": "MTA_LEVELPLAY"
+        }
+    ],
+    "noEngineReferences": false
+}

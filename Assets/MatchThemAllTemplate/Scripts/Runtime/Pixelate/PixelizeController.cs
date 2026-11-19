@@ -1,20 +1,17 @@
-using MatchThemAll.Scripts;
 using UnityEngine;
 
 namespace MatchThemAll.Scripts.Pixelate
 {
     /// <summary>
-    /// Activates/deactivates the pixelate renderer feature based on game state.
-    /// Attach this to any persistent GameObject (e.g., GameManager or a dedicated FX object).
+    /// Optional: add to any scene object to pixelate only while the game is paused.
+    /// Without it, <see cref="PixelizeFeature.IsActive"/> keeps its default (always on).
     /// </summary>
     public class PixelizeController : MonoBehaviour
     {
-        private void Awake() => EventBus.Subscribe<GameStateChangedEvent>(OnGameStateChanged);
-        private void OnDestroy() => EventBus.Unsubscribe<GameStateChangedEvent>(OnGameStateChanged);
+        private void Awake() => EventBus.Subscribe<GameStateChangedEvent>(OnStateChanged);
+        private void OnDestroy() => EventBus.Unsubscribe<GameStateChangedEvent>(OnStateChanged);
 
-        private void OnGameStateChanged(GameStateChangedEvent evt)
-        {
+        private static void OnStateChanged(GameStateChangedEvent evt) =>
             PixelizeFeature.IsActive = evt.NewState == EGameState.PAUSED;
-        }
     }
 }

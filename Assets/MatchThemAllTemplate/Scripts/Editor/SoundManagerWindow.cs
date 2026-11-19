@@ -1,11 +1,14 @@
 #if UNITY_EDITOR
+using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Audio;
+using Random = UnityEngine.Random;
 
 namespace MatchThemAll.Scripts.Editor
 {
@@ -63,7 +66,7 @@ namespace MatchThemAll.Scripts.Editor
         {
             StopPreview();
             _stylesInitialized = false;
-            foreach (var t in _ownedTextures) if (t) DestroyImmediate(t);
+            foreach (var t in _ownedTextures.Where(t => t)) DestroyImmediate(t);
             _ownedTextures.Clear();
         }
 
@@ -113,7 +116,7 @@ namespace MatchThemAll.Scripts.Editor
         private bool SyncEntries()
         {
             bool added = false;
-            foreach (SoundEvent e in System.Enum.GetValues(typeof(SoundEvent)))
+            foreach (SoundEvent e in Enum.GetValues(typeof(SoundEvent)))
             {
                 if (e == SoundEvent.None || IndexOf(e) >= 0) continue;
                 var entries = _so.FindProperty("entries");
@@ -181,12 +184,8 @@ namespace MatchThemAll.Scripts.Editor
             SoundEvent.Merge => "Three matching items merge.",
             SoundEvent.Combo => "A merge chains into a combo (x2 and up).",
             SoundEvent.GoalComplete => "A level goal is fully collected.",
-            SoundEvent.PowerupVacuum => "Vacuum power-up activates.",
-            SoundEvent.PowerupSpring => "Spring power-up activates.",
-            SoundEvent.PowerupFan => "Fan power-up activates.",
-            SoundEvent.PowerupFreeze => "Freeze power-up activates.",
             SoundEvent.StarPop => "Each star popping in on the Level Complete panel.",
-            SoundEvent.CoinReward => "Coins awarded after a win.",
+            SoundEvent.CoinReward => "Each coin or gem landing on its counter (win, daily reward, shop).",
             SoundEvent.LevelComplete => "The level is won.",
             SoundEvent.GameOver => "The level is lost.",
             SoundEvent.OutOfTime => "The timer runs out (Continue panel).",
@@ -265,20 +264,25 @@ namespace MatchThemAll.Scripts.Editor
                 GUILayout.Space(8);
             }
 
+            // The Save button is always drawn (disabled when clean): adding a control mid-drag shifts the
+            // control IDs of everything after it, which made the volume slider drop the drag on its first change.
             if (_isDirty)
             {
                 GUI.color = AccentOrange;
                 GUILayout.Label("● Unsaved Changes", EditorStyles.boldLabel, GUILayout.Height(38));
-                GUI.color = AccentGreen;
+            }
+            GUI.color = AccentGreen;
+            using (new EditorGUI.DisabledScope(!_isDirty))
+            {
                 if (GUILayout.Button("💾 Save", GUILayout.Height(28), GUILayout.Width(80)))
                 {
                     AssetDatabase.SaveAssets();
                     _isDirty = false;
                     GUIUtility.ExitGUI();
                 }
-                GUI.color = Color.white;
-                GUILayout.Space(8);
             }
+            GUI.color = Color.white;
+            GUILayout.Space(8);
 
             GUI.color = new Color(0.7f, 0.7f, 0.7f);
             if (GUILayout.Button("↻ Reload", GUILayout.Height(28), GUILayout.Width(80))) { Load(); GUIUtility.ExitGUI(); }
@@ -290,7 +294,7 @@ namespace MatchThemAll.Scripts.Editor
         private int CountMissing()
         {
             int n = 0;
-            foreach (SoundEvent e in System.Enum.GetValues(typeof(SoundEvent)))
+            foreach (SoundEvent e in Enum.GetValues(typeof(SoundEvent)))
             {
                 var en = Entry(e);
                 if (e == SoundEvent.None || en == null) continue;
@@ -311,7 +315,7 @@ namespace MatchThemAll.Scripts.Editor
 
             string lastCategory = null;
             SoundEvent pick = SoundEvent.None;
-            foreach (SoundEvent e in System.Enum.GetValues(typeof(SoundEvent)))
+            foreach (SoundEvent e in Enum.GetValues(typeof(SoundEvent)))
             {
                 if (e == SoundEvent.None) continue;
                 var en = Entry(e);
@@ -342,6 +346,8 @@ namespace MatchThemAll.Scripts.Editor
                 GUI.enabled = count > 0;
                 if (GUILayout.Button(new GUIContent("▶", "Preview"), GUILayout.Width(26), GUILayout.Height(44)))
                     Preview(en, e);
+                if (GUILayout.Button(new GUIContent("■", "Stop preview"), GUILayout.Width(26), GUILayout.Height(44)))
+                    StopPreview();
                 GUI.enabled = true;
                 GUILayout.Space(8);
                 GUILayout.EndHorizontal();
@@ -359,7 +365,7 @@ namespace MatchThemAll.Scripts.Editor
             GUILayout.FlexibleSpace();
             EditorGUI.DrawRect(GUILayoutUtility.GetRect(0, 1), DividerColor);
             GUI.color = TextMuted;
-            GUILayout.Label($"  {System.Enum.GetValues(typeof(SoundEvent)).Length - 1} sound events", EditorStyles.miniLabel, GUILayout.Height(22));
+            GUILayout.Label($"  {Enum.GetValues(typeof(SoundEvent)).Length - 1} sound events", EditorStyles.miniLabel, GUILayout.Height(22));
             GUI.color = Color.white;
         }
 
@@ -442,6 +448,7 @@ namespace MatchThemAll.Scripts.Editor
                 var c = clips.GetArrayElementAtIndex(i).objectReferenceValue as AudioClip;
                 GUI.enabled = c;
                 if (GUILayout.Button(new GUIContent("▶", "Preview this clip"), GUILayout.Width(26))) PlayClip(c, Category(_selected) == "MUSIC");
+                if (GUILayout.Button(new GUIContent("■", "Stop preview"), GUILayout.Width(26))) StopPreview();
                 GUI.enabled = true;
                 GUI.color = AccentRed;
                 if (GUILayout.Button("✕", GUILayout.Width(26))) remove = i;
@@ -525,7 +532,7 @@ namespace MatchThemAll.Scripts.Editor
         //  Preview (UnityEditor.AudioUtil is internal, hence reflection)
         // ═════════════════════════════════════════════════════════════════════
 
-        private static readonly System.Type AudioUtil = typeof(AudioImporter).Assembly.GetType("UnityEditor.AudioUtil");
+        private static readonly Type AudioUtil = typeof(AudioImporter).Assembly.GetType("UnityEditor.AudioUtil");
 
         private static void Preview(SerializedProperty en, SoundEvent e)
         {
@@ -551,7 +558,7 @@ namespace MatchThemAll.Scripts.Editor
         // ═════════════════════════════════════════════════════════════════════
 
         private const string Tpl = "Assets/MatchThemAllTemplate/Audio/Audio Clip/";
-        private const string Gui = "Assets/GUIPackCartoon/Demo/Sounds/";
+        private const string Music = "Assets/MatchThemAllTemplate/Audio/Music/";
 
         /// <summary>Creates Resources/Sound/SoundLibrary.asset (pre-filled from the bundled clips) and the SoundManager prefab.</summary>
         public static void CreateDefaultLibrary()
@@ -574,27 +581,23 @@ namespace MatchThemAll.Scripts.Editor
             // event → (clip, volume, pitchMin, pitchMax)
             var defaults = new Dictionary<SoundEvent, (string clip, float vol, float p0, float p1)>
             {
-                [SoundEvent.ButtonClick] = (Gui + "Button.wav", 0.8f, 0.95f, 1.05f),
-                [SoundEvent.ButtonClose] = (Gui + "Close.wav", 0.8f, 1f, 1f),
-                [SoundEvent.Error] = (Gui + "Button - Low.wav", 0.8f, 1f, 1f),
-                [SoundEvent.PurchaseSuccess] = (Gui + "Coins.wav", 1f, 1f, 1f),
-                [SoundEvent.RewardClaim] = (Gui + "Magical.wav", 1f, 1f, 1f),
-                [SoundEvent.ItemSelect] = (Tpl + "Item Selected.wav", 0.7f, 0.95f, 1.1f),
-                [SoundEvent.ItemPlace] = (Tpl + "Item Placed.wav", 0.8f, 0.95f, 1.05f),
+                [SoundEvent.ButtonClick] = (Tpl + "UI Click.wav", 0.8f, 0.95f, 1.05f),
+                [SoundEvent.ButtonClose] = (Tpl + "UI Close.wav", 0.8f, 1f, 1f),
+                [SoundEvent.Error] = (Tpl + "UI Error.wav", 0.8f, 1f, 1f),
+                [SoundEvent.PurchaseSuccess] = (Tpl + "UI Purchase.wav", 1f, 1f, 1f),
+                [SoundEvent.RewardClaim] = (Tpl + "UI Reward.wav", 1f, 1f, 1f),
+                [SoundEvent.ItemSelect] = (Tpl + "Item Select.wav", 0.7f, 0.95f, 1.1f),
+                [SoundEvent.ItemPlace] = (Tpl + "Item Place.wav", 0.8f, 0.95f, 1.05f),
                 [SoundEvent.Merge] = (Tpl + "Merge.wav", 1f, 1f, 1f),
-                [SoundEvent.Combo] = (Gui + "Magical.wav", 0.8f, 1.15f, 1.35f),
-                [SoundEvent.GoalComplete] = (Tpl + "Item Complete.wav", 1f, 1f, 1f),
-                [SoundEvent.PowerupVacuum] = (Gui + "Magical.wav", 0.9f, 0.9f, 0.9f),
-                [SoundEvent.PowerupSpring] = (Gui + "Button - High.wav", 1f, 1.1f, 1.1f),
-                [SoundEvent.PowerupFan] = (Gui + "Close.wav", 1f, 0.7f, 0.7f),
-                [SoundEvent.PowerupFreeze] = (Gui + "Magical.wav", 1f, 0.75f, 0.75f),
-                [SoundEvent.StarPop] = (Gui + "Button - High.wav", 0.9f, 1.1f, 1.4f),
-                [SoundEvent.CoinReward] = (Gui + "Coins.wav", 1f, 1f, 1f),
-                [SoundEvent.LevelComplete] = (Gui + "Win.wav", 1f, 1f, 1f),
-                [SoundEvent.GameOver] = (Gui + "Lose - Thunder.wav", 1f, 1f, 1f),
-                [SoundEvent.OutOfTime] = (Gui + "Button - Low.wav", 1f, 0.8f, 0.8f),
-                [SoundEvent.MusicMenu] = (Gui + "Background Music.wav", 0.5f, 1f, 1f),
-                [SoundEvent.MusicGame] = (Gui + "Background Music.wav", 0.5f, 1f, 1f),
+                [SoundEvent.Combo] = (Tpl + "Combo.wav", 0.8f, 1.15f, 1.35f),
+                [SoundEvent.GoalComplete] = (Tpl + "Goal Complete.wav", 1f, 1f, 1f),
+                [SoundEvent.StarPop] = (Tpl + "Star Pop.wav", 0.9f, 1.1f, 1.4f),
+                [SoundEvent.CoinReward] = (Tpl + "Coin.wav", 1f, 1f, 1f),
+                [SoundEvent.LevelComplete] = (Tpl + "Level Complete.wav", 1f, 1f, 1f),
+                [SoundEvent.GameOver] = (Tpl + "Game Over.wav", 1f, 1f, 1f),
+                [SoundEvent.OutOfTime] = (Tpl + "Out Of Time.wav", 1f, 0.8f, 0.8f),
+                [SoundEvent.MusicMenu] = (Music + "Music Menu - Flowerbed Fields.ogg", 0.5f, 1f, 1f),
+                [SoundEvent.MusicGame] = (Music + "Music Game - Loop Town.ogg", 0.5f, 1f, 1f),
             };
 
             lib.entries ??= new List<SoundLibrarySO.Entry>();
@@ -605,7 +608,7 @@ namespace MatchThemAll.Scripts.Editor
                 lib.entries.Add(new SoundLibrarySO.Entry
                 {
                     id = kv.Key,
-                    clips = clip ? new[] { clip } : new AudioClip[0],
+                    clips = clip ? new[] { clip } : Array.Empty<AudioClip>(),
                     volume = kv.Value.vol,
                     pitchMin = kv.Value.p0,
                     pitchMax = kv.Value.p1,

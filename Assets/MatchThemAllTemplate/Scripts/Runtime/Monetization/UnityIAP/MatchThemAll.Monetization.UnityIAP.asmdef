@@ -1,0 +1,26 @@
+{
+    "name": "MatchThemAll.Monetization.UnityIAP",
+    "rootNamespace": "MatchThemAll.Scripts.Monetization",
+    "references": [
+        "MatchThemAll.Monetization",
+        "Unity.Purchasing",
+        "Unity.Purchasing.Stores"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "MTA_UNITY_IAP"
+    ],
+    "versionDefines": [
+        {
+            "name": "com.unity.purchasing",
+            "expression": "5.0.0",
+            "define": "MTA_UNITY_IAP"
+        }
+    ],
+    "noEngineReferences": false
+}

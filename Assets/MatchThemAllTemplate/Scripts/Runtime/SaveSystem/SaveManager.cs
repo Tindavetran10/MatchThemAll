@@ -149,6 +149,36 @@ namespace MatchThemAll.Scripts.SaveSystem
             return true;
         }
 
+        // ── Monetization: store purchases + privacy ─────────────────────────
+
+        /// <summary>True if this store transaction was already granted (the store may deliver one twice).</summary>
+        public static bool IsIapTransactionProcessed(string transactionId)
+            => !string.IsNullOrEmpty(transactionId)
+               && Data.processedIapTransactions != null
+               && Data.processedIapTransactions.Contains(transactionId);
+
+        /// <summary>Records a granted store transaction (written to disk by the caller's <see cref="TryFlush"/>).</summary>
+        public static void MarkIapTransactionProcessed(string transactionId)
+        {
+            if (string.IsNullOrEmpty(transactionId) || IsIapTransactionProcessed(transactionId)) return;
+            Data.processedIapTransactions ??= new List<string>();
+            Data.processedIapTransactions.Add(transactionId);
+            MarkDirty();
+        }
+
+        /// <summary>How many levels the player has completed. Works in every scene (no level list needed).</summary>
+        public static int GetCompletedLevelCount() => Data.levelProgress?.Count ?? 0;
+
+        /// <summary>GDPR answer: null = not asked yet.</summary>
+        public static bool? GetGdprConsent() => Data.gdprConsent < 0 ? null : Data.gdprConsent == 1;
+
+        public static void SetGdprConsent(bool accepted)
+        {
+            Data.gdprConsent = accepted ? 1 : 0;
+            MarkDirty();
+            Flush();
+        }
+
         // ── Entitlements (permanent unlocks) ────────────────────────────────
 
         /// <summary>True if the player owns the given entitlement key (e.g. EntitlementIds.RemoveAds).</summary>
@@ -168,22 +198,27 @@ namespace MatchThemAll.Scripts.SaveSystem
             return true;
         }
 
-        /// <summary>Seeds each database entry's defaultAmount on first launch.</summary>
+        /// <summary>
+        /// Gives each power-up its defaultAmount the first time this save sees it — on first launch, and for
+        /// power-ups added later (e.g. in an update), which would otherwise start at 0 for existing players.
+        /// "Seen" = the save has an entry for the id; the entry is created even for a 0 default.
+        /// </summary>
         public static void InitializePowerups(PowerupDatabaseSO database)
         {
-            if (Data.hasInitializedPowerups) return;
+            if (!database) return;
+            bool changed = !Data.hasInitializedPowerups;
             Data.hasInitializedPowerups = true;
 
-            if (database)
+            foreach (var so in database.Ordered)
             {
-                foreach (var so in database.Ordered)
-                {
-                    if (so && so.defaultAmount > 0)
-                        Data.SetPowerupCount(so.id, so.defaultAmount);
-                }
+                if (!so || string.IsNullOrEmpty(so.id) || Data.HasPowerupEntry(so.id)) continue;
+                Data.SetPowerupCount(so.id, so.defaultAmount);
+                changed = true;
             }
+
+            if (!changed) return;
             MarkDirty();
-            Flush(); // First launch — write immediately
+            Flush(); // new starting charges — write immediately
         }
 
         // ── Currency ───────────────────────────────────────────────────────
@@ -207,6 +242,22 @@ namespace MatchThemAll.Scripts.SaveSystem
 
         /// <summary>ID of the furthest unlocked level. Empty if no progress.</summary>
         public static string GetFurthestLevelId() => Data.furthestLevelId ?? "";
+
+        /// <summary>
+        /// Sets the furthest unlocked level (empty = only the first level) and forgets the stars of that level
+        /// and every later one, so they read as not yet completed. Earlier levels keep their stars.
+        /// Power-up locks follow the furthest level, so the tray redraws through OnPowerupsChanged.
+        /// For dev tools (Player Data window).
+        /// </summary>
+        public static void SetFurthestLevel(string id, IReadOnlyList<string> orderedIds)
+        {
+            Data.furthestLevelId = id ?? "";
+            int from = string.IsNullOrEmpty(id) ? 0 : IndexOfId(orderedIds, id);
+            if (orderedIds != null && from >= 0 && Data.levelProgress != null)
+                Data.levelProgress.RemoveAll(e => IndexOfId(orderedIds, e.id) >= from);
+            MarkDirty();
+            OnPowerupsChanged?.Invoke();
+        }
 
         /// <summary>Best stars for a level id, or 0.</summary>
         public static int GetLevelStars(string id) => Data.GetLevelStars(id);
@@ -236,7 +287,7 @@ namespace MatchThemAll.Scripts.SaveSystem
                 int idx = IndexOfId(orderedIds, id);
                 if (idx >= 0 && idx + 1 < orderedIds.Count)
                     Data.furthestLevelId = orderedIds[idx + 1];
-                // last level cleared → furthest stays (campaign complete)
+                // last level cleared → the furthest stays (campaign complete)
             }
             MarkDirty();
             Flush(); // Level complete = natural save point
@@ -318,6 +369,17 @@ namespace MatchThemAll.Scripts.SaveSystem
 #if UNITY_EDITOR
             Debug.Log($"[SaveManager] Flushed to: {SavePath}");
 #endif
+        }
+
+        /// <summary>Like <see cref="Flush"/>, but reports whether the data really reached the disk.</summary>
+        public static bool TryFlush()
+        {
+            try { Flush(); return true; }
+            catch (Exception e)
+            {
+                Debug.LogError($"[SaveManager] Save failed: {e.Message}");
+                return false;
+            }
         }
 
         /// <summary>

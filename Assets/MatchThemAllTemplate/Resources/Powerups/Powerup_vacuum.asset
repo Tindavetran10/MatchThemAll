@@ -15,19 +15,28 @@ MonoBehaviour:
   id: vacuum
   displayName: Vacuum
   icon: {fileID: 0}
-  order: 0
-  unlockLevel: 0
-  defaultAmount: 3
+  order: 3
+  unlockLevel: 4
+  defaultAmount: 5
   buyCurrency: 0
   buyCost: 50
-  uiPrefab: {fileID: 2786794367453939414, guid: 73fc18920915a614e9e350ade3a95b05, type: 3}
+  uiPrefab: {fileID: 9017962903199720510, guid: 9eda861a322350640b0d8a2771c3ce10, type: 3}
+  trayModel: {fileID: 0}
+  modelOffset: {x: 0, y: 0, z: 0}
+  modelRotation: {x: 0, y: 0, z: 0}
   effect:
     rid: 1442196544509706359
-  activateVfx: {fileID: 8917913089712960546, guid: f5c9e3a23ae84134c81baa5d6be41d88, type: 3}
+  activateSound: {fileID: 8300000, guid: c6eed977cf00d3845926b335f86e27d1, type: 3}
+  activateVolume: 0.5
+  activatePitch: 0.9
+  activateVfx: {fileID: 7418590608172028418, guid: 29144f6632d69cc4d83af306a7793b0e, type: 3}
   endVfx: {fileID: 4090807140480747690, guid: 18d2ca9410834dd4b9aaa1900747d6d3, type: 3}
   references:
     version: 2
     RefIds:
     - rid: 1442196544509706359
       type: {class: VacuumEffect, ns: MatchThemAll.Scripts.Power_Ups, asm: Assembly-CSharp}
-      data: 
+      data:
+        spiralTime: 0.9
+        spiralTurns: 2.5
+        spiralRadius: 0.8

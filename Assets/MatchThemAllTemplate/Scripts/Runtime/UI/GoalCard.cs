@@ -5,65 +5,60 @@ using PrimeTween;
 
 namespace MatchThemAll.Scripts.UI
 {
+    /// <summary>
+    /// One goal on the HUD: item icon + remaining count. On completion the "Complete" animation flips
+    /// the card; while it turns, the back face is shown whenever the card faces away from the camera.
+    /// </summary>
     public class GoalCard : MonoBehaviour
     {
-        [Header(" Elements ")]
+        [Header("Front")]
         [SerializeField] private Image iconImage;
         [SerializeField] private TextMeshProUGUI amountText;
         [SerializeField] private GameObject checkMark;
+
+        [Header("Flip")]
         [SerializeField] private GameObject backFace;
         [SerializeField] private Animator animator;
 
-        // Guard: only run the dot-product check while the flip animation is active
-        private bool _isAnimating;
+        private bool _flipping;
 
-        private void Start() => animator.enabled = false;
+        private void Start() => animator.enabled = false; // the Animator only runs for the flip
 
-        private void Update()
+        private void LateUpdate()
         {
-            if (!_isAnimating) return;
-            backFace.SetActive(Vector3.Dot(Vector3.forward, transform.forward) < 0);
+            if (_flipping) backFace.SetActive(transform.forward.z < 0f);
         }
 
-        public void Configure(int initialAmount, Sprite icon)
+        public void Configure(int amount, Sprite icon)
         {
-            amountText.text = initialAmount.ToString();
             iconImage.sprite = icon;
+            amountText.text = amount.ToString();
         }
 
         public void UpdateAmount(int amount)
         {
             amountText.text = amount.ToString();
-            Bump();
-        }
-
-        private void Bump()
-        {
-            Tween.StopAll(gameObject.transform);
+            Tween.StopAll(transform);
             transform.localScale = Vector3.one;
-            Tween.Scale(gameObject.transform,
-                Vector3.one * 1.1f,
-                0.25f,
-                cycles: 2,
-                cycleMode: CycleMode.Yoyo);
+            Tween.PunchScale(transform, Vector3.one * 0.15f, 0.35f);
         }
 
         public void Complete()
         {
-            _isAnimating = true;
-            animator.enabled = true;
+            amountText.text = string.Empty;
             checkMark.SetActive(true);
-            amountText.text = "";
+            _flipping = true;
+            animator.enabled = true;
             animator.Play("Complete");
         }
 
         public void Uncomplete()
         {
-            _isAnimating = false;
+            _flipping = false;
             animator.enabled = false;
+            transform.localRotation = Quaternion.identity;
             checkMark.SetActive(false);
             backFace.SetActive(true);
-            transform.localRotation = Quaternion.identity;
         }
     }
 }

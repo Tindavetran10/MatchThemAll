@@ -6,46 +6,55 @@ using PrimeTween;
 
 namespace MatchThemAll.Scripts
 {
+    /// <summary>
+    /// Owns the tray. The tray is treated as one packed row: every change (an item arrives, a merge
+    /// removes three, a power-up takes one back) rebuilds the row in memory and then reconciles the
+    /// slots with it, tweening only the items whose slot changed.
+    /// </summary>
     public class ItemSpotManager : MonoBehaviour
     {
         public static ItemSpotManager Instance { get; private set; }
-        
-        [Header("Elements")]
-        [SerializeField] private Transform itemSpotParent;
-        private ItemSpot[] _spots;
-        private int _activeSpotCount = 7;
 
-        [Header("Settings")]
+        /// <summary>Raised when the player sends an item from the board to the tray.</summary>
+        public static Action<Item> ItemPickedUp;
+
+        [Header("Tray")]
+        [SerializeField] private Transform itemSpotParent;
         [SerializeField] private Vector3 itemLocalPositionOnSpot;
         [SerializeField] private Vector3 itemLocalScaleOnSpot;
 
-        [Header("Animation Settings")]
+        [Header("Slide Tween")]
         [SerializeField] private float animationDuration = 0.15f;
         [SerializeField] private Ease animationEase = Ease.InOutCubic;
 
-        [Header("Actions")]
-        public static Action<Item> ItemPickedUp;
+        private ItemSpot[] _spots;
+        private int _activeSpotCount = 7;
+
+        // Reused scratch buffer for row rebuilds (no per-tap allocation).
+        private readonly List<Item> _row = new();
+        // Items sent from the board that have not finished their first flight yet. Only these
+        // trigger a match check on arrival; items merely sliding along the tray do not.
+        private readonly HashSet<Item> _newcomers = new();
+
+        #region Lifecycle
 
         private void Awake()
         {
-            if (!Instance)
-                Instance = this;
-            else Destroy(gameObject);
-            
-            if (!gameObject.GetComponent<MatchSystem>()) 
-                gameObject.AddComponent<MatchSystem>();
-            
+            if (Instance && Instance != this) { Destroy(gameObject); return; }
+            Instance = this;
+
+            if (!TryGetComponent<MatchSystem>(out _)) gameObject.AddComponent<MatchSystem>();
+
+            _spots = itemSpotParent.GetComponentsInChildren<ItemSpot>(true);
+
             EventBus.Subscribe<ItemClickedEvent>(OnItemClickedEvent);
             EventBus.Subscribe<MergeStartedEvent>(OnMergeStarted);
             LevelManager.LevelSpawned += OnLevelSpawned;
-
-            StoreSpot();
         }
 
         private void Start()
         {
-            if (PowerupManager.Instance)
-                PowerupManager.Instance.OnItemBackToGame += OnItemBackToGame;
+            if (PowerupManager.Instance) PowerupManager.Instance.OnItemBackToGame += OnItemBackToGame;
         }
 
         private void OnDestroy()
@@ -56,244 +65,164 @@ namespace MatchThemAll.Scripts
             if (PowerupManager.Instance) PowerupManager.Instance.OnItemBackToGame -= OnItemBackToGame;
         }
 
-        private void OnItemBackToGame(Item releasedItem)
-        {
-            if (releasedItem.Spot) 
-                releasedItem.Spot.Clear();
-            MoveAllItemsToTheLeft();
-        }
+        #endregion
+
+        #region Event handlers
 
         private void OnLevelSpawned(Level level)
         {
-            _activeSpotCount = level.SpotCount;
-            if (_spots != null)
-            {
-                for (int i = 0; i < _spots.Length; i++)
-                {
-                    if (_spots[i])
-                        _spots[i].gameObject.SetActive(i < _activeSpotCount);
-                }
-                
-                if (itemSpotParent.TryGetComponent<ItemSpotLayout>(out var layout)) 
-                    layout.UpdateLayout();
-            }
-            ResetSpotsAndState();
-        }
+            _activeSpotCount = Mathf.Min(level.SpotCount, _spots.Length);
+            for (int i = 0; i < _spots.Length; i++)
+                _spots[i].gameObject.SetActive(i < _activeSpotCount);
 
-        private void ResetSpotsAndState()
-        {
-            if (_spots != null)
-            {
-                foreach (var spot in _spots)
-                {
-                    if (spot)
-                    {
-                        if (spot.Item)
-                        {
-                            Tween.StopAll(spot.Item.transform);
-                            ItemPoolManager.Instance.ReleaseItem(spot.Item);
-                        }
-                        spot.Clear();
-                    }
-                }
-            }
+            if (itemSpotParent.TryGetComponent<ItemSpotLayout>(out var layout)) layout.UpdateLayout();
+
+            EmptyTray();
         }
 
         private void OnItemClickedEvent(ItemClickedEvent evt)
         {
-            var item = evt.ClickedItem;
+            if (!GetFreeSpot()) return; // tray full: the tap is ignored
 
-            if (!IsFreeSpotAvailable())
-            {
-                Debug.Log("No free spots available!");
-                return;
-            }
-
-            ItemPickedUp?.Invoke(item);
-            HandleItemClick(item);
-        }
-
-        private void HandleItemClick(Item item)
-        {
-            if (HasItemOnBoard(item.ItemNameKey))
-            {
-                var idealSpot = GetIdealSpotFor(item);
-                TryMoveItemToIdealSpot(item, idealSpot);
-            }
-            else MoveItemToFirstFreeSpot(item);
-        }
-
-        private ItemSpot GetIdealSpotFor(Item item)
-        {
-            int maxIndex = -1;
-            for (int i = 0; i < _activeSpotCount; i++)
-            {
-                if (!_spots[i].IsEmpty() && _spots[i].Item.ItemNameKey == item.ItemNameKey)
-                    maxIndex = i;
-            }
-            int idealSpotIndex = Mathf.Clamp(maxIndex + 1, 0, _activeSpotCount - 1);
-            return _spots[idealSpotIndex];
-        }
-
-        private void TryMoveItemToIdealSpot(Item item, ItemSpot idealSpot)
-        {
-            if (!idealSpot.IsEmpty())
-            {
-                MoveAllItemsToTheRightFrom(idealSpot, item);
-                return;
-            }
-
-            MoveItemToSpot(item, idealSpot, () => HandleItemReachedSpot(item));
-        }
-
-        private void MoveItemToSpot(Item item, ItemSpot targetSpot, Action completeCallback)
-        {
-            item.IsMovingToSpot = true;
-            targetSpot.Populate(item);
-
-            // Stop any existing tween (like hint pulsing animations) to prevent conflicts
-            Tween.StopAll(item.transform);
-
-            Vector3 targetPosition = itemLocalPositionOnSpot;
-            if (item.UseCustomDockPositionOffset)
-                targetPosition += item.CustomDockPositionOffset;
-
-            Vector3 targetRotation = Vector3.zero;
-            if (item.UseCustomDockRotation)
-                targetRotation = item.CustomDockRotation;
-
-            Tween.LocalPosition(item.transform, targetPosition, animationDuration, animationEase);
-            Tween.Scale(item.transform, itemLocalScaleOnSpot, animationDuration, animationEase);
-            Tween.LocalRotation(item.transform, targetRotation, animationDuration, animationEase)
-                .OnComplete(completeCallback);
-
-            item.DisableShadow();
-            item.DisablePhysics();
-        }
-
-        private static void HandleItemReachedSpot(Item item, bool checkForMerge = true)
-        {
-            item.IsMovingToSpot = false;
-            item.Spot.BumpDown();
-
-            if (!checkForMerge) return;
-
-            EventBus.Publish(new ItemReachedSpotEvent(item));
+            ItemPickedUp?.Invoke(evt.ClickedItem);
+            AddToRow(evt.ClickedItem);
         }
 
         private void OnMergeStarted(MergeStartedEvent evt)
         {
+            // The merged items stay parented to their slots while MergeManager animates them;
+            // we only free the slots and close the gap.
             foreach (var item in evt.MergedItems)
-                item.Spot.Clear();
-
-            MoveAllItemsToTheLeft();
+            {
+                _newcomers.Remove(item);
+                if (item.Spot) item.Spot.Clear();
+            }
+            Repack();
         }
 
-        private void MoveAllItemsToTheLeft()
+        private void OnItemBackToGame(Item item)
         {
-            int firstEmptyIndex = -1;
+            _newcomers.Remove(item);
+            if (item.Spot) item.Spot.Clear();
+            Repack();
+        }
 
+        #endregion
+
+        #region Row logic
+
+        /// <summary>Inserts the item right after the last item of the same kind (or at the end) and repacks.</summary>
+        private void AddToRow(Item item)
+        {
+            ReadRow();
+
+            int insertAt = _row.Count;
+            for (int i = _row.Count - 1; i >= 0; i--)
+            {
+                if (_row[i].ItemNameKey != item.ItemNameKey) continue;
+                insertAt = i + 1;
+                break;
+            }
+
+            _row.Insert(insertAt, item);
+            _newcomers.Add(item);
+            ApplyRow();
+        }
+
+        private void Repack()
+        {
+            ReadRow();
+            ApplyRow();
+        }
+
+        /// <summary>Copies the current occupants, left to right, into <see cref="_row"/>.</summary>
+        private void ReadRow()
+        {
+            _row.Clear();
+            for (int i = 0; i < _activeSpotCount; i++)
+                if (_spots[i].Item) _row.Add(_spots[i].Item);
+        }
+
+        /// <summary>Makes slot I hold _row[i]; anything that changed slot (or is new) slides there.</summary>
+        private void ApplyRow()
+        {
             for (int i = 0; i < _activeSpotCount; i++)
             {
-                ItemSpot spot = _spots[i];
-                if (!spot.gameObject.activeInHierarchy) continue;
+                var target = _spots[i];
+                var wanted = i < _row.Count ? _row[i] : null;
+                if (target.Item == wanted) continue;
 
-                if (spot.IsEmpty())
-                {
-                    if (firstEmptyIndex == -1) firstEmptyIndex = i;
-                }
-                else if (firstEmptyIndex != -1)
-                {
-                    Item item = spot.Item;
-                    ItemSpot targetSpot = _spots[firstEmptyIndex];
-                    
-                    spot.Clear();
-                    MoveItemToSpot(item, targetSpot, () => HandleItemReachedSpot(item, false));
+                if (!wanted) { target.Clear(); continue; }
 
-                    firstEmptyIndex++;
-                }
+                var oldSpot = wanted.Spot;
+                target.Populate(wanted);
+                if (oldSpot && oldSpot.Item == wanted) oldSpot.Clear();
+                SlideIntoSpot(wanted);
             }
         }
 
-        private void MoveAllItemsToTheRightFrom(ItemSpot idealSpot, Item itemToPlace)
+        private void SlideIntoSpot(Item item)
         {
-            int spotIndex = idealSpot.transform.GetSiblingIndex();
-            
-            int emptySpotIndex = -1;
-            for (int i = spotIndex + 1; i < _activeSpotCount; i++)
-            {
-                if (_spots[i].IsEmpty())
+            item.IsMovingToSpot = true;
+            item.DisablePhysics();
+            item.DisableShadow();
+            Tween.StopAll(item.transform); // also cancels hint pulses and any earlier slide
+
+            var t = item.transform;
+            Vector3 fromPos = t.localPosition, fromScale = t.localScale;
+            Quaternion fromRot = t.localRotation;
+            Vector3 toPos = itemLocalPositionOnSpot + (item.UseCustomDockPositionOffset ? item.CustomDockPositionOffset : Vector3.zero);
+            Quaternion toRot = item.DockRotation;
+            Vector3 toScale = itemLocalScaleOnSpot;
+            toPos += item.DockPivotShift(toScale);
+
+            Tween.Custom(t, 0f, 1f, animationDuration, (tr, p) =>
                 {
-                    emptySpotIndex = i;
-                    break;
-                }
-            }
-            
-            if (emptySpotIndex == -1)
-            {
-                for (int i = 0; i < _activeSpotCount; i++)
-                {
-                    if (_spots[i].IsEmpty())
-                    {
-                        emptySpotIndex = i;
-                        break;
-                    }
-                }
-            }
-            
-            if (emptySpotIndex == -1)
-            {
-                Debug.LogError("No empty spot found at all!");
-                return;
-            }
-
-            if (emptySpotIndex > spotIndex)
-            {
-                for (int i = emptySpotIndex - 1; i >= spotIndex; i--)
-                {
-                    ItemSpot spot = _spots[i];
-                    if (!spot.gameObject.activeInHierarchy || spot.IsEmpty()) continue;
-
-                    Item item = spot.Item;
-                    spot.Clear();
-
-                    ItemSpot targetSpot = _spots[i + 1];
-                    MoveItemToSpot(item, targetSpot, () => HandleItemReachedSpot(item, false));
-                }
-            }
-            else
-            {
-                idealSpot = _spots[emptySpotIndex];
-            }
-
-            MoveItemToSpot(itemToPlace, idealSpot, () => HandleItemReachedSpot(itemToPlace));
+                    tr.localPosition = Vector3.LerpUnclamped(fromPos, toPos, p);
+                    tr.localRotation = Quaternion.SlerpUnclamped(fromRot, toRot, p);
+                    tr.localScale = Vector3.LerpUnclamped(fromScale, toScale, p);
+                }, animationEase)
+                .OnComplete(item, Arrived);
         }
 
-        private void MoveItemToFirstFreeSpot(Item item)
+        private void Arrived(Item item)
         {
-            var targetSpot = GetFreeSpot();
+            item.IsMovingToSpot = false;
+            if (item.Spot) item.Spot.BumpDown();
 
-            if (!targetSpot)
-            {
-                Debug.Log("Target spot not found — should not happen");
-                return;
-            }
-
-            MoveItemToSpot(item, targetSpot, () => HandleItemReachedSpot(item));
+            if (_newcomers.Remove(item))
+                EventBus.Publish(new ItemReachedSpotEvent(item));
+            else if (!AnyItemMoving())
+                // A pushed-aside item was the last to settle; a newcomer that landed before it
+                // skipped the checks because this one was still moving, so run them now.
+                MatchSystem.CheckSettledTray();
         }
 
-        // Helpers
+        private bool AnyItemMoving()
+        {
+            for (int i = 0; i < _activeSpotCount; i++)
+                if (_spots[i].Item && _spots[i].Item.IsMovingToSpot) return true;
+            return false;
+        }
+
+        private void EmptyTray()
+        {
+            _newcomers.Clear();
+            foreach (var spot in _spots)
+            {
+                var item = spot.Item;
+                spot.Clear();
+                if (!item) continue;
+                Tween.StopAll(item.transform);
+                ItemPoolManager.Instance.ReleaseItem(item);
+            }
+        }
+
+        #endregion
+
+        #region Queries
 
         private ItemSpot GetFreeSpot() => _spots.AsValueEnumerable().Take(_activeSpotCount).FirstOrDefault(t => t.IsEmpty());
-
-        private bool IsFreeSpotAvailable() => GetFreeSpot();
-
-        private void StoreSpot()
-        {
-            _spots = new ItemSpot[itemSpotParent.childCount];
-            for (int i = 0; i < itemSpotParent.childCount; i++)
-                _spots[i] = itemSpotParent.GetChild(i).GetComponent<ItemSpot>();
-        }
 
         public ItemSpot GetRandomOccupiedSpot()
         {
@@ -308,7 +237,7 @@ namespace MatchThemAll.Scripts
         {
             for (int i = 0; i < _activeSpotCount; i++)
             {
-                if (!_spots[i].IsEmpty() && _spots[i].Item.ItemNameKey == itemName) 
+                if (!_spots[i].IsEmpty() && _spots[i].Item.ItemNameKey == itemName)
                     return true;
             }
             return false;
@@ -401,7 +330,7 @@ namespace MatchThemAll.Scripts
                 var fallback = allItems.AsValueEnumerable()
                     .FirstOrDefault(i =>
                         i && i.gameObject.activeInHierarchy && !i.Spot && !i.IsMovingToSpot);
-                if (fallback) 
+                if (fallback)
                     targetType = fallback.ItemNameKey;
             }
 
@@ -429,5 +358,7 @@ namespace MatchThemAll.Scripts
 
             return new List<Item>();
         }
+
+        #endregion
     }
 }
