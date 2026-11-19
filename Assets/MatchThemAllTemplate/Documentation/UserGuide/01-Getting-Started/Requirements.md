@@ -5,6 +5,7 @@ Install these before you import the template.
 | What | Version | How to get it |
 |---|---|---|
 | Unity | 6000.0 LTS (Unity 6) | Unity Hub ▸ Installs ▸ Install Editor |
+| [Git](https://git-scm.com/downloads) | any recent | Install it first, then restart Unity (and the Unity Hub). Unity needs it to install the ZLinq packages below from a git URL. |
 | [PrimeTween](https://assetstore.unity.com/packages/tools/animation/primetween-high-performance-animations-and-sequences-252960) | 1.x | Free on the Asset Store. Steps below. |
 | [ZLinq](https://github.com/Cysharp/ZLinq) | latest | Two installs: NuGetForUnity, then ZLinq itself. Steps below. |
 | Universal Render Pipeline, Input System, Addressables, Unity UI | | Install them before you import the template. Steps below. TextMesh Pro comes with Unity UI. |
@@ -30,7 +31,7 @@ ZLinq comes in two parts, and the template needs both. If you only install the s
 
    `https://github.com/Cysharp/ZLinq.git?path=src/ZLinq.Unity/Assets/ZLinq.Unity`
 
-Unity fetches git packages with Git, so [Git](https://git-scm.com/downloads) must be installed on your computer. If you get an error about Git, that's why. ZLinq's own page is [github.com/Cysharp/ZLinq](https://github.com/Cysharp/ZLinq).
+If Unity shows an error about Git, it isn't installed yet, or Unity was open when you installed it: restart Unity. ZLinq's own page is [github.com/Cysharp/ZLinq](https://github.com/Cysharp/ZLinq).
 
 ### Install the Unity packages
 
@@ -48,7 +49,7 @@ Do this before you import the template. Its scripts need these packages to compi
 
 Import the template last (*Assets ▸ Import Package ▸ Custom Package*, or from My Assets). A package can't change your project settings, so without a little setup you'll see pink or missing text, no render pipeline, a layer error when a level starts, and no levels.
 
-Choose **Match Them All ▸ Set Up Project**. It does the six things below and shows a summary: ✔ for something it changed, • for something already in place, ✖ for something it couldn't do (the line says why). It only fills in what's missing, so running it again is safe. If it says **Restart Unity**, restart.
+Choose **Match Them All ▸ Set Up Project** (see [Set Up Project](Set-Up-Project.md) for details). It does the six things below and shows a summary: ✔ for something it changed, • for something already in place, ✖ for something it couldn't do (the line says why). It only fills in what's missing, so running it again is safe. If it says **Restart Unity**, restart.
 
 If you'd rather do it by hand, or a line shows ✖, here are the steps:
 
@@ -68,4 +69,4 @@ If you'd rather do it by hand, or a line shows ✖, here are the steps:
 > back to 6000.0 the build can fail.
 
 ---
-[↑ Getting Started](README.md) · Next: [First Run →](First-Run.md)
+[↑ Getting Started](README.md) · Next: [Set Up Project →](Set-Up-Project.md)
