@@ -186,7 +186,7 @@ namespace MatchThemAll.Scripts.UI
                                  Vector3.one,
                                  starPopDuration * 0.4f,
                                  Ease.InOutSine);
-                         });
+                         }, warnIfTargetDestroyed: false); // leaving the scene mid-pop (Next right after a win) is fine
             }
         }
 

@@ -49,8 +49,8 @@ namespace MatchThemAll.Scripts.UI
                         {
                             if (textMesh) textMesh.alpha = alpha;
                         }, startDelay: stayDuration)
-                        .OnComplete(() => _onCompleteCallback?.Invoke(this));
-                });
+                        .OnComplete(() => _onCompleteCallback?.Invoke(this), warnIfTargetDestroyed: false);
+                }, warnIfTargetDestroyed: false);
         }
 
         private void PrepareText(string text, Color color)
@@ -80,7 +80,7 @@ namespace MatchThemAll.Scripts.UI
                 {
                     if (textMesh) textMesh.alpha = alpha;
                 }, Ease.InQuad)
-                .OnComplete(this, t => t._onCompleteCallback?.Invoke(t));
+                .OnComplete(this, t => t._onCompleteCallback?.Invoke(t), warnIfTargetDestroyed: false); // scene left mid-fade is fine
         }
     }
 }
