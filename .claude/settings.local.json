@@ -6,7 +6,12 @@
       "mcp__unity-mcp__Unity_ReadConsole",
       "mcp__unity-mcp__Unity_ManageEditor",
       "mcp__unity-mcp__Unity_RunCommand",
-      "Bash(claude plugin *)"
+      "Bash(claude plugin *)",
+      "mcp__plugin_context-mode_context-mode__ctx_resume",
+      "Skill(update-config)",
+      "mcp__unity-mcp__Unity_ManageMenuItem",
+      "mcp__unity-mcp__Unity_GetConsoleLogs",
+      "Bash(dotnet build *)"
     ]
   }
 }
