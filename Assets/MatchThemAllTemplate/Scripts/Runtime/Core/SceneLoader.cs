@@ -95,7 +95,7 @@ namespace MatchThemAll.Scripts
         public static async Awaitable FadeFromBlack(UnityEngine.UI.Image fader)
         {
             // A new scene's first frames can take hundreds of ms (load, Awake/Start, level map build).
-            // Unscaled tweens count that time, so a fade started now would be mostly over before it is
+            // Unscaled tween count that time, so a fade started now would be mostly over before it is
             // ever drawn. Stay on black until 3 normal frames in a row (or 1.5 s), then fade.
             // Several frames, not one: SceneManager.LoadScene loads a frame late, so the frame right
             // after the call is still fast and the slow load frame only comes after it.
